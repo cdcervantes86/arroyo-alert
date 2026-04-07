@@ -1,0 +1,22 @@
+{
+  "name": "arroyo-alert",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "^14.2.0",
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0",
+    "leaflet": "^1.9.4",
+    "react-leaflet": "^4.2.1",
+    "@supabase/supabase-js": "^2.43.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "eslint-config-next": "^14.2.0"
+  }
+}

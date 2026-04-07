@@ -1,0 +1,59 @@
+@import "leaflet/dist/leaflet.css";
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg: #0c1220;
+  --bg-card: rgba(255, 255, 255, 0.03);
+  --border: rgba(255, 255, 255, 0.06);
+  --text: #fff;
+  --text-dim: rgba(255, 255, 255, 0.4);
+  --text-faint: rgba(255, 255, 255, 0.15);
+  --accent: #60a5fa;
+  --danger: #dc2626;
+  --caution: #d97706;
+  --safe: #16a34a;
+}
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+button {
+  font-family: inherit;
+}
+
+/* Leaflet tooltip override for dark theme */
+.arroyo-tooltip {
+  background: rgba(12, 18, 32, 0.92) !important;
+  color: #fff !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 8px !important;
+  padding: 6px 10px !important;
+  font-size: 12px !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+}
+
+.leaflet-tooltip-top::before {
+  border-top-color: rgba(12, 18, 32, 0.92) !important;
+}
+
+/* Pulse animation for danger markers */
+@keyframes danger-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50% { transform: scale(1.8); opacity: 0; }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
