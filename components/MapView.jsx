@@ -2,7 +2,7 @@
 import { useEffect, useRef } from "react";
 import { ZONES, SEVERITY, getZoneSeverity } from "@/lib/zones";
 
-export default function MapView({ reports, onZoneClick }) {
+export default function MapView({ reports, onZoneClick, panelOpen }) {
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const markersRef = useRef([]);
@@ -13,11 +13,7 @@ export default function MapView({ reports, onZoneClick }) {
     const L = require("leaflet");
 
     delete L.Icon.Default.prototype._getIconUrl;
-    L.Icon.Default.mergeOptions({
-      iconRetinaUrl: "",
-      iconUrl: "",
-      shadowUrl: "",
-    });
+    L.Icon.Default.mergeOptions({ iconRetinaUrl: "", iconUrl: "", shadowUrl: "" });
 
     const map = L.map(mapRef.current, {
       center: [10.96, -74.805],
@@ -32,20 +28,23 @@ export default function MapView({ reports, onZoneClick }) {
     ).addTo(map);
 
     L.control.zoom({ position: "bottomright" }).addTo(map);
-    L.control
-      .attribution({ position: "bottomleft", prefix: false })
-      .addAttribution(
-        '&copy; <a href="https://openstreetmap.org/copyright" style="color:rgba(255,255,255,0.3)">OSM</a> &middot; CARTO'
-      )
+    L.control.attribution({ position: "bottomleft", prefix: false })
+      .addAttribution('&copy; <a href="https://openstreetmap.org/copyright" style="color:rgba(255,255,255,0.3)">OSM</a> &middot; CARTO')
       .addTo(map);
 
     mapInstanceRef.current = map;
 
-    return () => {
-      map.remove();
-      mapInstanceRef.current = null;
-    };
+    return () => { map.remove(); mapInstanceRef.current = null; };
   }, []);
+
+  // Resize map when panel opens/closes
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    if (!map) return;
+    // Small delay to let DOM update first
+    const timer = setTimeout(() => map.invalidateSize(), 100);
+    return () => clearTimeout(timer);
+  }, [panelOpen]);
 
   useEffect(() => {
     const map = mapInstanceRef.current;
@@ -96,9 +95,6 @@ export default function MapView({ reports, onZoneClick }) {
   }, [reports, onZoneClick]);
 
   return (
-    <div
-      ref={mapRef}
-      style={{ width: "100%", height: "100%", background: "var(--bg)" }}
-    />
+    <div ref={mapRef} style={{ width: "100%", height: "100%", background: "var(--bg)" }} />
   );
 }

@@ -1,5 +1,5 @@
 "use client";
-import { useState, useCallback, lazy, Suspense } from "react";
+import { useState, useCallback, useEffect, useRef, lazy, Suspense } from "react";
 import { useReports } from "@/lib/useReports";
 import { usePushNotifications, notifyZone } from "@/lib/usePushNotifications";
 import { ZONES, SEVERITY, getZoneSeverity, getZoneReports } from "@/lib/zones";
@@ -7,6 +7,7 @@ import { LanguageProvider, useLanguage } from "@/lib/LanguageContext";
 import { timeAgoLocalized } from "@/lib/translations";
 import ReportFlow from "@/components/ReportFlow";
 import ZoneDetail from "@/components/ZoneDetail";
+import LiveFeed from "@/components/LiveFeed";
 
 const MapView = lazy(() => import("@/components/MapView"));
 
@@ -35,10 +36,24 @@ function AppContent() {
   const push = usePushNotifications();
   const [screen, setScreen] = useState("main");
   const [selectedZone, setSelectedZone] = useState(null);
-  const [view, setView] = useState("map");
+  const [mobileView, setMobileView] = useState("map");
+  const [desktopView, setDesktopView] = useState("map");
+  const [showPanel, setShowPanel] = useState(true);
+  const [isDesktop, setIsDesktop] = useState(false);
+  const [upvotedSet, setUpvotedSet] = useState(new Set());
+  const panelRef = useRef(null);
+
+  useEffect(() => {
+    const check = () => setIsDesktop(window.innerWidth >= 900);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   const dangerCount = ZONES.filter((z) => getZoneSeverity(z.id, reports) === "danger").length;
   const cautionCount = ZONES.filter((z) => getZoneSeverity(z.id, reports) === "caution").length;
+  const cutoff = Date.now() - 4 * 3600000;
+  const liveCount = reports.filter((r) => new Date(r.created_at).getTime() > cutoff).length;
 
   const handleZoneClick = useCallback((zoneId) => {
     setSelectedZone(zoneId);
@@ -48,17 +63,40 @@ function AppContent() {
   const handleReport = useCallback(async ({ zoneId, severity, text }) => {
     await submitReport({ zoneId, severity, text });
     const zone = ZONES.find((z) => z.id === zoneId);
-    if (zone) {
-      notifyZone({ zoneId, zoneName: `${zone.name} (${zone.area})`, severity, text });
-    }
+    if (zone) notifyZone({ zoneId, zoneName: `${zone.name} (${zone.area})`, severity, text });
   }, [submitReport]);
+
+  const handleUpvoteLocal = useCallback((id) => {
+    setUpvotedSet((prev) => new Set([...prev, id]));
+  }, []);
+
+  const handleTabClick = (key) => {
+    if (isDesktop) {
+      if (key === "live") {
+        setShowPanel((p) => !p);
+      } else {
+        setDesktopView(key);
+      }
+    } else {
+      setMobileView(key);
+    }
+  };
+
+  const isTabActive = (key) => {
+    if (isDesktop) {
+      if (key === "live") return showPanel;
+      return desktopView === key;
+    }
+    return mobileView === key;
+  };
+
+  const currentMainView = isDesktop ? desktopView : mobileView;
+  const panelVisible = isDesktop && showPanel;
 
   if (screen === "report") {
     return (
       <ReportFlow
-        zones={ZONES}
-        reports={reports}
-        initialZoneId={selectedZone}
+        zones={ZONES} reports={reports} initialZoneId={selectedZone}
         onSubmit={async (data) => { await handleReport(data); setScreen("main"); }}
         onBack={() => setScreen("main")}
       />
@@ -83,6 +121,12 @@ function AppContent() {
     );
   }
 
+  const tabs = [
+    { key: "map", icon: "🗺️" },
+    { key: "list", icon: "📋" },
+    { key: "live", icon: "🔴" },
+  ];
+
   return (
     <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "var(--bg)", overflow: "hidden" }}>
       {/* HEADER */}
@@ -94,11 +138,9 @@ function AppContent() {
         <Logo size={30} />
         <div style={{ flex: 1 }}>
           <span style={{ fontSize: "16px", fontWeight: 700, letterSpacing: "-0.3px", color: "var(--text)" }}>
-            {t.appName}<span style={{ color: "var(--baq-yellow)" }}>{t.appNameAccent}</span>
+            Arroyo<span style={{ color: "var(--baq-yellow)" }}>Alerta</span>
           </span>
         </div>
-
-        {/* Language toggle */}
         <button onClick={toggleLang} style={{
           padding: "5px 10px", borderRadius: "var(--radius-sm)",
           background: "rgba(255,255,255,0.04)", border: "1px solid var(--border)",
@@ -107,20 +149,28 @@ function AppContent() {
         }}>
           {lang === "es" ? "EN" : "ES"}
         </button>
-
-        {/* View toggle */}
         <div style={{
           display: "flex", background: "rgba(255,255,255,0.04)",
           borderRadius: "var(--radius-sm)", overflow: "hidden", border: "1px solid var(--border)",
         }}>
-          {[{ key: "map", icon: "🗺️" }, { key: "list", icon: "📋" }].map((tab) => (
-            <button key={tab.key} onClick={() => setView(tab.key)} style={{
-              padding: "7px 14px", fontSize: "13px", border: "none",
-              background: view === tab.key ? "var(--accent-glow)" : "transparent",
-              color: view === tab.key ? "var(--accent)" : "var(--text-dim)",
-              fontWeight: view === tab.key ? 600 : 400,
+          {tabs.map((tab) => (
+            <button key={tab.key} onClick={() => handleTabClick(tab.key)} style={{
+              padding: "7px 12px", fontSize: "12px", border: "none",
+              background: isTabActive(tab.key) ? "var(--accent-glow)" : "transparent",
+              color: isTabActive(tab.key) ? "var(--accent)" : "var(--text-dim)",
+              fontWeight: isTabActive(tab.key) ? 600 : 400,
+              display: "flex", alignItems: "center", gap: "4px",
+              position: "relative",
             }}>
               {tab.icon}
+              {tab.key === "live" && liveCount > 0 && !isTabActive("live") && (
+                <span style={{
+                  position: "absolute", top: 2, right: 2,
+                  width: 6, height: 6, borderRadius: "50%",
+                  background: "var(--danger)",
+                  animation: "blink 1.5s ease-in-out infinite",
+                }} />
+              )}
             </button>
           ))}
         </div>
@@ -152,75 +202,124 @@ function AppContent() {
       </div>
 
       {/* CONTENT */}
-      <div style={{ flex: 1, position: "relative", overflow: "hidden" }}>
-        {view === "map" ? (
-          <Suspense fallback={<div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", color: "var(--text-dim)", fontSize: "14px" }}>{t.loadingMap}</div>}>
-            <MapView reports={reports} onZoneClick={handleZoneClick} />
-          </Suspense>
-        ) : (
-          <div style={{ height: "100%", overflowY: "auto", padding: "14px 18px 120px" }}>
-            {ZONES.map((z, i) => {
-              const sv = getZoneSeverity(z.id, reports);
-              const zr = getZoneReports(z.id, reports);
-              const lt = zr[0];
-              const c = sv ? SEVERITY[sv] : null;
-              const isSubbed = push.isSubscribed(z.id);
-              return (
-                <button key={z.id} onClick={() => handleZoneClick(z.id)} style={{
-                  width: "100%", background: c ? `linear-gradient(135deg, ${c.bg}, var(--bg))` : "var(--bg-card)",
-                  border: c ? `1px solid ${c.color}18` : "1px solid var(--border)",
-                  borderRadius: "var(--radius-lg)", padding: "16px", textAlign: "left",
-                  display: "flex", gap: "14px", alignItems: "center", marginBottom: "8px",
-                  animation: `fadeIn 0.3s ease ${i * 0.03}s both`,
-                }}>
-                  <div style={{
-                    width: 42, height: 42, borderRadius: "var(--radius-md)", display: "flex",
-                    alignItems: "center", justifyContent: "center", fontSize: "20px", flexShrink: 0,
-                    background: c ? `${c.color}10` : "rgba(255,255,255,0.03)",
-                    border: `1px solid ${c ? c.color + "20" : "var(--border)"}`,
+      <div style={{ flex: 1, position: "relative", overflow: "hidden", display: "flex" }}>
+        {/* Main area */}
+        <div style={{ flex: 1, position: "relative", overflow: "hidden" }}>
+          {currentMainView === "map" ? (
+            <Suspense fallback={<div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", color: "var(--text-dim)", fontSize: "14px" }}>{t.loadingMap}</div>}>
+              <MapView reports={reports} onZoneClick={handleZoneClick} panelOpen={panelVisible} />
+            </Suspense>
+          ) : currentMainView === "list" ? (
+            <div style={{ height: "100%", overflowY: "auto", padding: "14px 18px 120px" }}>
+              {ZONES.map((z, i) => {
+                const sv = getZoneSeverity(z.id, reports);
+                const zr = getZoneReports(z.id, reports);
+                const lt = zr[0];
+                const c = sv ? SEVERITY[sv] : null;
+                const isSubbed = push.isSubscribed(z.id);
+                return (
+                  <button key={z.id} onClick={() => handleZoneClick(z.id)} style={{
+                    width: "100%", background: c ? `linear-gradient(135deg, ${c.bg}, var(--bg))` : "var(--bg-card)",
+                    border: c ? `1px solid ${c.color}18` : "1px solid var(--border)",
+                    borderRadius: "var(--radius-lg)", padding: "16px", textAlign: "left",
+                    display: "flex", gap: "14px", alignItems: "center", marginBottom: "8px",
+                    animation: `fadeIn 0.3s ease ${i * 0.03}s both`,
                   }}>
-                    {c ? c.emoji : "⚪"}
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: "14px", fontWeight: 600, color: "var(--text)", display: "flex", alignItems: "center", gap: "6px" }}>
-                      {z.name}
-                      <span style={{ fontWeight: 400, color: "var(--text-dim)", fontSize: "13px" }}>{z.area}</span>
-                      {isSubbed && <span style={{ fontSize: "12px" }}>🔔</span>}
+                    <div style={{
+                      width: 42, height: 42, borderRadius: "var(--radius-md)", display: "flex",
+                      alignItems: "center", justifyContent: "center", fontSize: "20px", flexShrink: 0,
+                      background: c ? `${c.color}10` : "rgba(255,255,255,0.03)",
+                      border: `1px solid ${c ? c.color + "20" : "var(--border)"}`,
+                    }}>
+                      {c ? c.emoji : "⚪"}
                     </div>
-                    {lt ? (
-                      <div style={{ fontSize: "12px", color: "var(--text-secondary)", marginTop: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                        {lt.text} · {timeAgoLocalized(lt.created_at, lang)}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: "14px", fontWeight: 600, color: "var(--text)", display: "flex", alignItems: "center", gap: "6px" }}>
+                        {z.name}
+                        <span style={{ fontWeight: 400, color: "var(--text-dim)", fontSize: "13px" }}>{z.area}</span>
+                        {isSubbed && <span style={{ fontSize: "12px" }}>🔔</span>}
                       </div>
-                    ) : (
-                      <div style={{ fontSize: "12px", color: "var(--text-faint)", marginTop: 3 }}>{t.noRecentReports}</div>
+                      {lt ? (
+                        <div style={{ fontSize: "12px", color: "var(--text-secondary)", marginTop: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                          {lt.text} · {timeAgoLocalized(lt.created_at, lang)}
+                        </div>
+                      ) : (
+                        <div style={{ fontSize: "12px", color: "var(--text-faint)", marginTop: 3 }}>{t.noRecentReports}</div>
+                      )}
+                    </div>
+                    {zr.length > 0 && (
+                      <span style={{ fontSize: "11px", color: "var(--text-dim)", background: "rgba(255,255,255,0.04)", padding: "3px 8px", borderRadius: "var(--radius-sm)", flexShrink: 0, fontWeight: 600 }}>
+                        {zr.length}
+                      </span>
                     )}
-                  </div>
-                  {zr.length > 0 && (
-                    <span style={{ fontSize: "11px", color: "var(--text-dim)", background: "rgba(255,255,255,0.04)", padding: "3px 8px", borderRadius: "var(--radius-sm)", flexShrink: 0, fontWeight: 600 }}>
-                      {zr.length}
-                    </span>
-                  )}
-                  <span style={{ color: "var(--text-faint)", fontSize: "16px", flexShrink: 0 }}>›</span>
-                </button>
-              );
-            })}
+                    <span style={{ color: "var(--text-faint)", fontSize: "16px", flexShrink: 0 }}>›</span>
+                  </button>
+                );
+              })}
+            </div>
+          ) : (
+            <LiveFeed
+              reports={reports}
+              onZoneClick={handleZoneClick}
+              onUpvote={upvoteReport}
+              upvotedSet={upvotedSet}
+              onUpvoteLocal={handleUpvoteLocal}
+            />
+          )}
+
+          {/* FAB */}
+          <div style={{ position: "absolute", bottom: 24, left: "50%", transform: "translateX(-50%)", zIndex: 20 }}>
+            <button onClick={() => setScreen("report")} style={{
+              padding: "15px 30px", background: "linear-gradient(135deg, #D42A2A, #c42222)",
+              color: "#fff", border: "none", borderRadius: "50px", fontSize: "14px", fontWeight: 700,
+              boxShadow: "0 8px 32px rgba(212,42,42,0.35), 0 0 0 1px rgba(255,255,255,0.06)",
+              display: "flex", alignItems: "center", gap: "8px", letterSpacing: "-0.2px",
+            }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                <path d="M12 2v10M12 22c-4 0-8-2-8-6 0-3 2-5.5 5-7M12 22c4 0 8-2 8-6 0-3-2-5.5-5-7" />
+              </svg>
+              {t.reportArroyo}
+            </button>
+          </div>
+        </div>
+
+        {/* DESKTOP SIDE PANEL — always in DOM on desktop, animated width */}
+        {isDesktop && (
+          <div
+            ref={panelRef}
+            onTransitionEnd={() => {
+              // Trigger map resize after animation completes
+              window.dispatchEvent(new Event("resize"));
+            }}
+            style={{
+              width: showPanel ? 380 : 0,
+              minWidth: 0,
+              flexShrink: 0,
+              borderLeft: showPanel ? "1px solid var(--border)" : "none",
+              background: "var(--bg-elevated)",
+              display: "flex",
+              flexDirection: "column",
+              overflow: "hidden",
+              transition: "width 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+            }}
+          >
+            <div style={{
+              width: 380,
+              height: "100%",
+              opacity: showPanel ? 1 : 0,
+              transition: "opacity 0.2s ease",
+              overflow: "hidden",
+            }}>
+              <LiveFeed
+                reports={reports}
+                onZoneClick={handleZoneClick}
+                onUpvote={upvoteReport}
+                upvotedSet={upvotedSet}
+                onUpvoteLocal={handleUpvoteLocal}
+              />
+            </div>
           </div>
         )}
-
-        {/* FAB */}
-        <div style={{ position: "absolute", bottom: 24, left: "50%", transform: "translateX(-50%)", zIndex: 20 }}>
-          <button onClick={() => setScreen("report")} style={{
-            padding: "15px 30px", background: "linear-gradient(135deg, #D42A2A, #c42222)",
-            color: "#fff", border: "none", borderRadius: "50px", fontSize: "14px", fontWeight: 700,
-            boxShadow: "0 8px 32px rgba(212,42,42,0.35), 0 0 0 1px rgba(255,255,255,0.06)",
-            display: "flex", alignItems: "center", gap: "8px", letterSpacing: "-0.2px",
-          }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-              <path d="M12 2v10M12 22c-4 0-8-2-8-6 0-3 2-5.5 5-7M12 22c4 0 8-2 8-6 0-3-2-5.5-5-7" />
-            </svg>
-            {t.reportArroyo}
-          </button>
-        </div>
       </div>
     </div>
   );
