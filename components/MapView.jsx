@@ -65,17 +65,12 @@ export default function MapView({ reports, onZoneClick, panelOpen }) {
       const icon = L.divIcon({
         className: "",
         html:
-          '<div style="position:relative;width:' + size + "px;height:" + size + 'px;">' +
-          (pulse
-            ? '<div style="position:absolute;top:50%;left:50%;width:' +
-              (size + 22) + "px;height:" + (size + 22) +
-              'px;transform:translate(-50%,-50%);border-radius:50%;background:' +
-              col + ';animation:danger-pulse 2s ease-in-out infinite;"></div>'
-            : "") +
           '<div style="width:' + size + "px;height:" + size +
           "px;background:" + col +
           ";border-radius:50%;border:2px solid rgba(255,255,255,0.55);box-shadow:0 0 14px " +
-          col + '70;cursor:pointer;position:relative;z-index:2;"></div></div>',
+          col + "70;cursor:pointer;" +
+          (pulse ? "animation:danger-pulse 2s ease-in-out infinite;" : "") +
+          '"></div>',
         iconSize: [size, size],
         iconAnchor: [size / 2, size / 2],
       });
