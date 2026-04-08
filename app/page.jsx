@@ -1,7 +1,10 @@
 "use client";
 import { useState, useCallback, lazy, Suspense } from "react";
 import { useReports } from "@/lib/useReports";
-import { ZONES, SEVERITY, getZoneSeverity, getZoneReports, timeAgo } from "@/lib/zones";
+import { usePushNotifications, notifyZone } from "@/lib/usePushNotifications";
+import { ZONES, SEVERITY, getZoneSeverity, getZoneReports } from "@/lib/zones";
+import { LanguageProvider, useLanguage } from "@/lib/LanguageContext";
+import { timeAgoLocalized } from "@/lib/translations";
 import ReportFlow from "@/components/ReportFlow";
 import ZoneDetail from "@/components/ZoneDetail";
 
@@ -26,8 +29,10 @@ function Logo({ size = 28 }) {
   );
 }
 
-export default function Home() {
+function AppContent() {
+  const { lang, toggleLang, t } = useLanguage();
   const { reports, loading, submitReport, upvoteReport } = useReports();
+  const push = usePushNotifications();
   const [screen, setScreen] = useState("main");
   const [selectedZone, setSelectedZone] = useState(null);
   const [view, setView] = useState("map");
@@ -40,16 +45,21 @@ export default function Home() {
     setScreen("detail");
   }, []);
 
+  const handleReport = useCallback(async ({ zoneId, severity, text }) => {
+    await submitReport({ zoneId, severity, text });
+    const zone = ZONES.find((z) => z.id === zoneId);
+    if (zone) {
+      notifyZone({ zoneId, zoneName: `${zone.name} (${zone.area})`, severity, text });
+    }
+  }, [submitReport]);
+
   if (screen === "report") {
     return (
       <ReportFlow
         zones={ZONES}
         reports={reports}
         initialZoneId={selectedZone}
-        onSubmit={async (data) => {
-          await submitReport(data);
-          setScreen("main");
-        }}
+        onSubmit={async (data) => { await handleReport(data); setScreen("main"); }}
         onBack={() => setScreen("main")}
       />
     );
@@ -61,41 +71,49 @@ export default function Home() {
     const severity = getZoneSeverity(selectedZone, reports);
     return (
       <ZoneDetail
-        zone={zone}
-        severity={severity}
-        reports={zoneReports}
+        zone={zone} severity={severity} reports={zoneReports}
         onBack={() => { setScreen("main"); setSelectedZone(null); }}
         onReport={() => setScreen("report")}
         onUpvote={upvoteReport}
+        pushSupported={push.supported}
+        isSubscribed={push.isSubscribed}
+        onSubscribe={push.subscribeToZone}
+        onUnsubscribe={push.unsubscribeFromZone}
       />
     );
   }
 
   return (
     <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "var(--bg)", overflow: "hidden" }}>
-      {/* ===== HEADER ===== */}
+      {/* HEADER */}
       <div style={{
-        padding: "14px 18px",
-        display: "flex", alignItems: "center", gap: "10px",
+        padding: "14px 18px", display: "flex", alignItems: "center", gap: "10px",
         background: "rgba(8,13,24,0.92)", backdropFilter: "blur(16px)",
-        borderBottom: "1px solid var(--border)",
-        zIndex: 10, flexShrink: 0,
+        borderBottom: "1px solid var(--border)", zIndex: 10, flexShrink: 0,
       }}>
         <Logo size={30} />
         <div style={{ flex: 1 }}>
           <span style={{ fontSize: "16px", fontWeight: 700, letterSpacing: "-0.3px", color: "var(--text)" }}>
-            Arroyo<span style={{ color: "var(--baq-yellow)" }}>Alerta</span>
+            {t.appName}<span style={{ color: "var(--baq-yellow)" }}>{t.appNameAccent}</span>
           </span>
         </div>
+
+        {/* Language toggle */}
+        <button onClick={toggleLang} style={{
+          padding: "5px 10px", borderRadius: "var(--radius-sm)",
+          background: "rgba(255,255,255,0.04)", border: "1px solid var(--border)",
+          color: "var(--text-secondary)", fontSize: "11px", fontWeight: 700,
+          letterSpacing: "0.5px", textTransform: "uppercase",
+        }}>
+          {lang === "es" ? "EN" : "ES"}
+        </button>
+
+        {/* View toggle */}
         <div style={{
           display: "flex", background: "rgba(255,255,255,0.04)",
-          borderRadius: "var(--radius-sm)", overflow: "hidden",
-          border: "1px solid var(--border)",
+          borderRadius: "var(--radius-sm)", overflow: "hidden", border: "1px solid var(--border)",
         }}>
-          {[
-            { key: "map", icon: "🗺️" },
-            { key: "list", icon: "📋" },
-          ].map((tab) => (
+          {[{ key: "map", icon: "🗺️" }, { key: "list", icon: "📋" }].map((tab) => (
             <button key={tab.key} onClick={() => setView(tab.key)} style={{
               padding: "7px 14px", fontSize: "13px", border: "none",
               background: view === tab.key ? "var(--accent-glow)" : "transparent",
@@ -108,53 +126,35 @@ export default function Home() {
         </div>
       </div>
 
-      {/* ===== STATUS BAR ===== */}
+      {/* STATUS BAR */}
       <div style={{
-        padding: "10px 18px",
-        display: "flex", gap: "8px", alignItems: "center",
-        flexShrink: 0, borderBottom: "1px solid var(--border)",
-        background: "var(--bg)",
+        padding: "10px 18px", display: "flex", gap: "8px", alignItems: "center",
+        flexShrink: 0, borderBottom: "1px solid var(--border)", background: "var(--bg)",
       }}>
         {dangerCount > 0 && (
-          <div style={{
-            display: "flex", alignItems: "center", gap: "6px",
-            background: "var(--danger-bg)", padding: "5px 12px",
-            borderRadius: "20px", border: "1px solid var(--danger-border)",
-          }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "6px", background: "var(--danger-bg)", padding: "5px 12px", borderRadius: "20px", border: "1px solid var(--danger-border)" }}>
             <span style={{ width: 6, height: 6, background: "var(--danger)", borderRadius: "50%", animation: "blink 1.5s ease-in-out infinite" }} />
-            <span style={{ fontSize: "12px", color: "#fca5a5", fontWeight: 600 }}>{dangerCount} peligro</span>
+            <span style={{ fontSize: "12px", color: "#fca5a5", fontWeight: 600 }}>{dangerCount} {t.danger}</span>
           </div>
         )}
         {cautionCount > 0 && (
-          <div style={{
-            display: "flex", alignItems: "center", gap: "6px",
-            background: "var(--caution-bg)", padding: "5px 12px",
-            borderRadius: "20px", border: "1px solid var(--caution-border)",
-          }}>
-            <span style={{ fontSize: "12px", color: "#fcd34d", fontWeight: 600 }}>{cautionCount} precaución</span>
+          <div style={{ display: "flex", alignItems: "center", gap: "6px", background: "var(--caution-bg)", padding: "5px 12px", borderRadius: "20px", border: "1px solid var(--caution-border)" }}>
+            <span style={{ fontSize: "12px", color: "#fcd34d", fontWeight: 600 }}>{cautionCount} {t.caution}</span>
           </div>
         )}
         {dangerCount === 0 && cautionCount === 0 && (
-          <div style={{
-            display: "flex", alignItems: "center", gap: "6px",
-            background: "var(--safe-bg)", padding: "5px 12px",
-            borderRadius: "20px", border: "1px solid var(--safe-border)",
-          }}>
-            <span style={{ fontSize: "12px", color: "#86efac", fontWeight: 600 }}>Sin alertas activas</span>
+          <div style={{ display: "flex", alignItems: "center", gap: "6px", background: "var(--safe-bg)", padding: "5px 12px", borderRadius: "20px", border: "1px solid var(--safe-border)" }}>
+            <span style={{ fontSize: "12px", color: "#86efac", fontWeight: 600 }}>{t.noActiveAlerts}</span>
           </div>
         )}
         <div style={{ flex: 1 }} />
-        <span style={{ fontSize: "11px", color: "var(--text-faint)", fontWeight: 500 }}>Expiran en 4h</span>
+        <span style={{ fontSize: "11px", color: "var(--text-faint)", fontWeight: 500 }}>{t.expiresIn}</span>
       </div>
 
-      {/* ===== CONTENT ===== */}
+      {/* CONTENT */}
       <div style={{ flex: 1, position: "relative", overflow: "hidden" }}>
         {view === "map" ? (
-          <Suspense fallback={
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", color: "var(--text-dim)", fontSize: "14px" }}>
-              Cargando mapa...
-            </div>
-          }>
+          <Suspense fallback={<div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", color: "var(--text-dim)", fontSize: "14px" }}>{t.loadingMap}</div>}>
             <MapView reports={reports} onZoneClick={handleZoneClick} />
           </Suspense>
         ) : (
@@ -164,45 +164,39 @@ export default function Home() {
               const zr = getZoneReports(z.id, reports);
               const lt = zr[0];
               const c = sv ? SEVERITY[sv] : null;
+              const isSubbed = push.isSubscribed(z.id);
               return (
                 <button key={z.id} onClick={() => handleZoneClick(z.id)} style={{
-                  width: "100%",
-                  background: c ? `linear-gradient(135deg, ${c.bg}, var(--bg))` : "var(--bg-card)",
+                  width: "100%", background: c ? `linear-gradient(135deg, ${c.bg}, var(--bg))` : "var(--bg-card)",
                   border: c ? `1px solid ${c.color}18` : "1px solid var(--border)",
                   borderRadius: "var(--radius-lg)", padding: "16px", textAlign: "left",
                   display: "flex", gap: "14px", alignItems: "center", marginBottom: "8px",
                   animation: `fadeIn 0.3s ease ${i * 0.03}s both`,
                 }}>
                   <div style={{
-                    width: 42, height: 42, borderRadius: "var(--radius-md)",
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    fontSize: "20px", flexShrink: 0,
+                    width: 42, height: 42, borderRadius: "var(--radius-md)", display: "flex",
+                    alignItems: "center", justifyContent: "center", fontSize: "20px", flexShrink: 0,
                     background: c ? `${c.color}10` : "rgba(255,255,255,0.03)",
                     border: `1px solid ${c ? c.color + "20" : "var(--border)"}`,
                   }}>
                     {c ? c.emoji : "⚪"}
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: "14px", fontWeight: 600, color: "var(--text)" }}>
-                      {z.name}{" "}
-                      <span style={{ fontWeight: 400, color: "var(--text-dim)", fontSize: "13px" }}>
-                        {z.area}
-                      </span>
+                    <div style={{ fontSize: "14px", fontWeight: 600, color: "var(--text)", display: "flex", alignItems: "center", gap: "6px" }}>
+                      {z.name}
+                      <span style={{ fontWeight: 400, color: "var(--text-dim)", fontSize: "13px" }}>{z.area}</span>
+                      {isSubbed && <span style={{ fontSize: "12px" }}>🔔</span>}
                     </div>
                     {lt ? (
                       <div style={{ fontSize: "12px", color: "var(--text-secondary)", marginTop: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                        {lt.text} · {timeAgo(lt.created_at)}
+                        {lt.text} · {timeAgoLocalized(lt.created_at, lang)}
                       </div>
                     ) : (
-                      <div style={{ fontSize: "12px", color: "var(--text-faint)", marginTop: 3 }}>Sin reportes recientes</div>
+                      <div style={{ fontSize: "12px", color: "var(--text-faint)", marginTop: 3 }}>{t.noRecentReports}</div>
                     )}
                   </div>
                   {zr.length > 0 && (
-                    <span style={{
-                      fontSize: "11px", color: "var(--text-dim)",
-                      background: "rgba(255,255,255,0.04)", padding: "3px 8px",
-                      borderRadius: "var(--radius-sm)", flexShrink: 0, fontWeight: 600,
-                    }}>
+                    <span style={{ fontSize: "11px", color: "var(--text-dim)", background: "rgba(255,255,255,0.04)", padding: "3px 8px", borderRadius: "var(--radius-sm)", flexShrink: 0, fontWeight: 600 }}>
                       {zr.length}
                     </span>
                   )}
@@ -213,24 +207,29 @@ export default function Home() {
           </div>
         )}
 
-        {/* ===== FAB ===== */}
+        {/* FAB */}
         <div style={{ position: "absolute", bottom: 24, left: "50%", transform: "translateX(-50%)", zIndex: 20 }}>
           <button onClick={() => setScreen("report")} style={{
-            padding: "15px 30px",
-            background: "linear-gradient(135deg, #D42A2A, #c42222)",
-            color: "#fff", border: "none", borderRadius: "50px",
-            fontSize: "14px", fontWeight: 700,
+            padding: "15px 30px", background: "linear-gradient(135deg, #D42A2A, #c42222)",
+            color: "#fff", border: "none", borderRadius: "50px", fontSize: "14px", fontWeight: 700,
             boxShadow: "0 8px 32px rgba(212,42,42,0.35), 0 0 0 1px rgba(255,255,255,0.06)",
-            display: "flex", alignItems: "center", gap: "8px",
-            letterSpacing: "-0.2px",
+            display: "flex", alignItems: "center", gap: "8px", letterSpacing: "-0.2px",
           }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
               <path d="M12 2v10M12 22c-4 0-8-2-8-6 0-3 2-5.5 5-7M12 22c4 0 8-2 8-6 0-3-2-5.5-5-7" />
             </svg>
-            Reportar Arroyo
+            {t.reportArroyo}
           </button>
         </div>
       </div>
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <LanguageProvider>
+      <AppContent />
+    </LanguageProvider>
   );
 }
