@@ -1,11 +1,11 @@
 {
-  "name": "ArroyoAlert Barranquilla",
-  "short_name": "ArroyoAlert",
+  "name": "ArroyoAlerta — Barranquilla",
+  "short_name": "ArroyoAlerta",
   "description": "Alertas de arroyos en tiempo real para Barranquilla",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0c1220",
-  "theme_color": "#0c1220",
+  "background_color": "#080d18",
+  "theme_color": "#080d18",
   "icons": [
     {
       "src": "/icon-192.png",

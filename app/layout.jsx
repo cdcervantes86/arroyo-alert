@@ -1,16 +1,17 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "ArroyoAlert — Barranquilla",
+  title: "ArroyoAlerta — Barranquilla",
   description: "Alertas de arroyos en tiempo real para Barranquilla",
   manifest: "/manifest.json",
-  themeColor: "#0c1220",
-  viewport: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no",
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "black-translucent",
-    title: "ArroyoAlert",
-  },
+};
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  themeColor: "#080d18",
 };
 
 export default function RootLayout({ children }) {
