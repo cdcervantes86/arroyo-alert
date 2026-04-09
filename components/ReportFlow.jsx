@@ -1,7 +1,8 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { SEVERITY, getZoneSeverity, getSevLabel } from "@/lib/zones";
 import { useLanguage } from "@/lib/LanguageContext";
+import { getReporterStats } from "@/lib/deviceId";
 
 export default function ReportFlow({ zones, reports, initialZoneId, onSubmit, onBack, onLogoClick }) {
   const { lang, t } = useLanguage();
@@ -9,21 +10,32 @@ export default function ReportFlow({ zones, reports, initialZoneId, onSubmit, on
   const [zoneId, setZoneId] = useState(initialZoneId);
   const [severity, setSeverity] = useState(null);
   const [text, setText] = useState("");
+  const [photo, setPhoto] = useState(null);
+  const [photoPreview, setPhotoPreview] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
+  const fileInputRef = useRef(null);
 
-  const sevOptions = [
-    { key: "danger", label: getSevLabel("danger", lang), hint: lang === "en" ? SEVERITY.danger.hintEn : SEVERITY.danger.hint },
-    { key: "caution", label: getSevLabel("caution", lang), hint: lang === "en" ? SEVERITY.caution.hintEn : SEVERITY.caution.hint },
-    { key: "safe", label: getSevLabel("safe", lang), hint: lang === "en" ? SEVERITY.safe.hintEn : SEVERITY.safe.hint },
-  ];
+  const stats = typeof window !== "undefined" ? getReporterStats() : {};
 
-  useEffect(() => { if (!done) return; const timer = setTimeout(() => onBack(), 2500); return () => clearTimeout(timer); }, [done, onBack]);
+  useEffect(() => {
+    if (!done) return;
+    const timer = setTimeout(() => onBack(), 2500);
+    return () => clearTimeout(timer);
+  }, [done, onBack]);
+
+  const handlePhoto = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setPhoto(file);
+    const reader = new FileReader();
+    reader.onload = (ev) => setPhotoPreview(ev.target.result);
+    reader.readAsDataURL(file);
+  };
 
   const handleSubmit = async () => {
     setSubmitting(true);
-    const finalText = text.trim();
-    await onSubmit({ zoneId, severity, text: finalText });
+    await onSubmit({ zoneId, severity, text: text.trim(), photo });
     if (navigator.vibrate) navigator.vibrate(100);
     setDone(true);
   };
@@ -36,6 +48,11 @@ export default function ReportFlow({ zones, reports, initialZoneId, onSubmit, on
         <div style={{ fontSize: "64px", marginBottom: "16px", animation: "successPulse 0.5s ease" }}>✅</div>
         <h2 style={{ fontSize: "22px", fontWeight: 700, animation: "fadeIn 0.4s ease 0.2s both" }}>{t.reportSent}</h2>
         <p style={{ color: "var(--text-secondary)", fontSize: "14px", marginTop: "6px", animation: "fadeIn 0.4s ease 0.4s both" }}>{t.thankYou}</p>
+        {stats.verified && (
+          <div style={{ marginTop: "12px", display: "flex", alignItems: "center", gap: "6px", animation: "fadeIn 0.4s ease 0.6s both" }}>
+            <span style={{ fontSize: "13px", color: "var(--accent)", fontWeight: 600 }}>✓ Reportero Verificado</span>
+          </div>
+        )}
         <div style={{ marginTop: "24px", width: "120px", height: "3px", borderRadius: "2px", background: "rgba(255,255,255,0.06)", overflow: "hidden", animation: "fadeIn 0.4s ease 0.6s both" }}>
           <div style={{ height: "100%", background: "var(--safe)", animation: "progressBar 2.5s linear forwards" }} />
         </div>
@@ -46,6 +63,7 @@ export default function ReportFlow({ zones, reports, initialZoneId, onSubmit, on
 
   return (
     <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "var(--bg)", overflow: "auto" }}>
+      {/* Header */}
       <div style={{ padding: "14px 18px", display: "flex", alignItems: "center", gap: "12px", borderBottom: "1px solid var(--border)", flexShrink: 0, background: "rgba(8,13,24,0.92)", backdropFilter: "blur(16px)" }}>
         <button onClick={onLogoClick} style={{ display: "flex", alignItems: "center", gap: "8px", background: "none", border: "none", padding: 0, cursor: "pointer" }}>
           <svg width={24} height={24} viewBox="0 0 512 512" style={{ borderRadius: 5, flexShrink: 0 }}>
@@ -58,8 +76,10 @@ export default function ReportFlow({ zones, reports, initialZoneId, onSubmit, on
           <span style={{ fontSize: "14px", fontWeight: 700, color: "var(--text)" }}>Arroyo<span style={{ color: "var(--baq-yellow)" }}>Alerta</span></span>
           <span style={{ fontSize: "9px", fontWeight: 700, letterSpacing: "1px", textTransform: "uppercase", color: "var(--accent)", background: "var(--accent-glow)", padding: "2px 6px", borderRadius: "4px", border: "1px solid rgba(96,165,250,0.15)", marginLeft: "-4px", marginTop: "-8px" }}>Beta</span>
         </button>
-        <span style={{ flex: 1, textAlign: "center", fontSize: "13px", color: "var(--text-dim)", fontWeight: 500 }}>{t.step} {step + 1} {t.of} 3</span>
-        <button onClick={goBack} style={{ background: "none", border: "none", color: "var(--accent)", fontSize: "14px", fontWeight: 600, padding: "4px 0" }}>{t.back}</button>
+        <span style={{ flex: 1, textAlign: "center", fontSize: "13px", color: "var(--text-dim)", fontWeight: 500 }}>
+          {t.step} {step + 1} {t.of} 3
+        </span>
+        <button onClick={goBack} style={{ background: "none", border: "none", color: "var(--accent)", fontSize: "14px", fontWeight: 600 }}>{t.back}</button>
       </div>
 
       <div style={{ height: 3, background: "rgba(255,255,255,0.03)", flexShrink: 0 }}>
@@ -69,17 +89,17 @@ export default function ReportFlow({ zones, reports, initialZoneId, onSubmit, on
       <div style={{ padding: "24px 20px", flex: 1, overflowY: "auto" }}>
         {step === 0 && (
           <>
-            <h2 style={{ fontSize: "20px", fontWeight: 700, margin: "0 0 4px", letterSpacing: "-0.3px" }}>{t.whereIsArroyo}</h2>
+            <h2 style={{ fontSize: "20px", fontWeight: 700, margin: "0 0 4px" }}>{t.whereIsArroyo}</h2>
             <p style={{ color: "var(--text-dim)", fontSize: "13px", margin: "0 0 20px" }}>{t.selectZone}</p>
             <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
               {zones.map((z, i) => {
                 const sv = getZoneSeverity(z.id, reports);
                 return (
-                  <button key={z.id} onClick={() => { setZoneId(z.id); setStep(1); }} style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: "var(--radius-md)", padding: "14px 16px", display: "flex", alignItems: "center", gap: "12px", textAlign: "left", animation: `fadeIn 0.25s ease ${i * 0.02}s both` }}>
+                  <button key={z.id} onClick={() => { setZoneId(z.id); setStep(1); }} className="card-interactive" style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: "var(--radius-md)", padding: "14px 16px", display: "flex", alignItems: "center", gap: "12px", textAlign: "left", animation: `fadeIn 0.25s ease ${i * 0.02}s both` }}>
                     <span style={{ fontSize: "16px" }}>{sv ? SEVERITY[sv].emoji : "⚪"}</span>
                     <div style={{ flex: 1 }}>
                       <div style={{ color: "var(--text)", fontSize: "14px", fontWeight: 600 }}>{z.name} <span style={{ fontWeight: 400, color: "var(--text-dim)" }}>({z.area})</span></div>
-                      <div style={{ color: "var(--text-dim)", fontSize: "11px", marginTop: 2 }}>{getZoneDesc(z, lang)}</div>
+                      <div style={{ color: "var(--text-dim)", fontSize: "11px", marginTop: 2 }}>{z.desc}</div>
                     </div>
                     <span style={{ color: "var(--text-faint)", fontSize: "16px" }}>›</span>
                   </button>
@@ -91,10 +111,14 @@ export default function ReportFlow({ zones, reports, initialZoneId, onSubmit, on
 
         {step === 1 && (
           <>
-            <h2 style={{ fontSize: "20px", fontWeight: 700, margin: "0 0 4px", letterSpacing: "-0.3px" }}>{t.howBad}</h2>
+            <h2 style={{ fontSize: "20px", fontWeight: 700, margin: "0 0 4px" }}>{t.howBad}</h2>
             <p style={{ color: "var(--text-dim)", fontSize: "13px", margin: "0 0 24px" }}>{t.selectRisk}</p>
             <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-              {sevOptions.map((opt, i) => {
+              {[
+                { key: "danger", label: getSevLabel("danger", lang), hint: lang === "en" ? SEVERITY.danger.hintEn : SEVERITY.danger.hint },
+                { key: "caution", label: getSevLabel("caution", lang), hint: lang === "en" ? SEVERITY.caution.hintEn : SEVERITY.caution.hint },
+                { key: "safe", label: getSevLabel("safe", lang), hint: lang === "en" ? SEVERITY.safe.hintEn : SEVERITY.safe.hint },
+              ].map((opt, i) => {
                 const cfg = SEVERITY[opt.key];
                 return (
                   <button key={opt.key} onClick={() => { setSeverity(opt.key); setStep(2); }} style={{ background: cfg.bg, border: `2px solid ${cfg.color}30`, borderRadius: "var(--radius-lg)", padding: "22px 20px", display: "flex", alignItems: "center", gap: "18px", textAlign: "left", animation: `fadeIn 0.3s ease ${i * 0.08}s both` }}>
@@ -112,22 +136,56 @@ export default function ReportFlow({ zones, reports, initialZoneId, onSubmit, on
 
         {step === 2 && (
           <>
-            <h2 style={{ fontSize: "20px", fontWeight: 700, margin: "0 0 4px", letterSpacing: "-0.3px" }}>{t.anythingElse}</h2>
+            <h2 style={{ fontSize: "20px", fontWeight: 700, margin: "0 0 4px" }}>{t.anythingElse}</h2>
             <p style={{ color: "var(--text-dim)", fontSize: "13px", margin: "0 0 20px" }}>{t.optional}</p>
-            <textarea value={text} onChange={(e) => setText(e.target.value)} placeholder={t.textPlaceholder} style={{ width: "100%", minHeight: 110, background: "rgba(255,255,255,0.03)", border: "1px solid var(--border-light)", borderRadius: "var(--radius-md)", padding: "16px", color: "var(--text)", fontSize: "15px", resize: "vertical", outline: "none", fontFamily: "inherit", boxSizing: "border-box", lineHeight: 1.5 }} />
+
+            <textarea value={text} onChange={(e) => setText(e.target.value)} placeholder={t.textPlaceholder}
+              style={{ width: "100%", minHeight: 100, background: "rgba(255,255,255,0.03)", border: "1px solid var(--border-light)", borderRadius: "var(--radius-md)", padding: "16px", color: "var(--text)", fontSize: "15px", resize: "vertical", outline: "none", fontFamily: "inherit", lineHeight: 1.5 }} />
+
+            {/* Photo upload */}
+            <input ref={fileInputRef} type="file" accept="image/*" capture="environment" onChange={handlePhoto} style={{ display: "none" }} />
+            <div style={{ marginTop: "14px" }}>
+              {photoPreview ? (
+                <div style={{ position: "relative", borderRadius: "var(--radius-md)", overflow: "hidden", border: "1px solid var(--border)" }}>
+                  <img src={photoPreview} alt="Preview" style={{ width: "100%", maxHeight: 200, objectFit: "cover", display: "block" }} />
+                  <button onClick={() => { setPhoto(null); setPhotoPreview(null); }} style={{
+                    position: "absolute", top: 8, right: 8, width: 28, height: 28, borderRadius: "50%",
+                    background: "rgba(0,0,0,0.7)", border: "none", color: "#fff", fontSize: "14px",
+                    display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer",
+                  }}>✕</button>
+                </div>
+              ) : (
+                <button onClick={() => fileInputRef.current?.click()} style={{
+                  width: "100%", padding: "16px", borderRadius: "var(--radius-md)",
+                  background: "rgba(255,255,255,0.02)", border: "2px dashed var(--border-light)",
+                  color: "var(--text-dim)", fontSize: "14px", fontWeight: 500,
+                  display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", cursor: "pointer",
+                }}>
+                  📸 {lang === "es" ? "Agregar foto (opcional)" : "Add photo (optional)"}
+                </button>
+              )}
+            </div>
+
+            {/* Summary */}
             <div style={{ marginTop: 20, background: "var(--bg-elevated)", borderRadius: "var(--radius-md)", padding: "16px", border: "1px solid var(--border)" }}>
               <div style={{ fontSize: "11px", color: "var(--text-faint)", marginBottom: 10, textTransform: "uppercase", letterSpacing: "1.5px", fontWeight: 600 }}>{t.reportSummary}</div>
               <div style={{ fontSize: "14px", marginBottom: 6, display: "flex", alignItems: "center", gap: "6px" }}>
-                <span style={{ fontSize: "16px" }}>📍</span>
-                {zones.find((z) => z.id === zoneId)?.name} ({zones.find((z) => z.id === zoneId)?.area})
+                📍 {zones.find((z) => z.id === zoneId)?.name} ({zones.find((z) => z.id === zoneId)?.area})
               </div>
               <div style={{ fontSize: "14px", color: severity ? SEVERITY[severity].color : "var(--text)", display: "flex", alignItems: "center", gap: "6px" }}>
-                <span style={{ fontSize: "16px" }}>{severity ? SEVERITY[severity].emoji : ""}</span>
-                {severity ? getSevLabel(severity, lang) : ""}
+                {severity ? SEVERITY[severity].emoji : ""} {severity ? getSevLabel(severity, lang) : ""}
               </div>
+              {photo && <div style={{ fontSize: "12px", color: "var(--text-dim)", marginTop: 6 }}>📸 1 {lang === "es" ? "foto adjunta" : "photo attached"}</div>}
             </div>
-            <button onClick={handleSubmit} disabled={submitting} style={{ width: "100%", marginTop: 20, padding: "16px", background: submitting ? "rgba(255,255,255,0.06)" : "linear-gradient(135deg, #D42A2A, #c42222)", color: "#fff", border: "none", borderRadius: "var(--radius-md)", fontSize: "16px", fontWeight: 700, boxShadow: submitting ? "none" : "0 8px 24px rgba(212,42,42,0.3)", letterSpacing: "-0.2px" }}>
-              {submitting ? t.sending : t.submitReport}
+
+            <button onClick={handleSubmit} disabled={submitting} style={{
+              width: "100%", marginTop: 20, padding: "16px",
+              background: submitting ? "rgba(255,255,255,0.06)" : "linear-gradient(135deg, #D42A2A, #c42222)",
+              color: "#fff", border: "none", borderRadius: "var(--radius-md)",
+              fontSize: "16px", fontWeight: 700,
+              boxShadow: submitting ? "none" : "0 8px 24px rgba(212,42,42,0.3)",
+            }}>
+              {submitting ? (photo ? (lang === "es" ? "Subiendo foto..." : "Uploading photo...") : t.sending) : t.submitReport}
             </button>
           </>
         )}
