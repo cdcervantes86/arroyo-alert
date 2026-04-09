@@ -1,13 +1,7 @@
 @import "leaflet/dist/leaflet.css";
-
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800&display=swap');
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  -webkit-tap-highlight-color: transparent;
-}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
 :root {
   --bg: #080d18;
@@ -55,11 +49,14 @@ button {
   cursor: pointer;
   transition: all 0.15s ease;
 }
+button:active { transform: scale(0.97); }
 
-button:active {
-  transform: scale(0.97);
-}
+/* Card hover/press */
+.card-interactive { transition: background 0.15s ease, transform 0.15s ease, border-color 0.15s ease; }
+.card-interactive:hover { background: var(--bg-card-hover) !important; }
+.card-interactive:active { transform: scale(0.985); }
 
+/* Leaflet */
 .arroyo-tooltip {
   background: rgba(8, 13, 24, 0.94) !important;
   color: #fff !important;
@@ -70,56 +67,66 @@ button:active {
   font-family: 'DM Sans', sans-serif !important;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5) !important;
 }
+.leaflet-tooltip-top::before { border-top-color: rgba(8, 13, 24, 0.94) !important; }
 
-.leaflet-tooltip-top::before {
-  border-top-color: rgba(8, 13, 24, 0.94) !important;
-}
-
+/* Animations */
 @keyframes danger-pulse {
   0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6); }
   50% { box-shadow: 0 0 0 20px rgba(239, 68, 68, 0); }
 }
-
 @keyframes blink {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.3; }
 }
-
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
 }
-
-@keyframes fadeOut {
-  from { opacity: 1; transform: translateY(0); }
-  to { opacity: 0; transform: translateY(-4px); }
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
 }
-
-@keyframes popIn {
-  0% { transform: scale(0.8); opacity: 0; }
-  50% { transform: scale(1.1); }
-  100% { transform: scale(1); opacity: 1; }
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
-
-@keyframes countUp {
-  0% { transform: translateY(0); }
-  50% { transform: translateY(-3px); }
-  100% { transform: translateY(0); }
-}
-
 @keyframes successPulse {
   0% { transform: scale(0.5); opacity: 0; }
   60% { transform: scale(1.15); opacity: 1; }
   100% { transform: scale(1); opacity: 1; }
 }
+@keyframes countUp {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+  100% { transform: translateY(0); }
+}
+@keyframes shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+@keyframes offlinePulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
 
+/* Skeleton loader */
+.skeleton {
+  background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0.03) 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--radius-md);
+}
+
+/* Screen transition wrapper */
+.screen-enter { animation: fadeIn 0.25s ease; }
+.screen-slide { animation: slideIn 0.3s ease; }
+
+/* Scrollbar */
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius: 4px; }
 
-/* Safe area for mobile FAB */
+/* Safe area */
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
-  .fab-container {
-    padding-bottom: env(safe-area-inset-bottom, 0);
-  }
+  .fab-container { padding-bottom: env(safe-area-inset-bottom, 0); }
 }

@@ -1,39 +1,27 @@
 "use client";
 import { useEffect, useRef } from "react";
-import { ZONES, SEVERITY, getZoneSeverity, getSevLabel } from "@/lib/zones";
+import { ZONES, SEVERITY, getZoneSeverity, getZoneReports } from "@/lib/zones";
 
-export default function MapView({ reports, onZoneClick, panelOpen, activeFilter, lang }) {
+export default function MapView({ reports, onZoneClick, panelOpen, activeFilter }) {
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const markersRef = useRef([]);
 
   useEffect(() => {
     if (mapInstanceRef.current || !mapRef.current) return;
-
     const L = require("leaflet");
-
     delete L.Icon.Default.prototype._getIconUrl;
     L.Icon.Default.mergeOptions({ iconRetinaUrl: "", iconUrl: "", shadowUrl: "" });
 
     const map = L.map(mapRef.current, {
-      center: [10.96, -74.805],
-      zoom: 13,
-      zoomControl: false,
-      attributionControl: false,
+      center: [10.96, -74.805], zoom: 13, zoomControl: false, attributionControl: false,
     });
-
-    L.tileLayer(
-      "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
-      { maxZoom: 19, subdomains: "abcd" }
-    ).addTo(map);
-
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", { maxZoom: 19, subdomains: "abcd" }).addTo(map);
     L.control.zoom({ position: "bottomright" }).addTo(map);
     L.control.attribution({ position: "bottomleft", prefix: false })
-      .addAttribution('&copy; <a href="https://openstreetmap.org/copyright" style="color:rgba(255,255,255,0.3)">OSM</a> &middot; CARTO')
+      .addAttribution('&copy; <a href="https://openstreetmap.org/copyright" style="color:rgba(255,255,255,0.3)">OSM</a> · CARTO')
       .addTo(map);
-
     mapInstanceRef.current = map;
-
     return () => { map.remove(); mapInstanceRef.current = null; };
   }, []);
 
@@ -47,7 +35,6 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
   useEffect(() => {
     const map = mapInstanceRef.current;
     if (!map) return;
-
     const L = require("leaflet");
 
     markersRef.current.forEach((m) => map.removeLayer(m));
@@ -55,23 +42,35 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
 
     ZONES.forEach((zone) => {
       const sev = getZoneSeverity(zone.id, reports);
+      const zr = getZoneReports(zone.id, reports);
+      const count = zr.length;
       const colors = { danger: "#ef4444", caution: "#f59e0b", safe: "#22c55e" };
       const col = sev ? colors[sev] : "#555";
       const size = sev === "danger" ? 22 : sev ? 16 : 10;
       const pulse = sev === "danger";
-
       const matchesFilter = !activeFilter || sev === activeFilter;
       const opacity = matchesFilter ? 1 : 0.15;
+
+      // Count badge HTML (only show for 2+ reports)
+      const badge = count >= 2 && matchesFilter
+        ? '<div style="position:absolute;top:-8px;right:-8px;min-width:18px;height:18px;' +
+          'background:#fff;color:#000;border-radius:9px;font-size:10px;font-weight:800;' +
+          'display:flex;align-items:center;justify-content:center;padding:0 4px;' +
+          'font-family:DM Sans,sans-serif;z-index:5;box-shadow:0 2px 8px rgba(0,0,0,0.4);">' +
+          count + '</div>'
+        : '';
 
       const icon = L.divIcon({
         className: "",
         html:
+          '<div style="position:relative;width:' + size + "px;height:" + size + 'px;">' +
+          badge +
           '<div style="width:' + size + "px;height:" + size +
           "px;background:" + col +
           ";border-radius:50%;border:2px solid rgba(255,255,255,0.55);box-shadow:0 0 14px " +
           col + "70;cursor:pointer;opacity:" + opacity + ";" +
           (pulse && matchesFilter ? "animation:danger-pulse 2s ease-in-out infinite;" : "") +
-          '"></div>',
+          '"></div></div>',
         iconSize: [size, size],
         iconAnchor: [size / 2, size / 2],
       });
@@ -80,18 +79,15 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
         .on("click", () => onZoneClick(zone.id))
         .addTo(map);
 
-      const noReports = lang === "en" ? "No reports" : "Sin reportes";
-      const label = sev ? getSevLabel(sev, lang) : noReports;
+      const label = sev ? SEVERITY[sev].label : "Sin reportes";
       marker.bindTooltip(
-        "<b>" + zone.name + "</b><br/><span style='opacity:0.6'>" + zone.area + "</span><br/>" + label,
+        "<b>" + zone.name + "</b><br/><span style='opacity:0.6'>" + zone.area + "</span><br/>" + label +
+        (count > 0 ? " · " + count + " reporte" + (count > 1 ? "s" : "") : ""),
         { className: "arroyo-tooltip", direction: "top", offset: [0, -14] }
       );
-
       markersRef.current.push(marker);
     });
-  }, [reports, onZoneClick, activeFilter, lang]);
+  }, [reports, onZoneClick, activeFilter]);
 
-  return (
-    <div ref={mapRef} style={{ width: "100%", height: "100%", background: "var(--bg)" }} />
-  );
+  return <div ref={mapRef} style={{ width: "100%", height: "100%", background: "var(--bg)" }} />;
 }
