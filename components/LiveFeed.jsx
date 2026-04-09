@@ -1,15 +1,23 @@
 "use client";
+import { useEffect, useState } from "react";
 import { ZONES, SEVERITY } from "@/lib/zones";
 import { useLanguage } from "@/lib/LanguageContext";
 import { timeAgoLocalized } from "@/lib/translations";
 
-export default function LiveFeed({ reports, onZoneClick, onUpvote, upvotedSet, onUpvoteLocal }) {
+export default function LiveFeed({ reports, onZoneClick, onUpvote, upvotedSet, onUpvoteLocal, activeFilter }) {
   const { lang, t } = useLanguage();
+  const [, forceUpdate] = useState(0);
 
-  // All recent reports sorted by time, across all zones
+  // Auto-refresh timestamps every 30s
+  useEffect(() => {
+    const interval = setInterval(() => forceUpdate((n) => n + 1), 30000);
+    return () => clearInterval(interval);
+  }, []);
+
   const cutoff = Date.now() - 4 * 3600000;
   const recentReports = reports
     .filter((r) => new Date(r.created_at).getTime() > cutoff)
+    .filter((r) => !activeFilter || r.severity === activeFilter)
     .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
   const sevLabel = {
@@ -27,7 +35,9 @@ export default function LiveFeed({ reports, onZoneClick, onUpvote, upvotedSet, o
       }}>
         <div style={{ fontSize: "40px", marginBottom: "12px", opacity: 0.5 }}>🌤️</div>
         <div style={{ fontSize: "15px", fontWeight: 600, color: "var(--text-dim)", marginBottom: "4px" }}>
-          {lang === "es" ? "Sin actividad reciente" : "No recent activity"}
+          {activeFilter
+            ? (lang === "es" ? "Sin reportes de este tipo" : "No reports of this type")
+            : (lang === "es" ? "Sin actividad reciente" : "No recent activity")}
         </div>
         <div style={{ fontSize: "13px" }}>
           {lang === "es"
@@ -40,7 +50,6 @@ export default function LiveFeed({ reports, onZoneClick, onUpvote, upvotedSet, o
 
   return (
     <div style={{ overflowY: "auto", height: "100%", padding: "12px 14px 100px" }}>
-      {/* Header */}
       <div style={{
         display: "flex", alignItems: "center", gap: "8px",
         marginBottom: "14px", padding: "0 2px",
@@ -54,7 +63,6 @@ export default function LiveFeed({ reports, onZoneClick, onUpvote, upvotedSet, o
         </span>
       </div>
 
-      {/* Feed items */}
       <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
         {recentReports.map((r, i) => {
           const zone = ZONES.find((z) => z.id === r.zone_id);
@@ -63,34 +71,21 @@ export default function LiveFeed({ reports, onZoneClick, onUpvote, upvotedSet, o
           const isUpvoted = upvotedSet?.has(r.id);
 
           return (
-            <div
-              key={r.id}
-              style={{
-                background: `linear-gradient(135deg, ${cfg.bg}, var(--bg))`,
-                border: `1px solid ${cfg.color}15`,
-                borderRadius: "var(--radius-md)",
-                padding: "14px",
-                animation: `fadeIn 0.3s ease ${i * 0.04}s both`,
-                cursor: "pointer",
-              }}
-              onClick={() => onZoneClick?.(zone.id)}
-            >
-              {/* Top row: zone + time */}
+            <div key={r.id} style={{
+              background: `linear-gradient(135deg, ${cfg.bg}, var(--bg))`,
+              border: `1px solid ${cfg.color}15`,
+              borderRadius: "var(--radius-md)", padding: "14px",
+              animation: `fadeIn 0.3s ease ${i * 0.04}s both`,
+              cursor: "pointer",
+            }} onClick={() => onZoneClick?.(zone.id)}>
               <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
                 <span style={{ fontSize: "14px" }}>{cfg.emoji}</span>
-                <span style={{ fontSize: "13px", fontWeight: 700, color: "var(--text)" }}>
-                  {zone.name}
-                </span>
-                <span style={{ fontSize: "12px", color: "var(--text-dim)", fontWeight: 400 }}>
-                  {zone.area}
-                </span>
+                <span style={{ fontSize: "13px", fontWeight: 700, color: "var(--text)" }}>{zone.name}</span>
+                <span style={{ fontSize: "12px", color: "var(--text-dim)", fontWeight: 400 }}>{zone.area}</span>
                 <span style={{ flex: 1 }} />
-                <span style={{ fontSize: "11px", color: "var(--text-faint)", fontWeight: 500 }}>
-                  {timeAgoLocalized(r.created_at, lang)}
-                </span>
+                <span style={{ fontSize: "11px", color: "var(--text-faint)", fontWeight: 500 }}>{timeAgoLocalized(r.created_at, lang)}</span>
               </div>
 
-              {/* Severity badge */}
               <div style={{
                 display: "inline-block", padding: "3px 10px", borderRadius: "12px",
                 background: `${cfg.color}15`, color: cfg.color,
@@ -99,33 +94,29 @@ export default function LiveFeed({ reports, onZoneClick, onUpvote, upvotedSet, o
                 {sevLabel[r.severity]}
               </div>
 
-              {/* Text */}
-              <p style={{
-                margin: "0 0 10px", fontSize: "14px", lineHeight: 1.5,
-                color: "var(--text-secondary)",
-              }}>
+              <p style={{ margin: "0 0 10px", fontSize: "14px", lineHeight: 1.5, color: "var(--text-secondary)" }}>
                 {r.text}
               </p>
 
-              {/* Upvote */}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (!isUpvoted) {
-                    onUpvote?.(r.id, r.upvotes);
-                    onUpvoteLocal?.(r.id);
-                  }
-                }}
-                style={{
-                  background: isUpvoted ? "var(--accent-glow)" : "rgba(255,255,255,0.03)",
-                  border: `1px solid ${isUpvoted ? "rgba(96,165,250,0.2)" : "var(--border)"}`,
-                  borderRadius: "var(--radius-sm)", padding: "5px 10px",
-                  color: isUpvoted ? "var(--accent)" : "var(--text-dim)",
-                  fontSize: "11px", display: "flex", alignItems: "center", gap: "5px",
-                  fontWeight: 500, cursor: "pointer",
-                }}
-              >
-                👍 {isUpvoted ? t.confirmed : t.confirm} · {r.upvotes + (isUpvoted ? 1 : 0)}
+              <button onClick={(e) => {
+                e.stopPropagation();
+                if (!isUpvoted) {
+                  onUpvote?.(r.id, r.upvotes);
+                  onUpvoteLocal?.(r.id);
+                  if (navigator.vibrate) navigator.vibrate(50);
+                }
+              }} style={{
+                background: isUpvoted ? "var(--accent-glow)" : "rgba(255,255,255,0.03)",
+                border: `1px solid ${isUpvoted ? "rgba(96,165,250,0.2)" : "var(--border)"}`,
+                borderRadius: "var(--radius-sm)", padding: "5px 10px",
+                color: isUpvoted ? "var(--accent)" : "var(--text-dim)",
+                fontSize: "11px", display: "flex", alignItems: "center", gap: "5px",
+                fontWeight: 500, cursor: "pointer",
+              }}>
+                👍 {isUpvoted ? t.confirmed : t.confirm} ·{" "}
+                <span style={{ display: "inline-block", animation: isUpvoted ? "countUp 0.3s ease" : "none" }}>
+                  {r.upvotes + (isUpvoted ? 1 : 0)}
+                </span>
               </button>
             </div>
           );

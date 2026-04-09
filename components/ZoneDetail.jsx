@@ -1,21 +1,29 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { SEVERITY } from "@/lib/zones";
 import { useLanguage } from "@/lib/LanguageContext";
 import { timeAgoLocalized } from "@/lib/translations";
 
-export default function ZoneDetail({ zone, severity, reports, onBack, onReport, onUpvote, pushSupported, isSubscribed, onSubscribe, onUnsubscribe }) {
+export default function ZoneDetail({ zone, severity, reports, onBack, onReport, onUpvote, pushSupported, isSubscribed, onSubscribe, onUnsubscribe, onLogoClick }) {
   const { lang, t } = useLanguage();
   const [upvoted, setUpvoted] = useState(new Set());
   const [subscribing, setSubscribing] = useState(false);
+  const [, forceUpdate] = useState(0);
   const subscribed = isSubscribed?.(zone.id);
 
   const sevLabel = { danger: t.severityDanger, caution: t.severityCaution, safe: t.severitySafe };
+
+  // Auto-refresh timestamps every 30s
+  useEffect(() => {
+    const interval = setInterval(() => forceUpdate((n) => n + 1), 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleUpvote = (report) => {
     if (upvoted.has(report.id)) return;
     onUpvote(report.id, report.upvotes);
     setUpvoted((prev) => new Set([...prev, report.id]));
+    if (navigator.vibrate) navigator.vibrate(50);
   };
 
   const handleToggleSubscribe = async () => {
@@ -25,18 +33,39 @@ export default function ZoneDetail({ zone, severity, reports, onBack, onReport, 
     setSubscribing(false);
   };
 
+  const sevColor = severity ? SEVERITY[severity].color : "var(--border)";
+
   return (
     <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "var(--bg)", overflow: "hidden" }}>
+      {/* Header with logo */}
       <div style={{
-        padding: "14px 18px", display: "flex", alignItems: "center",
+        padding: "14px 18px", display: "flex", alignItems: "center", gap: "12px",
         borderBottom: "1px solid var(--border)", flexShrink: 0,
         background: "rgba(8,13,24,0.92)", backdropFilter: "blur(16px)",
       }}>
+        <button onClick={onLogoClick} style={{
+          display: "flex", alignItems: "center", gap: "8px",
+          background: "none", border: "none", padding: 0, cursor: "pointer",
+        }}>
+          <svg width={24} height={24} viewBox="0 0 512 512" style={{ borderRadius: 5, flexShrink: 0 }}>
+            <defs><linearGradient id="lBg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor="#14261a" /><stop offset="100%" stopColor="#0a1210" /></linearGradient></defs>
+            <rect width="512" height="512" rx="112" fill="url(#lBg)" />
+            <path d="M60 210 Q130 160 200 210 Q270 260 340 210 Q410 160 460 210" fill="none" stroke="#D42A2A" strokeWidth="28" strokeLinecap="round" opacity="0.9" />
+            <path d="M60 290 Q130 240 200 290 Q270 340 340 290 Q410 240 460 290" fill="none" stroke="#F5D033" strokeWidth="28" strokeLinecap="round" opacity="0.85" />
+            <path d="M60 370 Q130 320 200 370 Q270 420 340 370 Q410 320 460 370" fill="none" stroke="#2d8a2d" strokeWidth="28" strokeLinecap="round" opacity="0.75" />
+          </svg>
+          <span style={{ fontSize: "14px", fontWeight: 700, color: "var(--text)" }}>Arroyo<span style={{ color: "var(--baq-yellow)" }}>Alerta</span></span>
+        </button>
+        <span style={{ flex: 1 }} />
         <button onClick={onBack} style={{ background: "none", border: "none", color: "var(--accent)", fontSize: "14px", fontWeight: 600, padding: "4px 0" }}>
           {t.backToMap}
         </button>
       </div>
 
+      {/* Severity color stripe */}
+      <div style={{ height: 3, background: sevColor, flexShrink: 0, opacity: 0.7 }} />
+
+      {/* Content */}
       <div style={{ padding: "24px 20px", flex: 1, overflowY: "auto" }}>
         <div style={{ display: "flex", alignItems: "flex-start", gap: "14px", marginBottom: "4px" }}>
           <div style={{
@@ -113,7 +142,10 @@ export default function ZoneDetail({ zone, severity, reports, onBack, onReport, 
                   color: isUpvoted ? "var(--accent)" : "var(--text-dim)",
                   fontSize: "12px", display: "flex", alignItems: "center", gap: "6px", fontWeight: 500,
                 }}>
-                  👍 {isUpvoted ? t.confirmed : t.confirm} · {r.upvotes + (isUpvoted ? 1 : 0)}
+                  👍 {isUpvoted ? t.confirmed : t.confirm} ·{" "}
+                  <span style={{ display: "inline-block", animation: isUpvoted ? "countUp 0.3s ease" : "none" }}>
+                    {r.upvotes + (isUpvoted ? 1 : 0)}
+                  </span>
                 </button>
               </div>
             );

@@ -1,10 +1,15 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { SEVERITY, getZoneSeverity } from "@/lib/zones";
 import { useLanguage } from "@/lib/LanguageContext";
 
-export default function ReportFlow({ zones, reports, initialZoneId, onSubmit, onBack }) {
-  const { t } = useLanguage();
+const defaultTexts = {
+  es: { danger: "Arroyo peligroso, no cruzar", caution: "Agua corriendo por la calle", safe: "Ya se puede pasar, zona despejada" },
+  en: { danger: "Dangerous arroyo, do not cross", caution: "Water flowing on the street", safe: "Clear to pass, zone is safe" },
+};
+
+export default function ReportFlow({ zones, reports, initialZoneId, onSubmit, onBack, onLogoClick }) {
+  const { lang, t } = useLanguage();
   const [step, setStep] = useState(initialZoneId ? 1 : 0);
   const [zoneId, setZoneId] = useState(initialZoneId);
   const [severity, setSeverity] = useState(null);
@@ -18,9 +23,22 @@ export default function ReportFlow({ zones, reports, initialZoneId, onSubmit, on
     { key: "safe", label: t.severitySafe, hint: t.hintSafe },
   ];
 
+  // Auto-redirect after success
+  useEffect(() => {
+    if (!done) return;
+    const timer = setTimeout(() => onBack(), 2500);
+    return () => clearTimeout(timer);
+  }, [done, onBack]);
+
   const handleSubmit = async () => {
     setSubmitting(true);
-    await onSubmit({ zoneId, severity, text });
+    // Use default text if user didn't write anything
+    const finalText = text.trim() || defaultTexts[lang]?.[severity] || defaultTexts.es[severity] || "";
+    await onSubmit({ zoneId, severity, text: finalText });
+
+    // Haptic feedback on mobile
+    if (navigator.vibrate) navigator.vibrate(100);
+
     setDone(true);
   };
 
@@ -36,29 +54,59 @@ export default function ReportFlow({ zones, reports, initialZoneId, onSubmit, on
         alignItems: "center", justifyContent: "center",
         background: "linear-gradient(160deg, #052e16, #0a1628)",
       }}>
-        <div style={{ fontSize: "64px", marginBottom: "16px" }}>✅</div>
-        <h2 style={{ fontSize: "22px", fontWeight: 700 }}>{t.reportSent}</h2>
-        <p style={{ color: "var(--text-secondary)", fontSize: "14px", marginTop: "6px" }}>{t.thankYou}</p>
+        <div style={{ fontSize: "64px", marginBottom: "16px", animation: "successPulse 0.5s ease" }}>✅</div>
+        <h2 style={{ fontSize: "22px", fontWeight: 700, animation: "fadeIn 0.4s ease 0.2s both" }}>{t.reportSent}</h2>
+        <p style={{ color: "var(--text-secondary)", fontSize: "14px", marginTop: "6px", animation: "fadeIn 0.4s ease 0.4s both" }}>{t.thankYou}</p>
+        <div style={{
+          marginTop: "24px", width: "120px", height: "3px", borderRadius: "2px",
+          background: "rgba(255,255,255,0.06)", overflow: "hidden",
+          animation: "fadeIn 0.4s ease 0.6s both",
+        }}>
+          <div style={{
+            height: "100%", background: "var(--safe)",
+            animation: "progressBar 2.5s linear forwards",
+          }} />
+        </div>
+        <style>{`
+          @keyframes progressBar {
+            from { width: 0%; }
+            to { width: 100%; }
+          }
+        `}</style>
       </div>
     );
   }
 
   return (
     <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "var(--bg)", overflow: "auto" }}>
+      {/* Header with logo */}
       <div style={{
-        padding: "14px 18px", display: "flex", alignItems: "center",
+        padding: "14px 18px", display: "flex", alignItems: "center", gap: "12px",
         borderBottom: "1px solid var(--border)", flexShrink: 0,
         background: "rgba(8,13,24,0.92)", backdropFilter: "blur(16px)",
       }}>
-        <button onClick={goBack} style={{ background: "none", border: "none", color: "var(--accent)", fontSize: "14px", fontWeight: 600, padding: "4px 0" }}>
-          {t.back}
+        <button onClick={onLogoClick} style={{
+          display: "flex", alignItems: "center", gap: "8px",
+          background: "none", border: "none", padding: 0, cursor: "pointer",
+        }}>
+          <svg width={24} height={24} viewBox="0 0 512 512" style={{ borderRadius: 5, flexShrink: 0 }}>
+            <defs><linearGradient id="lBg2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor="#14261a" /><stop offset="100%" stopColor="#0a1210" /></linearGradient></defs>
+            <rect width="512" height="512" rx="112" fill="url(#lBg2)" />
+            <path d="M60 210 Q130 160 200 210 Q270 260 340 210 Q410 160 460 210" fill="none" stroke="#D42A2A" strokeWidth="28" strokeLinecap="round" opacity="0.9" />
+            <path d="M60 290 Q130 240 200 290 Q270 340 340 290 Q410 240 460 290" fill="none" stroke="#F5D033" strokeWidth="28" strokeLinecap="round" opacity="0.85" />
+            <path d="M60 370 Q130 320 200 370 Q270 420 340 370 Q410 320 460 370" fill="none" stroke="#2d8a2d" strokeWidth="28" strokeLinecap="round" opacity="0.75" />
+          </svg>
+          <span style={{ fontSize: "14px", fontWeight: 700, color: "var(--text)" }}>Arroyo<span style={{ color: "var(--baq-yellow)" }}>Alerta</span></span>
         </button>
         <span style={{ flex: 1, textAlign: "center", fontSize: "13px", color: "var(--text-dim)", fontWeight: 500 }}>
           {t.step} {step + 1} {t.of} 3
         </span>
-        <div style={{ width: 50 }} />
+        <button onClick={goBack} style={{ background: "none", border: "none", color: "var(--accent)", fontSize: "14px", fontWeight: 600, padding: "4px 0" }}>
+          {t.back}
+        </button>
       </div>
 
+      {/* Progress */}
       <div style={{ height: 3, background: "rgba(255,255,255,0.03)", flexShrink: 0 }}>
         <div style={{ height: "100%", background: "var(--accent)", width: `${((step + 1) / 3) * 100}%`, transition: "width 0.4s cubic-bezier(0.4,0,0.2,1)", borderRadius: "0 2px 2px 0" }} />
       </div>
@@ -131,6 +179,13 @@ export default function ReportFlow({ zones, reports, initialZoneId, onSubmit, on
                 resize: "vertical", outline: "none", fontFamily: "inherit",
                 boxSizing: "border-box", lineHeight: 1.5,
               }} />
+            {!text.trim() && (
+              <p style={{ fontSize: "12px", color: "var(--text-faint)", marginTop: "8px", fontStyle: "italic" }}>
+                {lang === "es"
+                  ? `Si no escribes nada, se enviará: "${defaultTexts.es[severity]}"`
+                  : `If left empty, will send: "${defaultTexts.en[severity]}"`}
+              </p>
+            )}
             <div style={{ marginTop: 20, background: "var(--bg-elevated)", borderRadius: "var(--radius-md)", padding: "16px", border: "1px solid var(--border)" }}>
               <div style={{ fontSize: "11px", color: "var(--text-faint)", marginBottom: 10, textTransform: "uppercase", letterSpacing: "1.5px", fontWeight: 600 }}>{t.reportSummary}</div>
               <div style={{ fontSize: "14px", marginBottom: 6, display: "flex", alignItems: "center", gap: "6px" }}>

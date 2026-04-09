@@ -41,6 +41,7 @@ function AppContent() {
   const [showPanel, setShowPanel] = useState(true);
   const [isDesktop, setIsDesktop] = useState(false);
   const [upvotedSet, setUpvotedSet] = useState(new Set());
+  const [activeFilter, setActiveFilter] = useState(null);
   const panelRef = useRef(null);
 
   useEffect(() => {
@@ -54,6 +55,7 @@ function AppContent() {
   const cautionCount = ZONES.filter((z) => getZoneSeverity(z.id, reports) === "caution").length;
   const cutoff = Date.now() - 4 * 3600000;
   const liveCount = reports.filter((r) => new Date(r.created_at).getTime() > cutoff).length;
+  const hasAnyReports = liveCount > 0;
 
   const handleZoneClick = useCallback((zoneId) => {
     setSelectedZone(zoneId);
@@ -70,16 +72,25 @@ function AppContent() {
     setUpvotedSet((prev) => new Set([...prev, id]));
   }, []);
 
+  const handleLogoClick = () => {
+    setScreen("main");
+    setSelectedZone(null);
+    setActiveFilter(null);
+    if (isDesktop) setDesktopView("map");
+    else setMobileView("map");
+  };
+
   const handleTabClick = (key) => {
     if (isDesktop) {
-      if (key === "live") {
-        setShowPanel((p) => !p);
-      } else {
-        setDesktopView(key);
-      }
+      if (key === "live") setShowPanel((p) => !p);
+      else setDesktopView(key);
     } else {
       setMobileView(key);
     }
+  };
+
+  const handleFilterClick = (filter) => {
+    setActiveFilter((prev) => prev === filter ? null : filter);
   };
 
   const isTabActive = (key) => {
@@ -99,6 +110,7 @@ function AppContent() {
         zones={ZONES} reports={reports} initialZoneId={selectedZone}
         onSubmit={async (data) => { await handleReport(data); setScreen("main"); }}
         onBack={() => setScreen("main")}
+        onLogoClick={handleLogoClick}
       />
     );
   }
@@ -117,6 +129,7 @@ function AppContent() {
         isSubscribed={push.isSubscribed}
         onSubscribe={push.subscribeToZone}
         onUnsubscribe={push.unsubscribeFromZone}
+        onLogoClick={handleLogoClick}
       />
     );
   }
@@ -135,12 +148,24 @@ function AppContent() {
         background: "rgba(8,13,24,0.92)", backdropFilter: "blur(16px)",
         borderBottom: "1px solid var(--border)", zIndex: 10, flexShrink: 0,
       }}>
-        <Logo size={30} />
-        <div style={{ flex: 1 }}>
+        <button onClick={handleLogoClick} style={{
+          display: "flex", alignItems: "center", gap: "10px",
+          background: "none", border: "none", padding: 0, cursor: "pointer",
+        }}>
+          <Logo size={30} />
           <span style={{ fontSize: "16px", fontWeight: 700, letterSpacing: "-0.3px", color: "var(--text)" }}>
             Arroyo<span style={{ color: "var(--baq-yellow)" }}>Alerta</span>
           </span>
-        </div>
+          <span style={{
+            fontSize: "9px", fontWeight: 700, letterSpacing: "1px", textTransform: "uppercase",
+            color: "var(--accent)", background: "var(--accent-glow)",
+            padding: "2px 6px", borderRadius: "4px", border: "1px solid rgba(96,165,250,0.15)",
+            marginLeft: "-4px", marginTop: "-8px",
+          }}>
+            Beta
+          </span>
+        </button>
+        <div style={{ flex: 1 }} />
         <button onClick={toggleLang} style={{
           padding: "5px 10px", borderRadius: "var(--radius-sm)",
           background: "rgba(255,255,255,0.04)", border: "1px solid var(--border)",
@@ -159,16 +184,14 @@ function AppContent() {
               background: isTabActive(tab.key) ? "var(--accent-glow)" : "transparent",
               color: isTabActive(tab.key) ? "var(--accent)" : "var(--text-dim)",
               fontWeight: isTabActive(tab.key) ? 600 : 400,
-              display: "flex", alignItems: "center", gap: "4px",
-              position: "relative",
+              display: "flex", alignItems: "center", gap: "4px", position: "relative",
             }}>
               {tab.icon}
               {tab.key === "live" && liveCount > 0 && !isTabActive("live") && (
                 <span style={{
                   position: "absolute", top: 2, right: 2,
                   width: 6, height: 6, borderRadius: "50%",
-                  background: "var(--danger)",
-                  animation: "blink 1.5s ease-in-out infinite",
+                  background: "var(--danger)", animation: "blink 1.5s ease-in-out infinite",
                 }} />
               )}
             </button>
@@ -182,20 +205,42 @@ function AppContent() {
         flexShrink: 0, borderBottom: "1px solid var(--border)", background: "var(--bg)",
       }}>
         {dangerCount > 0 && (
-          <div style={{ display: "flex", alignItems: "center", gap: "6px", background: "var(--danger-bg)", padding: "5px 12px", borderRadius: "20px", border: "1px solid var(--danger-border)" }}>
+          <button onClick={() => handleFilterClick("danger")} style={{
+            display: "flex", alignItems: "center", gap: "6px",
+            background: activeFilter === "danger" ? "rgba(239,68,68,0.2)" : "var(--danger-bg)",
+            padding: "5px 12px", borderRadius: "20px",
+            border: activeFilter === "danger" ? "2px solid var(--danger)" : "1px solid var(--danger-border)",
+            cursor: "pointer", transition: "all 0.15s ease",
+          }}>
             <span style={{ width: 6, height: 6, background: "var(--danger)", borderRadius: "50%", animation: "blink 1.5s ease-in-out infinite" }} />
             <span style={{ fontSize: "12px", color: "#fca5a5", fontWeight: 600 }}>{dangerCount} {t.danger}</span>
-          </div>
+          </button>
         )}
         {cautionCount > 0 && (
-          <div style={{ display: "flex", alignItems: "center", gap: "6px", background: "var(--caution-bg)", padding: "5px 12px", borderRadius: "20px", border: "1px solid var(--caution-border)" }}>
+          <button onClick={() => handleFilterClick("caution")} style={{
+            display: "flex", alignItems: "center", gap: "6px",
+            background: activeFilter === "caution" ? "rgba(245,158,11,0.2)" : "var(--caution-bg)",
+            padding: "5px 12px", borderRadius: "20px",
+            border: activeFilter === "caution" ? "2px solid var(--caution)" : "1px solid var(--caution-border)",
+            cursor: "pointer", transition: "all 0.15s ease",
+          }}>
             <span style={{ fontSize: "12px", color: "#fcd34d", fontWeight: 600 }}>{cautionCount} {t.caution}</span>
-          </div>
+          </button>
         )}
         {dangerCount === 0 && cautionCount === 0 && (
           <div style={{ display: "flex", alignItems: "center", gap: "6px", background: "var(--safe-bg)", padding: "5px 12px", borderRadius: "20px", border: "1px solid var(--safe-border)" }}>
             <span style={{ fontSize: "12px", color: "#86efac", fontWeight: 600 }}>{t.noActiveAlerts}</span>
           </div>
+        )}
+        {activeFilter && (
+          <button onClick={() => setActiveFilter(null)} style={{
+            display: "flex", alignItems: "center", gap: "4px",
+            background: "rgba(255,255,255,0.04)", padding: "5px 10px",
+            borderRadius: "20px", border: "1px solid var(--border)",
+            cursor: "pointer", fontSize: "11px", color: "var(--text-dim)", fontWeight: 500,
+          }}>
+            ✕ {lang === "es" ? "Limpiar" : "Clear"}
+          </button>
         )}
         <div style={{ flex: 1 }} />
         <span style={{ fontSize: "11px", color: "var(--text-faint)", fontWeight: 500 }}>{t.expiresIn}</span>
@@ -203,15 +248,34 @@ function AppContent() {
 
       {/* CONTENT */}
       <div style={{ flex: 1, position: "relative", overflow: "hidden", display: "flex" }}>
-        {/* Main area */}
         <div style={{ flex: 1, position: "relative", overflow: "hidden" }}>
           {currentMainView === "map" ? (
-            <Suspense fallback={<div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", color: "var(--text-dim)", fontSize: "14px" }}>{t.loadingMap}</div>}>
-              <MapView reports={reports} onZoneClick={handleZoneClick} panelOpen={panelVisible} />
-            </Suspense>
+            <>
+              <Suspense fallback={<div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", color: "var(--text-dim)", fontSize: "14px" }}>{t.loadingMap}</div>}>
+                <MapView reports={reports} onZoneClick={handleZoneClick} panelOpen={panelVisible} activeFilter={activeFilter} />
+              </Suspense>
+              {/* Map hint overlay — shows when no active reports */}
+              {!hasAnyReports && (
+                <div style={{
+                  position: "absolute", top: 16, left: "50%", transform: "translateX(-50%)",
+                  background: "rgba(8,13,24,0.85)", backdropFilter: "blur(8px)",
+                  padding: "10px 20px", borderRadius: "var(--radius-xl)",
+                  border: "1px solid var(--border)",
+                  fontSize: "13px", color: "var(--text-dim)", fontWeight: 500,
+                  pointerEvents: "none", zIndex: 5,
+                  animation: "fadeIn 0.5s ease 1s both",
+                  whiteSpace: "nowrap",
+                }}>
+                  {lang === "es" ? "Toca un punto para ver detalles" : "Tap a dot to see details"}
+                </div>
+              )}
+            </>
           ) : currentMainView === "list" ? (
             <div style={{ height: "100%", overflowY: "auto", padding: "14px 18px 120px" }}>
-              {ZONES.map((z, i) => {
+              {ZONES.filter((z) => {
+                if (!activeFilter) return true;
+                return getZoneSeverity(z.id, reports) === activeFilter;
+              }).map((z, i) => {
                 const sv = getZoneSeverity(z.id, reports);
                 const zr = getZoneReports(z.id, reports);
                 const lt = zr[0];
@@ -256,6 +320,14 @@ function AppContent() {
                   </button>
                 );
               })}
+              {/* Footer credit */}
+              <div style={{
+                textAlign: "center", padding: "32px 0 16px",
+                fontSize: "12px", color: "var(--text-faint)",
+                letterSpacing: "0.3px",
+              }}>
+                Hecho para Barranquilla 🇨🇴
+              </div>
             </div>
           ) : (
             <LiveFeed
@@ -264,11 +336,14 @@ function AppContent() {
               onUpvote={upvoteReport}
               upvotedSet={upvotedSet}
               onUpvoteLocal={handleUpvoteLocal}
+              activeFilter={activeFilter}
             />
           )}
 
           {/* FAB */}
-          <div style={{ position: "absolute", bottom: 24, left: "50%", transform: "translateX(-50%)", zIndex: 20 }}>
+          <div className="fab-container" style={{
+            position: "absolute", bottom: 28, left: "50%", transform: "translateX(-50%)", zIndex: 20,
+          }}>
             <button onClick={() => setScreen("report")} style={{
               padding: "15px 30px", background: "linear-gradient(135deg, #D42A2A, #c42222)",
               color: "#fff", border: "none", borderRadius: "50px", fontSize: "14px", fontWeight: 700,
@@ -283,29 +358,23 @@ function AppContent() {
           </div>
         </div>
 
-        {/* DESKTOP SIDE PANEL — always in DOM on desktop, animated width */}
+        {/* DESKTOP SIDE PANEL */}
         {isDesktop && (
           <div
             ref={panelRef}
-            onTransitionEnd={() => {
-              // Trigger map resize after animation completes
-              window.dispatchEvent(new Event("resize"));
-            }}
+            onTransitionEnd={() => { window.dispatchEvent(new Event("resize")); }}
             style={{
               width: showPanel ? 380 : 0,
-              minWidth: 0,
-              flexShrink: 0,
+              minWidth: 0, flexShrink: 0,
               borderLeft: showPanel ? "1px solid var(--border)" : "none",
               background: "var(--bg-elevated)",
-              display: "flex",
-              flexDirection: "column",
+              display: "flex", flexDirection: "column",
               overflow: "hidden",
               transition: "width 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
             }}
           >
             <div style={{
-              width: 380,
-              height: "100%",
+              width: 380, height: "100%",
               opacity: showPanel ? 1 : 0,
               transition: "opacity 0.2s ease",
               overflow: "hidden",
@@ -316,6 +385,7 @@ function AppContent() {
                 onUpvote={upvoteReport}
                 upvotedSet={upvotedSet}
                 onUpvoteLocal={handleUpvoteLocal}
+                activeFilter={activeFilter}
               />
             </div>
           </div>

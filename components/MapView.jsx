@@ -2,7 +2,7 @@
 import { useEffect, useRef } from "react";
 import { ZONES, SEVERITY, getZoneSeverity } from "@/lib/zones";
 
-export default function MapView({ reports, onZoneClick, panelOpen }) {
+export default function MapView({ reports, onZoneClick, panelOpen, activeFilter }) {
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const markersRef = useRef([]);
@@ -41,7 +41,6 @@ export default function MapView({ reports, onZoneClick, panelOpen }) {
   useEffect(() => {
     const map = mapInstanceRef.current;
     if (!map) return;
-    // Small delay to let DOM update first
     const timer = setTimeout(() => map.invalidateSize(), 100);
     return () => clearTimeout(timer);
   }, [panelOpen]);
@@ -62,14 +61,18 @@ export default function MapView({ reports, onZoneClick, panelOpen }) {
       const size = sev === "danger" ? 22 : sev ? 16 : 10;
       const pulse = sev === "danger";
 
+      // Dim markers that don't match filter
+      const matchesFilter = !activeFilter || sev === activeFilter;
+      const opacity = matchesFilter ? 1 : 0.15;
+
       const icon = L.divIcon({
         className: "",
         html:
           '<div style="width:' + size + "px;height:" + size +
           "px;background:" + col +
           ";border-radius:50%;border:2px solid rgba(255,255,255,0.55);box-shadow:0 0 14px " +
-          col + "70;cursor:pointer;" +
-          (pulse ? "animation:danger-pulse 2s ease-in-out infinite;" : "") +
+          col + "70;cursor:pointer;opacity:" + opacity + ";" +
+          (pulse && matchesFilter ? "animation:danger-pulse 2s ease-in-out infinite;" : "") +
           '"></div>',
         iconSize: [size, size],
         iconAnchor: [size / 2, size / 2],
@@ -87,7 +90,7 @@ export default function MapView({ reports, onZoneClick, panelOpen }) {
 
       markersRef.current.push(marker);
     });
-  }, [reports, onZoneClick]);
+  }, [reports, onZoneClick, activeFilter]);
 
   return (
     <div ref={mapRef} style={{ width: "100%", height: "100%", background: "var(--bg)" }} />
