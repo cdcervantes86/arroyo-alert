@@ -11,6 +11,8 @@ import LiveFeed from "@/components/LiveFeed";
 import WeatherIndicator from "@/components/WeatherIndicator";
 import Onboarding from "@/components/Onboarding";
 import AboutPage from "@/components/AboutPage";
+import HeatmapView from "@/components/HeatmapView";
+import RouteChecker from "@/components/RouteChecker";
 
 const MapView = lazy(() => import("@/components/MapView"));
 
@@ -114,6 +116,12 @@ function AppContent() {
   if (screen === "about") {
     return <AboutPage onBack={() => setScreen("main")} onLogoClick={handleLogoClick} />;
   }
+  if (screen === "heatmap") {
+    return <HeatmapView onBack={() => setScreen("main")} onLogoClick={handleLogoClick} />;
+  }
+  if (screen === "route") {
+    return <RouteChecker reports={reports} onBack={() => setScreen("main")} onLogoClick={handleLogoClick} />;
+  }
   if (screen === "report") {
     return <ReportFlow zones={ZONES} reports={reports} initialZoneId={selectedZone} onSubmit={async (data) => { await handleReport(data); setScreen("main"); }} onBack={() => setScreen("main")} onLogoClick={handleLogoClick} />;
   }
@@ -137,6 +145,13 @@ function AppContent() {
         </button>
         <div style={{ flex: 1 }} />
         <WeatherIndicator />
+        {/* Feature buttons */}
+        <button onClick={() => setScreen("route")} style={{ width: 30, height: 30, borderRadius: "50%", background: "rgba(255,255,255,0.04)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-dim)", fontSize: "13px", flexShrink: 0 }}>
+          🛣️
+        </button>
+        <button onClick={() => setScreen("heatmap")} style={{ width: 30, height: 30, borderRadius: "50%", background: "rgba(255,255,255,0.04)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-dim)", fontSize: "13px", flexShrink: 0 }}>
+          🔥
+        </button>
         <button onClick={() => setScreen("about")} style={{ width: 30, height: 30, borderRadius: "50%", background: "rgba(255,255,255,0.04)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-dim)", fontSize: "13px", fontWeight: 700, flexShrink: 0 }}>
           ⓘ
         </button>
