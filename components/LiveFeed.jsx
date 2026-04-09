@@ -97,7 +97,12 @@ export default function LiveFeed({ reports, onZoneClick, onUpvote, upvotedSet, o
                 <span style={{ fontSize: "13px", fontWeight: 700, color: "var(--text)" }}>{zone.name}</span>
                 <span style={{ fontSize: "12px", color: "var(--text-dim)" }}>{zone.area}</span>
                 <span style={{ flex: 1 }} />
-                <span style={{ fontSize: "11px", color: "var(--text-faint)", fontWeight: 500 }}>{timeAgoLocalized(r.created_at, lang)}</span>
+                <span style={{ fontSize: "11px", color: "var(--text-faint)", fontWeight: 500, display: "flex", alignItems: "center", gap: "4px" }}>
+                  {(r.severity === "danger" || r.severity === "caution") && (
+                    <span style={{ width: 5, height: 5, borderRadius: "50%", background: SEVERITY[r.severity].color, animation: "blink 2s ease infinite", flexShrink: 0 }} />
+                  )}
+                  {timeAgoLocalized(r.created_at, lang)}
+                </span>
               </div>
               <div style={{ display: "inline-block", padding: "3px 10px", borderRadius: "12px", background: `${cfg.color}15`, color: cfg.color, fontSize: "11px", fontWeight: 600, marginBottom: r.text ? "8px" : "10px" }}>
                 {getSevLabel(r.severity, lang)}

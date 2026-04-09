@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { SEVERITY, getZoneSeverity, getSevLabel } from "@/lib/zones";
+import { SEVERITY, getZoneSeverity } from "@/lib/zones";
 import { useLanguage } from "@/lib/LanguageContext";
 
 export default function ReportFlow({ zones, reports, initialZoneId, onSubmit, onBack, onLogoClick }) {

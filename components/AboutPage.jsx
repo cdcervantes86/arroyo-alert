@@ -1,9 +1,14 @@
 "use client";
+import { useState, useEffect } from "react";
 import { useLanguage } from "@/lib/LanguageContext";
+import { isAudioEnabled, setAudioEnabled, playDangerAlert } from "@/lib/audioAlerts";
 
 export default function AboutPage({ onBack, onLogoClick }) {
   const { lang } = useLanguage();
   const es = lang === "es";
+  const [audioOn, setAudioOn] = useState(true);
+
+  useEffect(() => { setAudioOn(isAudioEnabled()); }, []);
 
   return (
     <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "var(--bg)", overflow: "hidden" }}>
@@ -67,6 +72,44 @@ export default function AboutPage({ onBack, onLogoClick }) {
             </p>
           </div>
         ))}
+
+        {/* Settings */}
+        <div style={{ fontSize: "11px", color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "1.5px", fontWeight: 600, marginTop: "28px", marginBottom: "14px" }}>
+          {es ? "Configuración" : "Settings"}
+        </div>
+        <div style={{
+          display: "flex", justifyContent: "space-between", alignItems: "center",
+          padding: "16px", background: "var(--bg-card)", borderRadius: "var(--radius-md)",
+          border: "1px solid var(--border)", marginBottom: "8px",
+        }}>
+          <div>
+            <div style={{ fontSize: "14px", fontWeight: 600, color: "var(--text)" }}>
+              🔊 {es ? "Alerta sonora" : "Sound alerts"}
+            </div>
+            <div style={{ fontSize: "12px", color: "var(--text-dim)", marginTop: "2px" }}>
+              {es ? "Sonido al recibir reportes de peligro" : "Sound on danger reports"}
+            </div>
+          </div>
+          <button onClick={() => {
+            const newState = !audioOn;
+            setAudioOn(newState);
+            setAudioEnabled(newState);
+            if (newState) playDangerAlert(); // preview sound
+          }} style={{
+            width: 48, height: 28, borderRadius: 14, border: "none",
+            background: audioOn ? "var(--accent)" : "rgba(255,255,255,0.1)",
+            position: "relative", cursor: "pointer", transition: "background 0.2s ease",
+            flexShrink: 0,
+          }}>
+            <div style={{
+              width: 22, height: 22, borderRadius: "50%", background: "#fff",
+              position: "absolute", top: 3,
+              left: audioOn ? 23 : 3,
+              transition: "left 0.2s ease",
+              boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+            }} />
+          </button>
+        </div>
 
         {/* Emergency numbers */}
         <div style={{ fontSize: "11px", color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "1.5px", fontWeight: 600, marginTop: "28px", marginBottom: "14px" }}>
