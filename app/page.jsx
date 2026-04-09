@@ -97,7 +97,7 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, lang }) {
 function MoreMenu({ onSelect, lang, onClose }) {
   const es = lang === "es";
   return (
-    <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 90, background: "rgba(0,0,0,0.5)", animation: "fadeIn 0.15s ease" }}>
+    <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,0.5)", animation: "fadeIn 0.15s ease" }}>
       <div onClick={(e) => e.stopPropagation()} style={{ position: "absolute", bottom: 64, right: 12, left: 12, maxWidth: 300, marginLeft: "auto", background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: "var(--radius-lg)", padding: "6px", animation: "slideUp 0.2s ease", boxShadow: "0 -8px 40px rgba(0,0,0,0.5)" }}>
         {[
           { key: "route", icon: "🛣️", label: es ? "Ruta segura" : "Safe route", desc: es ? "Verifica arroyos en tu camino" : "Check arroyos on your path" },
