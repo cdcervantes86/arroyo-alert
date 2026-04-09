@@ -1,8 +1,8 @@
 "use client";
 import { useEffect, useRef } from "react";
-import { ZONES, SEVERITY, getZoneSeverity } from "@/lib/zones";
+import { ZONES, SEVERITY, getZoneSeverity, getSevLabel } from "@/lib/zones";
 
-export default function MapView({ reports, onZoneClick, panelOpen, activeFilter }) {
+export default function MapView({ reports, onZoneClick, panelOpen, activeFilter, lang }) {
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const markersRef = useRef([]);
@@ -37,7 +37,6 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter 
     return () => { map.remove(); mapInstanceRef.current = null; };
   }, []);
 
-  // Resize map when panel opens/closes
   useEffect(() => {
     const map = mapInstanceRef.current;
     if (!map) return;
@@ -61,7 +60,6 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter 
       const size = sev === "danger" ? 22 : sev ? 16 : 10;
       const pulse = sev === "danger";
 
-      // Dim markers that don't match filter
       const matchesFilter = !activeFilter || sev === activeFilter;
       const opacity = matchesFilter ? 1 : 0.15;
 
@@ -82,7 +80,8 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter 
         .on("click", () => onZoneClick(zone.id))
         .addTo(map);
 
-      const label = sev ? SEVERITY[sev].label : "Sin reportes";
+      const noReports = lang === "en" ? "No reports" : "Sin reportes";
+      const label = sev ? getSevLabel(sev, lang) : noReports;
       marker.bindTooltip(
         "<b>" + zone.name + "</b><br/><span style='opacity:0.6'>" + zone.area + "</span><br/>" + label,
         { className: "arroyo-tooltip", direction: "top", offset: [0, -14] }
@@ -90,7 +89,7 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter 
 
       markersRef.current.push(marker);
     });
-  }, [reports, onZoneClick, activeFilter]);
+  }, [reports, onZoneClick, activeFilter, lang]);
 
   return (
     <div ref={mapRef} style={{ width: "100%", height: "100%", background: "var(--bg)" }} />
