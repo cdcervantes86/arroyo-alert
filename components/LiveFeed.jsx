@@ -4,6 +4,7 @@ import { ZONES, SEVERITY, getSevLabel } from "@/lib/zones";
 import { useLanguage } from "@/lib/LanguageContext";
 import { timeAgoLocalized } from "@/lib/translations";
 import ShareCard from "./ShareCard";
+import CommentThread from "./CommentThread";
 
 function Countdown({ createdAt }) {
   const [, tick] = useState(0);
@@ -126,6 +127,7 @@ export default function LiveFeed({ reports, onZoneClick, onUpvote, upvotedSet, o
                   }}>
                     📤
                   </button>
+                  <CommentThread reportId={r.id} allDeviceCounts={deviceCounts} />
                 </div>
               </div>
             );

@@ -4,6 +4,7 @@ import { SEVERITY, getSevLabel } from "@/lib/zones";
 import { useLanguage } from "@/lib/LanguageContext";
 import { timeAgoLocalized } from "@/lib/translations";
 import ShareCard from "./ShareCard";
+import CommentThread from "./CommentThread";
 
 function Countdown({ createdAt }) {
   const [, tick] = useState(0);
@@ -90,8 +91,9 @@ export default function ZoneDetail({ zone, severity, reports, onBack, onReport, 
                   {r.text && <p style={{ margin: "0 0 8px", fontSize: "14px", lineHeight: 1.55, color: "var(--text-secondary)" }}>{r.text}</p>}
                   {r.photo_url && <div onClick={() => setExpandedPhoto(r.photo_url)} style={{ marginBottom: "10px", borderRadius: "var(--radius-sm)", overflow: "hidden", border: "1px solid var(--border)", cursor: "pointer" }}><img src={r.photo_url} alt="" style={{ width: "100%", maxHeight: 200, objectFit: "cover", display: "block" }} loading="lazy" /></div>}
                   {!r.text && !r.photo_url && <div style={{ marginBottom: "8px" }} />}
-                  <div style={{ display: "flex", gap: "6px" }}>
+                  <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
                     <button onClick={() => handleUpvote(r)} style={{ background: isUpvoted ? "var(--accent-glow)" : "rgba(255,255,255,0.03)", border: `1px solid ${isUpvoted ? "rgba(96,165,250,0.2)" : "var(--border)"}`, borderRadius: "var(--radius-sm)", padding: "6px 12px", color: isUpvoted ? "var(--accent)" : "var(--text-dim)", fontSize: "12px", display: "flex", alignItems: "center", gap: "6px", fontWeight: 500 }}>👍 {isUpvoted ? t.confirmed : t.confirm} · <span style={{ display: "inline-block", animation: isUpvoted ? "countUp 0.3s ease" : "none" }}>{r.upvotes + (isUpvoted ? 1 : 0)}</span></button>
+                    <CommentThread reportId={r.id} allDeviceCounts={deviceCounts} />
                   </div>
                 </div>
               );
