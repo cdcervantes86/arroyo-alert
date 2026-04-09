@@ -127,40 +127,42 @@ function AppContent() {
   return (
     <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "var(--bg)", overflow: "hidden" }}>
       {/* HEADER */}
-      <div style={{ padding: "14px 18px", display: "flex", alignItems: "center", gap: "10px", background: "rgba(8,13,24,0.92)", backdropFilter: "blur(16px)", borderBottom: "1px solid var(--border)", zIndex: 10, flexShrink: 0 }}>
-        <button onClick={handleLogoClick} style={{ display: "flex", alignItems: "center", gap: "10px", background: "none", border: "none", padding: 0, cursor: "pointer" }}>
-          <Logo size={30} />
-          <span style={{ fontSize: "16px", fontWeight: 700, letterSpacing: "-0.3px", color: "var(--text)" }}>
+      <div style={{ padding: "12px 16px", display: "flex", alignItems: "center", gap: "8px", background: "rgba(8,13,24,0.92)", backdropFilter: "blur(16px)", borderBottom: "1px solid var(--border)", zIndex: 10, flexShrink: 0 }}>
+        <button onClick={handleLogoClick} style={{ display: "flex", alignItems: "center", gap: "8px", background: "none", border: "none", padding: 0, cursor: "pointer", flexShrink: 0 }}>
+          <Logo size={28} />
+          <span style={{ fontSize: "15px", fontWeight: 700, letterSpacing: "-0.3px", color: "var(--text)" }}>
             Arroyo<span style={{ color: "var(--baq-yellow)" }}>Alerta</span>
           </span>
-          <span style={{ fontSize: "9px", fontWeight: 700, letterSpacing: "1px", textTransform: "uppercase", color: "var(--accent)", background: "var(--accent-glow)", padding: "2px 6px", borderRadius: "4px", border: "1px solid rgba(96,165,250,0.15)", marginLeft: "-4px", marginTop: "-8px" }}>Beta</span>
+          <span style={{ fontSize: "8px", fontWeight: 700, letterSpacing: "0.8px", textTransform: "uppercase", color: "var(--accent)", background: "var(--accent-glow)", padding: "2px 5px", borderRadius: "3px", border: "1px solid rgba(96,165,250,0.15)", marginLeft: "-2px", marginTop: "-8px" }}>Beta</span>
         </button>
         <div style={{ flex: 1 }} />
         <WeatherIndicator />
-        {/* About button */}
-        <button onClick={() => setScreen("about")} style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(255,255,255,0.04)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-dim)", fontSize: "14px", fontWeight: 700, flexShrink: 0 }}>
+        <button onClick={() => setScreen("about")} style={{ width: 30, height: 30, borderRadius: "50%", background: "rgba(255,255,255,0.04)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-dim)", fontSize: "13px", fontWeight: 700, flexShrink: 0 }}>
           ⓘ
         </button>
-        <button onClick={toggleLang} style={{ padding: "5px 10px", borderRadius: "var(--radius-sm)", background: "rgba(255,255,255,0.04)", border: "1px solid var(--border)", color: "var(--text-secondary)", fontSize: "11px", fontWeight: 700, letterSpacing: "0.5px", textTransform: "uppercase" }}>
+        <button onClick={toggleLang} style={{ padding: "4px 8px", borderRadius: "var(--radius-sm)", background: "rgba(255,255,255,0.04)", border: "1px solid var(--border)", color: "var(--text-secondary)", fontSize: "10px", fontWeight: 700, letterSpacing: "0.5px", textTransform: "uppercase", flexShrink: 0 }}>
           {lang === "es" ? "EN" : "ES"}
         </button>
-        <div style={{ display: "flex", background: "rgba(255,255,255,0.04)", borderRadius: "var(--radius-sm)", overflow: "hidden", border: "1px solid var(--border)" }}>
-          {tabs.map((tab) => (
-            <button key={tab.key} onClick={() => handleTabClick(tab.key)} style={{ padding: "7px 12px", fontSize: "12px", border: "none", background: isTabActive(tab.key) ? "var(--accent-glow)" : "transparent", color: isTabActive(tab.key) ? "var(--accent)" : "var(--text-dim)", fontWeight: isTabActive(tab.key) ? 600 : 400, display: "flex", alignItems: "center", gap: "4px", position: "relative" }}>
-              {tab.icon}
-              {tab.key === "live" && liveCount > 0 && !isTabActive("live") && (
-                <span style={{ position: "absolute", top: 2, right: 2, width: 6, height: 6, borderRadius: "50%", background: "var(--danger)", animation: "blink 1.5s ease-in-out infinite" }} />
-              )}
-            </button>
-          ))}
-        </div>
+        {/* Tabs — desktop only in header */}
+        {isDesktop && (
+          <div style={{ display: "flex", background: "rgba(255,255,255,0.04)", borderRadius: "var(--radius-sm)", overflow: "hidden", border: "1px solid var(--border)" }}>
+            {tabs.map((tab) => (
+              <button key={tab.key} onClick={() => handleTabClick(tab.key)} style={{ padding: "7px 12px", fontSize: "12px", border: "none", background: isTabActive(tab.key) ? "var(--accent-glow)" : "transparent", color: isTabActive(tab.key) ? "var(--accent)" : "var(--text-dim)", fontWeight: isTabActive(tab.key) ? 600 : 400, display: "flex", alignItems: "center", gap: "4px", position: "relative" }}>
+                {tab.icon}
+                {tab.key === "live" && liveCount > 0 && !isTabActive("live") && (
+                  <span style={{ position: "absolute", top: 2, right: 2, width: 6, height: 6, borderRadius: "50%", background: "var(--danger)", animation: "blink 1.5s ease-in-out infinite" }} />
+                )}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* OFFLINE BANNER */}
       <OfflineBanner lang={lang} />
 
       {/* STATUS BAR */}
-      <div style={{ padding: "10px 18px", display: "flex", gap: "8px", alignItems: "center", flexShrink: 0, borderBottom: "1px solid var(--border)", background: "var(--bg)" }}>
+      <div style={{ padding: "8px 16px", display: "flex", gap: "6px", alignItems: "center", flexShrink: 0, borderBottom: "1px solid var(--border)", background: "var(--bg)", flexWrap: "wrap" }}>
         {dangerCount > 0 && (
           <button onClick={() => handleFilterClick("danger")} style={{ display: "flex", alignItems: "center", gap: "6px", background: activeFilter === "danger" ? "rgba(239,68,68,0.2)" : "var(--danger-bg)", padding: "5px 12px", borderRadius: "20px", border: activeFilter === "danger" ? "2px solid var(--danger)" : "1px solid var(--danger-border)", cursor: "pointer", transition: "all 0.15s ease" }}>
             <span style={{ width: 6, height: 6, background: "var(--danger)", borderRadius: "50%", animation: "blink 1.5s ease-in-out infinite" }} />
@@ -183,7 +185,19 @@ function AppContent() {
           </button>
         )}
         <div style={{ flex: 1 }} />
-        <span style={{ fontSize: "11px", color: "var(--text-faint)", fontWeight: 500 }}>{t.expiresIn}</span>
+        {/* Tabs — mobile only in status bar */}
+        {!isDesktop && (
+          <div style={{ display: "flex", background: "rgba(255,255,255,0.04)", borderRadius: "var(--radius-sm)", overflow: "hidden", border: "1px solid var(--border)" }}>
+            {tabs.map((tab) => (
+              <button key={tab.key} onClick={() => handleTabClick(tab.key)} style={{ padding: "6px 11px", fontSize: "12px", border: "none", background: isTabActive(tab.key) ? "var(--accent-glow)" : "transparent", color: isTabActive(tab.key) ? "var(--accent)" : "var(--text-dim)", fontWeight: isTabActive(tab.key) ? 600 : 400, display: "flex", alignItems: "center", gap: "4px", position: "relative" }}>
+                {tab.icon}
+                {tab.key === "live" && liveCount > 0 && !isTabActive("live") && (
+                  <span style={{ position: "absolute", top: 1, right: 1, width: 6, height: 6, borderRadius: "50%", background: "var(--danger)", animation: "blink 1.5s ease-in-out infinite" }} />
+                )}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* CONTENT */}
