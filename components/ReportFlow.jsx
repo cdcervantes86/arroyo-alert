@@ -1,12 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
-import { SEVERITY, getZoneSeverity, getZoneDesc, getSevLabel } from "@/lib/zones";
+import { SEVERITY, getZoneSeverity, getSevLabel } from "@/lib/zones";
 import { useLanguage } from "@/lib/LanguageContext";
-
-const defaultTexts = {
-  es: { danger: "Arroyo peligroso, no cruzar", caution: "Agua corriendo por la calle", safe: "Ya se puede pasar, zona despejada" },
-  en: { danger: "Dangerous arroyo, do not cross", caution: "Water flowing on the street", safe: "Clear to pass, zone is safe" },
-};
 
 export default function ReportFlow({ zones, reports, initialZoneId, onSubmit, onBack, onLogoClick }) {
   const { lang, t } = useLanguage();
@@ -27,7 +22,7 @@ export default function ReportFlow({ zones, reports, initialZoneId, onSubmit, on
 
   const handleSubmit = async () => {
     setSubmitting(true);
-    const finalText = text.trim() || defaultTexts[lang]?.[severity] || defaultTexts.es[severity] || "";
+    const finalText = text.trim();
     await onSubmit({ zoneId, severity, text: finalText });
     if (navigator.vibrate) navigator.vibrate(100);
     setDone(true);
@@ -120,11 +115,6 @@ export default function ReportFlow({ zones, reports, initialZoneId, onSubmit, on
             <h2 style={{ fontSize: "20px", fontWeight: 700, margin: "0 0 4px", letterSpacing: "-0.3px" }}>{t.anythingElse}</h2>
             <p style={{ color: "var(--text-dim)", fontSize: "13px", margin: "0 0 20px" }}>{t.optional}</p>
             <textarea value={text} onChange={(e) => setText(e.target.value)} placeholder={t.textPlaceholder} style={{ width: "100%", minHeight: 110, background: "rgba(255,255,255,0.03)", border: "1px solid var(--border-light)", borderRadius: "var(--radius-md)", padding: "16px", color: "var(--text)", fontSize: "15px", resize: "vertical", outline: "none", fontFamily: "inherit", boxSizing: "border-box", lineHeight: 1.5 }} />
-            {!text.trim() && (
-              <p style={{ fontSize: "12px", color: "var(--text-faint)", marginTop: "8px", fontStyle: "italic" }}>
-                {lang === "es" ? `Si no escribes nada, se enviará: "${defaultTexts.es[severity]}"` : `If left empty, will send: "${defaultTexts.en[severity]}"`}
-              </p>
-            )}
             <div style={{ marginTop: 20, background: "var(--bg-elevated)", borderRadius: "var(--radius-md)", padding: "16px", border: "1px solid var(--border)" }}>
               <div style={{ fontSize: "11px", color: "var(--text-faint)", marginBottom: 10, textTransform: "uppercase", letterSpacing: "1.5px", fontWeight: 600 }}>{t.reportSummary}</div>
               <div style={{ fontSize: "14px", marginBottom: 6, display: "flex", alignItems: "center", gap: "6px" }}>

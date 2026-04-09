@@ -61,9 +61,11 @@ export default function LiveFeed({ reports, onZoneClick, onUpvote, upvotedSet, o
               <div style={{ display: "inline-block", padding: "3px 10px", borderRadius: "12px", background: `${cfg.color}15`, color: cfg.color, fontSize: "11px", fontWeight: 600, marginBottom: "8px" }}>
                 {getSevLabel(r.severity, lang)}
               </div>
-              <p style={{ margin: "0 0 10px", fontSize: "14px", lineHeight: 1.5, color: "var(--text-secondary)" }}>
-                {translateReportText(r.text, lang)}
-              </p>
+              {r.text ? (
+                <p style={{ margin: "0 0 10px", fontSize: "14px", lineHeight: 1.5, color: "var(--text-secondary)" }}>
+                  {r.text}
+                </p>
+              ) : null}
               <button onClick={(e) => { e.stopPropagation(); if (!isUpvoted) { onUpvote?.(r.id, r.upvotes); onUpvoteLocal?.(r.id); if (navigator.vibrate) navigator.vibrate(50); } }} style={{ background: isUpvoted ? "var(--accent-glow)" : "rgba(255,255,255,0.03)", border: `1px solid ${isUpvoted ? "rgba(96,165,250,0.2)" : "var(--border)"}`, borderRadius: "var(--radius-sm)", padding: "5px 10px", color: isUpvoted ? "var(--accent)" : "var(--text-dim)", fontSize: "11px", display: "flex", alignItems: "center", gap: "5px", fontWeight: 500, cursor: "pointer" }}>
                 👍 {isUpvoted ? t.confirmed : t.confirm} · <span style={{ display: "inline-block", animation: isUpvoted ? "countUp 0.3s ease" : "none" }}>{r.upvotes + (isUpvoted ? 1 : 0)}</span>
               </button>

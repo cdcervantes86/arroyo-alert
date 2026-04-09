@@ -2,7 +2,7 @@
 import { useState, useCallback, useEffect, useRef, lazy, Suspense } from "react";
 import { useReports } from "@/lib/useReports";
 import { usePushNotifications, notifyZone } from "@/lib/usePushNotifications";
-import { ZONES, SEVERITY, getZoneSeverity, getZoneReports, getZoneDesc, getSevLabel, translateReportText } from "@/lib/zones";
+import { ZONES, SEVERITY, getZoneSeverity, getZoneReports } from "@/lib/zones";
 import { LanguageProvider, useLanguage } from "@/lib/LanguageContext";
 import { timeAgoLocalized } from "@/lib/translations";
 import ReportFlow from "@/components/ReportFlow";
@@ -171,7 +171,7 @@ function AppContent() {
                       </div>
                       {lt ? (
                         <div style={{ fontSize: "12px", color: "var(--text-secondary)", marginTop: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                          {translateReportText(lt.text, lang)} · {timeAgoLocalized(lt.created_at, lang)}
+                          {lt.text ? `${lt.text} · ` : ""}{timeAgoLocalized(lt.created_at, lang)}
                         </div>
                       ) : (
                         <div style={{ fontSize: "12px", color: "var(--text-faint)", marginTop: 3 }}>{t.noRecentReports}</div>
