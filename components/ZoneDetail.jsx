@@ -72,7 +72,7 @@ export default function ZoneDetail({ zone, severity, reports, onBack, onReport, 
           </div>
           <div style={{ fontSize: "11px", color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "1.5px", margin: "0 0 12px", fontWeight: 600 }}>{t.recentReports} ({reports.length})</div>
           {!reports.length && <div style={{ textAlign: "center", padding: "48px 0", color: "var(--text-faint)", fontSize: "13px" }}><svg width="80" height="50" viewBox="0 0 120 80" fill="none" style={{ opacity: 0.25, marginBottom: "12px" }}><path d="M10 60 Q30 20 60 40 Q90 60 110 30" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" fill="none" /><circle cx="60" cy="40" r="3" fill="var(--accent)" /></svg><br />{t.noReportsForZone}</div>}
-          <div style={{ display: "flex", flexDirection: "column", gap: "10px", paddingBottom: 140 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "10px", paddingBottom: 200 }}>
             {reports.map((r, i) => {
               const isUpvoted = upvoted.has(r.id);
               const isVerified = r.device_id && (deviceCounts[r.device_id] || 0) >= 5;
