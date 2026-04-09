@@ -6,6 +6,8 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter 
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const markersRef = useRef([]);
+  const userMarkerRef = useRef(null);
+  const watchIdRef = useRef(null);
 
   useEffect(() => {
     if (mapInstanceRef.current || !mapRef.current) return;
@@ -19,10 +21,37 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter 
     L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", { maxZoom: 19, subdomains: "abcd" }).addTo(map);
     L.control.zoom({ position: "bottomright" }).addTo(map);
     L.control.attribution({ position: "bottomleft", prefix: false })
-      .addAttribution('&copy; <a href="https://openstreetmap.org/copyright" style="color:rgba(255,255,255,0.3)">OSM</a> · CARTO')
+      .addAttribution('&copy; <a href="https://openstreetmap.org/copyright" style="color:rgba(255,255,255,0.3)">OSM</a>')
       .addTo(map);
     mapInstanceRef.current = map;
-    return () => { map.remove(); mapInstanceRef.current = null; };
+
+    // User geolocation
+    if (navigator.geolocation) {
+      watchIdRef.current = navigator.geolocation.watchPosition(
+        (pos) => {
+          if (!mapInstanceRef.current) return;
+          const { latitude, longitude } = pos.coords;
+          if (userMarkerRef.current) map.removeLayer(userMarkerRef.current);
+          const userIcon = L.divIcon({
+            className: "",
+            html: '<div style="position:relative;width:18px;height:18px;">' +
+              '<div style="position:absolute;inset:-6px;background:rgba(59,130,246,0.15);border-radius:50%;"></div>' +
+              '<div style="width:18px;height:18px;background:#3B82F6;border-radius:50%;border:3px solid #fff;box-shadow:0 0 12px rgba(59,130,246,0.5);"></div></div>',
+            iconSize: [18, 18], iconAnchor: [9, 9],
+          });
+          userMarkerRef.current = L.marker([latitude, longitude], { icon: userIcon, interactive: false, zIndexOffset: 1000 }).addTo(map);
+          userMarkerRef.current.bindTooltip("Tú", { className: "arroyo-tooltip", direction: "top", offset: [0, -12], permanent: false });
+        },
+        () => {},
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 }
+      );
+    }
+
+    return () => {
+      if (watchIdRef.current != null) navigator.geolocation.clearWatch(watchIdRef.current);
+      map.remove();
+      mapInstanceRef.current = null;
+    };
   }, []);
 
   useEffect(() => {
@@ -51,40 +80,24 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter 
       const matchesFilter = !activeFilter || sev === activeFilter;
       const opacity = matchesFilter ? 1 : 0.15;
 
-      // Count badge HTML (only show for 2+ reports)
       const badge = count >= 2 && matchesFilter
-        ? '<div style="position:absolute;top:-8px;right:-8px;min-width:18px;height:18px;' +
-          'background:#fff;color:#000;border-radius:9px;font-size:10px;font-weight:800;' +
-          'display:flex;align-items:center;justify-content:center;padding:0 4px;' +
-          'font-family:DM Sans,sans-serif;z-index:5;box-shadow:0 2px 8px rgba(0,0,0,0.4);">' +
-          count + '</div>'
+        ? '<div style="position:absolute;top:-8px;right:-8px;min-width:18px;height:18px;background:#fff;color:#000;border-radius:9px;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 4px;font-family:DM Sans,sans-serif;z-index:5;box-shadow:0 2px 8px rgba(0,0,0,0.4);">' + count + '</div>'
         : '';
 
       const icon = L.divIcon({
         className: "",
-        html:
-          '<div style="position:relative;width:' + size + "px;height:" + size + 'px;">' +
-          badge +
-          '<div style="width:' + size + "px;height:" + size +
-          "px;background:" + col +
-          ";border-radius:50%;border:2px solid rgba(255,255,255,0.55);box-shadow:0 0 14px " +
-          col + "70;cursor:pointer;opacity:" + opacity + ";" +
-          (pulse && matchesFilter ? "animation:danger-pulse 2s ease-in-out infinite;" : "") +
-          '"></div></div>',
-        iconSize: [size, size],
-        iconAnchor: [size / 2, size / 2],
+        html: '<div style="position:relative;width:' + size + "px;height:" + size + 'px;">' + badge +
+          '<div style="width:' + size + "px;height:" + size + "px;background:" + col +
+          ";border-radius:50%;border:2px solid rgba(255,255,255,0.55);box-shadow:0 0 14px " + col + "70;cursor:pointer;opacity:" + opacity + ";" +
+          (pulse && matchesFilter ? "animation:danger-pulse 2s ease-in-out infinite;" : "") + '"></div></div>',
+        iconSize: [size, size], iconAnchor: [size / 2, size / 2],
       });
 
-      const marker = L.marker([zone.lat, zone.lng], { icon })
-        .on("click", () => onZoneClick(zone.id))
-        .addTo(map);
-
+      const marker = L.marker([zone.lat, zone.lng], { icon }).on("click", () => onZoneClick(zone.id)).addTo(map);
       const label = sev ? SEVERITY[sev].label : "Sin reportes";
-      marker.bindTooltip(
-        "<b>" + zone.name + "</b><br/><span style='opacity:0.6'>" + zone.area + "</span><br/>" + label +
+      marker.bindTooltip("<b>" + zone.name + "</b><br/><span style='opacity:0.6'>" + zone.area + "</span><br/>" + label +
         (count > 0 ? " · " + count + " reporte" + (count > 1 ? "s" : "") : ""),
-        { className: "arroyo-tooltip", direction: "top", offset: [0, -14] }
-      );
+        { className: "arroyo-tooltip", direction: "top", offset: [0, -14] });
       markersRef.current.push(marker);
     });
   }, [reports, onZoneClick, activeFilter]);

@@ -5,12 +5,24 @@ import { useLanguage } from "@/lib/LanguageContext";
 import { timeAgoLocalized } from "@/lib/translations";
 import ShareCard from "./ShareCard";
 
-function VerifiedBadge() {
+function Countdown({ createdAt }) {
+  const [, tick] = useState(0);
+  useEffect(() => { const i = setInterval(() => tick((n) => n + 1), 60000); return () => clearInterval(i); }, []);
+  const expiresAt = new Date(createdAt).getTime() + 4 * 3600000;
+  const remaining = Math.max(0, expiresAt - Date.now());
+  const hours = Math.floor(remaining / 3600000);
+  const mins = Math.floor((remaining % 3600000) / 60000);
+  const pct = remaining / (4 * 3600000);
+  const color = pct > 0.5 ? "var(--text-faint)" : pct > 0.2 ? "var(--caution)" : "var(--danger)";
   return (
-    <span style={{ display: "inline-flex", alignItems: "center", gap: "3px", fontSize: "10px", fontWeight: 700, color: "var(--accent)", background: "var(--accent-glow)", padding: "1px 6px", borderRadius: "4px", border: "1px solid rgba(96,165,250,0.15)" }}>
-      ✓
+    <span style={{ fontSize: "10px", color, fontWeight: 500 }}>
+      ⏱ {hours}h {mins}m
     </span>
   );
+}
+
+function VerifiedBadge() {
+  return <span style={{ display: "inline-flex", alignItems: "center", fontSize: "10px", fontWeight: 700, color: "var(--accent)", background: "var(--accent-glow)", padding: "1px 6px", borderRadius: "4px", border: "1px solid rgba(96,165,250,0.15)" }}>✓</span>;
 }
 
 function EmptyIllustration() {
@@ -35,7 +47,6 @@ export default function LiveFeed({ reports, onZoneClick, onUpvote, upvotedSet, o
     .filter((r) => !activeFilter || r.severity === activeFilter)
     .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
-  // Count reports per device_id to identify verified reporters
   const deviceCounts = {};
   reports.forEach((r) => { if (r.device_id) deviceCounts[r.device_id] = (deviceCounts[r.device_id] || 0) + 1; });
 
@@ -54,11 +65,11 @@ export default function LiveFeed({ reports, onZoneClick, onUpvote, upvotedSet, o
   return (
     <>
       {shareData && <ShareCard {...shareData} onClose={() => setShareData(null)} />}
-      <div style={{ overflowY: "auto", height: "100%", padding: "12px 14px 100px" }}>
+      <div style={{ overflowY: "auto", height: "100%", padding: "12px 14px 80px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "14px", padding: "0 2px" }}>
           <span style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--danger)", animation: "blink 1.5s ease-in-out infinite", flexShrink: 0 }} />
           <span style={{ fontSize: "12px", fontWeight: 700, color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "1px" }}>
-            {lang === "es" ? "En vivo" : "Live"} · {recentReports.length} {lang === "es" ? "reportes" : "reports"}
+            {lang === "es" ? "En vivo" : "Live"} · {recentReports.length}
           </span>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
@@ -81,10 +92,13 @@ export default function LiveFeed({ reports, onZoneClick, onUpvote, upvotedSet, o
                   <span style={{ fontSize: "12px", color: "var(--text-dim)" }}>{zone.area}</span>
                   {isVerified && <VerifiedBadge />}
                   <span style={{ flex: 1 }} />
-                  <span style={{ fontSize: "11px", color: "var(--text-faint)", fontWeight: 500, display: "flex", alignItems: "center", gap: "4px" }}>
-                    {(r.severity === "danger" || r.severity === "caution") && <span style={{ width: 5, height: 5, borderRadius: "50%", background: cfg.color, animation: "blink 2s ease infinite", flexShrink: 0 }} />}
-                    {timeAgoLocalized(r.created_at, lang)}
-                  </span>
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "2px" }}>
+                    <span style={{ fontSize: "11px", color: "var(--text-faint)", fontWeight: 500, display: "flex", alignItems: "center", gap: "4px" }}>
+                      {(r.severity === "danger" || r.severity === "caution") && <span style={{ width: 5, height: 5, borderRadius: "50%", background: cfg.color, animation: "blink 2s ease infinite" }} />}
+                      {timeAgoLocalized(r.created_at, lang)}
+                    </span>
+                    <Countdown createdAt={r.created_at} />
+                  </div>
                 </div>
                 <div style={{ display: "inline-block", padding: "3px 10px", borderRadius: "12px", background: `${cfg.color}15`, color: cfg.color, fontSize: "11px", fontWeight: 600, marginBottom: r.text || r.photo_url ? "8px" : "10px" }}>
                   {getSevLabel(r.severity, lang)}
@@ -110,7 +124,7 @@ export default function LiveFeed({ reports, onZoneClick, onUpvote, upvotedSet, o
                     borderRadius: "var(--radius-sm)", padding: "5px 10px",
                     color: "#25D366", fontSize: "11px", fontWeight: 600, display: "flex", alignItems: "center", gap: "4px", cursor: "pointer",
                   }}>
-                    📤 {lang === "es" ? "Compartir" : "Share"}
+                    📤
                   </button>
                 </div>
               </div>
