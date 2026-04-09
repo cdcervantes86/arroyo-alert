@@ -189,7 +189,15 @@ function AppContent() {
   if (screen === "report") return <ReportFlow zones={ZONES} reports={reports} initialZoneId={selectedZone} onSubmit={async (data) => { await handleReport(data); setScreen("main"); }} onBack={() => setScreen("main")} onLogoClick={handleLogoClick} />;
   if (screen === "detail" && selectedZone) {
     const zone = ZONES.find((z) => z.id === selectedZone);
-    return <ZoneDetail zone={zone} severity={getZoneSeverity(selectedZone, reports)} reports={getZoneReports(selectedZone, reports)} onBack={() => { setScreen("main"); setSelectedZone(null); }} onReport={() => setScreen("report")} onUpvote={upvoteReport} pushSupported={push.supported} isSubscribed={push.isSubscribed} onSubscribe={push.subscribeToZone} onUnsubscribe={push.unsubscribeFromZone} onLogoClick={handleLogoClick} />;
+    return (
+      <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "var(--bg)", overflow: "hidden" }}>
+        <div style={{ flex: 1, overflow: "hidden" }}>
+          <ZoneDetail zone={zone} severity={getZoneSeverity(selectedZone, reports)} reports={getZoneReports(selectedZone, reports)} onBack={() => { setScreen("main"); setSelectedZone(null); }} onReport={() => setScreen("report")} onUpvote={upvoteReport} pushSupported={push.supported} isSubscribed={push.isSubscribed} onSubscribe={push.subscribeToZone} onUnsubscribe={push.unsubscribeFromZone} onLogoClick={handleLogoClick} />
+        </div>
+        {!isDesktop && <BottomNav activeTab="" onTab={(key) => { if (key === "more") { setShowMoreMenu(true); return; } setScreen("main"); setSelectedZone(null); setMobileView(key); }} onReport={() => setScreen("report")} liveCount={liveCount} lang={lang} />}
+        {showMoreMenu && <MoreMenu lang={lang} onSelect={(key) => { setSelectedZone(null); setScreen(key); }} onClose={() => setShowMoreMenu(false)} />}
+      </div>
+    );
   }
 
   const desktopTabs = [{ key: "map", icon: "🗺️" }, { key: "list", icon: "📋" }, { key: "live", icon: "🔴" }];
