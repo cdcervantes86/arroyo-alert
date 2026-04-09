@@ -1,25 +1,48 @@
-// ArroyoAlerta Service Worker — handles push notifications
+// ArroyoAlerta Service Worker
+// Version — bump this with each deploy to trigger update
+const SW_VERSION = "0.3.0";
+const CACHE_NAME = "arroyo-v" + SW_VERSION;
 
-self.addEventListener("push", (event) => {
-  let data = { title: "ArroyoAlerta", body: "Nueva alerta de arroyo", zone: "" };
+// Install — take over immediately
+self.addEventListener("install", function() {
+  self.skipWaiting();
+});
 
-  try {
-    data = event.data.json();
-  } catch (e) {
-    // fallback to defaults
-  }
+// Activate — clean old caches and notify clients
+self.addEventListener("activate", function(event) {
+  event.waitUntil(
+    caches.keys().then(function(keys) {
+      return Promise.all(
+        keys
+          .filter(function(key) { return key.startsWith("arroyo-") && key !== CACHE_NAME; })
+          .map(function(key) { return caches.delete(key); })
+      );
+    }).then(function() { return self.clients.claim(); })
+  );
 
-  const options = {
+  // Notify clients about update
+  event.waitUntil(
+    self.clients.matchAll({ type: "window" }).then(function(clients) {
+      clients.forEach(function(client) {
+        client.postMessage({ type: "SW_UPDATED", version: SW_VERSION });
+      });
+    })
+  );
+});
+
+// Push notifications
+self.addEventListener("push", function(event) {
+  var data = { title: "ArroyoAlerta", body: "Nueva alerta de arroyo", zone: "" };
+  try { data = event.data.json(); } catch (e) {}
+
+  var options = {
     body: data.body,
     icon: "/icon-192.png",
     badge: "/icon-192.png",
     vibrate: [200, 100, 200, 100, 200],
-    tag: `arroyo-${data.zoneId || "general"}`,
+    tag: "arroyo-" + (data.zoneId || "general"),
     renotify: true,
-    data: {
-      url: "/",
-      zoneId: data.zoneId,
-    },
+    data: { url: "/", zoneId: data.zoneId },
     actions: [
       { action: "open", title: "Ver mapa" },
       { action: "dismiss", title: "Cerrar" },
@@ -31,23 +54,20 @@ self.addEventListener("push", (event) => {
   );
 });
 
-self.addEventListener("notificationclick", (event) => {
+// Notification click
+self.addEventListener("notificationclick", function(event) {
   event.notification.close();
-
   if (event.action === "dismiss") return;
 
   event.waitUntil(
-    clients.matchAll({ type: "window" }).then((clientList) => {
-      // Focus existing window if open
-      for (const client of clientList) {
-        if (client.url.includes("arroyo-alert") && "focus" in client) {
+    clients.matchAll({ type: "window" }).then(function(clientList) {
+      for (var i = 0; i < clientList.length; i++) {
+        var client = clientList[i];
+        if (client.url.indexOf("arroyo-alert") !== -1 && "focus" in client) {
           return client.focus();
         }
       }
-      // Otherwise open new window
-      if (clients.openWindow) {
-        return clients.openWindow("/");
-      }
+      if (clients.openWindow) return clients.openWindow("/");
     })
   );
 });

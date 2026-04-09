@@ -44,9 +44,26 @@ export default function ZoneDetail({ zone, severity, reports, onBack, onReport, 
   return (
     <>
       {shareData && <ShareCard {...shareData} onClose={() => setShareData(null)} />}
-      {expandedPhoto && <div onClick={() => setExpandedPhoto(null)} style={{ position: "fixed", inset: 0, zIndex: 100, background: "rgba(0,0,0,0.9)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", animation: "fadeIn 0.2s ease" }}><img src={expandedPhoto} alt="" style={{ maxWidth: "95%", maxHeight: "90vh", borderRadius: "12px", objectFit: "contain" }} /></div>}
-      <div className="screen-enter" style={{ position: "fixed", inset: 0, display: "flex", flexDirection: "column", background: "var(--bg)", zIndex: 50 }}>
-        <div style={{ padding: "12px 16px", display: "flex", alignItems: "center", gap: "10px", borderBottom: "1px solid var(--border)", flexShrink: 0, background: "rgba(8,13,24,0.92)", backdropFilter: "blur(16px)" }}>
+      {expandedPhoto && <div onClick={() => setExpandedPhoto(null)} style={{ position: "fixed", inset: 0, zIndex: 200, background: "rgba(0,0,0,0.9)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}><img src={expandedPhoto} alt="" style={{ maxWidth: "95%", maxHeight: "90vh", borderRadius: "12px", objectFit: "contain" }} /></div>}
+
+      {/*
+        SIMPLE LAYOUT: one scrollable div, no fixed positioning.
+        The entire page scrolls including the header.
+        This is the most iOS-compatible approach.
+      */}
+      <div style={{
+        position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
+        overflowY: "auto", WebkitOverflowScrolling: "touch",
+        background: "var(--bg)",
+      }}>
+        {/* Sticky header */}
+        <div style={{
+          position: "sticky", top: 0, zIndex: 10,
+          padding: "12px 16px",
+          display: "flex", alignItems: "center", gap: "10px",
+          background: "rgba(8,13,24,0.97)", backdropFilter: "blur(16px)",
+          borderBottom: "1px solid var(--border)",
+        }}>
           <button onClick={onLogoClick} style={{ display: "flex", alignItems: "center", gap: "8px", background: "none", border: "none", padding: 0, cursor: "pointer" }}>
             <svg width={24} height={24} viewBox="0 0 512 512" style={{ borderRadius: 5 }}><defs><linearGradient id="lBg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor="#14261a" /><stop offset="100%" stopColor="#0a1210" /></linearGradient></defs><rect width="512" height="512" rx="112" fill="url(#lBg)" /><path d="M60 210 Q130 160 200 210 Q270 260 340 210 Q410 160 460 210" fill="none" stroke="#D42A2A" strokeWidth="28" strokeLinecap="round" opacity="0.9" /><path d="M60 290 Q130 240 200 290 Q270 340 340 290 Q410 240 460 290" fill="none" stroke="#F5D033" strokeWidth="28" strokeLinecap="round" opacity="0.85" /><path d="M60 370 Q130 320 200 370 Q270 420 340 370 Q410 320 460 370" fill="none" stroke="#2d8a2d" strokeWidth="28" strokeLinecap="round" opacity="0.75" /></svg>
             <span style={{ fontSize: "14px", fontWeight: 700, color: "var(--text)" }}>Arroyo<span style={{ color: "var(--baq-yellow)" }}>Alerta</span></span>
@@ -55,8 +72,13 @@ export default function ZoneDetail({ zone, severity, reports, onBack, onReport, 
           <span style={{ flex: 1 }} />
           <button onClick={onBack} style={{ background: "none", border: "none", color: "var(--accent)", fontSize: "14px", fontWeight: 600 }}>{t.backToMap}</button>
         </div>
-        <div style={{ height: 3, background: sevColor, flexShrink: 0, opacity: 0.7 }} />
-        <div style={{ padding: "20px", flex: 1, overflowY: "auto" }}>
+
+        {/* Severity stripe */}
+        <div style={{ height: 3, background: sevColor, opacity: 0.7 }} />
+
+        {/* ALL CONTENT — normal flow, scrolls naturally */}
+        <div style={{ padding: "20px 20px calc(20px + env(safe-area-inset-bottom, 20px))" }}>
+          {/* Zone info */}
           <div style={{ display: "flex", alignItems: "flex-start", gap: "14px", marginBottom: "4px" }}>
             <div style={{ width: 48, height: 48, borderRadius: "var(--radius-md)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "26px", flexShrink: 0, background: severity ? `${SEVERITY[severity].color}10` : "rgba(255,255,255,0.03)", border: `1px solid ${severity ? SEVERITY[severity].color + "20" : "var(--border)"}` }}>{severity ? SEVERITY[severity].emoji : "⚪"}</div>
             <div style={{ flex: 1 }}>
@@ -65,18 +87,31 @@ export default function ZoneDetail({ zone, severity, reports, onBack, onReport, 
               <p style={{ margin: "4px 0 0", color: "var(--text-dim)", fontSize: "12px" }}>{zone.desc}</p>
             </div>
           </div>
-          <div style={{ display: "flex", gap: "8px", alignItems: "center", margin: "16px 0 24px", flexWrap: "wrap" }}>
+
+          {/* Badges row */}
+          <div style={{ display: "flex", gap: "8px", alignItems: "center", margin: "16px 0 20px", flexWrap: "wrap" }}>
             {severity && <div style={{ padding: "6px 14px", borderRadius: "20px", background: SEVERITY[severity].bg, color: SEVERITY[severity].color, fontSize: "12px", fontWeight: 600, border: `1px solid ${SEVERITY[severity].color}20` }}>{t.currentStatus}: {getSevLabel(severity, lang)}</div>}
             {pushSupported && <button onClick={handleToggleSubscribe} style={{ padding: "6px 14px", borderRadius: "20px", background: subscribed ? "rgba(96,165,250,0.1)" : "rgba(255,255,255,0.03)", color: subscribed ? "var(--accent)" : "var(--text-dim)", fontSize: "12px", fontWeight: 600, border: `1px solid ${subscribed ? "rgba(96,165,250,0.2)" : "var(--border)"}`, display: "flex", alignItems: "center", gap: "5px", transition: "all 0.2s ease" }}>{subscribed ? "🔔" : "🔕"} {subscribed ? t.notificationsActive : t.notifyMe}</button>}
             {severity && <button onClick={() => setShareData({ zoneName: zone.name, zoneArea: zone.area, severity, reportText: reports[0]?.text })} style={{ padding: "6px 14px", borderRadius: "20px", background: "rgba(37,211,102,0.08)", border: "1px solid rgba(37,211,102,0.15)", color: "#25D366", fontSize: "12px", fontWeight: 600, display: "flex", alignItems: "center", gap: "5px", cursor: "pointer" }}>📤 {lang === "es" ? "Compartir" : "Share"}</button>}
           </div>
 
           {/* Report button — inline, always visible */}
-          <button onClick={onReport} style={{ width: "100%", padding: "15px", marginBottom: "24px", background: "linear-gradient(135deg, #D42A2A, #c42222)", color: "#fff", border: "none", borderRadius: "var(--radius-md)", fontSize: "15px", fontWeight: 700, boxShadow: "0 6px 20px rgba(212,42,42,0.25)" }}>{t.reportThisZone}</button>
+          <button onClick={onReport} style={{
+            width: "100%", padding: "16px", marginBottom: "28px",
+            background: "linear-gradient(135deg, #D42A2A, #c42222)",
+            color: "#fff", border: "none", borderRadius: "var(--radius-md)",
+            fontSize: "16px", fontWeight: 700,
+            boxShadow: "0 6px 20px rgba(212,42,42,0.3)",
+          }}>
+            {t.reportThisZone}
+          </button>
 
+          {/* Reports section */}
           <div style={{ fontSize: "11px", color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "1.5px", margin: "0 0 12px", fontWeight: 600 }}>{t.recentReports} ({reports.length})</div>
+
           {!reports.length && <div style={{ textAlign: "center", padding: "48px 0", color: "var(--text-faint)", fontSize: "13px" }}><svg width="80" height="50" viewBox="0 0 120 80" fill="none" style={{ opacity: 0.25, marginBottom: "12px" }}><path d="M10 60 Q30 20 60 40 Q90 60 110 30" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" fill="none" /><circle cx="60" cy="40" r="3" fill="var(--accent)" /></svg><br />{t.noReportsForZone}</div>}
-          <div style={{ display: "flex", flexDirection: "column", gap: "10px", paddingBottom: 40 }}>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
             {reports.map((r, i) => {
               const isUpvoted = upvoted.has(r.id);
               const isVerified = r.device_id && (deviceCounts[r.device_id] || 0) >= 5;
