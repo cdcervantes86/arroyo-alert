@@ -18,8 +18,8 @@
   --bottom-nav-height: 64px;
 }
 
-html, body {
-  height: 100%; background: var(--bg); color: var(--text);
+html { height: 100%; } body {
+  min-height: 100dvh; min-height: -webkit-fill-available; background: var(--bg); color: var(--text);
   font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   -webkit-font-smoothing: antialiased; overflow: hidden;
 }
