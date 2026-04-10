@@ -50,7 +50,7 @@ export function ProfileIcon({ size = 20, color = "currentColor" }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="12" cy="8" r="4" />
-      <path d="M4 21v-1a6 6 0 0112 0v1" />
+      <path d="M20 21a8 8 0 00-16 0" />
     </svg>
   );
 }
@@ -66,10 +66,11 @@ export function ChartIcon({ size = 20, color = "currentColor" }) {
 }
 
 export function FlameIcon({ size = 20, color = "currentColor" }) {
+  // Used for "History" — clock with rewind arrow
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 2c1 4-2 6-2 10a4 4 0 008 0c0-4-3-6-2-10" />
-      <path d="M12 22a4 4 0 01-4-4c0-2 1.5-3 2-5 .5 2 2 3 2 5a4 4 0 01-4 4" />
+      <circle cx="12" cy="12" r="10" />
+      <polyline points="12 6 12 12 16 14" />
     </svg>
   );
 }
