@@ -263,6 +263,7 @@ function AppContent() {
       <div style={{ flex: 1, minHeight: 0, display: "flex", overflow: "hidden" }}>
         <div style={{ flex: 1, minHeight: 0, position: "relative", overflow: "hidden" }}>
           {currentMainView === "map" ? (
+            <>
             <Suspense fallback={<div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", color: "var(--text-dim)", fontSize: "14px" }}>{t.loadingMap}</div>}>
               <MapView reports={reports} onZoneClick={handleZoneClick} panelOpen={panelVisible} activeFilter={activeFilter} predictions={predictions} onMapReady={handleMapReady} />
             </Suspense>
@@ -292,6 +293,7 @@ function AppContent() {
                 </div>
               </div>
             )}
+            </>
           ) : currentMainView === "list" ? (
             <div style={{ height: "100%", overflowY: "auto", WebkitOverflowScrolling: "touch", padding: "14px 14px 20px" }}>
               {loading ? Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} i={i} />) : (
