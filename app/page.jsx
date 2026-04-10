@@ -21,6 +21,7 @@ import PullToRefresh from "@/components/PullToRefresh";
 import ReporterProfile from "@/components/ReporterProfile";
 import WeeklyDigest from "@/components/WeeklyDigest";
 import { useFavorites } from "@/lib/useFavorites";
+import { useUpdateChecker } from "@/lib/useUpdateChecker";
 
 const MapView = lazy(() => import("@/components/MapView"));
 
@@ -234,6 +235,7 @@ function AppContent() {
   const [lastReport, setLastReport] = useState(null);
   const radar = useRainRadar(mapInstance);
   const favs = useFavorites();
+  const pwaUpdate = useUpdateChecker();
 
   useEffect(() => { const c = () => setIsDesktop(window.innerWidth >= 900); c(); window.addEventListener("resize", c); return () => window.removeEventListener("resize", c); }, []);
   useEffect(() => { try { if (!localStorage.getItem("arroyo-onboarded")) setShowOnboarding(true); } catch(e) {} }, []);
@@ -339,6 +341,30 @@ function AppContent() {
 
       <EmergencyBanner emergency={emergency} lang={lang} />
       <OfflineBanner lang={lang} />
+      {/* PWA update available */}
+      {pwaUpdate.updateAvailable && (
+        <div style={{
+          padding: "12px 16px", display: "flex", alignItems: "center", gap: "10px",
+          background: "rgba(34,197,94,0.08)", borderBottom: "1px solid rgba(34,197,94,0.15)",
+          animation: "fadeIn 0.3s ease", flexShrink: 0,
+        }}>
+          <span style={{ fontSize: "14px" }}>🔄</span>
+          <div style={{ flex: 1 }}>
+            <span style={{ fontSize: "13px", color: "var(--safe)", fontWeight: 600 }}>
+              {es ? "Nueva versión disponible" : "New version available"}
+            </span>
+            {pwaUpdate.newVersion && <span style={{ fontSize: "11px", color: "var(--text-faint)", marginLeft: "6px" }}>v{pwaUpdate.newVersion}</span>}
+          </div>
+          <button onClick={pwaUpdate.doUpdate} style={{
+            padding: "7px 16px", borderRadius: "20px",
+            background: "var(--safe)", border: "none", color: "#fff",
+            fontSize: "12px", fontWeight: 700, cursor: "pointer",
+            boxShadow: "0 4px 12px rgba(34,197,94,0.2)",
+          }}>
+            {es ? "Actualizar" : "Update"}
+          </button>
+        </div>
+      )}
       <UpdateBanner />
 
       {/* STATUS BAR */}

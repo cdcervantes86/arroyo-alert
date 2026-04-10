@@ -1,6 +1,6 @@
 // AlertaArroyo Service Worker
 // Version — bump this with each deploy to trigger update
-const SW_VERSION = "0.4.0";
+const SW_VERSION = "0.4.1";
 const CACHE_NAME = "arroyo-v" + SW_VERSION;
 
 // Install — take over immediately
@@ -8,7 +8,7 @@ self.addEventListener("install", function() {
   self.skipWaiting();
 });
 
-// Activate — clean old caches and notify clients
+// Activate — clean old caches and notify all clients
 self.addEventListener("activate", function(event) {
   event.waitUntil(
     caches.keys().then(function(keys) {
@@ -20,12 +20,54 @@ self.addEventListener("activate", function(event) {
     }).then(function() { return self.clients.claim(); })
   );
 
-  // Notify clients about update
+  // Notify all open windows about the update
   event.waitUntil(
     self.clients.matchAll({ type: "window" }).then(function(clients) {
       clients.forEach(function(client) {
         client.postMessage({ type: "SW_UPDATED", version: SW_VERSION });
       });
+    })
+  );
+});
+
+// Fetch — network first, never cache API/version endpoints
+self.addEventListener("fetch", function(event) {
+  var url = new URL(event.request.url);
+
+  // Never cache version checks or API calls
+  if (url.pathname.startsWith("/api/")) return;
+
+  // Skip non-GET
+  if (event.request.method !== "GET") return;
+
+  // Skip external requests
+  if (url.origin !== self.location.origin) return;
+
+  // Network first for navigation requests
+  if (event.request.mode === "navigate") {
+    event.respondWith(
+      fetch(event.request).catch(function() {
+        return caches.match(event.request);
+      })
+    );
+    return;
+  }
+
+  // Stale-while-revalidate for static assets
+  event.respondWith(
+    caches.match(event.request).then(function(cached) {
+      var fetchPromise = fetch(event.request).then(function(networkResponse) {
+        if (networkResponse && networkResponse.ok) {
+          var clone = networkResponse.clone();
+          caches.open(CACHE_NAME).then(function(cache) {
+            cache.put(event.request, clone);
+          });
+        }
+        return networkResponse;
+      }).catch(function() {
+        return cached;
+      });
+      return cached || fetchPromise;
     })
   );
 });
