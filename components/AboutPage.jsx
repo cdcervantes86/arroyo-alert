@@ -64,9 +64,9 @@ export default function AboutPage({ onBack, onLogoClick }) {
         <div style={{ fontSize: "10px", color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "1.5px", fontWeight: 600, marginTop: "32px", marginBottom: "12px" }}>{es ? "Números de emergencia" : "Emergency numbers"}</div>
         {[
           { label: es ? "Línea de emergencia" : "Emergency line", number: "123" },
-          { label: "Bomberos Barranquilla", number: "119" },
-          { label: "Defensa Civil", number: "144" },
-          { label: "Cruz Roja", number: "132" },
+          { label: es ? "Bomberos Barranquilla" : "Fire Department", number: "119" },
+          { label: es ? "Defensa Civil" : "Civil Defense", number: "144" },
+          { label: es ? "Cruz Roja" : "Red Cross", number: "132" },
         ].map((item, i) => (
           <a key={i} href={`tel:${item.number}`} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px", marginBottom: "6px", background: "var(--bg-card)", borderRadius: "var(--radius-md)", border: "1px solid var(--border)", textDecoration: "none" }}>
             <span style={{ fontSize: "14px", color: "var(--text-secondary)" }}>{item.label}</span>
