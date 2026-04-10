@@ -214,6 +214,7 @@ function AppContent() {
   const [userLocation, setUserLocation] = useState(null);
   const [locationMarker, setLocationMarker] = useState(null);
   const [showDigest, setShowDigest] = useState(false);
+  const [lastReport, setLastReport] = useState(null);
   const radar = useRainRadar(mapInstance);
   const favs = useFavorites();
 
@@ -283,7 +284,7 @@ function AppContent() {
   if (screen === "about") return <AboutPage onBack={() => setScreen("main")} onLogoClick={handleLogoClick} />;
   if (screen === "heatmap") return <HeatmapView onBack={() => setScreen("main")} onLogoClick={handleLogoClick} />;
   if (screen === "profile") return <ReporterProfile reports={reports} onBack={() => setScreen("main")} onLogoClick={handleLogoClick} />;
-  if (screen === "report") return <ReportFlow zones={ZONES} reports={reports} initialZoneId={selectedZone} onSubmit={async (data) => { await handleReport(data); setScreen("main"); }} onBack={() => setScreen("main")} onLogoClick={handleLogoClick} />;
+  if (screen === "report") return <ReportFlow zones={ZONES} reports={reports} initialZoneId={selectedZone} onSubmit={async (data) => { await handleReport(data); const zone = ZONES.find(z => z.id === data.zoneId); setLastReport({ zoneName: zone?.name, zoneArea: zone?.area, severity: data.severity, text: data.text }); setScreen("main"); }} onBack={() => setScreen("main")} onLogoClick={handleLogoClick} />;
 
   const desktopTabs = [{ key: "map", icon: "🗺️" }, { key: "list", icon: "📋" }, { key: "live", icon: "🔴" }];
 
@@ -449,6 +450,46 @@ function AppContent() {
 
       {/* Weekly Digest modal */}
       {showDigest && <WeeklyDigest onClose={() => setShowDigest(false)} onZoneClick={handleZoneClick} />}
+
+      {/* Post-report WhatsApp share prompt */}
+      {lastReport && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 1100, background: "rgba(0,0,0,0.85)", backdropFilter: "blur(12px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px", animation: "fadeIn 0.2s ease" }}>
+          <div style={{ width: "100%", maxWidth: 340, textAlign: "center" }}>
+            <div style={{ fontSize: "48px", marginBottom: "16px", animation: "successPulse 0.5s ease" }}>✅</div>
+            <h3 style={{ fontSize: "20px", fontWeight: 800, marginBottom: "8px", letterSpacing: "-0.3px" }}>
+              {es ? "¡Reporte enviado!" : "Report sent!"}
+            </h3>
+            <p style={{ fontSize: "14px", color: "var(--text-secondary)", lineHeight: 1.6, marginBottom: "24px" }}>
+              {es
+                ? "Tu reporte protege a otros. Compártelo por WhatsApp para alertar a familiares y vecinos."
+                : "Your report protects others. Share it via WhatsApp to alert family and neighbors."}
+            </p>
+            <button onClick={() => {
+              const sevLabels = { danger: "PELIGROSO", caution: "Precaución", safe: "Despejado" };
+              const text = `⚠️ Arroyo ${sevLabels[lastReport.severity]} en ${lastReport.zoneName} (${lastReport.zoneArea})\n${lastReport.text ? lastReport.text + "\n" : ""}📍 AlertaArroyo — https://arroyo-alert.vercel.app`;
+              window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
+              setLastReport(null);
+            }} style={{
+              width: "100%", padding: "16px", borderRadius: "var(--radius-md)",
+              background: "#25D366", border: "none", color: "#fff",
+              fontSize: "16px", fontWeight: 700, cursor: "pointer",
+              display: "flex", alignItems: "center", justifyContent: "center", gap: "10px",
+              boxShadow: "0 8px 24px rgba(37,211,102,0.25)",
+            }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg>
+              {es ? "Compartir por WhatsApp" : "Share via WhatsApp"}
+            </button>
+            <button onClick={() => setLastReport(null)} style={{
+              width: "100%", marginTop: "10px", padding: "14px",
+              background: "none", border: "1px solid rgba(255,255,255,0.08)",
+              borderRadius: "var(--radius-md)", color: "var(--text-dim)",
+              fontSize: "14px", fontWeight: 500, cursor: "pointer",
+            }}>
+              {es ? "Ahora no" : "Not now"}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
