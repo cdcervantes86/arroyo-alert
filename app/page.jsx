@@ -397,6 +397,7 @@ function AppContent() {
                                 : <div style={{ fontSize: "12px", color: "var(--text-faint)", marginTop: 3 }}>{t.noRecentReports}</div>}
                             </div>
                             {zr.length > 0 && <span style={{ fontSize: "11px", color: c ? c.color : "var(--text-dim)", background: c ? `${c.color}0a` : "rgba(255,255,255,0.03)", padding: "3px 8px", borderRadius: "6px", flexShrink: 0, fontWeight: 700 }}>{zr.length}</span>}
+                            {lt?.photo_url && <img src={lt.photo_url} alt="" style={{ width: 32, height: 32, borderRadius: "var(--radius-sm)", objectFit: "cover", flexShrink: 0, border: "1px solid var(--border)" }} loading="lazy" />}
                             <span style={{ color: "var(--text-faint)", fontSize: "14px", flexShrink: 0 }}>›</span>
                           </button>
                         </div>

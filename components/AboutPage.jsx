@@ -3,11 +3,20 @@ import { useState, useEffect } from "react";
 import { useLanguage } from "@/lib/LanguageContext";
 import { isAudioEnabled, setAudioEnabled, playDangerAlert } from "@/lib/audioAlerts";
 import { APP_VERSION } from "@/lib/version";
+import { INCIDENTS } from "@/lib/incidents";
+
+const months = {
+  es: ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"],
+  en: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
+};
+function monthName(m, es) { return (es ? months.es : months.en)[m - 1] || ""; }
 
 export default function AboutPage({ onBack, onLogoClick }) {
   const { lang } = useLanguage();
   const es = lang === "es";
   const [audioOn, setAudioOn] = useState(true);
+  const [showAllIncidents, setShowAllIncidents] = useState(false);
+  const incidents = INCIDENTS;
   useEffect(() => { setAudioOn(isAudioEnabled()); }, []);
 
   return (
@@ -59,6 +68,29 @@ export default function AboutPage({ onBack, onLogoClick }) {
             <p style={{ fontSize: "14px", color: "var(--text-secondary)", lineHeight: 1.5, margin: 0 }}>{es ? tip.es : tip.en}</p>
           </div>
         ))}
+
+        {/* Recent incidents */}
+        <div style={{ fontSize: "10px", color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "1.5px", fontWeight: 600, marginTop: "32px", marginBottom: "12px" }}>{es ? "Incidentes recientes" : "Recent incidents"}</div>
+        <p style={{ fontSize: "12px", color: "var(--text-dim)", lineHeight: 1.5, marginBottom: "12px" }}>
+          {es ? "Los arroyos de Barranquilla han cobrado más de 115 vidas desde 1933. Estos son algunos incidentes recientes:" : "Barranquilla's arroyos have claimed over 115 lives since 1933. These are some recent incidents:"}
+        </p>
+        {incidents.slice(0, showAllIncidents ? incidents.length : 3).map((inc, i) => (
+          <div key={i} style={{ display: "flex", gap: "12px", alignItems: "flex-start", padding: "13px 14px", marginBottom: "6px", background: "rgba(212,42,42,0.03)", borderRadius: "var(--radius-md)", border: "1px solid rgba(212,42,42,0.08)", animation: `fadeIn 0.2s ease ${i * 0.04}s both` }}>
+            <div style={{ flexShrink: 0, textAlign: "center", minWidth: 36 }}>
+              <div style={{ fontSize: "14px", fontWeight: 800, color: "var(--danger)" }}>{inc.year}</div>
+              <div style={{ fontSize: "9px", color: "var(--text-faint)" }}>{monthName(inc.month, es)}</div>
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: "12px", fontWeight: 700, color: "var(--text)", marginBottom: "3px" }}>{inc.zone} <span style={{ fontWeight: 400, color: "var(--text-dim)" }}>· {inc.area}</span></div>
+              <p style={{ fontSize: "13px", color: "var(--text-secondary)", lineHeight: 1.5, margin: 0 }}>{es ? inc.es : inc.en}</p>
+            </div>
+          </div>
+        ))}
+        {incidents.length > 3 && (
+          <button onClick={() => setShowAllIncidents(!showAllIncidents)} style={{ width: "100%", padding: "10px", background: "none", border: "1px solid var(--border)", borderRadius: "var(--radius-md)", color: "var(--accent)", fontSize: "12px", fontWeight: 600, marginBottom: "6px" }}>
+            {showAllIncidents ? (es ? "Ver menos" : "Show less") : (es ? `Ver ${incidents.length - 3} más` : `Show ${incidents.length - 3} more`)}
+          </button>
+        )}
 
         {/* Emergency numbers */}
         <div style={{ fontSize: "10px", color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "1.5px", fontWeight: 600, marginTop: "32px", marginBottom: "12px" }}>{es ? "Números de emergencia" : "Emergency numbers"}</div>
