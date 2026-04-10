@@ -17,7 +17,7 @@ import HeatmapView from "@/components/HeatmapView";
 import RouteChecker from "@/components/RouteChecker";
 import UpdateBanner from "@/components/UpdateBanner";
 import { SeverityIcon } from "@/components/SeverityIcon";
-import { useRainRadar, RainRadarButton } from "@/components/RainRadar";
+import { useRainRadar, RainRadarButton, RadarPanel } from "@/components/RainRadar";
 import PullToRefresh from "@/components/PullToRefresh";
 import ReporterProfile from "@/components/ReporterProfile";
 import WeeklyDigest from "@/components/WeeklyDigest";
@@ -341,7 +341,7 @@ function AppContent() {
             {isRaining && <div className="rain-overlay" />}
             {/* Floating map controls */}
             <div style={{ position: "absolute", top: 12, right: 12, zIndex: 800, display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "8px" }}>
-              <RainRadarButton enabled={radar.enabled} loading={radar.loading} timestamp={radar.timestamp} onToggle={radar.toggle} />
+              <RainRadarButton enabled={radar.enabled} loading={radar.loading} onToggle={radar.toggle} />
               <button onClick={handleLocate} style={{
                 width: 40, height: 40, borderRadius: "50%",
                 background: userLocation ? "rgba(66,133,244,0.15)" : "rgba(8,13,24,0.9)",
@@ -354,6 +354,8 @@ function AppContent() {
                 </svg>
               </button>
             </div>
+            {/* Radar panel */}
+            {radar.enabled && <RadarPanel radarPath={radar.radarPath} timestamp={radar.timestamp} frames={radar.frames} frameIndex={radar.frameIndex} onClose={radar.toggle} onPlay={radar.playAnimation} />}
             {protectedCount > 0 && (
               <div className="social-proof">
                 <div style={{ background: "var(--bg-glass)", backdropFilter: "blur(12px)", borderRadius: "20px", padding: "6px 14px", border: "1px solid var(--border)", display: "flex", alignItems: "center", gap: "6px" }}>
