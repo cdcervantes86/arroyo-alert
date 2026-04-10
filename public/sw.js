@@ -1,6 +1,6 @@
-// ArroyoAlerta Service Worker
+// AlertaArroyo Service Worker
 // Version — bump this with each deploy to trigger update
-const SW_VERSION = "0.3.0";
+const SW_VERSION = "0.4.0";
 const CACHE_NAME = "arroyo-v" + SW_VERSION;
 
 // Install — take over immediately
@@ -32,7 +32,7 @@ self.addEventListener("activate", function(event) {
 
 // Push notifications
 self.addEventListener("push", function(event) {
-  var data = { title: "ArroyoAlerta", body: "Nueva alerta de arroyo", zone: "" };
+  var data = { title: "AlertaArroyo", body: "Nueva alerta de arroyo", zone: "" };
   try { data = event.data.json(); } catch (e) {}
 
   var options = {

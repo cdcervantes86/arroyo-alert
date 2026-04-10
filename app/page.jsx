@@ -90,7 +90,7 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, lang }) {
   return (
     <div className="bottom-nav" style={{
       display: "flex", alignItems: "stretch",
-      background: "rgba(7,11,20,0.97)", backdropFilter: "blur(20px)",
+      background: "rgba(10,15,26,0.97)", backdropFilter: "blur(20px)",
       borderTop: "1px solid var(--border)", flexShrink: 0, height: 56,
     }}>
       {tabs.map((tab) => {
@@ -306,7 +306,7 @@ function AppContent() {
   return (
     <div style={{ position: "fixed", inset: 0, display: "flex", flexDirection: "column", background: "var(--bg)", overflow: "hidden" }}>
       {/* HEADER */}
-      <div style={{ padding: "10px 16px", display: "flex", alignItems: "center", gap: "8px", background: emergency.active ? "rgba(30,5,5,0.95)" : "rgba(7,11,20,0.95)", backdropFilter: "blur(16px)", borderBottom: `1px solid ${emergency.active ? "rgba(239,68,68,0.2)" : "var(--border)"}`, flexShrink: 0, position: "relative", overflow: "hidden" }}>
+      <div style={{ padding: "10px 16px", display: "flex", alignItems: "center", gap: "8px", background: emergency.active ? "rgba(30,5,5,0.95)" : "rgba(10,15,26,0.95)", backdropFilter: "blur(16px)", borderBottom: `1px solid ${emergency.active ? "rgba(239,68,68,0.2)" : "var(--border)"}`, flexShrink: 0, position: "relative", overflow: "hidden" }}>
         <div className={headerGlow} style={{ position: "absolute", top: -30, left: "10%", right: "10%", height: 80, borderRadius: "50%", filter: "blur(40px)", pointerEvents: "none", animation: "glowPulse 4s ease-in-out infinite" }} />
         <button onClick={handleLogoClick} style={{ display: "flex", alignItems: "center", gap: "8px", background: "none", border: "none", padding: 0, cursor: "pointer", flexShrink: 0 }}>
           <Logo size={24} />
@@ -317,14 +317,14 @@ function AppContent() {
         {totalWatchers > 1 && <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "11px", color: "var(--text-faint)", fontWeight: 500 }}><span style={{ width: 5, height: 5, borderRadius: "50%", background: "var(--safe)", animation: "blink 2s ease infinite" }} />{totalWatchers} {es ? "en línea" : "online"}</div>}
         <WeatherIndicator />
         {isDesktop && <>
-          <button onClick={() => setScreen("profile")} style={{ width: 30, height: 30, borderRadius: "50%", background: "rgba(255,255,255,0.03)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-dim)", fontSize: "13px", flexShrink: 0 }}>👤</button>
-          <button onClick={() => setShowDigest(true)} style={{ width: 30, height: 30, borderRadius: "50%", background: "rgba(255,255,255,0.03)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-dim)", fontSize: "13px", flexShrink: 0 }}>📊</button>
-          <button onClick={() => setScreen("heatmap")} style={{ width: 30, height: 30, borderRadius: "50%", background: "rgba(255,255,255,0.03)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-dim)", fontSize: "13px", flexShrink: 0 }}>🔥</button>
-          <button onClick={() => setScreen("about")} style={{ width: 30, height: 30, borderRadius: "50%", background: "rgba(255,255,255,0.03)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-dim)", fontSize: "13px", fontWeight: 700, flexShrink: 0 }}>ⓘ</button>
+          <button onClick={() => setScreen("profile")} style={{ width: 30, height: 30, borderRadius: "50%", background: "rgba(255,255,255,0.045)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-dim)", fontSize: "13px", flexShrink: 0 }}>👤</button>
+          <button onClick={() => setShowDigest(true)} style={{ width: 30, height: 30, borderRadius: "50%", background: "rgba(255,255,255,0.045)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-dim)", fontSize: "13px", flexShrink: 0 }}>📊</button>
+          <button onClick={() => setScreen("heatmap")} style={{ width: 30, height: 30, borderRadius: "50%", background: "rgba(255,255,255,0.045)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-dim)", fontSize: "13px", flexShrink: 0 }}>🔥</button>
+          <button onClick={() => setScreen("about")} style={{ width: 30, height: 30, borderRadius: "50%", background: "rgba(255,255,255,0.045)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-dim)", fontSize: "13px", fontWeight: 700, flexShrink: 0 }}>ⓘ</button>
         </>}
-        <button onClick={toggleLang} style={{ padding: "4px 8px", borderRadius: "6px", background: "rgba(255,255,255,0.03)", border: "1px solid var(--border)", color: "var(--text-dim)", fontSize: "10px", fontWeight: 700, letterSpacing: "0.5px", textTransform: "uppercase", flexShrink: 0 }}>{lang === "es" ? "EN" : "ES"}</button>
+        <button onClick={toggleLang} style={{ padding: "4px 8px", borderRadius: "6px", background: "rgba(255,255,255,0.045)", border: "1px solid var(--border)", color: "var(--text-dim)", fontSize: "10px", fontWeight: 700, letterSpacing: "0.5px", textTransform: "uppercase", flexShrink: 0 }}>{lang === "es" ? "EN" : "ES"}</button>
         {isDesktop && (
-          <div style={{ display: "flex", background: "rgba(255,255,255,0.03)", borderRadius: "8px", overflow: "hidden", border: "1px solid var(--border)" }}>
+          <div style={{ display: "flex", background: "rgba(255,255,255,0.045)", borderRadius: "8px", overflow: "hidden", border: "1px solid var(--border)" }}>
             {desktopTabs.map((tab) => { const isActive = tab.key === "live" ? showPanel : desktopView === tab.key; return <button key={tab.key} onClick={() => handleDesktopTab(tab.key)} style={{ padding: "6px 12px", fontSize: "12px", border: "none", background: isActive ? "var(--accent-glow)" : "transparent", color: isActive ? "var(--accent)" : "var(--text-faint)", fontWeight: isActive ? 600 : 400, position: "relative" }}>{tab.icon}{tab.key === "live" && liveCount > 0 && !isActive && <span style={{ position: "absolute", top: 2, right: 2, width: 5, height: 5, borderRadius: "50%", background: "var(--danger)", animation: "blink 1.5s ease-in-out infinite" }} />}</button>; })}
           </div>
         )}
@@ -339,7 +339,7 @@ function AppContent() {
         {dangerCount > 0 && <button onClick={() => handleFilterClick("danger")} style={{ display: "flex", alignItems: "center", gap: "6px", background: activeFilter === "danger" ? "rgba(239,68,68,0.12)" : "var(--danger-bg)", padding: "5px 12px", borderRadius: "20px", border: activeFilter === "danger" ? "2px solid var(--danger)" : "1px solid var(--danger-border)", cursor: "pointer" }}><span style={{ width: 6, height: 6, background: "var(--danger)", borderRadius: "50%", animation: "blink 1.5s ease-in-out infinite" }} /><span style={{ fontSize: "12px", color: "#fca5a5", fontWeight: 600 }}>{dangerCount} {t.danger}</span></button>}
         {cautionCount > 0 && <button onClick={() => handleFilterClick("caution")} style={{ display: "flex", alignItems: "center", gap: "6px", background: activeFilter === "caution" ? "rgba(234,179,8,0.12)" : "var(--caution-bg)", padding: "5px 12px", borderRadius: "20px", border: activeFilter === "caution" ? "2px solid var(--caution)" : "1px solid var(--caution-border)", cursor: "pointer" }}><span style={{ fontSize: "12px", color: "#fde047", fontWeight: 600 }}>{cautionCount} {t.caution}</span></button>}
         {dangerCount === 0 && cautionCount === 0 && <div style={{ display: "flex", alignItems: "center", gap: "6px", background: "var(--safe-bg)", padding: "5px 12px", borderRadius: "20px", border: "1px solid var(--safe-border)" }}><span style={{ fontSize: "12px", color: "#86efac", fontWeight: 600 }}>{t.noActiveAlerts}</span></div>}
-        {activeFilter && <button onClick={() => setActiveFilter(null)} style={{ display: "flex", alignItems: "center", background: "rgba(255,255,255,0.03)", padding: "5px 10px", borderRadius: "20px", border: "1px solid var(--border)", cursor: "pointer", fontSize: "11px", color: "var(--text-dim)" }}>✕</button>}
+        {activeFilter && <button onClick={() => setActiveFilter(null)} style={{ display: "flex", alignItems: "center", background: "rgba(255,255,255,0.045)", padding: "5px 10px", borderRadius: "20px", border: "1px solid var(--border)", cursor: "pointer", fontSize: "11px", color: "var(--text-dim)" }}>✕</button>}
       </div>
 
       {/* CONTENT */}
@@ -353,12 +353,21 @@ function AppContent() {
             </Suspense>
             </MapErrorBoundary>
             {isRaining && <div className="rain-overlay" />}
+            {/* First-time hint — shows when no reports are active */}
+            {!loading && reports.filter(r => new Date(r.created_at).getTime() > Date.now() - 4 * 3600000).length === 0 && (
+              <div style={{ position: "absolute", bottom: 24, left: "50%", transform: "translateX(-50%)", zIndex: 6, pointerEvents: "none", animation: "fadeIn 0.5s ease 1s both" }}>
+                <div style={{ background: "rgba(10,15,26,0.92)", backdropFilter: "blur(12px)", borderRadius: "20px", padding: "10px 18px", border: "1px solid var(--border)", display: "flex", alignItems: "center", gap: "8px", whiteSpace: "nowrap" }}>
+                  <span style={{ fontSize: "14px" }}>👆</span>
+                  <span style={{ fontSize: "12px", color: "var(--text-secondary)", fontWeight: 500 }}>{es ? "Toca una zona o usa Reportar" : "Tap a zone or use Report"}</span>
+                </div>
+              </div>
+            )}
             {/* Floating map controls */}
             <div style={{ position: "absolute", top: 12, right: 12, zIndex: 800, display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "8px" }}>
               <RainRadarButton enabled={radar.enabled} onToggle={radar.toggle} />
               <button onClick={handleLocate} style={{
                 width: 40, height: 40, borderRadius: "50%",
-                background: userLocation ? "rgba(66,133,244,0.15)" : "rgba(8,13,24,0.9)",
+                background: userLocation ? "rgba(66,133,244,0.15)" : "rgba(10,15,26,0.9)",
                 border: `1px solid ${userLocation ? "rgba(66,133,244,0.25)" : "var(--border)"}`,
                 display: "flex", alignItems: "center", justifyContent: "center",
                 cursor: "pointer", boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
@@ -394,7 +403,7 @@ function AppContent() {
                             {isFav ? "⭐" : "☆"}
                           </button>
                           <button onClick={() => handleZoneClick(z.id)} className="card-interactive" style={{ flex: 1, background: "var(--bg-card)", border: "1px solid var(--border)", ...accentStyle, borderRadius: "var(--radius-md)", padding: "13px 14px", textAlign: "left", display: "flex", gap: "12px", alignItems: "center" }}>
-                            <div style={{ width: 38, height: 38, borderRadius: "var(--radius-sm)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: c ? `${c.color}08` : "rgba(255,255,255,0.02)", border: `1px solid ${c ? c.color + "15" : "var(--border)"}` }}><SeverityIcon severity={sv} size={22} /></div>
+                            <div style={{ width: 38, height: 38, borderRadius: "var(--radius-sm)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: c ? `${c.color}08` : "rgba(255,255,255,0.035)", border: `1px solid ${c ? c.color + "15" : "var(--border)"}` }}><SeverityIcon severity={sv} size={22} /></div>
                             <div style={{ flex: 1, minWidth: 0 }}>
                               <div style={{ fontSize: "14px", fontWeight: 600, color: "var(--text)", display: "flex", alignItems: "center", gap: "6px" }}>
                                 {z.name} <span style={{ fontWeight: 400, color: "var(--text-dim)", fontSize: "13px" }}>{z.area}</span>
@@ -404,7 +413,7 @@ function AppContent() {
                                 : pred && pred.score >= 30 ? <div style={{ fontSize: "12px", color: pred.score >= 70 ? "var(--danger)" : pred.score >= 40 ? "var(--caution)" : "var(--text-dim)", marginTop: 3 }}>🧠 {pred.score}% {es ? "probabilidad" : "probability"}</div>
                                 : <div style={{ fontSize: "12px", color: "var(--text-faint)", marginTop: 3 }}>{es ? z.desc : (z.descEn || z.desc)}</div>}
                             </div>
-                            {zr.length > 0 && <span style={{ fontSize: "11px", color: c ? c.color : "var(--text-dim)", background: c ? `${c.color}0a` : "rgba(255,255,255,0.03)", padding: "3px 8px", borderRadius: "6px", flexShrink: 0, fontWeight: 700 }}>{zr.length}</span>}
+                            {zr.length > 0 && <span style={{ fontSize: "11px", color: c ? c.color : "var(--text-dim)", background: c ? `${c.color}0a` : "rgba(255,255,255,0.045)", padding: "3px 8px", borderRadius: "6px", flexShrink: 0, fontWeight: 700 }}>{zr.length}</span>}
                             {lt?.photo_url && <img src={lt.photo_url} alt="" style={{ width: 32, height: 32, borderRadius: "var(--radius-sm)", objectFit: "cover", flexShrink: 0, border: "1px solid var(--border)" }} loading="lazy" />}
                             <span style={{ color: "var(--text-faint)", fontSize: "14px", flexShrink: 0 }}>›</span>
                           </button>

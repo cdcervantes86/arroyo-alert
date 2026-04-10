@@ -140,7 +140,7 @@ export default function LiveFeed({ reports, onZoneClick, onUpvote, upvotedSet, o
                   }}>
                     👍 {isUpvoted ? t.confirmed : t.confirm} · <span style={{ display: "inline-block", animation: isUpvoted ? "countUp 0.3s ease" : "none", fontVariantNumeric: "tabular-nums" }}>{r.upvotes + (isUpvoted ? 1 : 0)}</span>
                   </button>
-                  <button onClick={(e) => { e.stopPropagation(); setShareData({ zoneName: zone.name, zoneArea: zone.area, severity: r.severity, reportText: r.text }); }} style={{
+                  <button onClick={(e) => { e.stopPropagation(); setShareData({ zoneName: zone.name, zoneArea: zone.area, severity: r.severity, reportText: r.text, photoUrl: r.photo_url }); }} style={{
                     background: "rgba(37,211,102,0.05)", border: "1px solid rgba(37,211,102,0.1)",
                     borderRadius: "var(--radius-sm)", padding: "6px 11px",
                     color: "#25D366", fontSize: "11px", fontWeight: 600, display: "flex", alignItems: "center", gap: "4px", cursor: "pointer",
