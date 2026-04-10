@@ -17,7 +17,7 @@ import HeatmapView from "@/components/HeatmapView";
 import RouteChecker from "@/components/RouteChecker";
 import UpdateBanner from "@/components/UpdateBanner";
 import { SeverityIcon } from "@/components/SeverityIcon";
-import { useRainRadar, RainRadarButton, RadarPanel } from "@/components/RainRadar";
+import { useRainRadar, RainRadarButton } from "@/components/RainRadar";
 import PullToRefresh from "@/components/PullToRefresh";
 import ReporterProfile from "@/components/ReporterProfile";
 import WeeklyDigest from "@/components/WeeklyDigest";
@@ -216,7 +216,7 @@ function AppContent() {
   const [userLocation, setUserLocation] = useState(null);
   const [locationMarker, setLocationMarker] = useState(null);
   const [showDigest, setShowDigest] = useState(false);
-  const radar = useRainRadar();
+  const radar = useRainRadar(mapInstance);
   const favs = useFavorites();
 
   useEffect(() => { const c = () => setIsDesktop(window.innerWidth >= 900); c(); window.addEventListener("resize", c); return () => window.removeEventListener("resize", c); }, []);
@@ -354,8 +354,6 @@ function AppContent() {
                 </svg>
               </button>
             </div>
-            {/* Radar panel */}
-            {radar.enabled && <RadarPanel onClose={radar.toggle} />}
             {protectedCount > 0 && (
               <div className="social-proof">
                 <div style={{ background: "var(--bg-glass)", backdropFilter: "blur(12px)", borderRadius: "20px", padding: "6px 14px", border: "1px solid var(--border)", display: "flex", alignItems: "center", gap: "6px" }}>
