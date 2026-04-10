@@ -24,19 +24,31 @@ export function useRainRadar(mapInstance) {
   const [frameIndex, setFrameIndex] = useState(-1);
   const intervalRef = useRef(null);
 
+  const [dataSource, setDataSource] = useState("satellite"); // "satellite" or "radar"
+  const [radarFrames, setRadarFrames] = useState([]);
+  const [satelliteFrames, setSatelliteFrames] = useState([]);
+
   const fetchFrames = useCallback(async () => {
     setLoading(true);
     try {
       const res = await fetch("https://api.rainviewer.com/public/weather-maps.json");
       const data = await res.json();
-      const past = data.radar?.past || [];
-      if (past.length > 0) {
-        setFrames(past);
-        const latest = past[past.length - 1];
+      // Radar data
+      const rPast = data.radar?.past || [];
+      setRadarFrames(rPast);
+      // Satellite infrared — much better coverage for Colombia
+      const sPast = data.satellite?.infrared || [];
+      setSatelliteFrames(sPast);
+
+      const source = sPast.length > 0 ? sPast : rPast;
+      if (source.length > 0) {
+        setFrames(source);
+        const latest = source[source.length - 1];
         setRadarPath(latest.path);
-        setFrameIndex(past.length - 1);
+        setFrameIndex(source.length - 1);
         setTimestamp(new Date(latest.time * 1000));
         setEnabled(true);
+        setDataSource(sPast.length > 0 ? "satellite" : "radar");
       }
     } catch (e) {
       console.error("Radar fetch error:", e);
@@ -83,19 +95,34 @@ export function useRainRadar(mapInstance) {
     return () => clearInterval(anim);
   }, [frames]);
 
-  return { enabled, loading, radarPath, timestamp, toggle, frames, frameIndex, playAnimation };
+  // Switch between satellite and radar
+  const toggleSource = useCallback(() => {
+    const newSource = dataSource === "satellite" ? "radar" : "satellite";
+    const newFrames = newSource === "satellite" ? satelliteFrames : radarFrames;
+    if (newFrames.length > 0) {
+      setDataSource(newSource);
+      setFrames(newFrames);
+      const latest = newFrames[newFrames.length - 1];
+      setRadarPath(latest.path);
+      setFrameIndex(newFrames.length - 1);
+      setTimestamp(new Date(latest.time * 1000));
+    }
+  }, [dataSource, satelliteFrames, radarFrames]);
+
+  return { enabled, loading, radarPath, timestamp, toggle, frames, frameIndex, playAnimation, dataSource, toggleSource, hasRadar: radarFrames.length > 0 };
 }
 
-function RadarTile({ path, z, x, y, size }) {
-  // Color scheme 6 (Rainbow) — more visible than default; smooth=1, snow=1
-  const url = `https://tilecache.rainviewer.com${path}/${TILE_SIZE}/${z}/${x}/${y}/6/1_1.png`;
+function RadarTile({ path, z, x, y, size, isSatellite }) {
+  // Satellite: scheme 0 (IR colors), Radar: scheme 6 (Rainbow)
+  const scheme = isSatellite ? 0 : 6;
+  const url = `https://tilecache.rainviewer.com${path}/${TILE_SIZE}/${z}/${x}/${y}/${scheme}/1_1.png`;
   return (
     <img
       src={url}
       width={size}
       height={size}
       alt=""
-      style={{ display: "block", opacity: 0.9 }}
+      style={{ display: "block", opacity: isSatellite ? 0.75 : 0.9 }}
       draggable={false}
     />
   );
@@ -123,10 +150,11 @@ export function RainRadarButton({ enabled, loading, onToggle }) {
   );
 }
 
-export function RadarPanel({ radarPath, timestamp, frames, frameIndex, onClose, onPlay }) {
+export function RadarPanel({ radarPath, timestamp, frames, frameIndex, onClose, onPlay, dataSource, onToggleSource, hasRadar }) {
   const { lang } = useLanguage();
   const es = lang === "es";
-  const tileSize = 80; // px per tile in the 3x3 grid
+  const tileSize = 80;
+  const isSatellite = dataSource === "satellite";
 
   if (!radarPath) return null;
 
@@ -144,10 +172,19 @@ export function RadarPanel({ radarPath, timestamp, frames, frameIndex, onClose, 
         padding: "10px 12px", display: "flex", alignItems: "center", gap: "8px",
         borderBottom: "1px solid var(--border)",
       }}>
-        <span style={{ fontSize: "14px" }}>🌧️</span>
+        <span style={{ fontSize: "14px" }}>{isSatellite ? "🛰️" : "🌧️"}</span>
         <span style={{ fontSize: "12px", fontWeight: 600, color: "var(--text)", flex: 1 }}>
-          {es ? "Radar de lluvia" : "Rain radar"}
+          {isSatellite ? (es ? "Satélite IR" : "Satellite IR") : (es ? "Radar" : "Radar")}
         </span>
+        {hasRadar && (
+          <button onClick={onToggleSource} style={{
+            padding: "3px 8px", borderRadius: "4px", fontSize: "9px", fontWeight: 700,
+            background: "rgba(255,255,255,0.06)", border: "1px solid var(--border)",
+            color: "var(--text-dim)", textTransform: "uppercase", letterSpacing: "0.5px",
+          }}>
+            {isSatellite ? "Radar" : "Satélite"}
+          </button>
+        )}
         <button onClick={onClose} style={{
           width: 22, height: 22, borderRadius: "50%", background: "rgba(255,255,255,0.06)",
           border: "none", color: "var(--text-dim)", fontSize: "11px",
@@ -190,7 +227,7 @@ export function RadarPanel({ radarPath, timestamp, frames, frameIndex, onClose, 
               height: tileSize,
             }}
           >
-            <RadarTile path={radarPath} z={RADAR_ZOOM} x={TILE_X + dx} y={TILE_Y + dy} size={tileSize} />
+            <RadarTile path={radarPath} z={RADAR_ZOOM} x={TILE_X + dx} y={TILE_Y + dy} size={tileSize} isSatellite={isSatellite} />
           </div>
         )))}
         {/* Barranquilla marker — calculated from tile coordinates */}

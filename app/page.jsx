@@ -355,7 +355,7 @@ function AppContent() {
               </button>
             </div>
             {/* Radar panel */}
-            {radar.enabled && <RadarPanel radarPath={radar.radarPath} timestamp={radar.timestamp} frames={radar.frames} frameIndex={radar.frameIndex} onClose={radar.toggle} onPlay={radar.playAnimation} />}
+            {radar.enabled && <RadarPanel radarPath={radar.radarPath} timestamp={radar.timestamp} frames={radar.frames} frameIndex={radar.frameIndex} onClose={radar.toggle} onPlay={radar.playAnimation} dataSource={radar.dataSource} onToggleSource={radar.toggleSource} hasRadar={radar.hasRadar} />}
             {protectedCount > 0 && (
               <div className="social-proof">
                 <div style={{ background: "var(--bg-glass)", backdropFilter: "blur(12px)", borderRadius: "20px", padding: "6px 14px", border: "1px solid var(--border)", display: "flex", alignItems: "center", gap: "6px" }}>
