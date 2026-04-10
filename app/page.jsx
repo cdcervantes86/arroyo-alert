@@ -216,7 +216,7 @@ function AppContent() {
   const [userLocation, setUserLocation] = useState(null);
   const [locationMarker, setLocationMarker] = useState(null);
   const [showDigest, setShowDigest] = useState(false);
-  const radar = useRainRadar(mapInstance);
+  const radar = useRainRadar();
   const favs = useFavorites();
 
   useEffect(() => { const c = () => setIsDesktop(window.innerWidth >= 900); c(); window.addEventListener("resize", c); return () => window.removeEventListener("resize", c); }, []);
@@ -341,7 +341,7 @@ function AppContent() {
             {isRaining && <div className="rain-overlay" />}
             {/* Floating map controls */}
             <div style={{ position: "absolute", top: 12, right: 12, zIndex: 800, display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "8px" }}>
-              <RainRadarButton enabled={radar.enabled} loading={radar.loading} onToggle={radar.toggle} />
+              <RainRadarButton enabled={radar.enabled} onToggle={radar.toggle} />
               <button onClick={handleLocate} style={{
                 width: 40, height: 40, borderRadius: "50%",
                 background: userLocation ? "rgba(66,133,244,0.15)" : "rgba(8,13,24,0.9)",
@@ -355,7 +355,7 @@ function AppContent() {
               </button>
             </div>
             {/* Radar panel */}
-            {radar.enabled && <RadarPanel radarPath={radar.radarPath} timestamp={radar.timestamp} frames={radar.frames} frameIndex={radar.frameIndex} onClose={radar.toggle} onPlay={radar.playAnimation} dataSource={radar.dataSource} onToggleSource={radar.toggleSource} hasRadar={radar.hasRadar} />}
+            {radar.enabled && <RadarPanel onClose={radar.toggle} />}
             {protectedCount > 0 && (
               <div className="social-proof">
                 <div style={{ background: "var(--bg-glass)", backdropFilter: "blur(12px)", borderRadius: "20px", padding: "6px 14px", border: "1px solid var(--border)", display: "flex", alignItems: "center", gap: "6px" }}>

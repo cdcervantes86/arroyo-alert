@@ -1,137 +1,25 @@
 "use client";
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useCallback } from "react";
 import { useLanguage } from "@/lib/LanguageContext";
 
-// Barranquilla tile coordinates at zoom 6
-const RADAR_ZOOM = 6;
-const TILE_X = 18;
-const TILE_Y = 30;
-const TILE_SIZE = 256;
-// 3x3 grid for more context
-const GRID = [-1, 0, 1];
-// BAQ exact position within center tile (fractional)
-// lng=-74.80: x_frac = ((-74.80+180)/360*64) - 18 = 0.702
-// lat=10.96:  y_frac = 0.038 (Mercator projection)
-const BAQ_X_FRAC = 0.702;
-const BAQ_Y_FRAC = 0.038;
+// Windy.com embed — uses ECMWF model with excellent global precipitation coverage
+const WINDY_URL = "https://embed.windy.com/embed.html?type=map&location=coordinates" +
+  "&lat=10.96&lon=-74.80&detailLat=10.96&detailLon=-74.80" +
+  "&zoom=8&level=surface&overlay=rain&product=ecmwf" +
+  "&menu=&message=true&marker=true&calendar=now&pressure=&type=map" +
+  "&radarRange=-1&metricWind=default&metricTemp=°C";
 
-export function useRainRadar(mapInstance) {
+export function useRainRadar() {
   const [enabled, setEnabled] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [radarPath, setRadarPath] = useState(null);
-  const [timestamp, setTimestamp] = useState(null);
-  const [frames, setFrames] = useState([]);
-  const [frameIndex, setFrameIndex] = useState(-1);
-  const intervalRef = useRef(null);
-
-  const [dataSource, setDataSource] = useState("satellite"); // "satellite" or "radar"
-  const [radarFrames, setRadarFrames] = useState([]);
-  const [satelliteFrames, setSatelliteFrames] = useState([]);
-
-  const fetchFrames = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await fetch("https://api.rainviewer.com/public/weather-maps.json");
-      const data = await res.json();
-      // Radar data
-      const rPast = data.radar?.past || [];
-      setRadarFrames(rPast);
-      // Satellite infrared — much better coverage for Colombia
-      const sPast = data.satellite?.infrared || [];
-      setSatelliteFrames(sPast);
-
-      const source = sPast.length > 0 ? sPast : rPast;
-      if (source.length > 0) {
-        setFrames(source);
-        const latest = source[source.length - 1];
-        setRadarPath(latest.path);
-        setFrameIndex(source.length - 1);
-        setTimestamp(new Date(latest.time * 1000));
-        setEnabled(true);
-        setDataSource(sPast.length > 0 ? "satellite" : "radar");
-      }
-    } catch (e) {
-      console.error("Radar fetch error:", e);
-    }
-    setLoading(false);
-  }, []);
 
   const toggle = useCallback(() => {
-    if (enabled) {
-      setEnabled(false);
-      setRadarPath(null);
-      setTimestamp(null);
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    } else {
-      fetchFrames();
-    }
-  }, [enabled, fetchFrames]);
+    setEnabled(prev => !prev);
+  }, []);
 
-  // Auto-refresh every 5 min
-  useEffect(() => {
-    if (!enabled) return;
-    intervalRef.current = setInterval(fetchFrames, 300000);
-    return () => clearInterval(intervalRef.current);
-  }, [enabled, fetchFrames]);
-
-  // Animate through frames
-  const playAnimation = useCallback(() => {
-    if (frames.length < 2) return;
-    let i = 0;
-    const anim = setInterval(() => {
-      setFrameIndex(i);
-      setRadarPath(frames[i].path);
-      setTimestamp(new Date(frames[i].time * 1000));
-      i++;
-      if (i >= frames.length) {
-        clearInterval(anim);
-        // Stay on latest
-        const latest = frames[frames.length - 1];
-        setFrameIndex(frames.length - 1);
-        setRadarPath(latest.path);
-        setTimestamp(new Date(latest.time * 1000));
-      }
-    }, 400);
-    return () => clearInterval(anim);
-  }, [frames]);
-
-  // Switch between satellite and radar
-  const toggleSource = useCallback(() => {
-    const newSource = dataSource === "satellite" ? "radar" : "satellite";
-    const newFrames = newSource === "satellite" ? satelliteFrames : radarFrames;
-    if (newFrames.length > 0) {
-      setDataSource(newSource);
-      setFrames(newFrames);
-      const latest = newFrames[newFrames.length - 1];
-      setRadarPath(latest.path);
-      setFrameIndex(newFrames.length - 1);
-      setTimestamp(new Date(latest.time * 1000));
-    }
-  }, [dataSource, satelliteFrames, radarFrames]);
-
-  return { enabled, loading, radarPath, timestamp, toggle, frames, frameIndex, playAnimation, dataSource, toggleSource, hasRadar: radarFrames.length > 0 };
+  return { enabled, toggle };
 }
 
-function RadarTile({ path, z, x, y, size, isSatellite }) {
-  // Satellite: scheme 0 (IR colors), Radar: scheme 6 (Rainbow)
-  const scheme = isSatellite ? 0 : 6;
-  const url = `https://tilecache.rainviewer.com${path}/${TILE_SIZE}/${z}/${x}/${y}/${scheme}/1_1.png`;
-  return (
-    <img
-      src={url}
-      width={size}
-      height={size}
-      alt=""
-      style={{ display: "block", opacity: isSatellite ? 0.75 : 0.9 }}
-      draggable={false}
-    />
-  );
-}
-
-export function RainRadarButton({ enabled, loading, onToggle }) {
-  const { lang } = useLanguage();
-  const es = lang === "es";
-
+export function RainRadarButton({ enabled, onToggle }) {
   return (
     <button onClick={onToggle} style={{
       width: 40, height: 40, borderRadius: "50%",
@@ -141,22 +29,14 @@ export function RainRadarButton({ enabled, loading, onToggle }) {
       cursor: "pointer", boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
       transition: "all 0.2s ease",
     }}>
-      {loading ? (
-        <span style={{ fontSize: "14px", animation: "blink 1s ease infinite" }}>🌧️</span>
-      ) : (
-        <span style={{ fontSize: "16px", opacity: enabled ? 1 : 0.5 }}>🌧️</span>
-      )}
+      <span style={{ fontSize: "16px", opacity: enabled ? 1 : 0.5 }}>🌧️</span>
     </button>
   );
 }
 
-export function RadarPanel({ radarPath, timestamp, frames, frameIndex, onClose, onPlay, dataSource, onToggleSource, hasRadar }) {
+export function RadarPanel({ onClose }) {
   const { lang } = useLanguage();
   const es = lang === "es";
-  const tileSize = 80;
-  const isSatellite = dataSource === "satellite";
-
-  if (!radarPath) return null;
 
   return (
     <div style={{
@@ -165,26 +45,17 @@ export function RadarPanel({ radarPath, timestamp, frames, frameIndex, onClose, 
       borderRadius: "var(--radius-lg)", border: "1px solid var(--border)",
       overflow: "hidden", boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
       animation: "fadeIn 0.2s ease",
-      width: tileSize * 3 + 2,
+      width: 280, 
     }}>
       {/* Header */}
       <div style={{
         padding: "10px 12px", display: "flex", alignItems: "center", gap: "8px",
         borderBottom: "1px solid var(--border)",
       }}>
-        <span style={{ fontSize: "14px" }}>{isSatellite ? "🛰️" : "🌧️"}</span>
+        <span style={{ fontSize: "14px" }}>🌧️</span>
         <span style={{ fontSize: "12px", fontWeight: 600, color: "var(--text)", flex: 1 }}>
-          {isSatellite ? (es ? "Satélite IR" : "Satellite IR") : (es ? "Radar" : "Radar")}
+          {es ? "Radar de lluvia" : "Rain radar"}
         </span>
-        {hasRadar && (
-          <button onClick={onToggleSource} style={{
-            padding: "3px 8px", borderRadius: "4px", fontSize: "9px", fontWeight: 700,
-            background: "rgba(255,255,255,0.06)", border: "1px solid var(--border)",
-            color: "var(--text-dim)", textTransform: "uppercase", letterSpacing: "0.5px",
-          }}>
-            {isSatellite ? "Radar" : "Satélite"}
-          </button>
-        )}
         <button onClick={onClose} style={{
           width: 22, height: 22, borderRadius: "50%", background: "rgba(255,255,255,0.06)",
           border: "none", color: "var(--text-dim)", fontSize: "11px",
@@ -192,85 +63,28 @@ export function RadarPanel({ radarPath, timestamp, frames, frameIndex, onClose, 
         }}>✕</button>
       </div>
 
-      {/* Radar image — 3x3 tile grid */}
-      <div style={{
-        width: tileSize * 3, height: tileSize * 3,
-        position: "relative", background: "#0a0e1a",
-        overflow: "hidden",
-      }}>
-        {/* Base map tiles (dark) */}
-        {GRID.map(dy => GRID.map(dx => (
-          <img
-            key={`base-${dx}-${dy}`}
-            src={`https://api.mapbox.com/styles/v1/mapbox/dark-v11/tiles/${RADAR_ZOOM}/${TILE_X + dx}/${TILE_Y + dy}?access_token=${process.env.NEXT_PUBLIC_MAPBOX_TOKEN}`}
-            width={tileSize}
-            height={tileSize}
-            alt=""
-            style={{
-              position: "absolute",
-              left: (dx + 1) * tileSize,
-              top: (dy + 1) * tileSize,
-              display: "block",
-            }}
-            draggable={false}
-          />
-        )))}
-        {/* Radar overlay tiles */}
-        {GRID.map(dy => GRID.map(dx => (
-          <div
-            key={`radar-${dx}-${dy}`}
-            style={{
-              position: "absolute",
-              left: (dx + 1) * tileSize,
-              top: (dy + 1) * tileSize,
-              width: tileSize,
-              height: tileSize,
-            }}
-          >
-            <RadarTile path={radarPath} z={RADAR_ZOOM} x={TILE_X + dx} y={TILE_Y + dy} size={tileSize} isSatellite={isSatellite} />
-          </div>
-        )))}
-        {/* Barranquilla marker — calculated from tile coordinates */}
-        <div style={{
-          position: "absolute",
-          left: tileSize * (1 + BAQ_X_FRAC) - 4,
-          top: tileSize * (1 + BAQ_Y_FRAC) - 4,
-          width: 8, height: 8, borderRadius: "50%",
-          background: "#fff", border: "2px solid var(--accent)",
-          boxShadow: "0 0 8px rgba(91,156,246,0.5)",
-          zIndex: 2,
-        }} />
-        <div style={{
-          position: "absolute",
-          left: tileSize * (1 + BAQ_X_FRAC) + 8,
-          top: tileSize * (1 + BAQ_Y_FRAC) - 6,
-          fontSize: "10px", fontWeight: 700, color: "#fff",
-          textShadow: "0 1px 4px rgba(0,0,0,0.8)",
-          zIndex: 2,
-        }}>BAQ</div>
+      {/* Windy embed */}
+      <div style={{ width: 280, height: 240, position: "relative", background: "#0a0e1a" }}>
+        <iframe
+          src={WINDY_URL}
+          width="280"
+          height="240"
+          frameBorder="0"
+          style={{ border: "none", display: "block" }}
+          title="Rain radar"
+          loading="lazy"
+          allow="geolocation"
+        />
       </div>
 
       {/* Footer */}
       <div style={{
-        padding: "8px 12px", display: "flex", alignItems: "center", gap: "8px",
+        padding: "6px 12px", display: "flex", alignItems: "center",
         borderTop: "1px solid var(--border)",
       }}>
-        {frames.length > 1 && (
-          <button onClick={onPlay} style={{
-            padding: "4px 10px", borderRadius: "6px",
-            background: "rgba(255,255,255,0.06)", border: "1px solid var(--border)",
-            color: "var(--text-dim)", fontSize: "11px", fontWeight: 600,
-          }}>
-            ▶ {es ? "Animar" : "Animate"}
-          </button>
-        )}
-        <div style={{ flex: 1 }} />
-        {timestamp && (
-          <span style={{ fontSize: "10px", color: "var(--text-faint)" }}>
-            {timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-          </span>
-        )}
-        <span style={{ fontSize: "9px", color: "var(--text-faint)", opacity: 0.5 }}>RainViewer</span>
+        <span style={{ fontSize: "9px", color: "var(--text-faint)", opacity: 0.5 }}>
+          {es ? "Datos: ECMWF vía Windy.com" : "Data: ECMWF via Windy.com"}
+        </span>
       </div>
     </div>
   );
