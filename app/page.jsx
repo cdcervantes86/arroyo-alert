@@ -17,6 +17,7 @@ import HeatmapView from "@/components/HeatmapView";
 import RouteChecker from "@/components/RouteChecker";
 import UpdateBanner from "@/components/UpdateBanner";
 import { SeverityIcon } from "@/components/SeverityIcon";
+import { useRainRadar, RainRadarButton } from "@/components/RainRadar";
 
 const MapView = lazy(() => import("@/components/MapView"));
 
@@ -98,7 +99,7 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, lang }) {
 function MoreMenu({ onSelect, lang, onClose }) {
   const es = lang === "es";
   return (
-    <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 90, background: "rgba(0,0,0,0.5)", animation: "fadeIn 0.15s ease" }}>
+    <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 900, background: "rgba(0,0,0,0.5)", animation: "fadeIn 0.15s ease" }}>
       <div onClick={(e) => e.stopPropagation()} style={{ position: "absolute", bottom: 64, right: 12, left: 12, maxWidth: 300, marginLeft: "auto", background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: "var(--radius-lg)", padding: "6px", animation: "slideUp 0.2s ease", boxShadow: "0 -8px 40px rgba(0,0,0,0.5)" }}>
         {[
           { key: "route", icon: "🛣️", label: es ? "Ruta segura" : "Safe route", desc: es ? "Verifica arroyos en tu camino" : "Check arroyos on your path" },
@@ -155,6 +156,10 @@ function AppContent() {
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const [weather, setWeather] = useState(null);
   const [predictions, setPredictions] = useState({});
+  const [mapInstance, setMapInstance] = useState(null);
+  const [userLocation, setUserLocation] = useState(null);
+  const [locationMarker, setLocationMarker] = useState(null);
+  const radar = useRainRadar(mapInstance);
 
   useEffect(() => { const c = () => setIsDesktop(window.innerWidth >= 900); c(); window.addEventListener("resize", c); return () => window.removeEventListener("resize", c); }, []);
   useEffect(() => { try { if (!localStorage.getItem("arroyo-onboarded")) setShowOnboarding(true); } catch(e) {} }, []);
@@ -186,6 +191,20 @@ function AppContent() {
   const handleMobileTab = (key) => { if (key === "more") { setShowMoreMenu(true); return; } setMobileView(key); };
   const handleDesktopTab = (key) => { if (key === "live") setShowPanel((p) => !p); else setDesktopView(key); };
   const closeSheet = () => { setScreen("main"); setSelectedZone(null); };
+  const handleMapReady = useCallback((map) => { setMapInstance(map); }, []);
+  const handleLocate = useCallback(() => {
+    if (!mapInstance || !navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition((pos) => {
+      const { latitude, longitude } = pos.coords;
+      const L = require("leaflet");
+      if (locationMarker) mapInstance.removeLayer(locationMarker);
+      const marker = L.circleMarker([latitude, longitude], { radius: 8, fillColor: "#4285F4", fillOpacity: 1, color: "#fff", weight: 3, opacity: 0.9 }).addTo(mapInstance);
+      L.circleMarker([latitude, longitude], { radius: 20, fillColor: "#4285F4", fillOpacity: 0.15, color: "#4285F4", weight: 1, opacity: 0.3 }).addTo(mapInstance);
+      setLocationMarker(marker);
+      setUserLocation([latitude, longitude]);
+      mapInstance.setView([latitude, longitude], 15);
+    }, null, { enableHighAccuracy: true });
+  }, [mapInstance, locationMarker]);
 
   const currentMainView = isDesktop ? desktopView : mobileView;
   const panelVisible = isDesktop && showPanel;
@@ -245,8 +264,23 @@ function AppContent() {
         <div style={{ flex: 1, minHeight: 0, position: "relative", overflow: "hidden" }}>
           {currentMainView === "map" ? (
             <Suspense fallback={<div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", color: "var(--text-dim)", fontSize: "14px" }}>{t.loadingMap}</div>}>
-              <MapView reports={reports} onZoneClick={handleZoneClick} panelOpen={panelVisible} activeFilter={activeFilter} predictions={predictions} />
+              <MapView reports={reports} onZoneClick={handleZoneClick} panelOpen={panelVisible} activeFilter={activeFilter} predictions={predictions} onMapReady={handleMapReady} />
               {isRaining && <div className="rain-overlay" />}
+              {/* Floating map controls */}
+              <div style={{ position: "absolute", top: 12, right: 12, zIndex: 800, display: "flex", flexDirection: "column", gap: "8px" }}>
+                <RainRadarButton enabled={radar.enabled} loading={radar.loading} timestamp={radar.timestamp} onToggle={radar.toggle} />
+                <button onClick={handleLocate} style={{
+                  width: 40, height: 40, borderRadius: "50%",
+                  background: userLocation ? "rgba(66,133,244,0.15)" : "rgba(8,13,24,0.9)",
+                  border: `1px solid ${userLocation ? "rgba(66,133,244,0.25)" : "var(--border)"}`,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  cursor: "pointer", boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+                }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={userLocation ? "#4285F4" : "rgba(255,255,255,0.5)"} strokeWidth="2" strokeLinecap="round">
+                    <circle cx="12" cy="12" r="3" /><path d="M12 2v4M12 18v4M2 12h4M18 12h4" />
+                  </svg>
+                </button>
+              </div>
               {protectedCount > 0 && (
                 <div className="social-proof">
                   <div style={{ background: "var(--bg-glass)", backdropFilter: "blur(12px)", borderRadius: "20px", padding: "6px 14px", border: "1px solid var(--border)", display: "flex", alignItems: "center", gap: "6px" }}>
