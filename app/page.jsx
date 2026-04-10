@@ -1,5 +1,5 @@
 "use client";
-import { useState, useCallback, useEffect, lazy, Suspense } from "react";
+import { useState, useCallback, useEffect, useRef, lazy, Suspense } from "react";
 import { useReports } from "@/lib/useReports";
 import { usePushNotifications, notifyZone } from "@/lib/usePushNotifications";
 import { ZONES, SEVERITY, getZoneSeverity, getZoneReports } from "@/lib/zones";
@@ -18,6 +18,7 @@ import RouteChecker from "@/components/RouteChecker";
 import UpdateBanner from "@/components/UpdateBanner";
 import { SeverityIcon } from "@/components/SeverityIcon";
 import { useRainRadar, RainRadarButton } from "@/components/RainRadar";
+import PullToRefresh from "@/components/PullToRefresh";
 
 const MapView = lazy(() => import("@/components/MapView"));
 
@@ -116,14 +117,62 @@ function MoreMenu({ onSelect, lang, onClose }) {
   );
 }
 
-/* ====== BOTTOM SHEET for Zone Detail ====== */
+/* ====== BOTTOM SHEET for Zone Detail — swipe to dismiss ====== */
 function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push, zoneWatchers, prediction, watchZone, unwatchZone, onLogoClick }) {
+  const [dragY, setDragY] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const [closing, setClosing] = useState(false);
+  const touchStart = useRef(null);
+  const sheetRef = useRef(null);
+  const contentRef = useRef(null);
+
+  const handleTouchStart = (e) => {
+    // Only allow drag from the handle area or when scrolled to top
+    const scrollTop = contentRef.current?.scrollTop || 0;
+    const touch = e.touches[0];
+    if (scrollTop <= 0) {
+      touchStart.current = touch.clientY;
+      setIsDragging(true);
+    }
+  };
+
+  const handleTouchMove = (e) => {
+    if (!isDragging || touchStart.current === null) return;
+    const delta = e.touches[0].clientY - touchStart.current;
+    if (delta > 0) {
+      setDragY(delta);
+      e.preventDefault();
+    } else {
+      setDragY(0);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (dragY > 120) {
+      setClosing(true);
+      setTimeout(onClose, 250);
+    } else {
+      setDragY(0);
+    }
+    setIsDragging(false);
+    touchStart.current = null;
+  };
+
+  const opacity = closing ? 0 : Math.max(0, 1 - dragY / 400);
+  const translate = closing ? "translateY(100%)" : `translateY(${dragY}px)`;
+
   return (
     <>
-      <div className="sheet-backdrop" onClick={onClose} />
-      <div className="sheet-container">
-        <div className="sheet-handle" />
-        <div className="sheet-content">
+      <div className="sheet-backdrop" onClick={() => { setClosing(true); setTimeout(onClose, 250); }}
+        style={{ opacity, transition: closing ? "opacity 0.25s ease" : (isDragging ? "none" : "opacity 0.3s ease") }} />
+      <div ref={sheetRef} className="sheet-container"
+        onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd}
+        style={{
+          transform: translate,
+          transition: closing ? "transform 0.25s ease" : (isDragging ? "none" : "transform 0.3s cubic-bezier(0.32, 0.72, 0, 1)"),
+        }}>
+        <div className="sheet-handle" style={{ cursor: "grab", padding: "8px 0" }} />
+        <div className="sheet-content" ref={contentRef}>
           <ZoneDetail
             zone={zone} severity={severity} reports={reports}
             onBack={onClose} onReport={onReport} onUpvote={onUpvote}
@@ -141,7 +190,7 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
 
 function AppContent() {
   const { lang, toggleLang, t } = useLanguage();
-  const { reports, loading, submitReport, upvoteReport } = useReports();
+  const { reports, loading, submitReport, upvoteReport, refetch } = useReports();
   const push = usePushNotifications();
   const { totalWatchers, zoneWatchers, watchZone, unwatchZone } = useLiveWatchers();
   const [screen, setScreen] = useState("main");
@@ -295,7 +344,8 @@ function AppContent() {
             )}
             </>
           ) : currentMainView === "list" ? (
-            <div style={{ height: "100%", overflowY: "auto", WebkitOverflowScrolling: "touch", padding: "14px 14px 20px" }}>
+            <PullToRefresh onRefresh={refetch}>
+            <div style={{ padding: "14px 14px 20px" }}>
               {loading ? Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} i={i} />) : (
                 <>
                   {ZONES.filter((z) => !activeFilter || getZoneSeverity(z.id, reports) === activeFilter).map((z, i) => {
@@ -323,6 +373,7 @@ function AppContent() {
                 </>
               )}
             </div>
+            </PullToRefresh>
           ) : (
             <LiveFeed reports={reports} onZoneClick={handleZoneClick} onUpvote={upvoteReport} upvotedSet={upvotedSet} onUpvoteLocal={handleUpvoteLocal} activeFilter={activeFilter} />
           )}
