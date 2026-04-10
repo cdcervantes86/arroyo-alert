@@ -1,139 +1,176 @@
 "use client";
-import { useRef, useCallback } from "react";
+import { useRef, useCallback, useState, useEffect } from "react";
 import { SEVERITY } from "@/lib/zones";
 
-export default function ShareCard({ zoneName, zoneArea, severity, reportText, onClose }) {
+export default function ShareCard({ zoneName, zoneArea, severity, reportText, photoUrl, zoneId, onClose }) {
   const canvasRef = useRef(null);
+  const [photoLoaded, setPhotoLoaded] = useState(null);
+  const appUrl = "arroyo-alert.vercel.app";
+
+  useEffect(() => {
+    if (!photoUrl) return;
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => setPhotoLoaded(img);
+    img.onerror = () => setPhotoLoaded(null);
+    img.src = photoUrl;
+  }, [photoUrl]);
 
   const generateImage = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
-    const w = 600, h = 340;
+    const w = 600, h = photoLoaded ? 480 : 340;
     canvas.width = w;
     canvas.height = h;
 
-    const sev = SEVERITY[severity];
     const sevColors = { danger: "#DC2626", caution: "#D97706", safe: "#16A34A" };
-    const sevLabels = { danger: "⚠️ PELIGROSO", caution: "⚡ PRECAUCIÓN", safe: "✅ DESPEJADO" };
+    const sevLabels = { danger: "\u26A0\uFE0F PELIGROSO", caution: "\u26A1 PRECAUCI\u00D3N", safe: "\u2705 DESPEJADO" };
     const col = sevColors[severity];
 
-    // Background gradient
+    // Background
     const bg = ctx.createLinearGradient(0, 0, w, h);
     bg.addColorStop(0, "#0a1628");
     bg.addColorStop(1, "#080d18");
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, w, h);
 
-    // Top color accent bar
+    // Photo — right side, blended into background
+    if (photoLoaded) {
+      ctx.save();
+      const photoX = w - 240, photoY = 16, photoW = 224, photoH = 180, r = 16;
+      ctx.beginPath();
+      ctx.moveTo(photoX + r, photoY);
+      ctx.lineTo(photoX + photoW - r, photoY);
+      ctx.quadraticCurveTo(photoX + photoW, photoY, photoX + photoW, photoY + r);
+      ctx.lineTo(photoX + photoW, photoY + photoH - r);
+      ctx.quadraticCurveTo(photoX + photoW, photoY + photoH, photoX + photoW - r, photoY + photoH);
+      ctx.lineTo(photoX + r, photoY + photoH);
+      ctx.quadraticCurveTo(photoX, photoY + photoH, photoX, photoY + photoH - r);
+      ctx.lineTo(photoX, photoY + r);
+      ctx.quadraticCurveTo(photoX, photoY, photoX + r, photoY);
+      ctx.closePath();
+      ctx.clip();
+
+      // Cover-fit
+      const imgR = photoLoaded.width / photoLoaded.height;
+      const boxR = photoW / photoH;
+      let sx = 0, sy = 0, sw = photoLoaded.width, sh = photoLoaded.height;
+      if (imgR > boxR) { sw = photoLoaded.height * boxR; sx = (photoLoaded.width - sw) / 2; }
+      else { sh = photoLoaded.width / boxR; sy = (photoLoaded.height - sh) / 2; }
+      ctx.drawImage(photoLoaded, sx, sy, sw, sh, photoX, photoY, photoW, photoH);
+
+      // Bottom fade
+      const ov = ctx.createLinearGradient(photoX, photoY, photoX, photoY + photoH);
+      ov.addColorStop(0, "rgba(10,22,40,0)");
+      ov.addColorStop(0.7, "rgba(10,22,40,0)");
+      ov.addColorStop(1, "rgba(10,22,40,0.6)");
+      ctx.fillStyle = ov;
+      ctx.fillRect(photoX, photoY, photoW, photoH);
+
+      // Left fade
+      const lf = ctx.createLinearGradient(photoX, photoY, photoX + 60, photoY);
+      lf.addColorStop(0, "rgba(10,22,40,0.7)");
+      lf.addColorStop(1, "rgba(10,22,40,0)");
+      ctx.fillStyle = lf;
+      ctx.fillRect(photoX, photoY, photoW, photoH);
+
+      ctx.strokeStyle = "rgba(255,255,255,0.08)";
+      ctx.lineWidth = 1;
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // Top accent bar
     ctx.fillStyle = col;
     ctx.fillRect(0, 0, w, 4);
 
-    // Severity label
-    ctx.font = "bold 28px 'Helvetica Neue', sans-serif";
+    // Severity
+    ctx.font = "bold 24px 'Helvetica Neue', sans-serif";
     ctx.fillStyle = col;
-    ctx.fillText(sevLabels[severity], 32, 52);
+    ctx.fillText(sevLabels[severity], 32, 48);
 
     // Zone name
     ctx.font = "bold 36px 'Helvetica Neue', sans-serif";
     ctx.fillStyle = "#f0f2f5";
-    ctx.fillText(zoneName, 32, 105);
+    ctx.fillText(zoneName, 32, 100);
 
-    // Zone area
+    // Area
     ctx.font = "400 20px 'Helvetica Neue', sans-serif";
     ctx.fillStyle = "rgba(255,255,255,0.45)";
-    ctx.fillText(zoneArea, 32, 138);
+    ctx.fillText(zoneArea, 32, 133);
 
-    // Report text (if any)
+    // Report text
     if (reportText) {
       ctx.font = "400 18px 'Helvetica Neue', sans-serif";
       ctx.fillStyle = "rgba(255,255,255,0.6)";
-      // Wrap text
-      const maxWidth = w - 64;
+      const textMaxW = photoLoaded ? 310 : w - 64;
       const words = reportText.split(" ");
       let line = "";
-      let y = 180;
+      let y = photoLoaded ? 220 : 180;
       for (const word of words) {
         const testLine = line + word + " ";
-        if (ctx.measureText(testLine).width > maxWidth && line) {
+        if (ctx.measureText(testLine).width > textMaxW && line) {
           ctx.fillText(line.trim(), 32, y);
           line = word + " ";
           y += 26;
-          if (y > 230) break;
-        } else {
-          line = testLine;
-        }
+          if (y > (photoLoaded ? 290 : 230)) break;
+        } else { line = testLine; }
       }
       if (line.trim()) ctx.fillText(line.trim(), 32, y);
     }
 
-    // Divider line
+    // Bottom section
+    const bottomY = h - 80;
     ctx.strokeStyle = "rgba(255,255,255,0.06)";
     ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.moveTo(32, 265);
-    ctx.lineTo(w - 32, 265);
+    ctx.moveTo(32, bottomY);
+    ctx.lineTo(w - 32, bottomY);
     ctx.stroke();
 
-    // Barranquilla wave decoration
-    ctx.strokeStyle = "#D42A2A";
+    // Barranquilla waves
     ctx.lineWidth = 3;
     ctx.globalAlpha = 0.3;
-    ctx.beginPath();
-    ctx.moveTo(32, 290);
-    ctx.quadraticCurveTo(80, 275, 130, 290);
-    ctx.quadraticCurveTo(180, 305, 230, 290);
-    ctx.stroke();
+    const wY = bottomY + 22;
+    ctx.strokeStyle = "#D42A2A";
+    ctx.beginPath(); ctx.moveTo(32, wY); ctx.quadraticCurveTo(80, wY - 15, 130, wY); ctx.quadraticCurveTo(180, wY + 15, 230, wY); ctx.stroke();
     ctx.strokeStyle = "#F5D033";
-    ctx.beginPath();
-    ctx.moveTo(32, 302);
-    ctx.quadraticCurveTo(80, 287, 130, 302);
-    ctx.quadraticCurveTo(180, 317, 230, 302);
-    ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(32, wY + 12); ctx.quadraticCurveTo(80, wY - 3, 130, wY + 12); ctx.quadraticCurveTo(180, wY + 27, 230, wY + 12); ctx.stroke();
     ctx.strokeStyle = "#2d8a2d";
-    ctx.beginPath();
-    ctx.moveTo(32, 314);
-    ctx.quadraticCurveTo(80, 299, 130, 314);
-    ctx.quadraticCurveTo(180, 329, 230, 314);
-    ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(32, wY + 24); ctx.quadraticCurveTo(80, wY + 9, 130, wY + 24); ctx.quadraticCurveTo(180, wY + 39, 230, wY + 24); ctx.stroke();
     ctx.globalAlpha = 1;
 
-    // App name + URL
+    // App name
     ctx.font = "bold 16px 'Helvetica Neue', sans-serif";
     ctx.fillStyle = "#f0f2f5";
     ctx.textAlign = "right";
-    ctx.fillText("AlertaArroyo", w - 32, 295);
-    ctx.font = "400 13px 'Helvetica Neue', sans-serif";
-    ctx.fillStyle = "rgba(255,255,255,0.35)";
-    ctx.fillText("arroyo-alert.vercel.app", w - 32, 318);
-    ctx.textAlign = "left";
+    ctx.fillText("AlertaArroyo", w - 32, bottomY + 28);
 
+    // URL
+    ctx.font = "500 14px 'Helvetica Neue', sans-serif";
+    ctx.fillStyle = "rgba(91,156,246,0.8)";
+    ctx.fillText(appUrl, w - 32, bottomY + 52);
+
+    ctx.textAlign = "left";
     return canvas;
-  }, [zoneName, zoneArea, severity, reportText]);
+  }, [zoneName, zoneArea, severity, reportText, photoLoaded]);
+
+  useEffect(() => {
+    if (canvasRef.current) setTimeout(generateImage, 50);
+  }, [photoLoaded, generateImage]);
 
   const handleShare = async () => {
     const canvas = generateImage();
     if (!canvas) return;
-
     canvas.toBlob(async (blob) => {
       if (!blob) return;
-
-      const sevLabels = { danger: "PELIGROSO", caution: "Precaución", safe: "Despejado" };
-      const text = `⚠️ Arroyo ${sevLabels[severity]} en ${zoneName} (${zoneArea})\n${reportText ? reportText + "\n" : ""}📍 AlertaArroyo — arroyo-alert.vercel.app`;
-
-      // Try Web Share API first (mobile)
+      const sevLabels = { danger: "PELIGROSO", caution: "Precauci\u00F3n", safe: "Despejado" };
+      const text = `\u26A0\uFE0F Arroyo ${sevLabels[severity]} en ${zoneName} (${zoneArea})\n${reportText ? reportText + "\n" : ""}\uD83D\uDCCD AlertaArroyo \u2014 https://${appUrl}`;
       if (navigator.share && navigator.canShare) {
-        const file = new File([blob], "arroyo-alerta.png", { type: "image/png" });
-        try {
-          await navigator.share({ text, files: [file] });
-          onClose?.();
-          return;
-        } catch (e) {
-          // User cancelled or share failed — fall through to WhatsApp
-        }
+        const file = new File([blob], "alerta-arroyo.png", { type: "image/png" });
+        try { await navigator.share({ text, files: [file] }); onClose?.(); return; } catch (e) {}
       }
-
-      // Fallback: WhatsApp text share
       window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
       onClose?.();
     }, "image/png");
@@ -143,22 +180,18 @@ export default function ShareCard({ zoneName, zoneArea, severity, reportText, on
     const canvas = generateImage();
     if (!canvas) return;
     const link = document.createElement("a");
-    link.download = `arroyo-${zoneName.replace(/\s+/g, "-").toLowerCase()}.png`;
+    link.download = `alerta-${zoneName.replace(/\s+/g, "-").toLowerCase()}.png`;
     link.href = canvas.toDataURL("image/png");
     link.click();
   };
 
-  // Generate preview on mount
   const previewRef = useCallback((node) => {
-    if (node) {
-      canvasRef.current = node;
-      setTimeout(generateImage, 50);
-    }
+    if (node) { canvasRef.current = node; setTimeout(generateImage, 50); }
   }, [generateImage]);
 
   return (
     <div style={{
-      position: "fixed", inset: 0, zIndex: 100,
+      position: "fixed", inset: 0, zIndex: 1100,
       background: "rgba(0,0,0,0.85)", backdropFilter: "blur(12px)",
       display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
       padding: "20px", animation: "fadeIn 0.2s ease",
@@ -169,6 +202,12 @@ export default function ShareCard({ zoneName, zoneArea, severity, reportText, on
           border: "1px solid rgba(255,255,255,0.1)",
           boxShadow: "0 20px 60px rgba(0,0,0,0.5)",
         }} />
+
+        {photoUrl && !photoLoaded && (
+          <div style={{ textAlign: "center", padding: "8px", fontSize: "11px", color: "var(--text-faint)" }}>
+            Cargando foto...
+          </div>
+        )}
 
         <div style={{ display: "flex", gap: "10px", marginTop: "16px" }}>
           <button onClick={handleShare} style={{
