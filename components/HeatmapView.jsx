@@ -216,7 +216,7 @@ export default function HeatmapView({ onBack, onLogoClick }) {
         <div ref={mapRef} style={{ width: "100%", height: "100%", background: "var(--bg)", touchAction: "none" }} />
 
         {loading && (
-          <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(8,13,24,0.7)", zIndex: 5 }}>
+          <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(8,13,24,0.7)", zIndex: 800 }}>
             <span style={{ fontSize: "14px", color: "var(--text-dim)" }}>{es ? "Cargando historial..." : "Loading history..."}</span>
           </div>
         )}
