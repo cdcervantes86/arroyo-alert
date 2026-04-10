@@ -8,6 +8,7 @@ export function useRainRadar(mapInstance) {
   const [loading, setLoading] = useState(false);
   const [timestamp, setTimestamp] = useState(null);
   const prevZoom = useRef(null);
+  const prevMaxZoom = useRef(null);
 
   const addRadar = useCallback(async () => {
     if (!mapInstance) return;
@@ -21,24 +22,27 @@ export function useRainRadar(mapInstance) {
       const latestFrame = data.radar?.past?.slice(-1)?.[0];
       if (!latestFrame) { setLoading(false); return; }
 
-      // Use 512px tiles for better quality at lower zooms
-      const tileUrl = `https://tilecache.rainviewer.com${latestFrame.path}/512/{z}/{x}/{y}/2/1_1.png`;
+      // Use 256px tiles
+      const tileUrl = `https://tilecache.rainviewer.com${latestFrame.path}/256/{z}/{x}/{y}/2/1_1.png`;
 
       if (radarLayer) mapInstance.removeLayer(radarLayer);
 
       const layer = L.tileLayer(tileUrl, {
-        tileSize: 512,
-        zoomOffset: -1,
         opacity: 0.6,
         zIndex: 5,
-        maxZoom: 12,
+        maxNativeZoom: 8,
+        maxZoom: 8,
         errorTileUrl: "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7",
         attribution: '<a href="https://rainviewer.com" style="color:rgba(255,255,255,0.3)">RainViewer</a>',
       }).addTo(mapInstance);
 
-      // Save current zoom and zoom out to see radar
-      if (!prevZoom.current) prevZoom.current = mapInstance.getZoom();
-      if (mapInstance.getZoom() > 10) mapInstance.setZoom(10);
+      // Save current zoom and zoom out to radar-compatible level
+      if (!prevZoom.current) {
+        prevZoom.current = mapInstance.getZoom();
+        prevMaxZoom.current = mapInstance.getMaxZoom();
+      }
+      mapInstance.setMaxZoom(8);
+      mapInstance.setZoom(7);
 
       setRadarLayer(layer);
       setTimestamp(new Date(latestFrame.time * 1000));
@@ -54,10 +58,12 @@ export function useRainRadar(mapInstance) {
       mapInstance.removeLayer(radarLayer);
       setRadarLayer(null);
     }
-    // Restore previous zoom
-    if (prevZoom.current && mapInstance) {
-      mapInstance.setZoom(prevZoom.current);
+    // Restore previous zoom and maxZoom
+    if (mapInstance) {
+      if (prevMaxZoom.current) mapInstance.setMaxZoom(prevMaxZoom.current);
+      if (prevZoom.current) mapInstance.setZoom(prevZoom.current);
       prevZoom.current = null;
+      prevMaxZoom.current = null;
     }
     setEnabled(false);
     setTimestamp(null);
