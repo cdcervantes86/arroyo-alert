@@ -11,7 +11,7 @@ const months = {
 };
 function monthName(m, es) { return (es ? months.es : months.en)[m - 1] || ""; }
 
-export default function AboutPage({ onBack, onLogoClick }) {
+export default function AboutPage({ onBack, onLogoClick, onToggleLang, lang: langProp }) {
   const { lang } = useLanguage();
   const es = lang === "es";
   const [audioOn, setAudioOn] = useState(true);
@@ -31,6 +31,7 @@ export default function AboutPage({ onBack, onLogoClick }) {
           <span style={{ fontSize: "8px", fontWeight: 700, letterSpacing: "0.8px", textTransform: "uppercase", color: "var(--accent)", background: "var(--accent-glow)", padding: "2px 5px", borderRadius: "3px", border: "1px solid rgba(91,156,246,0.1)", marginLeft: "-2px", marginTop: "-8px" }}>Beta</span>
         </button>
         <span style={{ flex: 1 }} />
+        {onToggleLang && <button onClick={onToggleLang} style={{ padding: "4px 8px", borderRadius: "6px", background: "rgba(255,255,255,0.045)", border: "1px solid var(--border)", color: "var(--text-dim)", fontSize: "10px", fontWeight: 700, letterSpacing: "0.5px", textTransform: "uppercase" }}>{lang === "es" ? "EN" : "ES"}</button>}
         <button onClick={onBack} style={{ background: "none", border: "none", color: "var(--accent)", fontSize: "14px", fontWeight: 600 }}>{es ? "← Volver" : "← Back"}</button>
       </div>
 
