@@ -157,7 +157,7 @@ export default function ReporterProfile({ onBack, onLogoClick, reports }) {
         })}
 
         <div style={{ textAlign: "center", padding: "36px 0 16px", fontSize: "12px", color: "var(--text-faint)" }}>
-          {es ? "Hecho para Barranquilla 🇨🇴" : "Made for Barranquilla 🇨🇴"}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>{es ? "Hecho para Barranquilla" : "Made for Barranquilla"} <svg width="18" height="13" viewBox="0 0 18 13" style={{ borderRadius: "2px", boxShadow: "0 0 0 0.5px rgba(255,255,255,0.1)" }}><rect width="18" height="6.5" fill="#D42A2A"/><rect y="6.5" width="18" height="6.5" fill="#F5D033"/></svg></div>
         </div>
       </div>
     </div>
