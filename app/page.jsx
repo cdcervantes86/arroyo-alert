@@ -265,33 +265,33 @@ function AppContent() {
           {currentMainView === "map" ? (
             <Suspense fallback={<div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", color: "var(--text-dim)", fontSize: "14px" }}>{t.loadingMap}</div>}>
               <MapView reports={reports} onZoneClick={handleZoneClick} panelOpen={panelVisible} activeFilter={activeFilter} predictions={predictions} onMapReady={handleMapReady} />
-              {isRaining && <div className="rain-overlay" />}
-              {/* Floating map controls */}
-              <div style={{ position: "absolute", top: 12, right: 12, zIndex: 800, display: "flex", flexDirection: "column", gap: "8px" }}>
-                <RainRadarButton enabled={radar.enabled} loading={radar.loading} timestamp={radar.timestamp} onToggle={radar.toggle} />
-                <button onClick={handleLocate} style={{
-                  width: 40, height: 40, borderRadius: "50%",
-                  background: userLocation ? "rgba(66,133,244,0.15)" : "rgba(8,13,24,0.9)",
-                  border: `1px solid ${userLocation ? "rgba(66,133,244,0.25)" : "var(--border)"}`,
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  cursor: "pointer", boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
-                }}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={userLocation ? "#4285F4" : "rgba(255,255,255,0.5)"} strokeWidth="2" strokeLinecap="round">
-                    <circle cx="12" cy="12" r="3" /><path d="M12 2v4M12 18v4M2 12h4M18 12h4" />
-                  </svg>
-                </button>
-              </div>
-              {protectedCount > 0 && (
-                <div className="social-proof">
-                  <div style={{ background: "var(--bg-glass)", backdropFilter: "blur(12px)", borderRadius: "20px", padding: "6px 14px", border: "1px solid var(--border)", display: "flex", alignItems: "center", gap: "6px" }}>
-                    <span style={{ width: 5, height: 5, borderRadius: "50%", background: "var(--safe)", animation: "blink 2s ease infinite" }} />
-                    <span style={{ fontSize: "11px", color: "var(--text-secondary)", fontWeight: 500, fontVariantNumeric: "tabular-nums" }}>
-                      {protectedCount.toLocaleString()} {es ? "personas protegidas" : "people protected"}
-                    </span>
-                  </div>
-                </div>
-              )}
             </Suspense>
+            {isRaining && <div className="rain-overlay" />}
+            {/* Floating map controls */}
+            <div style={{ position: "absolute", top: 12, right: 12, zIndex: 800, display: "flex", flexDirection: "column", gap: "8px" }}>
+              <RainRadarButton enabled={radar.enabled} loading={radar.loading} timestamp={radar.timestamp} onToggle={radar.toggle} />
+              <button onClick={handleLocate} style={{
+                width: 40, height: 40, borderRadius: "50%",
+                background: userLocation ? "rgba(66,133,244,0.15)" : "rgba(8,13,24,0.9)",
+                border: `1px solid ${userLocation ? "rgba(66,133,244,0.25)" : "var(--border)"}`,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                cursor: "pointer", boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+              }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={userLocation ? "#4285F4" : "rgba(255,255,255,0.5)"} strokeWidth="2" strokeLinecap="round">
+                  <circle cx="12" cy="12" r="3" /><path d="M12 2v4M12 18v4M2 12h4M18 12h4" />
+                </svg>
+              </button>
+            </div>
+            {protectedCount > 0 && (
+              <div className="social-proof">
+                <div style={{ background: "var(--bg-glass)", backdropFilter: "blur(12px)", borderRadius: "20px", padding: "6px 14px", border: "1px solid var(--border)", display: "flex", alignItems: "center", gap: "6px" }}>
+                  <span style={{ width: 5, height: 5, borderRadius: "50%", background: "var(--safe)", animation: "blink 2s ease infinite" }} />
+                  <span style={{ fontSize: "11px", color: "var(--text-secondary)", fontWeight: 500, fontVariantNumeric: "tabular-nums" }}>
+                    {protectedCount.toLocaleString()} {es ? "personas protegidas" : "people protected"}
+                  </span>
+                </div>
+              </div>
+            )}
           ) : currentMainView === "list" ? (
             <div style={{ height: "100%", overflowY: "auto", WebkitOverflowScrolling: "touch", padding: "14px 14px 20px" }}>
               {loading ? Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} i={i} />) : (
