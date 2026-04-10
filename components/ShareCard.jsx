@@ -20,7 +20,10 @@ export default function ShareCard({ zoneName, zoneArea, severity, reportText, ph
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
-    const w = 600, h = photoLoaded ? 480 : 340;
+    const w = 600;
+    const hasText = reportText && reportText.trim();
+    // Compact when no text, taller when there's text + photo corner
+    const h = hasText ? (photoLoaded ? 480 : 340) : 260;
     canvas.width = w;
     canvas.height = h;
 
@@ -28,57 +31,87 @@ export default function ShareCard({ zoneName, zoneArea, severity, reportText, ph
     const sevLabels = { danger: "\u26A0\uFE0F PELIGROSO", caution: "\u26A1 PRECAUCI\u00D3N", safe: "\u2705 DESPEJADO" };
     const col = sevColors[severity];
 
-    // Background
-    const bg = ctx.createLinearGradient(0, 0, w, h);
-    bg.addColorStop(0, "#0a1628");
-    bg.addColorStop(1, "#080d18");
-    ctx.fillStyle = bg;
-    ctx.fillRect(0, 0, w, h);
-
-    // Photo — right side, blended into background
-    if (photoLoaded) {
-      ctx.save();
-      const photoX = w - 240, photoY = 16, photoW = 224, photoH = 180, r = 16;
-      ctx.beginPath();
-      ctx.moveTo(photoX + r, photoY);
-      ctx.lineTo(photoX + photoW - r, photoY);
-      ctx.quadraticCurveTo(photoX + photoW, photoY, photoX + photoW, photoY + r);
-      ctx.lineTo(photoX + photoW, photoY + photoH - r);
-      ctx.quadraticCurveTo(photoX + photoW, photoY + photoH, photoX + photoW - r, photoY + photoH);
-      ctx.lineTo(photoX + r, photoY + photoH);
-      ctx.quadraticCurveTo(photoX, photoY + photoH, photoX, photoY + photoH - r);
-      ctx.lineTo(photoX, photoY + r);
-      ctx.quadraticCurveTo(photoX, photoY, photoX + r, photoY);
-      ctx.closePath();
-      ctx.clip();
-
-      // Cover-fit
+    // === NO TEXT MODE: photo as subtle full background ===
+    if (!hasText && photoLoaded) {
+      // Draw photo covering entire canvas
       const imgR = photoLoaded.width / photoLoaded.height;
-      const boxR = photoW / photoH;
+      const boxR = w / h;
       let sx = 0, sy = 0, sw = photoLoaded.width, sh = photoLoaded.height;
       if (imgR > boxR) { sw = photoLoaded.height * boxR; sx = (photoLoaded.width - sw) / 2; }
       else { sh = photoLoaded.width / boxR; sy = (photoLoaded.height - sh) / 2; }
-      ctx.drawImage(photoLoaded, sx, sy, sw, sh, photoX, photoY, photoW, photoH);
+      ctx.drawImage(photoLoaded, sx, sy, sw, sh, 0, 0, w, h);
 
-      // Bottom fade
-      const ov = ctx.createLinearGradient(photoX, photoY, photoX, photoY + photoH);
-      ov.addColorStop(0, "rgba(10,22,40,0)");
-      ov.addColorStop(0.7, "rgba(10,22,40,0)");
-      ov.addColorStop(1, "rgba(10,22,40,0.6)");
-      ctx.fillStyle = ov;
-      ctx.fillRect(photoX, photoY, photoW, photoH);
+      // Heavy dark gradient overlay — photo becomes atmosphere, not focal point
+      const darkOverlay = ctx.createLinearGradient(0, 0, 0, h);
+      darkOverlay.addColorStop(0, "rgba(8,13,24,0.75)");
+      darkOverlay.addColorStop(0.4, "rgba(8,13,24,0.82)");
+      darkOverlay.addColorStop(1, "rgba(8,13,24,0.92)");
+      ctx.fillStyle = darkOverlay;
+      ctx.fillRect(0, 0, w, h);
 
-      // Left fade
-      const lf = ctx.createLinearGradient(photoX, photoY, photoX + 60, photoY);
-      lf.addColorStop(0, "rgba(10,22,40,0.7)");
-      lf.addColorStop(1, "rgba(10,22,40,0)");
-      ctx.fillStyle = lf;
-      ctx.fillRect(photoX, photoY, photoW, photoH);
+      // Extra darken from left for text readability
+      const leftDark = ctx.createLinearGradient(0, 0, w * 0.6, 0);
+      leftDark.addColorStop(0, "rgba(8,13,24,0.4)");
+      leftDark.addColorStop(1, "rgba(8,13,24,0)");
+      ctx.fillStyle = leftDark;
+      ctx.fillRect(0, 0, w, h);
+    } else if (!hasText) {
+      // No text, no photo — plain background
+      const bg = ctx.createLinearGradient(0, 0, w, h);
+      bg.addColorStop(0, "#0a1628");
+      bg.addColorStop(1, "#080d18");
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, w, h);
+    } else {
+      // Has text — standard background
+      const bg = ctx.createLinearGradient(0, 0, w, h);
+      bg.addColorStop(0, "#0a1628");
+      bg.addColorStop(1, "#080d18");
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, w, h);
 
-      ctx.strokeStyle = "rgba(255,255,255,0.08)";
-      ctx.lineWidth = 1;
-      ctx.stroke();
-      ctx.restore();
+      // Photo in corner when there's text
+      if (photoLoaded) {
+        ctx.save();
+        const photoX = w - 240, photoY = 16, photoW = 224, photoH = 180, r = 16;
+        ctx.beginPath();
+        ctx.moveTo(photoX + r, photoY);
+        ctx.lineTo(photoX + photoW - r, photoY);
+        ctx.quadraticCurveTo(photoX + photoW, photoY, photoX + photoW, photoY + r);
+        ctx.lineTo(photoX + photoW, photoY + photoH - r);
+        ctx.quadraticCurveTo(photoX + photoW, photoY + photoH, photoX + photoW - r, photoY + photoH);
+        ctx.lineTo(photoX + r, photoY + photoH);
+        ctx.quadraticCurveTo(photoX, photoY + photoH, photoX, photoY + photoH - r);
+        ctx.lineTo(photoX, photoY + r);
+        ctx.quadraticCurveTo(photoX, photoY, photoX + r, photoY);
+        ctx.closePath();
+        ctx.clip();
+
+        const imgR = photoLoaded.width / photoLoaded.height;
+        const boxR = photoW / photoH;
+        let sx = 0, sy = 0, sw = photoLoaded.width, sh = photoLoaded.height;
+        if (imgR > boxR) { sw = photoLoaded.height * boxR; sx = (photoLoaded.width - sw) / 2; }
+        else { sh = photoLoaded.width / boxR; sy = (photoLoaded.height - sh) / 2; }
+        ctx.drawImage(photoLoaded, sx, sy, sw, sh, photoX, photoY, photoW, photoH);
+
+        const ov = ctx.createLinearGradient(photoX, photoY, photoX, photoY + photoH);
+        ov.addColorStop(0, "rgba(10,22,40,0)");
+        ov.addColorStop(0.7, "rgba(10,22,40,0)");
+        ov.addColorStop(1, "rgba(10,22,40,0.6)");
+        ctx.fillStyle = ov;
+        ctx.fillRect(photoX, photoY, photoW, photoH);
+
+        const lf = ctx.createLinearGradient(photoX, photoY, photoX + 60, photoY);
+        lf.addColorStop(0, "rgba(10,22,40,0.7)");
+        lf.addColorStop(1, "rgba(10,22,40,0)");
+        ctx.fillStyle = lf;
+        ctx.fillRect(photoX, photoY, photoW, photoH);
+
+        ctx.strokeStyle = "rgba(255,255,255,0.08)";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        ctx.restore();
+      }
     }
 
     // Top accent bar
@@ -100,8 +133,8 @@ export default function ShareCard({ zoneName, zoneArea, severity, reportText, ph
     ctx.fillStyle = "rgba(255,255,255,0.45)";
     ctx.fillText(zoneArea, 32, 133);
 
-    // Report text
-    if (reportText) {
+    // Report text (only when present)
+    if (hasText) {
       ctx.font = "400 18px 'Helvetica Neue', sans-serif";
       ctx.fillStyle = "rgba(255,255,255,0.6)";
       const textMaxW = photoLoaded ? 310 : w - 64;
@@ -121,7 +154,9 @@ export default function ShareCard({ zoneName, zoneArea, severity, reportText, ph
     }
 
     // Bottom section
-    const bottomY = h - 80;
+    const bottomY = h - 65;
+
+    // Divider
     ctx.strokeStyle = "rgba(255,255,255,0.06)";
     ctx.lineWidth = 1;
     ctx.beginPath();
@@ -132,25 +167,25 @@ export default function ShareCard({ zoneName, zoneArea, severity, reportText, ph
     // Barranquilla waves
     ctx.lineWidth = 3;
     ctx.globalAlpha = 0.3;
-    const wY = bottomY + 22;
+    const wY = bottomY + 18;
     ctx.strokeStyle = "#D42A2A";
-    ctx.beginPath(); ctx.moveTo(32, wY); ctx.quadraticCurveTo(80, wY - 15, 130, wY); ctx.quadraticCurveTo(180, wY + 15, 230, wY); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(32, wY); ctx.quadraticCurveTo(80, wY - 12, 130, wY); ctx.quadraticCurveTo(180, wY + 12, 220, wY); ctx.stroke();
     ctx.strokeStyle = "#F5D033";
-    ctx.beginPath(); ctx.moveTo(32, wY + 12); ctx.quadraticCurveTo(80, wY - 3, 130, wY + 12); ctx.quadraticCurveTo(180, wY + 27, 230, wY + 12); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(32, wY + 10); ctx.quadraticCurveTo(80, wY - 2, 130, wY + 10); ctx.quadraticCurveTo(180, wY + 22, 220, wY + 10); ctx.stroke();
     ctx.strokeStyle = "#2d8a2d";
-    ctx.beginPath(); ctx.moveTo(32, wY + 24); ctx.quadraticCurveTo(80, wY + 9, 130, wY + 24); ctx.quadraticCurveTo(180, wY + 39, 230, wY + 24); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(32, wY + 20); ctx.quadraticCurveTo(80, wY + 8, 130, wY + 20); ctx.quadraticCurveTo(180, wY + 32, 220, wY + 20); ctx.stroke();
     ctx.globalAlpha = 1;
 
     // App name
     ctx.font = "bold 16px 'Helvetica Neue', sans-serif";
     ctx.fillStyle = "#f0f2f5";
     ctx.textAlign = "right";
-    ctx.fillText("AlertaArroyo", w - 32, bottomY + 28);
+    ctx.fillText("AlertaArroyo", w - 32, bottomY + 24);
 
     // URL
     ctx.font = "500 14px 'Helvetica Neue', sans-serif";
     ctx.fillStyle = "rgba(91,156,246,0.8)";
-    ctx.fillText(appUrl, w - 32, bottomY + 52);
+    ctx.fillText(appUrl, w - 32, bottomY + 46);
 
     ctx.textAlign = "left";
     return canvas;
