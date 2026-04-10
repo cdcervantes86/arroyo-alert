@@ -24,7 +24,7 @@ export default function AboutPage({ onBack, onLogoClick, onToggleLang, lang: lan
   return (
     <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, overflowY: "auto", WebkitOverflowScrolling: "touch", background: "var(--bg)" }}>
       {/* Sticky header */}
-      <div style={{ position: "sticky", top: 0, zIndex: 10, padding: "12px 16px", display: "flex", alignItems: "center", gap: "10px", background: "rgba(10,15,26,0.97)", backdropFilter: "blur(16px)", borderBottom: "1px solid var(--border)" }}>
+      <div className="desktop-center-header" style={{ position: "sticky", top: 0, zIndex: 10, padding: "12px 16px", display: "flex", alignItems: "center", gap: "10px", background: "rgba(10,15,26,0.97)", backdropFilter: "blur(16px)", borderBottom: "1px solid var(--border)" }}>
         <button onClick={onLogoClick} style={{ display: "flex", alignItems: "center", gap: "8px", background: "none", border: "none", padding: 0, cursor: "pointer" }}>
           <svg width={22} height={22} viewBox="0 0 512 512" style={{ borderRadius: 5 }}><defs><linearGradient id="lBgA" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor="#14261a" /><stop offset="100%" stopColor="#0a1210" /></linearGradient></defs><rect width="512" height="512" rx="112" fill="url(#lBgA)" /><path d="M60 210 Q130 160 200 210 Q270 260 340 210 Q410 160 460 210" fill="none" stroke="#D42A2A" strokeWidth="28" strokeLinecap="round" opacity="0.9" /><path d="M60 290 Q130 240 200 290 Q270 340 340 290 Q410 240 460 290" fill="none" stroke="#F5D033" strokeWidth="28" strokeLinecap="round" opacity="0.85" /><path d="M60 370 Q130 320 200 370 Q270 420 340 370 Q410 320 460 370" fill="none" stroke="#2d8a2d" strokeWidth="28" strokeLinecap="round" opacity="0.75" /></svg>
           <span style={{ fontSize: "14px", fontWeight: 700 }}>Alerta<span style={{ color: "var(--baq-yellow)" }}>Arroyo</span></span>
@@ -35,7 +35,7 @@ export default function AboutPage({ onBack, onLogoClick, onToggleLang, lang: lan
         <button onClick={onBack} style={{ background: "none", border: "none", color: "var(--accent)", fontSize: "14px", fontWeight: 600 }}>{es ? "← Volver" : "← Back"}</button>
       </div>
 
-      <div style={{ padding: "24px 20px calc(24px + env(safe-area-inset-bottom, 20px))" }}>
+      <div className="desktop-center-content" style={{ padding: "24px 20px calc(24px + env(safe-area-inset-bottom, 20px))" }}>
         <h2 style={{ fontSize: "22px", fontWeight: 700, marginBottom: "8px", letterSpacing: "-0.3px" }}>{es ? "Sobre AlertaArroyo" : "About AlertaArroyo"}</h2>
         <p style={{ fontSize: "14px", color: "var(--text-secondary)", lineHeight: 1.65, marginBottom: "32px" }}>
           {es ? "AlertaArroyo es una herramienta comunitaria para reportar y monitorear arroyos peligrosos en Barranquilla en tiempo real. Los arroyos han cobrado más de 115 vidas desde 1933. Juntos podemos proteger a nuestra comunidad." : "AlertaArroyo is a community tool to report and monitor dangerous street floods in Barranquilla in real time. Arroyos have claimed over 115 lives since 1933. Together we can protect our community."}

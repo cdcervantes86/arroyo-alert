@@ -43,7 +43,7 @@ export default function ReportFlow({ zones, reports, initialZoneId, onSubmit, on
 
   if (done) {
     return (
-      <div style={{ height: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "linear-gradient(160deg, #041210, #070b14)", padding: "0 24px" }}>
+      <div style={{ height: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "linear-gradient(160deg, #041210, #0a0f1a)", padding: "0 24px" }}>
         <div style={{ marginBottom: "20px" }}><SuccessRipple /></div>
         <h2 style={{ fontSize: "22px", fontWeight: 700, animation: "fadeIn 0.4s ease 0.2s both", textAlign: "center" }}>{t.reportSent}</h2>
         <p style={{ color: "var(--text-secondary)", fontSize: "14px", marginTop: "8px", animation: "fadeIn 0.4s ease 0.4s both" }}>{t.thankYou}</p>
@@ -56,9 +56,10 @@ export default function ReportFlow({ zones, reports, initialZoneId, onSubmit, on
   }
 
   return (
-    <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "var(--bg)", overflow: "auto" }}>
+    <div className="desktop-center-page" style={{ height: "100vh", display: "flex", flexDirection: "column", background: "var(--bg)", overflow: "auto" }}>
+      <div className="page-inner" style={{ display: "flex", flexDirection: "column", flex: 1 }}>
       {/* Header */}
-      <div style={{ padding: "12px 16px", display: "flex", alignItems: "center", gap: "10px", borderBottom: "1px solid var(--border)", flexShrink: 0, background: "rgba(7,11,20,0.95)", backdropFilter: "blur(16px)" }}>
+      <div style={{ padding: "12px 16px", display: "flex", alignItems: "center", gap: "10px", borderBottom: "1px solid var(--border)", flexShrink: 0, background: "rgba(10,15,26,0.95)", backdropFilter: "blur(16px)" }}>
         <button onClick={onLogoClick} style={{ display: "flex", alignItems: "center", gap: "8px", background: "none", border: "none", padding: 0, cursor: "pointer" }}>
           <svg width={22} height={22} viewBox="0 0 512 512" style={{ borderRadius: 5 }}><defs><linearGradient id="lBg2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor="#14261a" /><stop offset="100%" stopColor="#0a1210" /></linearGradient></defs><rect width="512" height="512" rx="112" fill="url(#lBg2)" /><path d="M60 210 Q130 160 200 210 Q270 260 340 210 Q410 160 460 210" fill="none" stroke="#D42A2A" strokeWidth="28" strokeLinecap="round" opacity="0.9" /><path d="M60 290 Q130 240 200 290 Q270 340 340 290 Q410 240 460 290" fill="none" stroke="#F5D033" strokeWidth="28" strokeLinecap="round" opacity="0.85" /><path d="M60 370 Q130 320 200 370 Q270 420 340 370 Q410 320 460 370" fill="none" stroke="#2d8a2d" strokeWidth="28" strokeLinecap="round" opacity="0.75" /></svg>
           <span style={{ fontSize: "14px", fontWeight: 700 }}>Alerta<span style={{ color: "var(--baq-yellow)" }}>Arroyo</span></span>
@@ -189,6 +190,7 @@ export default function ReportFlow({ zones, reports, initialZoneId, onSubmit, on
           </>
         )}
       </div>
+    </div>
     </div>
   );
 }
