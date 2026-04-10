@@ -171,7 +171,9 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
           transform: translate,
           transition: closing ? "transform 0.25s ease" : (isDragging ? "none" : "transform 0.3s cubic-bezier(0.32, 0.72, 0, 1)"),
         }}>
-        <div className="sheet-handle" style={{ cursor: "grab", padding: "8px 0" }} />
+        <div className="sheet-handle-area">
+          <div className="sheet-handle" />
+        </div>
         <div className="sheet-content" ref={contentRef}>
           <ZoneDetail
             zone={zone} severity={severity} reports={reports}
