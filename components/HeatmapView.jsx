@@ -14,6 +14,7 @@ export default function HeatmapView({ onBack, onLogoClick }) {
   const [loading, setLoading] = useState(true);
   const [timeRange, setTimeRange] = useState("all"); // "24h", "7d", "30d", "all"
   const [stats, setStats] = useState(null);
+  const [statsOpen, setStatsOpen] = useState(false);
 
   // Fetch all historical reports
   useEffect(() => {
@@ -73,7 +74,8 @@ export default function HeatmapView({ onBack, onLogoClick }) {
     L.Icon.Default.mergeOptions({ iconRetinaUrl: "", iconUrl: "", shadowUrl: "" });
 
     const map = L.map(mapRef.current, {
-      center: [10.96, -74.805], zoom: 13, zoomControl: false, attributionControl: false, tap: false,
+      center: [10.96, -74.805], zoom: 13, zoomControl: false, attributionControl: false,
+      tap: false, dragging: true,
     });
     L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", { maxZoom: 19, subdomains: "abcd" }).addTo(map);
     L.control.zoom({ position: "bottomright" }).addTo(map);
@@ -131,6 +133,7 @@ export default function HeatmapView({ onBack, onLogoClick }) {
         color: color,
         weight: 1,
         opacity: 0.5,
+        interactive: false,
       }).addTo(heatGroup);
 
       // Label
@@ -218,16 +221,44 @@ export default function HeatmapView({ onBack, onLogoClick }) {
           </div>
         )}
 
-        {/* Stats overlay */}
-        {stats && !loading && (
+        {/* Stats toggle button */}
+        {stats && !loading && !statsOpen && (
+          <button onClick={() => setStatsOpen(true)} style={{
+            position: "absolute", bottom: 16, left: 16, zIndex: 5,
+            padding: "10px 16px", borderRadius: "var(--radius-md)",
+            background: "rgba(8,13,24,0.92)", backdropFilter: "blur(12px)",
+            border: "1px solid var(--border)", cursor: "pointer",
+            display: "flex", alignItems: "center", gap: "8px",
+            boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
+          }}>
+            <span style={{ fontSize: "14px" }}>📊</span>
+            <span style={{ fontSize: "12px", color: "var(--text-secondary)", fontWeight: 600 }}>
+              {stats.totalReports} {es ? "reportes" : "reports"}
+            </span>
+            <span style={{ fontSize: "11px", color: "var(--text-faint)" }}>›</span>
+          </button>
+        )}
+
+        {/* Stats panel — collapsible */}
+        {stats && !loading && statsOpen && (
           <div style={{
             position: "absolute", bottom: 16, left: 16, right: 16, zIndex: 5,
             background: "rgba(8,13,24,0.92)", backdropFilter: "blur(12px)",
             borderRadius: "var(--radius-lg)", border: "1px solid var(--border)",
             padding: "16px", maxHeight: "40vh", overflowY: "auto",
+            animation: "slideUp 0.25s ease",
+            boxShadow: "0 -8px 32px rgba(0,0,0,0.4)",
           }}>
-            <div style={{ fontSize: "11px", color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "1.5px", fontWeight: 600, marginBottom: "12px" }}>
-              {es ? "Estadísticas" : "Statistics"}
+            <div style={{ display: "flex", alignItems: "center", marginBottom: "12px" }}>
+              <div style={{ fontSize: "11px", color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "1.5px", fontWeight: 600, flex: 1 }}>
+                {es ? "Estadísticas" : "Statistics"}
+              </div>
+              <button onClick={() => setStatsOpen(false)} style={{
+                width: 26, height: 26, borderRadius: "50%",
+                background: "rgba(255,255,255,0.06)", border: "none",
+                color: "var(--text-dim)", fontSize: "14px",
+                display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer",
+              }}>✕</button>
             </div>
 
             {/* Quick stats row */}
