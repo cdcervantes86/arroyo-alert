@@ -267,13 +267,20 @@ function AppContent() {
   const closeSheet = () => { setScreen("main"); setSelectedZone(null); };
   const handleMapReady = useCallback((map) => { setMapInstance(map); }, []);
   const handleLocate = useCallback(() => {
-    if (!mapInstance || !navigator.geolocation) return;
+    if (!mapInstance) return;
+    // Toggle off if already located
+    if (userLocation) {
+      if (locationMarker) locationMarker.remove();
+      setLocationMarker(null);
+      setUserLocation(null);
+      mapInstance.flyTo({ center: [-74.805, 10.96], zoom: 12.5, duration: 800 });
+      return;
+    }
+    if (!navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition((pos) => {
       const { latitude, longitude } = pos.coords;
       const mapboxgl = require("mapbox-gl");
-      // Remove old marker
       if (locationMarker) locationMarker.remove();
-      // Create location dot
       const el = document.createElement("div");
       el.innerHTML = `
         <div style="position:relative;width:24px;height:24px;">
@@ -288,7 +295,7 @@ function AppContent() {
       setUserLocation([latitude, longitude]);
       mapInstance.flyTo({ center: [longitude, latitude], zoom: 15, duration: 1000 });
     }, null, { enableHighAccuracy: true });
-  }, [mapInstance, locationMarker]);
+  }, [mapInstance, locationMarker, userLocation]);
 
   const currentMainView = isDesktop ? desktopView : mobileView;
   const panelVisible = isDesktop && showPanel;
