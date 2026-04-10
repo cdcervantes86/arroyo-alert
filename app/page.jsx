@@ -254,13 +254,23 @@ function AppContent() {
     if (!mapInstance || !navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition((pos) => {
       const { latitude, longitude } = pos.coords;
-      const L = require("leaflet");
-      if (locationMarker) mapInstance.removeLayer(locationMarker);
-      const marker = L.circleMarker([latitude, longitude], { radius: 8, fillColor: "#4285F4", fillOpacity: 1, color: "#fff", weight: 3, opacity: 0.9 }).addTo(mapInstance);
-      L.circleMarker([latitude, longitude], { radius: 20, fillColor: "#4285F4", fillOpacity: 0.15, color: "#4285F4", weight: 1, opacity: 0.3 }).addTo(mapInstance);
+      const mapboxgl = require("mapbox-gl");
+      // Remove old marker
+      if (locationMarker) locationMarker.remove();
+      // Create location dot
+      const el = document.createElement("div");
+      el.innerHTML = `
+        <div style="position:relative;width:24px;height:24px;">
+          <div style="position:absolute;inset:-6px;border-radius:50%;background:rgba(66,133,244,0.15);border:1px solid rgba(66,133,244,0.3);"></div>
+          <div style="width:16px;height:16px;border-radius:50%;background:#4285F4;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.3);margin:4px;"></div>
+        </div>
+      `;
+      const marker = new mapboxgl.Marker({ element: el, anchor: "center" })
+        .setLngLat([longitude, latitude])
+        .addTo(mapInstance);
       setLocationMarker(marker);
       setUserLocation([latitude, longitude]);
-      mapInstance.setView([latitude, longitude], 15);
+      mapInstance.flyTo({ center: [longitude, latitude], zoom: 15, duration: 1000 });
     }, null, { enableHighAccuracy: true });
   }, [mapInstance, locationMarker]);
 
