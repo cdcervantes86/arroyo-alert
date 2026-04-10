@@ -1,79 +1,270 @@
 "use client";
-import { useState } from "react";
+import { useState, useCallback } from "react";
+
+function FloodIllustration() {
+  return (
+    <svg width="160" height="160" viewBox="0 0 160 160" fill="none">
+      {/* Rain drops */}
+      {[20, 55, 90, 125, 40, 75, 110].map((x, i) => (
+        <line key={i} x1={x} y1={10 + i * 3} x2={x - 4} y2={22 + i * 3}
+          stroke="rgba(96,165,250,0.3)" strokeWidth="1.5" strokeLinecap="round"
+          style={{ animation: `rainFall 1.2s ease-in-out ${i * 0.15}s infinite` }} />
+      ))}
+      {/* Buildings silhouette */}
+      <rect x="15" y="55" width="22" height="45" rx="2" fill="rgba(255,255,255,0.06)" />
+      <rect x="20" y="60" width="5" height="6" rx="1" fill="rgba(96,165,250,0.12)" />
+      <rect x="28" y="60" width="5" height="6" rx="1" fill="rgba(96,165,250,0.12)" />
+      <rect x="20" y="72" width="5" height="6" rx="1" fill="rgba(96,165,250,0.12)" />
+      <rect x="28" y="72" width="5" height="6" rx="1" fill="rgba(96,165,250,0.12)" />
+      <rect x="42" y="40" width="18" height="60" rx="2" fill="rgba(255,255,255,0.08)" />
+      <rect x="46" y="46" width="4" height="5" rx="1" fill="rgba(96,165,250,0.12)" />
+      <rect x="52" y="46" width="4" height="5" rx="1" fill="rgba(96,165,250,0.12)" />
+      <rect x="46" y="56" width="4" height="5" rx="1" fill="rgba(96,165,250,0.12)" />
+      <rect x="52" y="56" width="4" height="5" rx="1" fill="rgba(96,165,250,0.12)" />
+      <rect x="100" y="50" width="25" height="50" rx="2" fill="rgba(255,255,255,0.07)" />
+      <rect x="130" y="60" width="18" height="40" rx="2" fill="rgba(255,255,255,0.05)" />
+      {/* Street */}
+      <rect x="0" y="100" width="160" height="60" rx="0" fill="rgba(96,165,250,0.04)" />
+      {/* Water waves — animated */}
+      <path d="M0 108 Q20 100 40 108 Q60 116 80 108 Q100 100 120 108 Q140 116 160 108"
+        fill="none" stroke="rgba(96,165,250,0.4)" strokeWidth="3" strokeLinecap="round">
+        <animate attributeName="d"
+          values="M0 108 Q20 100 40 108 Q60 116 80 108 Q100 100 120 108 Q140 116 160 108;M0 108 Q20 116 40 108 Q60 100 80 108 Q100 116 120 108 Q140 100 160 108;M0 108 Q20 100 40 108 Q60 116 80 108 Q100 100 120 108 Q140 116 160 108"
+          dur="3s" repeatCount="indefinite" />
+      </path>
+      <path d="M0 120 Q20 112 40 120 Q60 128 80 120 Q100 112 120 120 Q140 128 160 120"
+        fill="none" stroke="rgba(96,165,250,0.25)" strokeWidth="2.5" strokeLinecap="round">
+        <animate attributeName="d"
+          values="M0 120 Q20 112 40 120 Q60 128 80 120 Q100 112 120 120 Q140 128 160 120;M0 120 Q20 128 40 120 Q60 112 80 120 Q100 128 120 120 Q140 112 160 120;M0 120 Q20 112 40 120 Q60 128 80 120 Q100 112 120 120 Q140 128 160 120"
+          dur="2.5s" repeatCount="indefinite" />
+      </path>
+      <path d="M0 132 Q20 126 40 132 Q60 138 80 132 Q100 126 120 132 Q140 138 160 132"
+        fill="none" stroke="rgba(96,165,250,0.12)" strokeWidth="2" strokeLinecap="round" />
+      {/* Danger sign */}
+      <g transform="translate(72, 82)">
+        <path d="M8 0 L16 14 L0 14 Z" fill="#D42A2A" opacity="0.8" />
+        <line x1="8" y1="4" x2="8" y2="9" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" />
+        <circle cx="8" cy="11.5" r="0.8" fill="#fff" />
+      </g>
+    </svg>
+  );
+}
+
+function ReportIllustration() {
+  return (
+    <svg width="160" height="160" viewBox="0 0 160 160" fill="none">
+      {/* Phone outline */}
+      <rect x="45" y="20" width="70" height="120" rx="12" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.1)" strokeWidth="1.5" />
+      <rect x="70" y="24" width="20" height="4" rx="2" fill="rgba(255,255,255,0.08)" />
+      {/* Map inside phone */}
+      <rect x="51" y="34" width="58" height="80" rx="4" fill="rgba(96,165,250,0.04)" />
+      {/* Map grid lines */}
+      <line x1="51" y1="55" x2="109" y2="55" stroke="rgba(255,255,255,0.03)" strokeWidth="0.5" />
+      <line x1="51" y1="75" x2="109" y2="75" stroke="rgba(255,255,255,0.03)" strokeWidth="0.5" />
+      <line x1="70" y1="34" x2="70" y2="114" stroke="rgba(255,255,255,0.03)" strokeWidth="0.5" />
+      <line x1="90" y1="34" x2="90" y2="114" stroke="rgba(255,255,255,0.03)" strokeWidth="0.5" />
+      {/* Zone dots */}
+      <circle cx="65" cy="50" r="3" fill="#ef4444" opacity="0.8">
+        <animate attributeName="r" values="3;5;3" dur="2s" repeatCount="indefinite" />
+        <animate attributeName="opacity" values="0.8;0.3;0.8" dur="2s" repeatCount="indefinite" />
+      </circle>
+      <circle cx="85" cy="65" r="2.5" fill="#eab308" opacity="0.6" />
+      <circle cx="75" cy="85" r="2" fill="#22c55e" opacity="0.5" />
+      <circle cx="95" cy="48" r="2" fill="rgba(255,255,255,0.15)" />
+      <circle cx="60" cy="95" r="2" fill="rgba(255,255,255,0.15)" />
+      {/* Tap ripple */}
+      <circle cx="65" cy="50" r="8" fill="none" stroke="#ef4444" strokeWidth="1" opacity="0.3">
+        <animate attributeName="r" values="8;16" dur="1.5s" repeatCount="indefinite" />
+        <animate attributeName="opacity" values="0.3;0" dur="1.5s" repeatCount="indefinite" />
+      </circle>
+      {/* Report button on phone */}
+      <rect x="58" y="120" width="44" height="14" rx="7" fill="#D42A2A" opacity="0.8" />
+      <text x="80" y="130" textAnchor="middle" fill="#fff" fontSize="7" fontWeight="700" fontFamily="sans-serif">REPORTAR</text>
+      {/* Finger tap */}
+      <circle cx="65" cy="50" r="10" fill="rgba(255,255,255,0.06)" />
+    </svg>
+  );
+}
+
+function AlertIllustration() {
+  return (
+    <svg width="160" height="160" viewBox="0 0 160 160" fill="none">
+      {/* Bell */}
+      <g transform="translate(55, 25)">
+        <path d="M25 0 C25 0 25 5 25 10 C25 15 20 18 20 25 L20 45 C20 48 17 50 14 52 L36 52 C33 50 30 48 30 45 L30 25 C30 18 25 15 25 10 Z"
+          fill="rgba(245,208,51,0.12)" stroke="rgba(245,208,51,0.5)" strokeWidth="1.5" />
+        <circle cx="25" cy="56" r="4" fill="rgba(245,208,51,0.3)" />
+        {/* Ring animation */}
+        <animateTransform attributeName="transform" type="rotate"
+          values="-5 25 25;5 25 25;-5 25 25" dur="1s" repeatCount="indefinite" additive="sum" />
+      </g>
+      {/* Notification cards fanning out */}
+      <g style={{ animation: "fadeIn 0.5s ease 0.3s both" }}>
+        {/* Card 1 */}
+        <rect x="25" y="90" width="110" height="24" rx="6" fill="rgba(239,68,68,0.08)" stroke="rgba(239,68,68,0.15)" strokeWidth="1" />
+        <circle cx="38" cy="102" r="4" fill="#ef4444" opacity="0.7" />
+        <rect x="48" y="97" width="45" height="4" rx="2" fill="rgba(255,255,255,0.1)" />
+        <rect x="48" y="104" width="30" height="3" rx="1.5" fill="rgba(255,255,255,0.05)" />
+      </g>
+      <g style={{ animation: "fadeIn 0.5s ease 0.5s both" }}>
+        {/* Card 2 */}
+        <rect x="30" y="118" width="100" height="22" rx="6" fill="rgba(234,179,8,0.06)" stroke="rgba(234,179,8,0.12)" strokeWidth="1" />
+        <circle cx="42" cy="129" r="3.5" fill="#eab308" opacity="0.6" />
+        <rect x="50" y="125" width="40" height="3.5" rx="1.5" fill="rgba(255,255,255,0.08)" />
+        <rect x="50" y="131" width="25" height="3" rx="1.5" fill="rgba(255,255,255,0.04)" />
+      </g>
+      {/* Signal waves from bell */}
+      {[0, 1, 2].map((i) => (
+        <path key={i} d={`M${90 + i * 12} ${42 - i * 5} Q${95 + i * 12} ${35 - i * 5} ${90 + i * 12} ${28 - i * 5}`}
+          fill="none" stroke="rgba(245,208,51,0.2)" strokeWidth="1.5" strokeLinecap="round"
+          opacity={1 - i * 0.3} />
+      ))}
+      {[0, 1, 2].map((i) => (
+        <path key={`l${i}`} d={`M${60 - i * 12} ${42 - i * 5} Q${55 - i * 12} ${35 - i * 5} ${60 - i * 12} ${28 - i * 5}`}
+          fill="none" stroke="rgba(245,208,51,0.2)" strokeWidth="1.5" strokeLinecap="round"
+          opacity={1 - i * 0.3} />
+      ))}
+    </svg>
+  );
+}
 
 const slides = {
   es: [
-    { icon: "🌊", title: "¿Qué es un arroyo?", text: "En Barranquilla, las calles se inundan con corrientes peligrosas cuando llueve. Se han cobrado más de 115 vidas desde 1933." },
-    { icon: "📍", title: "Reporta en tiempo real", text: "Si ves un arroyo activo, repórtalo en segundos. Tu alerta ayuda a proteger a miles de personas." },
-    { icon: "🔔", title: "Recibe alertas", text: "Suscríbete a las zonas que te importan y recibe notificaciones cuando se reporte un arroyo peligroso." },
+    { Illustration: FloodIllustration, title: "¿Qué es un arroyo?", text: "En Barranquilla, las calles se convierten en ríos peligrosos cuando llueve. Más de 115 vidas perdidas desde 1933." },
+    { Illustration: ReportIllustration, title: "Reporta en tiempo real", text: "¿Ves un arroyo activo? Repórtalo en segundos. Tu alerta protege a miles de personas en tu comunidad." },
+    { Illustration: AlertIllustration, title: "Recibe alertas", text: "Suscríbete a tus zonas y recibe notificaciones cuando se reporte un arroyo peligroso cerca de ti." },
   ],
   en: [
-    { icon: "🌊", title: "What is an arroyo?", text: "In Barranquilla, streets flood with dangerous currents when it rains. Over 115 lives lost since 1933." },
-    { icon: "📍", title: "Report in real time", text: "If you see an active arroyo, report it in seconds. Your alert helps protect thousands of people." },
-    { icon: "🔔", title: "Get alerts", text: "Subscribe to the zones you care about and get notified when a dangerous arroyo is reported." },
+    { Illustration: FloodIllustration, title: "What is an arroyo?", text: "In Barranquilla, streets become dangerous rivers when it rains. Over 115 lives lost since 1933." },
+    { Illustration: ReportIllustration, title: "Report in real time", text: "See an active arroyo? Report it in seconds. Your alert protects thousands of people in your community." },
+    { Illustration: AlertIllustration, title: "Get alerts", text: "Subscribe to your zones and get notified when a dangerous arroyo is reported near you." },
   ],
 };
 
 export default function Onboarding({ lang, onComplete, onToggleLang }) {
   const [step, setStep] = useState(0);
+  const [direction, setDirection] = useState(1);
   const s = slides[lang] || slides.es;
   const current = s[step];
   const isLast = step === s.length - 1;
 
+  const goNext = useCallback(() => {
+    if (isLast) {
+      try { localStorage.setItem("arroyo-onboarded", "1"); } catch(e) {}
+      onComplete();
+    } else {
+      setDirection(1);
+      setStep(step + 1);
+    }
+  }, [isLast, step, onComplete]);
+
+  const handleSkip = useCallback(() => {
+    try { localStorage.setItem("arroyo-onboarded", "1"); } catch(e) {}
+    onComplete();
+  }, [onComplete]);
+
   return (
-    <div style={{ position: "fixed", inset: 0, zIndex: 100, background: "rgba(0,0,0,0.9)", backdropFilter: "blur(24px)", display: "flex", alignItems: "center", justifyContent: "center", animation: "fadeIn 0.4s ease" }}>
-      {/* Language toggle — top right */}
+    <div style={{
+      position: "fixed", inset: 0, zIndex: 100,
+      background: "linear-gradient(180deg, #070b14 0%, #0a1220 50%, #070b14 100%)",
+      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+      animation: "fadeIn 0.4s ease", overflow: "hidden",
+    }}>
+      {/* Subtle background decoration */}
+      <div style={{
+        position: "absolute", top: "15%", left: "50%", transform: "translateX(-50%)",
+        width: 300, height: 300, borderRadius: "50%",
+        background: step === 0 ? "rgba(96,165,250,0.03)" : step === 1 ? "rgba(212,42,42,0.03)" : "rgba(245,208,51,0.03)",
+        filter: "blur(60px)", transition: "background 0.6s ease",
+        pointerEvents: "none",
+      }} />
+
+      {/* Language toggle */}
       {onToggleLang && (
         <button onClick={onToggleLang} style={{
           position: "absolute", top: 20, right: 20,
           padding: "5px 12px", borderRadius: "8px",
-          background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)",
-          color: "rgba(255,255,255,0.45)", fontSize: "11px", fontWeight: 700,
+          background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)",
+          color: "rgba(255,255,255,0.4)", fontSize: "11px", fontWeight: 700,
           letterSpacing: "0.5px", cursor: "pointer", zIndex: 10,
         }}>
           {lang === "es" ? "EN" : "ES"}
         </button>
       )}
 
-      <div style={{ width: "100%", maxWidth: 360, padding: "40px 28px", textAlign: "center" }}>
-        <div key={step} style={{ fontSize: "56px", marginBottom: "24px", animation: "successPulse 0.5s ease" }}>
-          {current.icon}
+      <div style={{ width: "100%", maxWidth: 340, padding: "0 28px", textAlign: "center" }}>
+        {/* Illustration */}
+        <div key={`ill-${step}`} style={{
+          marginBottom: "32px",
+          animation: "slideIllustration 0.5s cubic-bezier(0.32, 0.72, 0, 1)",
+        }}>
+          <current.Illustration />
         </div>
-        <h2 style={{ fontSize: "22px", fontWeight: 700, color: "var(--text)", marginBottom: "12px", letterSpacing: "-0.3px", animation: "fadeIn 0.3s ease 0.1s both" }}>
-          {current.title}
-        </h2>
-        <p style={{ fontSize: "15px", color: "var(--text-secondary)", lineHeight: 1.65, marginBottom: "36px", animation: "fadeIn 0.3s ease 0.2s both" }}>
-          {current.text}
-        </p>
 
-        {/* Dots */}
+        {/* Text */}
+        <div key={`txt-${step}`} style={{ animation: "slideText 0.45s cubic-bezier(0.32, 0.72, 0, 1)" }}>
+          <h2 style={{
+            fontSize: "24px", fontWeight: 800, color: "var(--text)",
+            marginBottom: "12px", letterSpacing: "-0.4px",
+          }}>
+            {current.title}
+          </h2>
+          <p style={{
+            fontSize: "15px", color: "var(--text-secondary)", lineHeight: 1.7,
+            marginBottom: "40px",
+          }}>
+            {current.text}
+          </p>
+        </div>
+
+        {/* Progress dots */}
         <div style={{ display: "flex", justifyContent: "center", gap: "8px", marginBottom: "32px" }}>
           {s.map((_, i) => (
-            <div key={i} style={{ width: i === step ? 28 : 8, height: 8, borderRadius: "4px", background: i === step ? "var(--accent)" : "rgba(255,255,255,0.1)", transition: "all 0.3s ease" }} />
+            <div key={i} style={{
+              width: i === step ? 28 : 8, height: 8, borderRadius: "4px",
+              background: i === step ? (step === 0 ? "var(--accent)" : step === 1 ? "var(--baq-red)" : "var(--baq-yellow)") : "rgba(255,255,255,0.08)",
+              transition: "all 0.4s cubic-bezier(0.32, 0.72, 0, 1)",
+            }} />
           ))}
         </div>
 
-        <button onClick={() => {
-          if (isLast) { localStorage.setItem("arroyo-onboarded", "1"); onComplete(); }
-          else setStep(step + 1);
-        }} style={{
-          width: "100%", padding: "16px",
-          background: isLast ? "linear-gradient(135deg, #D42A2A, #b91c1c)" : "var(--accent)",
+        {/* CTA button */}
+        <button onClick={goNext} style={{
+          width: "100%", padding: "17px",
+          background: isLast
+            ? "linear-gradient(135deg, #D42A2A, #b91c1c)"
+            : step === 0 ? "var(--accent)" : "rgba(255,255,255,0.08)",
           color: "#fff", border: "none", borderRadius: "var(--radius-md)",
-          fontSize: "16px", fontWeight: 700,
-          boxShadow: isLast ? "0 8px 24px rgba(212,42,42,0.25)" : "0 8px 24px rgba(91,156,246,0.15)",
+          fontSize: "16px", fontWeight: 700, letterSpacing: "-0.2px",
+          boxShadow: isLast ? "0 8px 24px rgba(212,42,42,0.25)" : step === 0 ? "0 8px 24px rgba(91,156,246,0.15)" : "none",
         }}>
           {isLast ? (lang === "es" ? "Comenzar" : "Get started") : (lang === "es" ? "Siguiente" : "Next")}
         </button>
 
         {!isLast && (
-          <button onClick={() => { localStorage.setItem("arroyo-onboarded", "1"); onComplete(); }} style={{
-            background: "none", border: "none", color: "var(--text-faint)", fontSize: "13px", marginTop: "16px", cursor: "pointer",
+          <button onClick={handleSkip} style={{
+            background: "none", border: "none", color: "var(--text-faint)",
+            fontSize: "13px", marginTop: "16px", cursor: "pointer", padding: "8px",
           }}>
             {lang === "es" ? "Saltar" : "Skip"}
           </button>
         )}
       </div>
+
+      <style>{`
+        @keyframes slideIllustration {
+          from { opacity: 0; transform: translateX(${direction > 0 ? '30px' : '-30px'}); }
+          to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideText {
+          from { opacity: 0; transform: translateY(12px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes rainFall {
+          0%, 100% { opacity: 0.3; transform: translateY(0); }
+          50% { opacity: 0.7; transform: translateY(4px); }
+        }
+      `}</style>
     </div>
   );
 }
