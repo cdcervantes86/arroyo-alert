@@ -24,6 +24,23 @@ import { useFavorites } from "@/lib/useFavorites";
 
 const MapView = lazy(() => import("@/components/MapView"));
 
+import React from "react";
+class MapErrorBoundary extends React.Component {
+  constructor(props) { super(props); this.state = { hasError: false }; }
+  static getDerivedStateFromError() { return { hasError: true }; }
+  componentDidCatch(err) { console.error("MapView crash:", err); }
+  render() {
+    if (this.state.hasError) return (
+      <div style={{ width: "100%", height: "100%", background: "#070b14", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "20px", textAlign: "center" }}>
+        <span style={{ fontSize: "32px", marginBottom: "12px" }}>🗺️</span>
+        <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.5)" }}>Map could not load</p>
+        <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.3)" }}>Switch to Zones tab</p>
+      </div>
+    );
+    return this.props.children;
+  }
+}
+
 function Logo({ size = 24 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 512 512" style={{ borderRadius: size * 0.22, flexShrink: 0 }}>
@@ -330,9 +347,11 @@ function AppContent() {
         <div style={{ flex: 1, minHeight: 0, position: "relative", overflow: "hidden" }}>
           {currentMainView === "map" ? (
             <>
+            <MapErrorBoundary>
             <Suspense fallback={<div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", color: "var(--text-dim)", fontSize: "14px" }}>{t.loadingMap}</div>}>
               <MapView reports={reports} onZoneClick={handleZoneClick} panelOpen={panelVisible} activeFilter={activeFilter} predictions={predictions} onMapReady={handleMapReady} />
             </Suspense>
+            </MapErrorBoundary>
             {isRaining && <div className="rain-overlay" />}
             {/* Floating map controls */}
             <div style={{ position: "absolute", top: 12, right: 12, zIndex: 800, display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "8px" }}>

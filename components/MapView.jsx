@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useState } from "react";
 import { ZONES, SEVERITY, getZoneSeverity, getZoneReports } from "@/lib/zones";
 import { ARROYO_CORRIDORS } from "@/lib/arroyoCorridors";
 
@@ -11,25 +11,33 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
   const mapRef = useRef(null);
   const markersRef = useRef([]);
   const initRef = useRef(false);
+  const [mapError, setMapError] = useState(false);
 
   // Initialize map
   useEffect(() => {
     if (initRef.current || !mapContainerRef.current || !MAPBOX_TOKEN) return;
     initRef.current = true;
 
-    const mapboxgl = require("mapbox-gl");
+    try {
+      const mapboxgl = require("mapbox-gl");
 
-    mapboxgl.accessToken = MAPBOX_TOKEN;
+      // Check WebGL support
+      if (!mapboxgl.supported()) {
+        setMapError(true);
+        return;
+      }
 
-    const map = new mapboxgl.Map({
-      container: mapContainerRef.current,
-      style: DARK_STYLE,
-      center: [-74.805, 10.96],
-      zoom: 12.5,
-      attributionControl: false,
-      pitchWithRotate: false,
-      dragRotate: false,
-    });
+      mapboxgl.accessToken = MAPBOX_TOKEN;
+
+      const map = new mapboxgl.Map({
+        container: mapContainerRef.current,
+        style: DARK_STYLE,
+        center: [-74.805, 10.96],
+        zoom: 12.5,
+        attributionControl: false,
+        pitchWithRotate: false,
+        dragRotate: false,
+      });
 
     // Add controls
     map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), "bottom-right");
@@ -105,6 +113,10 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
       mapRef.current = null;
       initRef.current = false;
     };
+    } catch (e) {
+      console.error("Map init error:", e);
+      setMapError(true);
+    }
   }, [onMapReady]);
 
   // Resize on panel toggle
@@ -231,6 +243,16 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
       markersRef.current.push(marker);
     });
   }, [reports, onZoneClick, activeFilter, predictions]);
+
+  if (mapError) {
+    return (
+      <div style={{ width: "100%", height: "100%", background: "#070b14", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "20px", textAlign: "center" }}>
+        <span style={{ fontSize: "32px", marginBottom: "12px" }}>🗺️</span>
+        <p style={{ fontSize: "14px", color: "var(--text-secondary)", marginBottom: "8px" }}>Map could not load on this device</p>
+        <p style={{ fontSize: "12px", color: "var(--text-faint)" }}>Switch to the Zones tab to see arroyo alerts</p>
+      </div>
+    );
+  }
 
   return (
     <>
