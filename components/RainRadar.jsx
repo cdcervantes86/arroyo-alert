@@ -1,15 +1,13 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useLanguage } from "@/lib/LanguageContext";
-
-// RainViewer provides free radar tile layers for Leaflet
-// API docs: https://www.rainviewer.com/api.html
 
 export function useRainRadar(mapInstance) {
   const [radarLayer, setRadarLayer] = useState(null);
   const [enabled, setEnabled] = useState(false);
   const [loading, setLoading] = useState(false);
   const [timestamp, setTimestamp] = useState(null);
+  const prevZoom = useRef(null);
 
   const addRadar = useCallback(async () => {
     if (!mapInstance) return;
@@ -17,27 +15,30 @@ export function useRainRadar(mapInstance) {
     setLoading(true);
 
     try {
-      // Fetch available radar frames from RainViewer
       const res = await fetch("https://api.rainviewer.com/public/weather-maps.json");
       const data = await res.json();
 
-      // Use the most recent radar frame
       const latestFrame = data.radar?.past?.slice(-1)?.[0];
       if (!latestFrame) { setLoading(false); return; }
 
-      const tileUrl = `https://tilecache.rainviewer.com${latestFrame.path}/256/{z}/{x}/{y}/2/1_1.png`;
+      // Use 512px tiles for better quality at lower zooms
+      const tileUrl = `https://tilecache.rainviewer.com${latestFrame.path}/512/{z}/{x}/{y}/2/1_1.png`;
 
-      // Remove old layer if exists
       if (radarLayer) mapInstance.removeLayer(radarLayer);
 
       const layer = L.tileLayer(tileUrl, {
-        opacity: 0.55,
+        tileSize: 512,
+        zoomOffset: -1,
+        opacity: 0.6,
         zIndex: 5,
-        maxNativeZoom: 12,
-        maxZoom: 19,
-        errorTileUrl: "",
+        maxZoom: 12,
+        errorTileUrl: "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7",
         attribution: '<a href="https://rainviewer.com" style="color:rgba(255,255,255,0.3)">RainViewer</a>',
       }).addTo(mapInstance);
+
+      // Save current zoom and zoom out to see radar
+      if (!prevZoom.current) prevZoom.current = mapInstance.getZoom();
+      if (mapInstance.getZoom() > 10) mapInstance.setZoom(10);
 
       setRadarLayer(layer);
       setTimestamp(new Date(latestFrame.time * 1000));
@@ -53,6 +54,11 @@ export function useRainRadar(mapInstance) {
       mapInstance.removeLayer(radarLayer);
       setRadarLayer(null);
     }
+    // Restore previous zoom
+    if (prevZoom.current && mapInstance) {
+      mapInstance.setZoom(prevZoom.current);
+      prevZoom.current = null;
+    }
     setEnabled(false);
     setTimestamp(null);
   }, [radarLayer, mapInstance]);
@@ -62,7 +68,6 @@ export function useRainRadar(mapInstance) {
     else addRadar();
   }, [enabled, addRadar, removeRadar]);
 
-  // Auto-refresh radar every 5 minutes
   useEffect(() => {
     if (!enabled) return;
     const interval = setInterval(addRadar, 300000);
@@ -84,7 +89,7 @@ export function RainRadarButton({ enabled, loading, timestamp, onToggle }) {
         border: `1px solid ${enabled ? "rgba(96,165,250,0.25)" : "var(--border)"}`,
         display: "flex", alignItems: "center", justifyContent: "center",
         cursor: "pointer", boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
-        transition: "all 0.2s ease", position: "relative",
+        transition: "all 0.2s ease",
       }}>
         {loading ? (
           <span style={{ fontSize: "14px", animation: "blink 1s ease infinite" }}>🌧️</span>

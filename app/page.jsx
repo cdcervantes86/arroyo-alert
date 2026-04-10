@@ -270,7 +270,7 @@ function AppContent() {
             {isRaining && <div className="rain-overlay" />}
             {/* Floating map controls */}
             <div style={{ position: "absolute", top: 12, right: 12, zIndex: 800, display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "8px" }}>
-              <RainRadarButton enabled={radar.enabled} loading={radar.loading} timestamp={radar.timestamp} onToggle={() => { radar.toggle(); if (!radar.enabled && mapInstance) mapInstance.setZoom(Math.min(mapInstance.getZoom(), 11)); }} />
+              <RainRadarButton enabled={radar.enabled} loading={radar.loading} timestamp={radar.timestamp} onToggle={radar.toggle} />
               <button onClick={handleLocate} style={{
                 width: 40, height: 40, borderRadius: "50%",
                 background: userLocation ? "rgba(66,133,244,0.15)" : "rgba(8,13,24,0.9)",
