@@ -66,13 +66,19 @@ export default function HeatmapView({ onBack, onLogoClick, onToggleLang }) {
       const count = zoneCounts[zone.id] || 0;
       if (count === 0) return;
       const intensity = count / maxCount;
-      const outerSize = 40 + intensity * 80;
+      const visualScale = 1 + intensity * 2;
       const innerSize = 24 + intensity * 16;
       const color = intensity > 0.7 ? "#ef4444" : intensity > 0.4 ? "#f59e0b" : "#60a5fa";
+
+      // Fixed 40x40 wrapper prevents drift on zoom
+      const wrapper = document.createElement("div");
+      wrapper.style.cssText = "width:40px;height:40px;position:relative;pointer-events:none;";
+
       const el = document.createElement("div");
-      el.style.cssText = `position:relative;width:${outerSize}px;height:${outerSize}px;pointer-events:none;`;
+      el.style.cssText = `position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:40px;height:40px;pointer-events:none;`;
+
       const glow = document.createElement("div");
-      glow.style.cssText = `position:absolute;inset:0;border-radius:50%;background:${color};opacity:${0.12 + intensity * 0.15};filter:blur(8px);`;
+      glow.style.cssText = `position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:${40 * visualScale}px;height:${40 * visualScale}px;border-radius:50%;background:${color};opacity:${0.12 + intensity * 0.15};filter:blur(8px);`;
       el.appendChild(glow);
       const inner = document.createElement("div");
       inner.style.cssText = `position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:${innerSize}px;height:${innerSize}px;border-radius:50%;background:${color};opacity:${0.35 + intensity * 0.35};border:1px solid ${color}80;`;
@@ -80,9 +86,11 @@ export default function HeatmapView({ onBack, onLogoClick, onToggleLang }) {
       const dot = document.createElement("div");
       dot.style.cssText = `position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:12px;height:12px;border-radius:50%;background:#fff;opacity:0.9;border:2px solid ${color};pointer-events:auto;cursor:pointer;`;
       el.appendChild(dot);
+      wrapper.appendChild(el);
+
       const popup = new mapboxgl.Popup({ offset: 15, closeButton: false, closeOnClick: false, className: "arroyo-mapbox-popup", maxWidth: "200px" })
         .setHTML(`<div style="font-family:'DM Sans',sans-serif;font-size:12px;color:#fff;"><b>${zone.name}</b><br/><span style="opacity:0.6">${zone.area}</span><br/>${count} ${es ? "reportes" : "reports"}</div>`);
-      const marker = new mapboxgl.Marker({ element: el, anchor: "center" }).setLngLat([zone.lng, zone.lat]).setPopup(popup).addTo(map);
+      const marker = new mapboxgl.Marker({ element: wrapper, anchor: "center" }).setLngLat([zone.lng, zone.lat]).setPopup(popup).addTo(map);
       dot.addEventListener("mouseenter", () => marker.togglePopup());
       dot.addEventListener("mouseleave", () => marker.getPopup().remove());
       markersRef.current.push(marker);
