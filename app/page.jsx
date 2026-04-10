@@ -453,8 +453,12 @@ function AppContent() {
                 : "Your report protects others. Share it via WhatsApp to alert family and neighbors."}
             </p>
             <button onClick={() => {
-              const sevLabels = { danger: "PELIGROSO", caution: "Precaución", safe: "Despejado" };
-              const text = `⚠️ Arroyo ${sevLabels[lastReport.severity]} en ${lastReport.zoneName} (${lastReport.zoneArea})\n${lastReport.text ? lastReport.text + "\n" : ""}📍 AlertaArroyo — https://arroyo-alert.vercel.app`;
+              const sevLabels = es
+                ? { danger: "PELIGROSO", caution: "Precaución", safe: "Despejado" }
+                : { danger: "DANGEROUS", caution: "Caution", safe: "Clear" };
+              const text = es
+                ? `⚠️ Arroyo ${sevLabels[lastReport.severity]} en ${lastReport.zoneName} (${lastReport.zoneArea})\n${lastReport.text ? lastReport.text + "\n" : ""}📍 AlertaArroyo — https://arroyo-alert.vercel.app`
+                : `⚠️ Arroyo ${sevLabels[lastReport.severity]} at ${lastReport.zoneName} (${lastReport.zoneArea})\n${lastReport.text ? lastReport.text + "\n" : ""}📍 AlertaArroyo — https://arroyo-alert.vercel.app`;
               window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
               setLastReport(null);
             }} style={{

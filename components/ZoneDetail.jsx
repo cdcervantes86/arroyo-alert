@@ -47,7 +47,7 @@ export default function ZoneDetail({ zone, severity, reports, onBack, onReport, 
 
   const content = (
     <>
-      {shareData && <ShareCard {...shareData} onClose={() => setShareData(null)} />}
+      {shareData && <ShareCard {...shareData} lang={lang} onClose={() => setShareData(null)} />}
       {expandedPhoto && <div onClick={() => setExpandedPhoto(null)} style={{ position: "fixed", inset: 0, zIndex: 200, background: "rgba(0,0,0,0.9)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}><img src={expandedPhoto} alt="" style={{ maxWidth: "95%", maxHeight: "90vh", borderRadius: "12px", objectFit: "contain" }} /></div>}
 
       {/* Sheet header — compact close + zone name */}

@@ -2,10 +2,11 @@
 import { useRef, useCallback, useState, useEffect } from "react";
 import { SEVERITY } from "@/lib/zones";
 
-export default function ShareCard({ zoneName, zoneArea, severity, reportText, photoUrl, zoneId, onClose }) {
+export default function ShareCard({ zoneName, zoneArea, severity, reportText, photoUrl, zoneId, onClose, lang }) {
   const canvasRef = useRef(null);
   const [photoLoaded, setPhotoLoaded] = useState(null);
   const appUrl = "arroyo-alert.vercel.app";
+  const es = lang !== "en";
 
   useEffect(() => {
     if (!photoUrl) return;
@@ -28,7 +29,9 @@ export default function ShareCard({ zoneName, zoneArea, severity, reportText, ph
     canvas.height = h;
 
     const sevColors = { danger: "#DC2626", caution: "#D97706", safe: "#16A34A" };
-    const sevLabels = { danger: "\u26A0\uFE0F PELIGROSO", caution: "\u26A1 PRECAUCI\u00D3N", safe: "\u2705 DESPEJADO" };
+    const sevLabels = es
+      ? { danger: "\u26A0\uFE0F PELIGROSO", caution: "\u26A1 PRECAUCI\u00D3N", safe: "\u2705 DESPEJADO" }
+      : { danger: "\u26A0\uFE0F DANGEROUS", caution: "\u26A1 CAUTION", safe: "\u2705 CLEAR" };
     const col = sevColors[severity];
 
     // === NO TEXT MODE: photo as subtle full background ===
@@ -200,8 +203,12 @@ export default function ShareCard({ zoneName, zoneArea, severity, reportText, ph
     if (!canvas) return;
     canvas.toBlob(async (blob) => {
       if (!blob) return;
-      const sevLabels = { danger: "PELIGROSO", caution: "Precauci\u00F3n", safe: "Despejado" };
-      const text = `\u26A0\uFE0F Arroyo ${sevLabels[severity]} en ${zoneName} (${zoneArea})\n${reportText ? reportText + "\n" : ""}\uD83D\uDCCD AlertaArroyo \u2014 https://${appUrl}`;
+      const sevLabels = es
+        ? { danger: "PELIGROSO", caution: "Precauci\u00F3n", safe: "Despejado" }
+        : { danger: "DANGEROUS", caution: "Caution", safe: "Clear" };
+      const text = es
+        ? `\u26A0\uFE0F Arroyo ${sevLabels[severity]} en ${zoneName} (${zoneArea})\n${reportText ? reportText + "\n" : ""}\uD83D\uDCCD AlertaArroyo \u2014 https://${appUrl}`
+        : `\u26A0\uFE0F Arroyo ${sevLabels[severity]} at ${zoneName} (${zoneArea})\n${reportText ? reportText + "\n" : ""}\uD83D\uDCCD AlertaArroyo \u2014 https://${appUrl}`;
       if (navigator.share && navigator.canShare) {
         const file = new File([blob], "alerta-arroyo.png", { type: "image/png" });
         try { await navigator.share({ text, files: [file] }); onClose?.(); return; } catch (e) {}
@@ -252,7 +259,7 @@ export default function ShareCard({ zoneName, zoneArea, severity, reportText, ph
             display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
           }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg>
-            Compartir
+            {es ? "Compartir" : "Share"}
           </button>
           <button onClick={handleDownload} style={{
             padding: "14px 20px", borderRadius: "12px",
@@ -269,7 +276,7 @@ export default function ShareCard({ zoneName, zoneArea, severity, reportText, ph
           borderRadius: "12px", color: "var(--text-dim)",
           fontSize: "13px", cursor: "pointer",
         }}>
-          Cerrar
+          {es ? "Cerrar" : "Close"}
         </button>
       </div>
     </div>
