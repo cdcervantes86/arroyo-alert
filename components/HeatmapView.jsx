@@ -242,7 +242,7 @@ export default function HeatmapView({ onBack, onLogoClick }) {
         {/* Stats panel — collapsible */}
         {stats && !loading && statsOpen && (
           <div style={{
-            position: "absolute", bottom: 16, left: 16, right: 16, zIndex: 5,
+            position: "absolute", bottom: 16, left: 16, right: 16, zIndex: 900,
             background: "rgba(8,13,24,0.92)", backdropFilter: "blur(12px)",
             borderRadius: "var(--radius-lg)", border: "1px solid var(--border)",
             padding: "16px", maxHeight: "40vh", overflowY: "auto",
