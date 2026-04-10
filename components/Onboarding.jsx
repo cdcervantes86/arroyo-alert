@@ -50,7 +50,7 @@ function FloodIllustration() {
   );
 }
 
-function ReportIllustration() {
+function ReportIllustration({ lang }) {
   return (
     <svg width="160" height="160" viewBox="0 0 160 160" fill="none">
       {/* Phone outline */}
@@ -79,7 +79,7 @@ function ReportIllustration() {
       </circle>
       {/* Report button on phone */}
       <rect x="58" y="120" width="44" height="14" rx="7" fill="#D42A2A" opacity="0.8" />
-      <text x="80" y="130" textAnchor="middle" fill="#fff" fontSize="7" fontWeight="700" fontFamily="sans-serif">REPORTAR</text>
+      <text x="80" y="130" textAnchor="middle" fill="#fff" fontSize="7" fontWeight="700" fontFamily="sans-serif">{lang === "en" ? "REPORT" : "REPORTAR"}</text>
       {/* Finger tap */}
       <circle cx="65" cy="50" r="10" fill="rgba(255,255,255,0.06)" />
     </svg>
@@ -89,41 +89,47 @@ function ReportIllustration() {
 function AlertIllustration() {
   return (
     <svg width="160" height="160" viewBox="0 0 160 160" fill="none">
-      {/* Bell */}
-      <g transform="translate(55, 25)">
-        <path d="M25 0 C25 0 25 5 25 10 C25 15 20 18 20 25 L20 45 C20 48 17 50 14 52 L36 52 C33 50 30 48 30 45 L30 25 C30 18 25 15 25 10 Z"
-          fill="rgba(245,208,51,0.12)" stroke="rgba(245,208,51,0.5)" strokeWidth="1.5" />
-        <circle cx="25" cy="56" r="4" fill="rgba(245,208,51,0.3)" />
-        {/* Ring animation */}
-        <animateTransform attributeName="transform" type="rotate"
-          values="-5 25 25;5 25 25;-5 25 25" dur="1s" repeatCount="indefinite" additive="sum" />
+      {/* Bell — full, rounded shape */}
+      <g transform="translate(80, 55)">
+        <g>
+          <animateTransform attributeName="transform" type="rotate"
+            values="-4 0 0;4 0 0;-4 0 0" dur="1.2s" repeatCount="indefinite" />
+          {/* Bell body */}
+          <path d="M0 -28 C0 -32 4 -35 4 -35 C4 -35 0 -38 0 -38 C0 -38 -4 -35 -4 -35 C-4 -35 0 -32 0 -28 Z"
+            fill="rgba(245,208,51,0.6)" />
+          <path d="M-22 10 C-22 -8 -16 -22 0 -28 C16 -22 22 -8 22 10 L22 14 C22 14 26 18 28 20 L-28 20 C-26 18 -22 14 -22 14 Z"
+            fill="rgba(245,208,51,0.15)" stroke="rgba(245,208,51,0.5)" strokeWidth="1.5" strokeLinejoin="round" />
+          {/* Bell opening — thicker bottom */}
+          <rect x="-30" y="18" width="60" height="5" rx="2.5" fill="rgba(245,208,51,0.25)" />
+          {/* Highlight */}
+          <path d="M-12 -10 C-12 -20 -4 -24 0 -26 C-8 -22 -10 -14 -10 -4"
+            fill="none" stroke="rgba(245,208,51,0.2)" strokeWidth="2" strokeLinecap="round" />
+        </g>
+        {/* Clapper */}
+        <circle cx="0" cy="28" r="5" fill="rgba(245,208,51,0.3)" stroke="rgba(245,208,51,0.4)" strokeWidth="1" />
       </g>
-      {/* Notification cards fanning out */}
+      {/* Notification badge */}
+      <circle cx="105" cy="35" r="10" fill="#D42A2A" opacity="0.9" />
+      <text x="105" y="39" textAnchor="middle" fill="#fff" fontSize="11" fontWeight="800" fontFamily="sans-serif">!</text>
+      {/* Signal arcs — left */}
+      <path d="M48 40 Q42 48 48 56" fill="none" stroke="rgba(245,208,51,0.2)" strokeWidth="2" strokeLinecap="round" />
+      <path d="M40 35 Q32 48 40 61" fill="none" stroke="rgba(245,208,51,0.12)" strokeWidth="1.5" strokeLinecap="round" />
+      {/* Signal arcs — right */}
+      <path d="M112 40 Q118 48 112 56" fill="none" stroke="rgba(245,208,51,0.2)" strokeWidth="2" strokeLinecap="round" />
+      <path d="M120 35 Q128 48 120 61" fill="none" stroke="rgba(245,208,51,0.12)" strokeWidth="1.5" strokeLinecap="round" />
+      {/* Notification cards */}
       <g style={{ animation: "fadeIn 0.5s ease 0.3s both" }}>
-        {/* Card 1 */}
-        <rect x="25" y="90" width="110" height="24" rx="6" fill="rgba(239,68,68,0.08)" stroke="rgba(239,68,68,0.15)" strokeWidth="1" />
-        <circle cx="38" cy="102" r="4" fill="#ef4444" opacity="0.7" />
-        <rect x="48" y="97" width="45" height="4" rx="2" fill="rgba(255,255,255,0.1)" />
-        <rect x="48" y="104" width="30" height="3" rx="1.5" fill="rgba(255,255,255,0.05)" />
+        <rect x="25" y="95" width="110" height="24" rx="6" fill="rgba(239,68,68,0.08)" stroke="rgba(239,68,68,0.15)" strokeWidth="1" />
+        <circle cx="38" cy="107" r="4" fill="#ef4444" opacity="0.7" />
+        <rect x="48" y="102" width="45" height="4" rx="2" fill="rgba(255,255,255,0.1)" />
+        <rect x="48" y="109" width="30" height="3" rx="1.5" fill="rgba(255,255,255,0.05)" />
       </g>
       <g style={{ animation: "fadeIn 0.5s ease 0.5s both" }}>
-        {/* Card 2 */}
-        <rect x="30" y="118" width="100" height="22" rx="6" fill="rgba(234,179,8,0.06)" stroke="rgba(234,179,8,0.12)" strokeWidth="1" />
-        <circle cx="42" cy="129" r="3.5" fill="#eab308" opacity="0.6" />
-        <rect x="50" y="125" width="40" height="3.5" rx="1.5" fill="rgba(255,255,255,0.08)" />
-        <rect x="50" y="131" width="25" height="3" rx="1.5" fill="rgba(255,255,255,0.04)" />
+        <rect x="30" y="123" width="100" height="22" rx="6" fill="rgba(234,179,8,0.06)" stroke="rgba(234,179,8,0.12)" strokeWidth="1" />
+        <circle cx="42" cy="134" r="3.5" fill="#eab308" opacity="0.6" />
+        <rect x="50" y="130" width="40" height="3.5" rx="1.5" fill="rgba(255,255,255,0.08)" />
+        <rect x="50" y="136" width="25" height="3" rx="1.5" fill="rgba(255,255,255,0.04)" />
       </g>
-      {/* Signal waves from bell */}
-      {[0, 1, 2].map((i) => (
-        <path key={i} d={`M${90 + i * 12} ${42 - i * 5} Q${95 + i * 12} ${35 - i * 5} ${90 + i * 12} ${28 - i * 5}`}
-          fill="none" stroke="rgba(245,208,51,0.2)" strokeWidth="1.5" strokeLinecap="round"
-          opacity={1 - i * 0.3} />
-      ))}
-      {[0, 1, 2].map((i) => (
-        <path key={`l${i}`} d={`M${60 - i * 12} ${42 - i * 5} Q${55 - i * 12} ${35 - i * 5} ${60 - i * 12} ${28 - i * 5}`}
-          fill="none" stroke="rgba(245,208,51,0.2)" strokeWidth="1.5" strokeLinecap="round"
-          opacity={1 - i * 0.3} />
-      ))}
     </svg>
   );
 }
@@ -198,7 +204,7 @@ export default function Onboarding({ lang, onComplete, onToggleLang }) {
           marginBottom: "32px",
           animation: "slideIllustration 0.5s cubic-bezier(0.32, 0.72, 0, 1)",
         }}>
-          <current.Illustration />
+          <current.Illustration lang={lang} />
         </div>
 
         {/* Text */}
