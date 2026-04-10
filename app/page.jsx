@@ -277,8 +277,6 @@ function AppContent() {
   const panelVisible = isDesktop && showPanel;
   const headerGlow = dangerCount > 0 ? "header-glow-danger" : cautionCount > 0 ? "header-glow-caution" : liveCount > 0 ? "header-glow-safe" : "header-glow-neutral";
   const isRaining = weather?.isRaining || false;
-  const totalReportsEver = reports.length;
-  const protectedCount = Math.max(totalReportsEver * 23, 0); // estimated people warned
 
   if (showOnboarding) return <Onboarding lang={lang} onComplete={() => setShowOnboarding(false)} onToggleLang={toggleLang} />;
   if (screen === "about") return <AboutPage onBack={() => setScreen("main")} onLogoClick={handleLogoClick} />;
@@ -351,16 +349,6 @@ function AppContent() {
                 </svg>
               </button>
             </div>
-            {protectedCount > 0 && (
-              <div className="social-proof">
-                <div style={{ background: "var(--bg-glass)", backdropFilter: "blur(12px)", borderRadius: "20px", padding: "6px 14px", border: "1px solid var(--border)", display: "flex", alignItems: "center", gap: "6px" }}>
-                  <span style={{ width: 5, height: 5, borderRadius: "50%", background: "var(--safe)", animation: "blink 2s ease infinite" }} />
-                  <span style={{ fontSize: "11px", color: "var(--text-secondary)", fontWeight: 500, fontVariantNumeric: "tabular-nums" }}>
-                    {protectedCount.toLocaleString()} {es ? "personas protegidas" : "people protected"}
-                  </span>
-                </div>
-              </div>
-            )}
             </>
           ) : currentMainView === "list" ? (
             <PullToRefresh onRefresh={refetch}>
