@@ -19,6 +19,9 @@ import UpdateBanner from "@/components/UpdateBanner";
 import { SeverityIcon } from "@/components/SeverityIcon";
 import { useRainRadar, RainRadarButton } from "@/components/RainRadar";
 import PullToRefresh from "@/components/PullToRefresh";
+import ReporterProfile from "@/components/ReporterProfile";
+import WeeklyDigest from "@/components/WeeklyDigest";
+import { useFavorites } from "@/lib/useFavorites";
 
 const MapView = lazy(() => import("@/components/MapView"));
 
@@ -103,6 +106,8 @@ function MoreMenu({ onSelect, lang, onClose }) {
     <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 900, background: "rgba(0,0,0,0.5)", animation: "fadeIn 0.15s ease" }}>
       <div onClick={(e) => e.stopPropagation()} style={{ position: "absolute", bottom: 64, right: 12, left: 12, maxWidth: 300, marginLeft: "auto", background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: "var(--radius-lg)", padding: "6px", animation: "slideUp 0.2s ease", boxShadow: "0 -8px 40px rgba(0,0,0,0.5)" }}>
         {[
+          { key: "profile", icon: "👤", label: es ? "Mi perfil" : "My profile", desc: es ? "Estadísticas y rango de reportero" : "Stats and reporter rank" },
+          { key: "digest", icon: "📊", label: es ? "Resumen semanal" : "Weekly digest", desc: es ? "Actividad de los últimos 7 días" : "Last 7 days activity" },
           { key: "route", icon: "🛣️", label: es ? "Ruta segura" : "Safe route", desc: es ? "Verifica arroyos en tu camino" : "Check arroyos on your path" },
           { key: "heatmap", icon: "🔥", label: es ? "Historial" : "History", desc: es ? "Zonas más afectadas" : "Most affected zones" },
           { key: "about", icon: "ⓘ", label: es ? "Info y seguridad" : "Info & safety", desc: es ? "Consejos, emergencias, ajustes" : "Tips, emergencies, settings" },
@@ -210,7 +215,9 @@ function AppContent() {
   const [mapInstance, setMapInstance] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
   const [locationMarker, setLocationMarker] = useState(null);
+  const [showDigest, setShowDigest] = useState(false);
   const radar = useRainRadar(mapInstance);
+  const favs = useFavorites();
 
   useEffect(() => { const c = () => setIsDesktop(window.innerWidth >= 900); c(); window.addEventListener("resize", c); return () => window.removeEventListener("resize", c); }, []);
   useEffect(() => { try { if (!localStorage.getItem("arroyo-onboarded")) setShowOnboarding(true); } catch(e) {} }, []);
@@ -268,6 +275,7 @@ function AppContent() {
   if (screen === "about") return <AboutPage onBack={() => setScreen("main")} onLogoClick={handleLogoClick} />;
   if (screen === "heatmap") return <HeatmapView onBack={() => setScreen("main")} onLogoClick={handleLogoClick} />;
   if (screen === "route") return <RouteChecker reports={reports} onBack={() => setScreen("main")} onLogoClick={handleLogoClick} />;
+  if (screen === "profile") return <ReporterProfile reports={reports} onBack={() => setScreen("main")} onLogoClick={handleLogoClick} />;
   if (screen === "report") return <ReportFlow zones={ZONES} reports={reports} initialZoneId={selectedZone} onSubmit={async (data) => { await handleReport(data); setScreen("main"); }} onBack={() => setScreen("main")} onLogoClick={handleLogoClick} />;
 
   const desktopTabs = [{ key: "map", icon: "🗺️" }, { key: "list", icon: "📋" }, { key: "live", icon: "🔴" }];
@@ -350,25 +358,41 @@ function AppContent() {
             <div style={{ padding: "14px 14px 20px" }}>
               {loading ? Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} i={i} />) : (
                 <>
-                  {ZONES.filter((z) => !activeFilter || getZoneSeverity(z.id, reports) === activeFilter).map((z, i) => {
+                  {favs.sortZones(ZONES.filter((z) => !activeFilter || getZoneSeverity(z.id, reports) === activeFilter)).map((z, i, arr) => {
                     const sv = getZoneSeverity(z.id, reports); const zr = getZoneReports(z.id, reports); const lt = zr[0]; const c = sv ? SEVERITY[sv] : null;
                     const isSubbed = push.isSubscribed(z.id); const pred = predictions[z.id];
+                    const isFav = favs.isFavorite(z.id);
                     const accentStyle = sv ? { borderLeft: `3px solid ${c.color}` } : pred && pred.score >= 40 ? { borderLeft: `3px dashed ${pred.score >= 70 ? "var(--danger)" : "var(--caution)"}` } : {};
+                    // Show divider between favorites and rest
+                    const showDivider = favs.count > 0 && i > 0 && isFav === false && favs.isFavorite(arr[i - 1]?.id);
                     return (
-                      <button key={z.id} onClick={() => handleZoneClick(z.id)} className="card-interactive" style={{ width: "100%", background: "var(--bg-card)", border: "1px solid var(--border)", ...accentStyle, borderRadius: "var(--radius-md)", padding: "13px 14px", textAlign: "left", display: "flex", gap: "12px", alignItems: "center", marginBottom: "6px", animation: `fadeIn 0.25s ease ${i * 0.03}s both` }}>
-                        <div style={{ width: 38, height: 38, borderRadius: "var(--radius-sm)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: c ? `${c.color}08` : "rgba(255,255,255,0.02)", border: `1px solid ${c ? c.color + "15" : "var(--border)"}` }}><SeverityIcon severity={sv} size={22} /></div>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontSize: "14px", fontWeight: 600, color: "var(--text)", display: "flex", alignItems: "center", gap: "6px" }}>
-                            {z.name} <span style={{ fontWeight: 400, color: "var(--text-dim)", fontSize: "13px" }}>{z.area}</span>
-                            {isSubbed && <span style={{ fontSize: "11px" }}>🔔</span>}
-                          </div>
-                          {lt ? <div style={{ fontSize: "12px", color: "var(--text-secondary)", marginTop: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{lt.text ? `${lt.text} · ` : ""}{timeAgoLocalized(lt.created_at, lang)}</div>
-                            : pred && pred.score >= 30 ? <div style={{ fontSize: "12px", color: pred.score >= 70 ? "var(--danger)" : pred.score >= 40 ? "var(--caution)" : "var(--text-dim)", marginTop: 3 }}>🧠 {pred.score}% {es ? "probabilidad" : "probability"}</div>
-                            : <div style={{ fontSize: "12px", color: "var(--text-faint)", marginTop: 3 }}>{t.noRecentReports}</div>}
+                      <div key={z.id}>
+                        {showDivider && <div style={{ height: 1, background: "var(--border)", margin: "10px 0" }} />}
+                        <div style={{ display: "flex", alignItems: "center", gap: "0", marginBottom: "6px", animation: `fadeIn 0.25s ease ${i * 0.03}s both` }}>
+                          <button onClick={(e) => { e.stopPropagation(); favs.toggle(z.id); }} style={{
+                            width: 32, height: 32, borderRadius: "50%", background: "none", border: "none",
+                            display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+                            fontSize: "14px", opacity: isFav ? 1 : 0.25, transition: "opacity 0.2s, transform 0.2s",
+                            transform: isFav ? "scale(1.1)" : "scale(1)",
+                          }}>
+                            {isFav ? "⭐" : "☆"}
+                          </button>
+                          <button onClick={() => handleZoneClick(z.id)} className="card-interactive" style={{ flex: 1, background: "var(--bg-card)", border: "1px solid var(--border)", ...accentStyle, borderRadius: "var(--radius-md)", padding: "13px 14px", textAlign: "left", display: "flex", gap: "12px", alignItems: "center" }}>
+                            <div style={{ width: 38, height: 38, borderRadius: "var(--radius-sm)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: c ? `${c.color}08` : "rgba(255,255,255,0.02)", border: `1px solid ${c ? c.color + "15" : "var(--border)"}` }}><SeverityIcon severity={sv} size={22} /></div>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{ fontSize: "14px", fontWeight: 600, color: "var(--text)", display: "flex", alignItems: "center", gap: "6px" }}>
+                                {z.name} <span style={{ fontWeight: 400, color: "var(--text-dim)", fontSize: "13px" }}>{z.area}</span>
+                                {isSubbed && <span style={{ fontSize: "11px" }}>🔔</span>}
+                              </div>
+                              {lt ? <div style={{ fontSize: "12px", color: "var(--text-secondary)", marginTop: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{lt.text ? `${lt.text} · ` : ""}{timeAgoLocalized(lt.created_at, lang)}</div>
+                                : pred && pred.score >= 30 ? <div style={{ fontSize: "12px", color: pred.score >= 70 ? "var(--danger)" : pred.score >= 40 ? "var(--caution)" : "var(--text-dim)", marginTop: 3 }}>🧠 {pred.score}% {es ? "probabilidad" : "probability"}</div>
+                                : <div style={{ fontSize: "12px", color: "var(--text-faint)", marginTop: 3 }}>{t.noRecentReports}</div>}
+                            </div>
+                            {zr.length > 0 && <span style={{ fontSize: "11px", color: c ? c.color : "var(--text-dim)", background: c ? `${c.color}0a` : "rgba(255,255,255,0.03)", padding: "3px 8px", borderRadius: "6px", flexShrink: 0, fontWeight: 700 }}>{zr.length}</span>}
+                            <span style={{ color: "var(--text-faint)", fontSize: "14px", flexShrink: 0 }}>›</span>
+                          </button>
                         </div>
-                        {zr.length > 0 && <span style={{ fontSize: "11px", color: c ? c.color : "var(--text-dim)", background: c ? `${c.color}0a` : "rgba(255,255,255,0.03)", padding: "3px 8px", borderRadius: "6px", flexShrink: 0, fontWeight: 700 }}>{zr.length}</span>}
-                        <span style={{ color: "var(--text-faint)", fontSize: "14px", flexShrink: 0 }}>›</span>
-                      </button>
+                      </div>
                     );
                   })}
                   <div style={{ textAlign: "center", padding: "36px 0 16px", fontSize: "12px", color: "var(--text-faint)" }}>{es ? "Hecho para Barranquilla 🇨🇴" : "Made for Barranquilla 🇨🇴"}</div>
@@ -391,7 +415,7 @@ function AppContent() {
 
       {/* BOTTOM NAV — mobile only */}
       {!isDesktop && <BottomNav activeTab={mobileView} onTab={handleMobileTab} onReport={() => setScreen("report")} liveCount={liveCount} lang={lang} />}
-      {showMoreMenu && <MoreMenu lang={lang} onSelect={(key) => setScreen(key)} onClose={() => setShowMoreMenu(false)} />}
+      {showMoreMenu && <MoreMenu lang={lang} onSelect={(key) => { if (key === "digest") setShowDigest(true); else setScreen(key); }} onClose={() => setShowMoreMenu(false)} />}
 
       {/* ZONE DETAIL — Bottom Sheet overlay (map stays visible behind) */}
       {screen === "detail" && selectedZone && (() => {
@@ -413,6 +437,9 @@ function AppContent() {
           />
         );
       })()}
+
+      {/* Weekly Digest modal */}
+      {showDigest && <WeeklyDigest onClose={() => setShowDigest(false)} onZoneClick={handleZoneClick} />}
     </div>
   );
 }
