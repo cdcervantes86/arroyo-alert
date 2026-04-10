@@ -313,7 +313,7 @@ function AppContent() {
   return (
     <div style={{ position: "fixed", inset: 0, display: "flex", flexDirection: "column", background: "var(--bg)", overflow: "hidden" }}>
       {/* HEADER */}
-      <div style={{ padding: "10px 16px", display: "flex", alignItems: "center", gap: "8px", background: emergency.active ? "rgba(30,5,5,0.95)" : "rgba(10,15,26,0.95)", backdropFilter: "blur(16px)", borderBottom: `1px solid ${emergency.active ? "rgba(239,68,68,0.2)" : "var(--border)"}`, flexShrink: 0, position: "relative", overflow: "hidden" }}>
+      <div style={{ padding: "10px 16px", display: "flex", alignItems: "center", gap: "8px", background: emergency.active ? "rgba(30,5,5,0.95)" : "rgba(10,15,26,0.95)", backdropFilter: "blur(16px)", borderBottom: `1px solid ${emergency.active ? "rgba(239,68,68,0.2)" : "var(--border)"}`, flexShrink: 0, position: "relative", zIndex: 50 }}>
         <div className={headerGlow} style={{ position: "absolute", top: -30, left: "10%", right: "10%", height: 80, borderRadius: "50%", filter: "blur(40px)", pointerEvents: "none", animation: "glowPulse 4s ease-in-out infinite" }} />
         <button onClick={handleLogoClick} style={{ display: "flex", alignItems: "center", gap: "8px", background: "none", border: "none", padding: 0, cursor: "pointer", flexShrink: 0 }}>
           <Logo size={24} />
