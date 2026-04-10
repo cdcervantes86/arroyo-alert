@@ -147,6 +147,12 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
   const sheetRef = useRef(null);
   const contentRef = useRef(null);
 
+  const animateClose = useCallback(() => {
+    if (closing) return;
+    setClosing(true);
+    setTimeout(onClose, 280);
+  }, [closing, onClose]);
+
   const handleTouchStart = (e) => {
     // Only allow drag from the handle area or when scrolled to top
     const scrollTop = contentRef.current?.scrollTop || 0;
@@ -170,8 +176,7 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
 
   const handleTouchEnd = () => {
     if (dragY > 120) {
-      setClosing(true);
-      setTimeout(onClose, 250);
+      animateClose();
     } else {
       setDragY(0);
     }
@@ -184,13 +189,13 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
 
   return (
     <>
-      <div className="sheet-backdrop" onClick={() => { setClosing(true); setTimeout(onClose, 250); }}
-        style={{ opacity, transition: closing ? "opacity 0.25s ease" : (isDragging ? "none" : "opacity 0.3s ease") }} />
+      <div className="sheet-backdrop" onClick={animateClose}
+        style={{ opacity, transition: closing ? "opacity 0.3s ease" : (isDragging ? "none" : "opacity 0.3s ease") }} />
       <div ref={sheetRef} className="sheet-container"
         onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd}
         style={{
           transform: translate,
-          transition: closing ? "transform 0.25s ease" : (isDragging ? "none" : "transform 0.3s cubic-bezier(0.32, 0.72, 0, 1)"),
+          transition: closing ? "transform 0.3s cubic-bezier(0.4, 0, 1, 1)" : (isDragging ? "none" : "transform 0.3s cubic-bezier(0.32, 0.72, 0, 1)"),
         }}>
         <div className="sheet-handle-area">
           <div className="sheet-handle" />
@@ -198,7 +203,7 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
         <div className="sheet-content" ref={contentRef}>
           <ZoneDetail
             zone={zone} severity={severity} reports={reports}
-            onBack={onClose} onReport={onReport} onUpvote={onUpvote}
+            onBack={animateClose} onReport={onReport} onUpvote={onUpvote}
             pushSupported={push.supported} isSubscribed={push.isSubscribed}
             onSubscribe={push.subscribeToZone} onUnsubscribe={push.unsubscribeFromZone}
             onLogoClick={onLogoClick} zoneWatchers={zoneWatchers}
