@@ -16,6 +16,7 @@ import AboutPage from "@/components/AboutPage";
 import HeatmapView from "@/components/HeatmapView";
 import UpdateBanner from "@/components/UpdateBanner";
 import { SeverityIcon } from "@/components/SeverityIcon";
+import { MapIcon, ListIcon, LiveIcon, MoreIcon, ProfileIcon, ChartIcon, FlameIcon, InfoIcon, StarIcon, AlertTriangleIcon, BellIcon } from "@/components/Icons";
 import { useRainRadar, RainRadarButton } from "@/components/RainRadar";
 import PullToRefresh from "@/components/PullToRefresh";
 import ReporterProfile from "@/components/ReporterProfile";
@@ -82,11 +83,11 @@ function EmergencyBanner({ emergency, lang }) {
 
 function BottomNav({ activeTab, onTab, onReport, liveCount, lang }) {
   const tabs = [
-    { key: "map", icon: "🗺️", label: lang === "es" ? "Mapa" : "Map" },
-    { key: "list", icon: "📋", label: lang === "es" ? "Zonas" : "Zones" },
+    { key: "map", Icon: MapIcon, label: lang === "es" ? "Mapa" : "Map" },
+    { key: "list", Icon: ListIcon, label: lang === "es" ? "Zonas" : "Zones" },
     { key: "report", isReport: true, label: lang === "es" ? "Reportar" : "Report" },
-    { key: "live", icon: "🔴", label: lang === "es" ? "En vivo" : "Live", badge: liveCount },
-    { key: "more", icon: "•••", label: lang === "es" ? "Más" : "More" },
+    { key: "live", Icon: LiveIcon, label: lang === "es" ? "En vivo" : "Live", badge: liveCount },
+    { key: "more", Icon: MoreIcon, label: lang === "es" ? "Más" : "More" },
   ];
   return (
     <div className="bottom-nav" style={{
@@ -98,8 +99,8 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, lang }) {
         const isActive = activeTab === tab.key;
         if (tab.isReport) return (
           <button key={tab.key} onClick={onReport} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "2px", background: "none", border: "none", padding: 0 }}>
-            <div style={{ width: 38, height: 38, borderRadius: "50%", background: "linear-gradient(135deg, #D42A2A, #b91c1c)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 14px rgba(212,42,42,0.3)", marginTop: "-10px" }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
+            <div style={{ width: 40, height: 40, borderRadius: "50%", background: "linear-gradient(135deg, #D42A2A, #b91c1c)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 16px rgba(212,42,42,0.35)", marginTop: "-12px" }}>
+              <AlertTriangleIcon size={17} color="#fff" />
             </div>
             <span style={{ fontSize: "9px", fontWeight: 600, color: "var(--baq-red)" }}>{tab.label}</span>
           </button>
@@ -107,7 +108,7 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, lang }) {
         return (
           <button key={tab.key} onClick={() => onTab(tab.key)} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "3px", background: "none", border: "none", padding: "4px 0", position: "relative" }}>
             {isActive && <div style={{ position: "absolute", top: 0, left: "30%", right: "30%", height: 2, borderRadius: "0 0 2px 2px", background: "var(--accent)" }} />}
-            <span style={{ fontSize: "16px", opacity: isActive ? 1 : 0.4 }}>{tab.icon}</span>
+            <tab.Icon size={20} color={isActive ? "var(--accent)" : "rgba(255,255,255,0.35)"} active={isActive} />
             <span style={{ fontSize: "9px", fontWeight: isActive ? 700 : 500, color: isActive ? "var(--accent)" : "var(--text-faint)" }}>{tab.label}</span>
             {tab.badge > 0 && !isActive && <span style={{ position: "absolute", top: 4, right: "calc(50% - 14px)", width: 6, height: 6, borderRadius: "50%", background: "var(--danger)", animation: "blink 1.5s ease-in-out infinite" }} />}
           </button>
@@ -123,13 +124,13 @@ function MoreMenu({ onSelect, lang, onClose }) {
     <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 900, background: "rgba(0,0,0,0.5)", animation: "fadeIn 0.15s ease" }}>
       <div onClick={(e) => e.stopPropagation()} style={{ position: "absolute", bottom: 64, right: 12, left: 12, maxWidth: 300, marginLeft: "auto", background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: "var(--radius-lg)", padding: "6px", animation: "slideUp 0.2s ease", boxShadow: "0 -8px 40px rgba(0,0,0,0.5)" }}>
         {[
-          { key: "profile", icon: "👤", label: es ? "Mi perfil" : "My profile", desc: es ? "Estadísticas y rango de reportero" : "Stats and reporter rank" },
-          { key: "digest", icon: "📊", label: es ? "Resumen semanal" : "Weekly digest", desc: es ? "Actividad de los últimos 7 días" : "Last 7 days activity" },
-          { key: "heatmap", icon: "🔥", label: es ? "Historial" : "History", desc: es ? "Zonas más afectadas" : "Most affected zones" },
-          { key: "about", icon: "ⓘ", label: es ? "Info y seguridad" : "Info & safety", desc: es ? "Consejos, emergencias, ajustes" : "Tips, emergencies, settings" },
+          { key: "profile", Icon: ProfileIcon, label: es ? "Mi perfil" : "My profile", desc: es ? "Estadísticas y rango de reportero" : "Stats and reporter rank" },
+          { key: "digest", Icon: ChartIcon, label: es ? "Resumen semanal" : "Weekly digest", desc: es ? "Actividad de los últimos 7 días" : "Last 7 days activity" },
+          { key: "heatmap", Icon: FlameIcon, label: es ? "Historial" : "History", desc: es ? "Zonas más afectadas" : "Most affected zones" },
+          { key: "about", Icon: InfoIcon, label: es ? "Info y seguridad" : "Info & safety", desc: es ? "Consejos, emergencias, ajustes" : "Tips, emergencies, settings" },
         ].map((item) => (
           <button key={item.key} onClick={() => { onSelect(item.key); onClose(); }} style={{ width: "100%", display: "flex", alignItems: "center", gap: "14px", padding: "13px 12px", background: "none", border: "none", textAlign: "left", borderRadius: "var(--radius-sm)" }}>
-            <span style={{ fontSize: "20px", width: 28, textAlign: "center" }}>{item.icon}</span>
+            <div style={{ width: 32, height: 32, borderRadius: "var(--radius-sm)", background: "rgba(255,255,255,0.04)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><item.Icon size={16} color="var(--text-secondary)" /></div>
             <div><div style={{ fontSize: "14px", fontWeight: 600, color: "var(--text)" }}>{item.label}</div><div style={{ fontSize: "12px", color: "var(--text-dim)", marginTop: 1 }}>{item.desc}</div></div>
           </button>
         ))}
@@ -315,7 +316,7 @@ function AppContent() {
   if (screen === "profile") return <ReporterProfile reports={reports} onBack={() => setScreen("main")} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} />;
   if (screen === "report") return <ReportFlow zones={ZONES} reports={reports} initialZoneId={selectedZone} onSubmit={async (data) => { await handleReport(data); const zone = ZONES.find(z => z.id === data.zoneId); setLastReport({ zoneName: zone?.name, zoneArea: zone?.area, severity: data.severity, text: data.text }); setScreen("main"); }} onBack={() => setScreen("main")} onLogoClick={handleLogoClick} />;
 
-  const desktopTabs = [{ key: "map", icon: "🗺️" }, { key: "list", icon: "📋" }, { key: "live", icon: "🔴" }];
+  const desktopTabs = [{ key: "map", Icon: MapIcon }, { key: "list", Icon: ListIcon }, { key: "live", Icon: LiveIcon }];
 
   return (
     <div style={{ position: "fixed", inset: 0, display: "flex", flexDirection: "column", background: "var(--bg)", overflow: "hidden" }}>
@@ -331,15 +332,15 @@ function AppContent() {
         {totalWatchers > 1 && <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "11px", color: "var(--text-faint)", fontWeight: 500 }}><span style={{ width: 5, height: 5, borderRadius: "50%", background: "var(--safe)", animation: "blink 2s ease infinite" }} />{totalWatchers} {es ? "en línea" : "online"}</div>}
         <WeatherIndicator />
         {isDesktop && <>
-          <button onClick={() => setScreen("profile")} style={{ width: 30, height: 30, borderRadius: "50%", background: "rgba(255,255,255,0.045)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-dim)", fontSize: "13px", flexShrink: 0 }}>👤</button>
-          <button onClick={() => setShowDigest(true)} style={{ width: 30, height: 30, borderRadius: "50%", background: "rgba(255,255,255,0.045)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-dim)", fontSize: "13px", flexShrink: 0 }}>📊</button>
-          <button onClick={() => setScreen("heatmap")} style={{ width: 30, height: 30, borderRadius: "50%", background: "rgba(255,255,255,0.045)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-dim)", fontSize: "13px", flexShrink: 0 }}>🔥</button>
-          <button onClick={() => setScreen("about")} style={{ width: 30, height: 30, borderRadius: "50%", background: "rgba(255,255,255,0.045)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-dim)", fontSize: "13px", fontWeight: 700, flexShrink: 0 }}>ⓘ</button>
+          <button onClick={() => setScreen("profile")} style={{ width: 30, height: 30, borderRadius: "50%", background: "rgba(255,255,255,0.045)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><ProfileIcon size={14} color="var(--text-dim)" /></button>
+          <button onClick={() => setShowDigest(true)} style={{ width: 30, height: 30, borderRadius: "50%", background: "rgba(255,255,255,0.045)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><ChartIcon size={14} color="var(--text-dim)" /></button>
+          <button onClick={() => setScreen("heatmap")} style={{ width: 30, height: 30, borderRadius: "50%", background: "rgba(255,255,255,0.045)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><FlameIcon size={14} color="var(--text-dim)" /></button>
+          <button onClick={() => setScreen("about")} style={{ width: 30, height: 30, borderRadius: "50%", background: "rgba(255,255,255,0.045)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><InfoIcon size={14} color="var(--text-dim)" /></button>
         </>}
         <button onClick={toggleLang} style={{ padding: "4px 8px", borderRadius: "6px", background: "rgba(255,255,255,0.045)", border: "1px solid var(--border)", color: "var(--text-dim)", fontSize: "10px", fontWeight: 700, letterSpacing: "0.5px", textTransform: "uppercase", flexShrink: 0 }}>{lang === "es" ? "EN" : "ES"}</button>
         {isDesktop && (
           <div style={{ display: "flex", background: "rgba(255,255,255,0.045)", borderRadius: "8px", overflow: "hidden", border: "1px solid var(--border)" }}>
-            {desktopTabs.map((tab) => { const isActive = tab.key === "live" ? showPanel : desktopView === tab.key; return <button key={tab.key} onClick={() => handleDesktopTab(tab.key)} style={{ padding: "6px 12px", fontSize: "12px", border: "none", background: isActive ? "var(--accent-glow)" : "transparent", color: isActive ? "var(--accent)" : "var(--text-faint)", fontWeight: isActive ? 600 : 400, position: "relative" }}>{tab.icon}{tab.key === "live" && liveCount > 0 && !isActive && <span style={{ position: "absolute", top: 2, right: 2, width: 5, height: 5, borderRadius: "50%", background: "var(--danger)", animation: "blink 1.5s ease-in-out infinite" }} />}</button>; })}
+            {desktopTabs.map((tab) => { const isActive = tab.key === "live" ? showPanel : desktopView === tab.key; return <button key={tab.key} onClick={() => handleDesktopTab(tab.key)} style={{ padding: "6px 10px", fontSize: "12px", border: "none", background: isActive ? "var(--accent-glow)" : "transparent", color: isActive ? "var(--accent)" : "var(--text-faint)", fontWeight: isActive ? 600 : 400, position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}><tab.Icon size={16} color={isActive ? "var(--accent)" : "var(--text-faint)"} active={isActive} />{tab.key === "live" && liveCount > 0 && !isActive && <span style={{ position: "absolute", top: 2, right: 2, width: 5, height: 5, borderRadius: "50%", background: "var(--danger)", animation: "blink 1.5s ease-in-out infinite" }} />}</button>; })}
           </div>
         )}
       </div>
@@ -438,14 +439,14 @@ function AppContent() {
                             fontSize: "14px", opacity: isFav ? 1 : 0.25, transition: "opacity 0.2s, transform 0.2s",
                             transform: isFav ? "scale(1.1)" : "scale(1)",
                           }}>
-                            {isFav ? "⭐" : "☆"}
+                            <StarIcon size={16} color={isFav ? "#facc15" : "rgba(255,255,255,0.5)"} filled={isFav} />
                           </button>
                           <button onClick={() => handleZoneClick(z.id)} className="card-interactive" style={{ flex: 1, background: "var(--bg-card)", border: "1px solid var(--border)", ...accentStyle, borderRadius: "var(--radius-md)", padding: "13px 14px", textAlign: "left", display: "flex", gap: "12px", alignItems: "center" }}>
                             <div style={{ width: 38, height: 38, borderRadius: "var(--radius-sm)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: c ? `${c.color}08` : "rgba(255,255,255,0.035)", border: `1px solid ${c ? c.color + "15" : "var(--border)"}` }}><SeverityIcon severity={sv} size={22} /></div>
                             <div style={{ flex: 1, minWidth: 0 }}>
                               <div style={{ fontSize: "14px", fontWeight: 600, color: "var(--text)", display: "flex", alignItems: "center", gap: "6px" }}>
                                 {z.name} <span style={{ fontWeight: 400, color: "var(--text-dim)", fontSize: "13px" }}>{z.area}</span>
-                                {isSubbed && <span style={{ fontSize: "11px" }}>🔔</span>}
+                                {isSubbed && <BellIcon size={12} color="var(--accent)" />}
                               </div>
                               {lt ? <div style={{ fontSize: "12px", color: "var(--text-secondary)", marginTop: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{lt.text ? `${lt.text} · ` : ""}{timeAgoLocalized(lt.created_at, lang)}</div>
                                 : pred && pred.score >= 30 ? <div style={{ fontSize: "12px", color: pred.score >= 70 ? "var(--danger)" : pred.score >= 40 ? "var(--caution)" : "var(--text-dim)", marginTop: 3 }}>🧠 {pred.score}% {es ? "probabilidad" : "probability"}</div>
