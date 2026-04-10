@@ -14,7 +14,6 @@ import WeatherIndicator from "@/components/WeatherIndicator";
 import Onboarding from "@/components/Onboarding";
 import AboutPage from "@/components/AboutPage";
 import HeatmapView from "@/components/HeatmapView";
-import RouteChecker from "@/components/RouteChecker";
 import UpdateBanner from "@/components/UpdateBanner";
 import { SeverityIcon } from "@/components/SeverityIcon";
 import { useRainRadar, RainRadarButton } from "@/components/RainRadar";
@@ -108,7 +107,6 @@ function MoreMenu({ onSelect, lang, onClose }) {
         {[
           { key: "profile", icon: "👤", label: es ? "Mi perfil" : "My profile", desc: es ? "Estadísticas y rango de reportero" : "Stats and reporter rank" },
           { key: "digest", icon: "📊", label: es ? "Resumen semanal" : "Weekly digest", desc: es ? "Actividad de los últimos 7 días" : "Last 7 days activity" },
-          { key: "route", icon: "🛣️", label: es ? "Ruta segura" : "Safe route", desc: es ? "Verifica arroyos en tu camino" : "Check arroyos on your path" },
           { key: "heatmap", icon: "🔥", label: es ? "Historial" : "History", desc: es ? "Zonas más afectadas" : "Most affected zones" },
           { key: "about", icon: "ⓘ", label: es ? "Info y seguridad" : "Info & safety", desc: es ? "Consejos, emergencias, ajustes" : "Tips, emergencies, settings" },
         ].map((item) => (
@@ -284,7 +282,6 @@ function AppContent() {
   if (showOnboarding) return <Onboarding lang={lang} onComplete={() => setShowOnboarding(false)} onToggleLang={toggleLang} />;
   if (screen === "about") return <AboutPage onBack={() => setScreen("main")} onLogoClick={handleLogoClick} />;
   if (screen === "heatmap") return <HeatmapView onBack={() => setScreen("main")} onLogoClick={handleLogoClick} />;
-  if (screen === "route") return <RouteChecker reports={reports} onBack={() => setScreen("main")} onLogoClick={handleLogoClick} />;
   if (screen === "profile") return <ReporterProfile reports={reports} onBack={() => setScreen("main")} onLogoClick={handleLogoClick} />;
   if (screen === "report") return <ReportFlow zones={ZONES} reports={reports} initialZoneId={selectedZone} onSubmit={async (data) => { await handleReport(data); setScreen("main"); }} onBack={() => setScreen("main")} onLogoClick={handleLogoClick} />;
 
@@ -306,7 +303,6 @@ function AppContent() {
         {isDesktop && <>
           <button onClick={() => setScreen("profile")} style={{ width: 30, height: 30, borderRadius: "50%", background: "rgba(255,255,255,0.03)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-dim)", fontSize: "13px", flexShrink: 0 }}>👤</button>
           <button onClick={() => setShowDigest(true)} style={{ width: 30, height: 30, borderRadius: "50%", background: "rgba(255,255,255,0.03)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-dim)", fontSize: "13px", flexShrink: 0 }}>📊</button>
-          <button onClick={() => setScreen("route")} style={{ width: 30, height: 30, borderRadius: "50%", background: "rgba(255,255,255,0.03)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-dim)", fontSize: "13px", flexShrink: 0 }}>🛣️</button>
           <button onClick={() => setScreen("heatmap")} style={{ width: 30, height: 30, borderRadius: "50%", background: "rgba(255,255,255,0.03)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-dim)", fontSize: "13px", flexShrink: 0 }}>🔥</button>
           <button onClick={() => setScreen("about")} style={{ width: 30, height: 30, borderRadius: "50%", background: "rgba(255,255,255,0.03)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-dim)", fontSize: "13px", fontWeight: 700, flexShrink: 0 }}>ⓘ</button>
         </>}
