@@ -2,15 +2,18 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useLanguage } from "@/lib/LanguageContext";
 
-// Barranquilla tile coordinates at different zoom levels
-// z=6: x=18, y=30 — ~150km radius
-// z=7: x=37, y=60 — ~75km radius
+// Barranquilla tile coordinates at zoom 6
 const RADAR_ZOOM = 6;
 const TILE_X = 18;
 const TILE_Y = 30;
 const TILE_SIZE = 256;
 // 3x3 grid for more context
 const GRID = [-1, 0, 1];
+// BAQ exact position within center tile (fractional)
+// lng=-74.80: x_frac = ((-74.80+180)/360*64) - 18 = 0.702
+// lat=10.96:  y_frac = 0.038 (Mercator projection)
+const BAQ_X_FRAC = 0.702;
+const BAQ_Y_FRAC = 0.038;
 
 export function useRainRadar(mapInstance) {
   const [enabled, setEnabled] = useState(false);
@@ -84,14 +87,15 @@ export function useRainRadar(mapInstance) {
 }
 
 function RadarTile({ path, z, x, y, size }) {
-  const url = `https://tilecache.rainviewer.com${path}/${TILE_SIZE}/${z}/${x}/${y}/2/1_1.png`;
+  // Color scheme 6 (Rainbow) — more visible than default; smooth=1, snow=1
+  const url = `https://tilecache.rainviewer.com${path}/${TILE_SIZE}/${z}/${x}/${y}/6/1_1.png`;
   return (
     <img
       src={url}
       width={size}
       height={size}
       alt=""
-      style={{ display: "block", opacity: 0.85 }}
+      style={{ display: "block", opacity: 0.9 }}
       draggable={false}
     />
   );
@@ -189,11 +193,11 @@ export function RadarPanel({ radarPath, timestamp, frames, frameIndex, onClose, 
             <RadarTile path={radarPath} z={RADAR_ZOOM} x={TILE_X + dx} y={TILE_Y + dy} size={tileSize} />
           </div>
         )))}
-        {/* Barranquilla marker */}
+        {/* Barranquilla marker — calculated from tile coordinates */}
         <div style={{
           position: "absolute",
-          left: tileSize * 1.5 - 4,
-          top: tileSize * 1.5 - 4,
+          left: tileSize * (1 + BAQ_X_FRAC) - 4,
+          top: tileSize * (1 + BAQ_Y_FRAC) - 4,
           width: 8, height: 8, borderRadius: "50%",
           background: "#fff", border: "2px solid var(--accent)",
           boxShadow: "0 0 8px rgba(91,156,246,0.5)",
@@ -201,8 +205,8 @@ export function RadarPanel({ radarPath, timestamp, frames, frameIndex, onClose, 
         }} />
         <div style={{
           position: "absolute",
-          left: tileSize * 1.5 + 8,
-          top: tileSize * 1.5 - 6,
+          left: tileSize * (1 + BAQ_X_FRAC) + 8,
+          top: tileSize * (1 + BAQ_Y_FRAC) - 6,
           fontSize: "10px", fontWeight: 700, color: "#fff",
           textShadow: "0 1px 4px rgba(0,0,0,0.8)",
           zIndex: 2,
