@@ -138,10 +138,11 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
       const matchesFilter = !activeFilter || sev === activeFilter;
       const opacity = matchesFilter ? 1 : 0.15;
 
-      // Create marker element
+      // Create marker element — fixed 40x40 wrapper prevents anchor drift
       const el = document.createElement("div");
       el.style.cssText = `
-        width: ${size}px; height: ${size}px; cursor: pointer; position: relative;
+        width: 40px; height: 40px; cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
         opacity: ${opacity}; transition: opacity 0.3s ease;
       `;
 
@@ -149,7 +150,7 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
       if (pulse && matchesFilter) {
         const pulseEl = document.createElement("div");
         pulseEl.style.cssText = `
-          position: absolute; inset: -8px; border-radius: 50%;
+          position: absolute; width: ${size + 16}px; height: ${size + 16}px; border-radius: 50%;
           border: 2px solid ${col}; opacity: 0;
           animation: markerPulse 2s ease-in-out infinite;
         `;
@@ -160,7 +161,7 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
       if (!sev && pred && pred.score >= 40 && matchesFilter) {
         const predEl = document.createElement("div");
         predEl.style.cssText = `
-          position: absolute; inset: -6px; border-radius: 50%;
+          position: absolute; width: ${size + 12}px; height: ${size + 12}px; border-radius: 50%;
           border: 2px dashed ${pred.score >= 70 ? "rgba(239,68,68,0.4)" : "rgba(234,179,8,0.3)"};
         `;
         el.appendChild(predEl);
@@ -172,7 +173,7 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
         width: ${size}px; height: ${size}px; border-radius: 50%;
         background: ${col}; border: 2px solid rgba(255,255,255,0.6);
         box-shadow: 0 0 12px ${col}60;
-        position: relative; z-index: 2;
+        position: relative;
       `;
       el.appendChild(dot);
 
@@ -180,11 +181,11 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
       if (count >= 2 && matchesFilter) {
         const badge = document.createElement("div");
         badge.style.cssText = `
-          position: absolute; top: -8px; right: -8px;
+          position: absolute; top: 0; right: 0;
           min-width: 18px; height: 18px; border-radius: 9px;
           background: #fff; color: #000; font-size: 10px;
           font-weight: 800; display: flex; align-items: center;
-          justify-content: center; padding: 0 4px; z-index: 5;
+          justify-content: center; padding: 0 4px;
           box-shadow: 0 2px 8px rgba(0,0,0,0.4);
           font-family: 'DM Sans', sans-serif;
         `;
