@@ -73,7 +73,7 @@ export default function HeatmapView({ onBack, onLogoClick }) {
     L.Icon.Default.mergeOptions({ iconRetinaUrl: "", iconUrl: "", shadowUrl: "" });
 
     const map = L.map(mapRef.current, {
-      center: [10.96, -74.805], zoom: 13, zoomControl: false, attributionControl: false,
+      center: [10.96, -74.805], zoom: 13, zoomControl: false, attributionControl: false, tap: false,
     });
     L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", { maxZoom: 19, subdomains: "abcd" }).addTo(map);
     L.control.zoom({ position: "bottomright" }).addTo(map);
