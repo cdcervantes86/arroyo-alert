@@ -56,8 +56,7 @@ export default function ReportFlow({ zones, reports, initialZoneId, onSubmit, on
   }
 
   return (
-    <div className="desktop-center-page" style={{ height: "100vh", display: "flex", flexDirection: "column", background: "var(--bg)", overflow: "auto" }}>
-      <div className="page-inner" style={{ display: "flex", flexDirection: "column", flex: 1 }}>
+    <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "var(--bg)", overflow: "auto" }}>
       {/* Header */}
       <div style={{ padding: "12px 16px", display: "flex", alignItems: "center", gap: "10px", borderBottom: "1px solid var(--border)", flexShrink: 0, background: "rgba(10,15,26,0.95)", backdropFilter: "blur(16px)" }}>
         <button onClick={onLogoClick} style={{ display: "flex", alignItems: "center", gap: "8px", background: "none", border: "none", padding: 0, cursor: "pointer" }}>
@@ -76,7 +75,7 @@ export default function ReportFlow({ zones, reports, initialZoneId, onSubmit, on
         <div style={{ height: "100%", background: "var(--accent)", width: `${((step + 1) / 3) * 100}%`, transition: "width 0.4s cubic-bezier(0.4,0,0.2,1)", borderRadius: "0 2px 2px 0" }} />
       </div>
 
-      <div style={{ padding: "24px 20px", flex: 1, overflowY: "auto" }}>
+      <div style={{ padding: "24px 20px", flex: 1, overflowY: "auto", maxWidth: 520, margin: "0 auto", width: "100%" }}>
         {step === 0 && (
           <>
             <h2 style={{ fontSize: "20px", fontWeight: 700, margin: "0 0 4px", letterSpacing: "-0.3px" }}>{t.whereIsArroyo}</h2>
@@ -190,7 +189,6 @@ export default function ReportFlow({ zones, reports, initialZoneId, onSubmit, on
           </>
         )}
       </div>
-    </div>
     </div>
   );
 }

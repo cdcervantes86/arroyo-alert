@@ -238,18 +238,15 @@ button:active { transform: scale(0.97); opacity: 0.85; }
 /* Desktop centered layout for content screens */
 @media (min-width: 768px) {
   .desktop-center-page {
-    display: flex !important;
-    justify-content: center;
-    background: var(--bg);
+    background: var(--bg) !important;
   }
   .desktop-center-page > .page-inner {
-    width: 100%;
     max-width: 520px;
-    min-height: 100vh;
+    margin-left: auto;
+    margin-right: auto;
     border-left: 1px solid var(--border);
     border-right: 1px solid var(--border);
-    background: var(--bg);
-    position: relative;
+    background: var(--bg-elevated);
   }
   .desktop-center-header {
     max-width: 520px;
