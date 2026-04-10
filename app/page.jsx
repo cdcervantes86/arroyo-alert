@@ -16,6 +16,7 @@ import AboutPage from "@/components/AboutPage";
 import HeatmapView from "@/components/HeatmapView";
 import RouteChecker from "@/components/RouteChecker";
 import UpdateBanner from "@/components/UpdateBanner";
+import { SeverityIcon } from "@/components/SeverityIcon";
 
 const MapView = lazy(() => import("@/components/MapView"));
 
@@ -97,7 +98,7 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, lang }) {
 function MoreMenu({ onSelect, lang, onClose }) {
   const es = lang === "es";
   return (
-    <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,0.5)", animation: "fadeIn 0.15s ease" }}>
+    <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 90, background: "rgba(0,0,0,0.5)", animation: "fadeIn 0.15s ease" }}>
       <div onClick={(e) => e.stopPropagation()} style={{ position: "absolute", bottom: 64, right: 12, left: 12, maxWidth: 300, marginLeft: "auto", background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: "var(--radius-lg)", padding: "6px", animation: "slideUp 0.2s ease", boxShadow: "0 -8px 40px rgba(0,0,0,0.5)" }}>
         {[
           { key: "route", icon: "🛣️", label: es ? "Ruta segura" : "Safe route", desc: es ? "Verifica arroyos en tu camino" : "Check arroyos on your path" },
@@ -111,6 +112,29 @@ function MoreMenu({ onSelect, lang, onClose }) {
         ))}
       </div>
     </div>
+  );
+}
+
+/* ====== BOTTOM SHEET for Zone Detail ====== */
+function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push, zoneWatchers, prediction, watchZone, unwatchZone, onLogoClick }) {
+  return (
+    <>
+      <div className="sheet-backdrop" onClick={onClose} />
+      <div className="sheet-container">
+        <div className="sheet-handle" />
+        <div className="sheet-content">
+          <ZoneDetail
+            zone={zone} severity={severity} reports={reports}
+            onBack={onClose} onReport={onReport} onUpvote={onUpvote}
+            pushSupported={push.supported} isSubscribed={push.isSubscribed}
+            onSubscribe={push.subscribeToZone} onUnsubscribe={push.unsubscribeFromZone}
+            onLogoClick={onLogoClick} zoneWatchers={zoneWatchers}
+            prediction={prediction} onWatchZone={watchZone} onUnwatchZone={unwatchZone}
+            isSheet={true}
+          />
+        </div>
+      </div>
+    </>
   );
 }
 
@@ -135,7 +159,6 @@ function AppContent() {
   useEffect(() => { const c = () => setIsDesktop(window.innerWidth >= 900); c(); window.addEventListener("resize", c); return () => window.removeEventListener("resize", c); }, []);
   useEffect(() => { try { if (!localStorage.getItem("arroyo-onboarded")) setShowOnboarding(true); } catch(e) {} }, []);
 
-  // Weather for predictions
   useEffect(() => {
     const f = async () => { try {
       const r = await fetch("https://api.open-meteo.com/v1/forecast?latitude=10.96&longitude=-74.78&current=temperature_2m,weather_code,precipitation&hourly=precipitation_probability&forecast_days=1&timezone=America/Bogota");
@@ -153,39 +176,40 @@ function AppContent() {
   const cautionCount = ZONES.filter((z) => getZoneSeverity(z.id, reports) === "caution").length;
   const cutoff = Date.now() - 4 * 3600000;
   const liveCount = reports.filter((r) => new Date(r.created_at).getTime() > cutoff).length;
-  const hasAnyReports = liveCount > 0;
   const es = lang === "es";
 
   const handleZoneClick = useCallback((zoneId) => { setSelectedZone(zoneId); setScreen("detail"); }, []);
-  const handleReport = useCallback(async ({ zoneId, severity, text, photo }) => { await submitReport({ zoneId, severity, text, photo }); const zone = ZONES.find((z) => z.id === zoneId); if (zone) notifyZone({ zoneId, zoneName: `${zone.name} (${zone.area})`, severity, text }); }, [submitReport]);
+  const handleReport = useCallback(async ({ zoneId, severity, text, photo, altRoute }) => { await submitReport({ zoneId, severity, text, photo, altRoute }); const zone = ZONES.find((z) => z.id === zoneId); if (zone) notifyZone({ zoneId, zoneName: `${zone.name} (${zone.area})`, severity, text }); }, [submitReport]);
   const handleUpvoteLocal = useCallback((id) => { setUpvotedSet((prev) => new Set([...prev, id])); }, []);
   const handleLogoClick = () => { setScreen("main"); setSelectedZone(null); setActiveFilter(null); setShowMoreMenu(false); if (isDesktop) setDesktopView("map"); else setMobileView("map"); };
   const handleFilterClick = (filter) => { setActiveFilter((prev) => prev === filter ? null : filter); };
   const handleMobileTab = (key) => { if (key === "more") { setShowMoreMenu(true); return; } setMobileView(key); };
   const handleDesktopTab = (key) => { if (key === "live") setShowPanel((p) => !p); else setDesktopView(key); };
+  const closeSheet = () => { setScreen("main"); setSelectedZone(null); };
 
   const currentMainView = isDesktop ? desktopView : mobileView;
   const panelVisible = isDesktop && showPanel;
+  const headerGlow = dangerCount > 0 ? "header-glow-danger" : cautionCount > 0 ? "header-glow-caution" : liveCount > 0 ? "header-glow-safe" : "header-glow-neutral";
+  const isRaining = weather?.isRaining || false;
+  const totalReportsEver = reports.length;
+  const protectedCount = Math.max(totalReportsEver * 23, 0); // estimated people warned
 
   if (showOnboarding) return <Onboarding lang={lang} onComplete={() => setShowOnboarding(false)} onToggleLang={toggleLang} />;
   if (screen === "about") return <AboutPage onBack={() => setScreen("main")} onLogoClick={handleLogoClick} />;
   if (screen === "heatmap") return <HeatmapView onBack={() => setScreen("main")} onLogoClick={handleLogoClick} />;
   if (screen === "route") return <RouteChecker reports={reports} onBack={() => setScreen("main")} onLogoClick={handleLogoClick} />;
   if (screen === "report") return <ReportFlow zones={ZONES} reports={reports} initialZoneId={selectedZone} onSubmit={async (data) => { await handleReport(data); setScreen("main"); }} onBack={() => setScreen("main")} onLogoClick={handleLogoClick} />;
-  if (screen === "detail" && selectedZone) {
-    const zone = ZONES.find((z) => z.id === selectedZone);
-    return <ZoneDetail zone={zone} severity={getZoneSeverity(selectedZone, reports)} reports={getZoneReports(selectedZone, reports)} onBack={() => { setScreen("main"); setSelectedZone(null); }} onReport={() => setScreen("report")} onUpvote={upvoteReport} pushSupported={push.supported} isSubscribed={push.isSubscribed} onSubscribe={push.subscribeToZone} onUnsubscribe={push.unsubscribeFromZone} onLogoClick={handleLogoClick} zoneWatchers={zoneWatchers} prediction={predictions[selectedZone]} onWatchZone={watchZone} onUnwatchZone={unwatchZone} />;
-  }
 
   const desktopTabs = [{ key: "map", icon: "🗺️" }, { key: "list", icon: "📋" }, { key: "live", icon: "🔴" }];
 
   return (
     <div style={{ position: "fixed", inset: 0, display: "flex", flexDirection: "column", background: "var(--bg)", overflow: "hidden" }}>
       {/* HEADER */}
-      <div style={{ padding: "10px 16px", display: "flex", alignItems: "center", gap: "8px", background: emergency.active ? "rgba(30,5,5,0.95)" : "rgba(7,11,20,0.95)", backdropFilter: "blur(16px)", borderBottom: `1px solid ${emergency.active ? "rgba(239,68,68,0.2)" : "var(--border)"}`, flexShrink: 0 }}>
+      <div style={{ padding: "10px 16px", display: "flex", alignItems: "center", gap: "8px", background: emergency.active ? "rgba(30,5,5,0.95)" : "rgba(7,11,20,0.95)", backdropFilter: "blur(16px)", borderBottom: `1px solid ${emergency.active ? "rgba(239,68,68,0.2)" : "var(--border)"}`, flexShrink: 0, position: "relative", overflow: "hidden" }}>
+        <div className={headerGlow} style={{ position: "absolute", top: -30, left: "10%", right: "10%", height: 80, borderRadius: "50%", filter: "blur(40px)", pointerEvents: "none", animation: "glowPulse 4s ease-in-out infinite" }} />
         <button onClick={handleLogoClick} style={{ display: "flex", alignItems: "center", gap: "8px", background: "none", border: "none", padding: 0, cursor: "pointer", flexShrink: 0 }}>
           <Logo size={24} />
-          <span style={{ fontSize: "15px", fontWeight: 700, letterSpacing: "-0.3px", color: "var(--text)" }}>Arroyo<span style={{ color: "var(--baq-yellow)" }}>Alerta</span></span>
+          <span style={{ fontSize: "15px", fontWeight: 700, letterSpacing: "-0.3px", color: "var(--text)" }}>Alerta<span style={{ color: "var(--baq-yellow)" }}>Arroyo</span></span>
           <span style={{ fontSize: "8px", fontWeight: 700, letterSpacing: "0.8px", textTransform: "uppercase", color: "var(--accent)", background: "var(--accent-glow)", padding: "2px 5px", borderRadius: "3px", border: "1px solid rgba(91,156,246,0.1)", marginLeft: "-2px", marginTop: "-8px" }}>Beta</span>
         </button>
         <div style={{ flex: 1 }} />
@@ -222,6 +246,17 @@ function AppContent() {
           {currentMainView === "map" ? (
             <Suspense fallback={<div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", color: "var(--text-dim)", fontSize: "14px" }}>{t.loadingMap}</div>}>
               <MapView reports={reports} onZoneClick={handleZoneClick} panelOpen={panelVisible} activeFilter={activeFilter} predictions={predictions} />
+              {isRaining && <div className="rain-overlay" />}
+              {protectedCount > 0 && (
+                <div className="social-proof">
+                  <div style={{ background: "var(--bg-glass)", backdropFilter: "blur(12px)", borderRadius: "20px", padding: "6px 14px", border: "1px solid var(--border)", display: "flex", alignItems: "center", gap: "6px" }}>
+                    <span style={{ width: 5, height: 5, borderRadius: "50%", background: "var(--safe)", animation: "blink 2s ease infinite" }} />
+                    <span style={{ fontSize: "11px", color: "var(--text-secondary)", fontWeight: 500, fontVariantNumeric: "tabular-nums" }}>
+                      {protectedCount.toLocaleString()} {es ? "personas protegidas" : "people protected"}
+                    </span>
+                  </div>
+                </div>
+              )}
             </Suspense>
           ) : currentMainView === "list" ? (
             <div style={{ height: "100%", overflowY: "auto", WebkitOverflowScrolling: "touch", padding: "14px 14px 20px" }}>
@@ -233,7 +268,7 @@ function AppContent() {
                     const accentStyle = sv ? { borderLeft: `3px solid ${c.color}` } : pred && pred.score >= 40 ? { borderLeft: `3px dashed ${pred.score >= 70 ? "var(--danger)" : "var(--caution)"}` } : {};
                     return (
                       <button key={z.id} onClick={() => handleZoneClick(z.id)} className="card-interactive" style={{ width: "100%", background: "var(--bg-card)", border: "1px solid var(--border)", ...accentStyle, borderRadius: "var(--radius-md)", padding: "13px 14px", textAlign: "left", display: "flex", gap: "12px", alignItems: "center", marginBottom: "6px", animation: `fadeIn 0.25s ease ${i * 0.03}s both` }}>
-                        <div style={{ width: 38, height: 38, borderRadius: "var(--radius-sm)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "18px", flexShrink: 0, background: c ? `${c.color}08` : "rgba(255,255,255,0.02)", border: `1px solid ${c ? c.color + "15" : "var(--border)"}` }}>{c ? c.emoji : "⚪"}</div>
+                        <div style={{ width: 38, height: 38, borderRadius: "var(--radius-sm)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: c ? `${c.color}08` : "rgba(255,255,255,0.02)", border: `1px solid ${c ? c.color + "15" : "var(--border)"}` }}><SeverityIcon severity={sv} size={22} /></div>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ fontSize: "14px", fontWeight: 600, color: "var(--text)", display: "flex", alignItems: "center", gap: "6px" }}>
                             {z.name} <span style={{ fontWeight: 400, color: "var(--text-dim)", fontSize: "13px" }}>{z.area}</span>
@@ -268,6 +303,27 @@ function AppContent() {
       {/* BOTTOM NAV — mobile only */}
       {!isDesktop && <BottomNav activeTab={mobileView} onTab={handleMobileTab} onReport={() => setScreen("report")} liveCount={liveCount} lang={lang} />}
       {showMoreMenu && <MoreMenu lang={lang} onSelect={(key) => setScreen(key)} onClose={() => setShowMoreMenu(false)} />}
+
+      {/* ZONE DETAIL — Bottom Sheet overlay (map stays visible behind) */}
+      {screen === "detail" && selectedZone && (() => {
+        const zone = ZONES.find((z) => z.id === selectedZone);
+        return (
+          <ZoneSheet
+            zone={zone}
+            severity={getZoneSeverity(selectedZone, reports)}
+            reports={getZoneReports(selectedZone, reports)}
+            onClose={closeSheet}
+            onReport={() => setScreen("report")}
+            onUpvote={upvoteReport}
+            push={push}
+            zoneWatchers={zoneWatchers}
+            prediction={predictions[selectedZone]}
+            watchZone={watchZone}
+            unwatchZone={unwatchZone}
+            onLogoClick={handleLogoClick}
+          />
+        );
+      })()}
     </div>
   );
 }

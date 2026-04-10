@@ -6,7 +6,7 @@
 :root {
   --bg: #070b14; --bg-elevated: #0c1220;
   --bg-card: rgba(255,255,255,0.02); --bg-card-hover: rgba(255,255,255,0.04);
-  --bg-glass: rgba(8,13,24,0.85);
+  --bg-glass: rgba(7,11,20,0.82);
   --border: rgba(255,255,255,0.05); --border-light: rgba(255,255,255,0.08);
   --text: #eef0f4; --text-secondary: rgba(255,255,255,0.52);
   --text-dim: rgba(255,255,255,0.32); --text-faint: rgba(255,255,255,0.14);
@@ -36,7 +36,6 @@ button:active { transform: scale(0.97); opacity: 0.85; }
 .card-interactive:hover { background: var(--bg-card-hover) !important; border-color: var(--border-light) !important; }
 .card-interactive:active { transform: scale(0.985); }
 
-/* Accent left border for active report cards */
 .card-accent-danger { border-left: 3px solid var(--danger) !important; }
 .card-accent-caution { border-left: 3px solid var(--caution) !important; }
 .card-accent-safe { border-left: 3px solid var(--safe) !important; }
@@ -49,6 +48,69 @@ button:active { transform: scale(0.97); opacity: 0.85; }
   font-family: 'DM Sans', sans-serif !important; box-shadow: 0 8px 32px rgba(0,0,0,0.6) !important;
 }
 .leaflet-tooltip-top::before { border-top-color: rgba(8,13,24,0.94) !important; }
+
+/* Bottom sheet */
+.sheet-backdrop {
+  position: fixed; inset: 0; z-index: 50;
+  background: rgba(0,0,0,0.45);
+  animation: backdropIn 0.3s ease;
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+}
+.sheet-container {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 51;
+  max-height: 88vh; max-height: 88dvh;
+  background: var(--bg-elevated);
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 -16px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.06);
+  display: flex; flex-direction: column;
+  animation: sheetUp 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+  overflow: hidden;
+}
+.sheet-handle {
+  width: 36px; height: 4px; border-radius: 2px;
+  background: rgba(255,255,255,0.15);
+  margin: 10px auto 6px;
+  flex-shrink: 0;
+}
+.sheet-content {
+  flex: 1; overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+@keyframes sheetUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+@keyframes sheetDown {
+  from { transform: translateY(0); opacity: 1; }
+  to { transform: translateY(100%); opacity: 0; }
+}
+@keyframes backdropIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes backdropOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* Desktop: sheet becomes side panel */
+@media (min-width: 900px) {
+  .sheet-container {
+    left: auto; right: 0; top: 0; bottom: 0;
+    max-height: 100vh; width: 420px;
+    border-radius: 0;
+    animation: sheetSlideIn 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+    border-left: 1px solid var(--border);
+  }
+  .sheet-handle { display: none; }
+  @keyframes sheetSlideIn {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+  }
+}
 
 /* Animations */
 @keyframes danger-pulse {
@@ -64,6 +126,50 @@ button:active { transform: scale(0.97); opacity: 0.85; }
 @keyframes shimmer { 0% { background-position: -400px 0; } 100% { background-position: 400px 0; } }
 @keyframes offlinePulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
 @keyframes progressBar { from { width: 0%; } to { width: 100%; } }
+@keyframes rippleExpand {
+  0% { r: 20; opacity: 0.6; }
+  100% { r: 55; opacity: 0; }
+}
+@keyframes rainDrift {
+  0% { background-position: 0% 0%; }
+  100% { background-position: 100% 100%; }
+}
+@keyframes numberRoll {
+  0% { transform: translateY(100%); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+@keyframes glowPulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.7; }
+}
+
+/* Rain overlay for map when it's raining */
+.rain-overlay {
+  pointer-events: none;
+  position: absolute; inset: 0; z-index: 5;
+  background: linear-gradient(180deg, rgba(96,165,250,0.04) 0%, transparent 40%);
+  border-bottom: 1px solid rgba(96,165,250,0.06);
+}
+
+/* Status glow behind header */
+.header-glow {
+  position: absolute; top: -30px; left: 10%; right: 10%; height: 80px;
+  border-radius: 50%;
+  filter: blur(40px);
+  pointer-events: none;
+  transition: background 1s ease, opacity 1s ease;
+}
+.header-glow-danger { background: rgba(239,68,68,0.15); }
+.header-glow-caution { background: rgba(234,179,8,0.1); }
+.header-glow-safe { background: rgba(34,197,94,0.06); }
+.header-glow-neutral { background: transparent; }
+
+/* Social proof counter */
+.social-proof {
+  position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%);
+  z-index: 6; pointer-events: none;
+  animation: fadeIn 0.5s ease 1s both;
+}
 
 .skeleton {
   background: linear-gradient(90deg, rgba(255,255,255,0.02) 25%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0.02) 75%);
