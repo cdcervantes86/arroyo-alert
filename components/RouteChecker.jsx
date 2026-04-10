@@ -247,7 +247,7 @@ export default function RouteChecker({ reports, onBack, onLogoClick }) {
             <path d="M60 290 Q130 240 200 290 Q270 340 340 290 Q410 240 460 290" fill="none" stroke="#F5D033" strokeWidth="28" strokeLinecap="round" opacity="0.85" />
             <path d="M60 370 Q130 320 200 370 Q270 420 340 370 Q410 320 460 370" fill="none" stroke="#2d8a2d" strokeWidth="28" strokeLinecap="round" opacity="0.75" />
           </svg>
-          <span style={{ fontSize: "14px", fontWeight: 700, color: "var(--text)" }}>Arroyo<span style={{ color: "var(--baq-yellow)" }}>Alerta</span></span>
+          <span style={{ fontSize: "14px", fontWeight: 700, color: "var(--text)" }}>Alerta<span style={{ color: "var(--baq-yellow)" }}>Arroyo</span></span>
         </button>
         <span style={{ flex: 1 }} />
         <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--text-dim)" }}>🛣️ {es ? "Ruta segura" : "Safe route"}</span>

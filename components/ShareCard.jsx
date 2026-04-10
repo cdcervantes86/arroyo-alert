@@ -102,7 +102,7 @@ export default function ShareCard({ zoneName, zoneArea, severity, reportText, on
     ctx.font = "bold 16px 'Helvetica Neue', sans-serif";
     ctx.fillStyle = "#f0f2f5";
     ctx.textAlign = "right";
-    ctx.fillText("ArroyoAlerta", w - 32, 295);
+    ctx.fillText("AlertaArroyo", w - 32, 295);
     ctx.font = "400 13px 'Helvetica Neue', sans-serif";
     ctx.fillStyle = "rgba(255,255,255,0.35)";
     ctx.fillText("arroyo-alert.vercel.app", w - 32, 318);
@@ -119,7 +119,7 @@ export default function ShareCard({ zoneName, zoneArea, severity, reportText, on
       if (!blob) return;
 
       const sevLabels = { danger: "PELIGROSO", caution: "Precaución", safe: "Despejado" };
-      const text = `⚠️ Arroyo ${sevLabels[severity]} en ${zoneName} (${zoneArea})\n${reportText ? reportText + "\n" : ""}📍 ArroyoAlerta — arroyo-alert.vercel.app`;
+      const text = `⚠️ Arroyo ${sevLabels[severity]} en ${zoneName} (${zoneArea})\n${reportText ? reportText + "\n" : ""}📍 AlertaArroyo — arroyo-alert.vercel.app`;
 
       // Try Web Share API first (mobile)
       if (navigator.share && navigator.canShare) {
