@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useLanguage } from "@/lib/LanguageContext";
 import { isAudioEnabled, setAudioEnabled, playDangerAlert } from "@/lib/audioAlerts";
-import { APP_VERSION } from "@/lib/version";
+import { APP_VERSION, CHANGELOG } from "@/lib/version";
 import { INCIDENTS } from "@/lib/incidents";
 
 const months = {
@@ -16,13 +16,15 @@ export default function AboutPage({ onBack, onLogoClick }) {
   const es = lang === "es";
   const [audioOn, setAudioOn] = useState(true);
   const [showAllIncidents, setShowAllIncidents] = useState(false);
+  const [showChangelog, setShowChangelog] = useState(false);
+  const [showBugfixes, setShowBugfixes] = useState(false);
   const incidents = INCIDENTS;
   useEffect(() => { setAudioOn(isAudioEnabled()); }, []);
 
   return (
     <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, overflowY: "auto", WebkitOverflowScrolling: "touch", background: "var(--bg)" }}>
       {/* Sticky header */}
-      <div style={{ position: "sticky", top: 0, zIndex: 10, padding: "12px 16px", display: "flex", alignItems: "center", gap: "10px", background: "rgba(7,11,20,0.97)", backdropFilter: "blur(16px)", borderBottom: "1px solid var(--border)" }}>
+      <div style={{ position: "sticky", top: 0, zIndex: 10, padding: "12px 16px", display: "flex", alignItems: "center", gap: "10px", background: "rgba(10,15,26,0.97)", backdropFilter: "blur(16px)", borderBottom: "1px solid var(--border)" }}>
         <button onClick={onLogoClick} style={{ display: "flex", alignItems: "center", gap: "8px", background: "none", border: "none", padding: 0, cursor: "pointer" }}>
           <svg width={22} height={22} viewBox="0 0 512 512" style={{ borderRadius: 5 }}><defs><linearGradient id="lBgA" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor="#14261a" /><stop offset="100%" stopColor="#0a1210" /></linearGradient></defs><rect width="512" height="512" rx="112" fill="url(#lBgA)" /><path d="M60 210 Q130 160 200 210 Q270 260 340 210 Q410 160 460 210" fill="none" stroke="#D42A2A" strokeWidth="28" strokeLinecap="round" opacity="0.9" /><path d="M60 290 Q130 240 200 290 Q270 340 340 290 Q410 240 460 290" fill="none" stroke="#F5D033" strokeWidth="28" strokeLinecap="round" opacity="0.85" /><path d="M60 370 Q130 320 200 370 Q270 420 340 370 Q410 320 460 370" fill="none" stroke="#2d8a2d" strokeWidth="28" strokeLinecap="round" opacity="0.75" /></svg>
           <span style={{ fontSize: "14px", fontWeight: 700 }}>Alerta<span style={{ color: "var(--baq-yellow)" }}>Arroyo</span></span>
@@ -105,6 +107,52 @@ export default function AboutPage({ onBack, onLogoClick }) {
             <span style={{ fontSize: "16px", fontWeight: 700, color: "var(--baq-red)", fontVariantNumeric: "tabular-nums" }}>{item.number}</span>
           </a>
         ))}
+
+        {/* What's New */}
+        <div style={{ fontSize: "10px", color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "1.5px", fontWeight: 600, marginTop: "32px", marginBottom: "12px" }}>{es ? "Novedades" : "What's new"}</div>
+        <button onClick={() => setShowChangelog(!showChangelog)} style={{
+          width: "100%", display: "flex", alignItems: "center", gap: "12px",
+          padding: "14px", background: "var(--bg-card)", borderRadius: "var(--radius-md)",
+          border: "1px solid var(--border)", textAlign: "left", marginBottom: "6px",
+        }}>
+          <span style={{ fontSize: "18px" }}>✨</span>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: "14px", fontWeight: 600, color: "var(--text)" }}>AlertaArroyo v{APP_VERSION}</div>
+            <div style={{ fontSize: "12px", color: "var(--text-dim)", marginTop: "2px" }}>{CHANGELOG[0]?.title?.[lang] || CHANGELOG[0]?.title?.es}</div>
+          </div>
+          <span style={{ color: "var(--text-faint)", fontSize: "14px", transform: showChangelog ? "rotate(90deg)" : "none", transition: "transform 0.2s ease" }}>›</span>
+        </button>
+        {showChangelog && CHANGELOG[0] && (
+          <div style={{ padding: "0 0 6px", animation: "fadeIn 0.2s ease" }}>
+            {(CHANGELOG[0].items[lang] || CHANGELOG[0].items.es).map((item, i) => (
+              <div key={i} style={{ padding: "8px 14px", fontSize: "13px", color: "var(--text-secondary)", display: "flex", gap: "8px" }}>
+                <span style={{ flexShrink: 0 }}>{item.split(" ")[0]}</span>
+                <span>{item.split(" ").slice(1).join(" ")}</span>
+              </div>
+            ))}
+            {CHANGELOG[0].bugfixes && (
+              <>
+                <button onClick={() => setShowBugfixes(!showBugfixes)} style={{
+                  width: "100%", display: "flex", alignItems: "center", gap: "8px",
+                  padding: "10px 14px", background: "none", border: "none",
+                  borderTop: "1px solid var(--border)", marginTop: "6px",
+                }}>
+                  <span style={{ fontSize: "12px" }}>🐛</span>
+                  <span style={{ fontSize: "12px", color: "var(--text-dim)", fontWeight: 600, flex: 1, textAlign: "left" }}>
+                    {es ? `${(CHANGELOG[0].bugfixes[lang] || CHANGELOG[0].bugfixes.es).length} correcciones` : `${(CHANGELOG[0].bugfixes[lang] || CHANGELOG[0].bugfixes.es).length} bug fixes`}
+                  </span>
+                  <span style={{ fontSize: "11px", color: "var(--text-faint)", transform: showBugfixes ? "rotate(180deg)" : "none", transition: "transform 0.2s ease" }}>▾</span>
+                </button>
+                {showBugfixes && (CHANGELOG[0].bugfixes[lang] || CHANGELOG[0].bugfixes.es).map((fix, i) => (
+                  <div key={i} style={{ padding: "6px 14px", fontSize: "12px", color: "var(--text-dim)", display: "flex", gap: "8px", alignItems: "flex-start" }}>
+                    <span style={{ color: "var(--safe)", fontSize: "10px", marginTop: "2px", flexShrink: 0 }}>✓</span>
+                    {fix}
+                  </div>
+                ))}
+              </>
+            )}
+          </div>
+        )}
 
         <div style={{ textAlign: "center", padding: "36px 0 16px", fontSize: "12px", color: "var(--text-faint)" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>{es ? "Hecho para Barranquilla" : "Made for Barranquilla"} <svg width="20" height="14" viewBox="0 0 30 20" style={{ borderRadius: "2px", boxShadow: "0 0 0 0.5px rgba(255,255,255,0.1)" }}><rect width="30" height="20" fill="#D42A2A"/><rect x="3" y="3" width="24" height="14" fill="#F5D033"/><rect x="6" y="6" width="18" height="8" fill="#2D8A2D"/><polygon points="15,7.5 15.9,9.3 17.8,9.6 16.4,11 16.7,12.9 15,12 13.3,12.9 13.6,11 12.2,9.6 14.1,9.3" fill="rgba(255,255,255,0.9)"/></svg></div>

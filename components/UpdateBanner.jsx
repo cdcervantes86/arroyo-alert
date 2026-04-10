@@ -31,7 +31,7 @@ export default function UpdateBanner() {
 
     return (
       <div style={{
-        position: "fixed", inset: 0, zIndex: 200,
+        position: "fixed", inset: 0, zIndex: 1200,
         background: "rgba(0,0,0,0.8)", backdropFilter: "blur(12px)",
         display: "flex", alignItems: "center", justifyContent: "center",
         padding: "20px", animation: "fadeIn 0.2s ease",
