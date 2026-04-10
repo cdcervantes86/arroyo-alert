@@ -38,17 +38,32 @@ export default function WeatherIndicator() {
   const es = lang === "es";
   const [weather, setWeather] = useState(null);
   const [expanded, setExpanded] = useState(false);
+  const [closing, setClosing] = useState(false);
+  const [hovered, setHovered] = useState(false);
   const cardRef = useRef(null);
 
   // Close on outside click
   useEffect(() => {
     if (!expanded) return;
     const handler = (e) => {
-      if (cardRef.current && !cardRef.current.contains(e.target)) setExpanded(false);
+      if (cardRef.current && !cardRef.current.contains(e.target)) {
+        handleClose();
+      }
     };
     setTimeout(() => document.addEventListener("click", handler), 10);
     return () => document.removeEventListener("click", handler);
   }, [expanded]);
+
+  const handleClose = () => {
+    setClosing(true);
+    setTimeout(() => { setExpanded(false); setClosing(false); }, 200);
+  };
+
+  const handleToggle = (e) => {
+    e.stopPropagation();
+    if (expanded) handleClose();
+    else setExpanded(true);
+  };
 
   useEffect(() => {
     const fetchWeather = async () => {
@@ -67,7 +82,6 @@ export default function WeatherIndicator() {
           .filter(Boolean);
         const maxProb = Math.max(...nextHoursProb, 0);
 
-        // Find last rain
         let lastRainHoursAgo = null;
         const precip = hourly.precipitation || [];
         for (let i = currentHourIndex; i >= 0; i--) {
@@ -82,11 +96,7 @@ export default function WeatherIndicator() {
           temp: Math.round(current.temperature_2m),
           humidity: current.relative_humidity_2m,
           windSpeed: Math.round(current.wind_speed_10m),
-          isRaining,
-          isStormy,
-          maxProb,
-          code,
-          lastRainHoursAgo,
+          isRaining, isStormy, maxProb, code, lastRainHoursAgo,
           icon: WMO_ICONS[code] || "🌤️",
           desc: (es ? WMO_DESC.es : WMO_DESC.en)[code] || (es ? "Despejado" : "Clear"),
         });
@@ -117,37 +127,59 @@ export default function WeatherIndicator() {
       : (es ? `Última lluvia: ${lastRainHoursAgo}h` : `Last rain: ${lastRainHoursAgo}h ago`);
   }
 
+  const animClass = closing ? "weather-card-exit" : "weather-card-enter";
+
   return (
-    <div ref={cardRef} style={{ position: "relative" }}>
-      {/* Pill — tappable */}
-      <button onClick={(e) => { e.stopPropagation(); setExpanded(!expanded); }} style={{
-        display: "flex", alignItems: "center", gap: "5px",
-        padding: "4px 10px", borderRadius: "16px",
-        background: pillBg, border: `1px solid ${isAlert ? pillColor + "30" : "var(--border)"}`,
-        fontSize: "11px", fontWeight: 600, color: pillColor,
-      }}>
-        <span style={{ fontSize: "13px" }}>{icon}</span>
+    <div ref={cardRef} style={{ position: "relative", zIndex: 1000 }}>
+      {/* Pill — tappable with hover effect */}
+      <button
+        onClick={handleToggle}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        style={{
+          display: "flex", alignItems: "center", gap: "5px",
+          padding: "4px 10px", borderRadius: "16px",
+          background: expanded ? "rgba(255,255,255,0.08)" : hovered ? "rgba(255,255,255,0.06)" : pillBg,
+          border: `1px solid ${expanded ? "rgba(255,255,255,0.12)" : isAlert ? pillColor + "30" : hovered ? "rgba(255,255,255,0.1)" : "var(--border)"}`,
+          fontSize: "11px", fontWeight: 600, color: pillColor,
+          transition: "all 0.25s cubic-bezier(0.32, 0.72, 0, 1)",
+          transform: hovered && !expanded ? "scale(1.05)" : "scale(1)",
+        }}
+      >
+        <span style={{
+          fontSize: "13px",
+          transition: "transform 0.3s cubic-bezier(0.32, 0.72, 0, 1)",
+          transform: expanded ? "scale(1.15)" : "scale(1)",
+          display: "inline-block",
+        }}>{icon}</span>
         {temp}°C
+        <span style={{
+          fontSize: "8px", color: "var(--text-faint)",
+          transition: "transform 0.25s ease, opacity 0.25s ease",
+          transform: expanded ? "rotate(180deg)" : "rotate(0deg)",
+          opacity: 0.5,
+          marginLeft: "1px",
+        }}>▾</span>
       </button>
 
       {/* Expanded card */}
       {expanded && (
-        <div style={{
+        <div className={animClass} style={{
           position: "absolute", top: "calc(100% + 8px)", right: 0,
-          width: 220, background: "var(--bg-elevated)",
+          width: 230, background: "var(--bg-elevated)",
           borderRadius: "var(--radius-lg)", border: "1px solid var(--border)",
-          boxShadow: "0 12px 40px rgba(0,0,0,0.5)",
-          animation: "slideDown 0.2s cubic-bezier(0.32, 0.72, 0, 1)",
-          overflow: "hidden", zIndex: 900,
+          boxShadow: "0 16px 48px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.03)",
+          overflow: "hidden",
+          transformOrigin: "top right",
         }}>
           {/* Main weather */}
-          <div style={{ padding: "20px 18px 16px", textAlign: "center" }}>
-            <div style={{ fontSize: "48px", marginBottom: "8px", lineHeight: 1 }}>{icon}</div>
-            <div style={{ fontSize: "32px", fontWeight: 800, color: "var(--text)", letterSpacing: "-1px" }}>{temp}°C</div>
+          <div style={{ padding: "22px 18px 16px", textAlign: "center" }}>
+            <div style={{ fontSize: "52px", marginBottom: "8px", lineHeight: 1 }}>{icon}</div>
+            <div style={{ fontSize: "34px", fontWeight: 800, color: "var(--text)", letterSpacing: "-1px" }}>{temp}°C</div>
             <div style={{ fontSize: "13px", color: "var(--text-secondary)", fontWeight: 500, marginTop: "4px" }}>{weather.desc}</div>
             {lastRainText && (
               <div style={{
-                marginTop: "8px", padding: "4px 12px", borderRadius: "12px", display: "inline-block",
+                marginTop: "10px", padding: "4px 12px", borderRadius: "12px", display: "inline-block",
                 background: lastRainHoursAgo <= 2 ? "rgba(234,179,8,0.08)" : "rgba(255,255,255,0.03)",
                 border: `1px solid ${lastRainHoursAgo <= 2 ? "rgba(234,179,8,0.12)" : "var(--border)"}`,
                 fontSize: "11px", fontWeight: 600,
@@ -159,10 +191,7 @@ export default function WeatherIndicator() {
           </div>
 
           {/* Details row */}
-          <div style={{
-            display: "flex", borderTop: "1px solid var(--border)",
-            padding: "12px 0",
-          }}>
+          <div style={{ display: "flex", borderTop: "1px solid var(--border)", padding: "12px 0" }}>
             <div style={{ flex: 1, textAlign: "center", borderRight: "1px solid var(--border)" }}>
               <div style={{ fontSize: "14px", fontWeight: 700, color: "var(--text)" }}>{weather.humidity}%</div>
               <div style={{ fontSize: "10px", color: "var(--text-faint)", marginTop: "2px" }}>{es ? "Humedad" : "Humidity"}</div>
@@ -190,17 +219,28 @@ export default function WeatherIndicator() {
             </div>
           )}
 
-          {/* Source */}
-          <div style={{ padding: "6px 14px", borderTop: "1px solid var(--border)", textAlign: "right" }}>
-            <span style={{ fontSize: "9px", color: "var(--text-faint)", opacity: 0.5 }}>Open-Meteo</span>
+          {/* Source + Barranquilla label */}
+          <div style={{ padding: "8px 14px", borderTop: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <span style={{ fontSize: "10px", color: "var(--text-faint)", fontWeight: 500 }}>Barranquilla</span>
+            <span style={{ fontSize: "9px", color: "var(--text-faint)", opacity: 0.4 }}>Open-Meteo</span>
           </div>
         </div>
       )}
 
       <style>{`
-        @keyframes slideDown {
-          from { opacity: 0; transform: translateY(-8px); }
-          to { opacity: 1; transform: translateY(0); }
+        .weather-card-enter {
+          animation: weatherExpand 0.25s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+        }
+        .weather-card-exit {
+          animation: weatherCollapse 0.2s cubic-bezier(0.4, 0, 1, 1) forwards;
+        }
+        @keyframes weatherExpand {
+          0% { opacity: 0; transform: scale(0.92) translateY(-6px); }
+          100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        @keyframes weatherCollapse {
+          0% { opacity: 1; transform: scale(1) translateY(0); }
+          100% { opacity: 0; transform: scale(0.95) translateY(-4px); }
         }
       `}</style>
     </div>
