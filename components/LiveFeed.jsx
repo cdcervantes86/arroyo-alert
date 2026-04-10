@@ -17,8 +17,8 @@ function Countdown({ createdAt }) {
   return <span style={{ fontSize: "10px", color, fontWeight: 500, fontVariantNumeric: "tabular-nums" }}>⏱ {h}h {m}m</span>;
 }
 
-function VerifiedBadge() {
-  return <span style={{ display: "inline-flex", fontSize: "9px", fontWeight: 700, color: "var(--accent)", background: "var(--accent-glow)", padding: "2px 6px", borderRadius: "4px", border: "1px solid rgba(91,156,246,0.12)", letterSpacing: "0.3px" }}>✓ Verificado</span>;
+function VerifiedBadge({ lang }) {
+  return <span style={{ display: "inline-flex", fontSize: "9px", fontWeight: 700, color: "var(--accent)", background: "var(--accent-glow)", padding: "2px 6px", borderRadius: "4px", border: "1px solid rgba(91,156,246,0.12)", letterSpacing: "0.3px" }}>{lang === "en" ? "✓ Verified" : "✓ Verificado"}</span>;
 }
 
 function EmptyState({ lang }) {
@@ -60,7 +60,7 @@ export default function LiveFeed({ reports, onZoneClick, onUpvote, upvotedSet, o
 
   return (
     <>
-      {shareData && <ShareCard {...shareData} onClose={() => setShareData(null)} />}
+      {shareData && <ShareCard {...shareData} lang={lang} onClose={() => setShareData(null)} />}
       <div style={{ overflowY: "auto", height: "100%", padding: "14px 14px 80px" }}>
         {/* Feed header */}
         <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px", padding: "0 2px" }}>
@@ -117,7 +117,7 @@ export default function LiveFeed({ reports, onZoneClick, onUpvote, upvotedSet, o
                   }}>
                     {getSevLabel(r.severity, lang)}
                   </span>
-                  {isVerified && <VerifiedBadge />}
+                  {isVerified && <VerifiedBadge lang={lang} />}
                 </div>
 
                 {/* Content */}

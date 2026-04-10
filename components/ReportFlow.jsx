@@ -47,7 +47,7 @@ export default function ReportFlow({ zones, reports, initialZoneId, onSubmit, on
         <div style={{ marginBottom: "20px" }}><SuccessRipple /></div>
         <h2 style={{ fontSize: "22px", fontWeight: 700, animation: "fadeIn 0.4s ease 0.2s both", textAlign: "center" }}>{t.reportSent}</h2>
         <p style={{ color: "var(--text-secondary)", fontSize: "14px", marginTop: "8px", animation: "fadeIn 0.4s ease 0.4s both" }}>{t.thankYou}</p>
-        {stats.verified && <div style={{ marginTop: "12px", animation: "fadeIn 0.4s ease 0.6s both" }}><span style={{ fontSize: "13px", color: "var(--accent)", fontWeight: 600 }}>✓ Reportero Verificado</span></div>}
+        {stats.verified && <div style={{ marginTop: "12px", animation: "fadeIn 0.4s ease 0.6s both" }}><span style={{ fontSize: "13px", color: "var(--accent)", fontWeight: 600 }}>{lang === "en" ? "✓ Verified Reporter" : "✓ Reportero Verificado"}</span></div>}
         <div style={{ marginTop: "28px", width: "100px", height: "3px", borderRadius: "2px", background: "rgba(255,255,255,0.04)", overflow: "hidden", animation: "fadeIn 0.4s ease 0.6s both" }}>
           <div style={{ height: "100%", background: "var(--safe)", animation: "progressBar 2.5s linear forwards" }} />
         </div>
