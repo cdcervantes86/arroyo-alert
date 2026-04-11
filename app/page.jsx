@@ -93,7 +93,8 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, lang }) {
   return (
     <div className="bottom-nav" style={{
       display: "flex", alignItems: "center", justifyContent: "space-around",
-      background: "#0a0f1a", flexShrink: 0, height: 64,
+      background: "#0a0f1a", flexShrink: 0,
+      paddingTop: "6px", paddingBottom: "calc(10px + env(safe-area-inset-bottom, 0px))",
       borderTop: "1px solid rgba(255,255,255,0.05)",
     }}>
       {tabs.map((tab) => {
