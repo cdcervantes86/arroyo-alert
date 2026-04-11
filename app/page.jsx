@@ -147,11 +147,19 @@ function MoreMenu({ onSelect, lang, onClose }) {
 }
 
 /* ====== MULTI-SNAP BOTTOM SHEET — peek / half / full ====== */
-function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push, zoneWatchers, prediction, watchZone, unwatchZone, onLogoClick }) {
+function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push, zoneWatchers, prediction, watchZone, unwatchZone, onLogoClick, isDesktop, desktopView, mapInstance }) {
   const { lang, t } = useLanguage();
   const es = lang === "es";
   const sevColor = severity ? SEVERITY[severity].color : "var(--border)";
 
+  // Center map on zone when in desktop map view
+  useEffect(() => {
+    if (isDesktop && desktopView === "map" && mapInstance && zone) {
+      mapInstance.flyTo({ center: [zone.lng, zone.lat], zoom: 14, duration: 800, offset: [-190, 0] });
+    }
+  }, [isDesktop, desktopView, mapInstance, zone]);
+
+  // Mobile sheet state (must be declared before any conditional returns)
   const SNAPS = { peek: 22, half: 50, full: 88 };
   const [snap, setSnap] = useState("peek");
   const [dragOffset, setDragOffset] = useState(0);
@@ -162,12 +170,155 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
   const contentRef = useRef(null);
   const sheetRef = useRef(null);
 
-  // Entrance: mount at height 0, then animate to peek
   useEffect(() => {
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => setEntered(true));
-    });
-  }, []);
+    if (!isDesktop) {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => setEntered(true));
+      });
+    }
+  }, [isDesktop]);
+
+  // === DESKTOP: Side panel (map view) or centered modal (list view) ===
+  if (isDesktop) {
+    const isSidePanel = desktopView === "map";
+
+    const subscribed = push.isSubscribed?.(zone.id);
+    const watcherCount = zoneWatchers?.[zone.id] || 0;
+    const altRoutes = reports.filter(r => r.alt_route && r.alt_route.trim() && (r.severity === "danger" || r.severity === "caution"));
+
+    const panelContent = (
+      <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+        {/* Header */}
+        <div style={{ padding: "20px 24px 16px", borderBottom: `2px solid ${sevColor}30`, flexShrink: 0 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+            <div style={{ width: 44, height: 44, borderRadius: "var(--radius-sm)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: severity ? `${sevColor}10` : "rgba(255,255,255,0.03)", border: `1px solid ${severity ? sevColor + "20" : "var(--border)"}` }}>
+              <SeverityIcon severity={severity} size={26} />
+            </div>
+            <div style={{ flex: 1 }}>
+              <h2 style={{ margin: 0, fontSize: "18px", fontWeight: 700, letterSpacing: "-0.2px" }}>{zone.name}</h2>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "3px" }}>
+                <span style={{ fontSize: "13px", color: "var(--text-dim)" }}>{zone.area}</span>
+                {severity && <span style={{ fontSize: "11px", fontWeight: 600, color: sevColor, background: `${sevColor}0a`, padding: "2px 8px", borderRadius: "6px" }}>{getSevLabel(severity, lang)}</span>}
+              </div>
+            </div>
+            <button onClick={onClose} className="tap-target" style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(255,255,255,0.06)", border: "none", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <svg width="10" height="10" viewBox="0 0 10 10" stroke="var(--text-dim)" strokeWidth="1.5" strokeLinecap="round"><line x1="2" y1="2" x2="8" y2="8"/><line x1="8" y1="2" x2="2" y2="8"/></svg>
+            </button>
+          </div>
+        </div>
+
+        {/* Scrollable body */}
+        <div style={{ flex: 1, overflowY: "auto", WebkitOverflowScrolling: "touch", padding: "16px 24px 24px" }}>
+          {zone.desc && <p style={{ color: "var(--text-dim)", fontSize: "13px", marginBottom: "14px", lineHeight: 1.5 }}>{es ? zone.desc : (zone.descEn || zone.desc)}</p>}
+
+          {/* Watchers + prediction */}
+          <div style={{ display: "flex", gap: "10px", marginBottom: "14px", flexWrap: "wrap" }}>
+            {watcherCount > 1 && (
+              <div style={{ display: "flex", alignItems: "center", gap: "5px", fontSize: "12px", color: "var(--text-dim)" }}>
+                <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--safe)", animation: "blink 2s ease infinite" }} />
+                {watcherCount} {es ? "monitoreando" : "watching"}
+              </div>
+            )}
+            {prediction && prediction.score >= 20 && !severity && (
+              <div style={{ fontSize: "12px", fontWeight: 600, color: prediction.score >= 70 ? "var(--danger)" : prediction.score >= 40 ? "var(--caution)" : "var(--accent)" }}>
+                {prediction.score}% {es ? "probabilidad" : "probability"}
+              </div>
+            )}
+          </div>
+
+          <button onClick={onReport} style={{ width: "100%", padding: "13px", marginBottom: "12px", background: "linear-gradient(135deg, #D42A2A, #b91c1c)", color: "#fff", border: "none", borderRadius: "var(--radius-md)", fontSize: "14px", fontWeight: 700, boxShadow: "0 6px 20px rgba(212,42,42,0.25)" }}>{t.reportThisZone}</button>
+
+          <div style={{ display: "flex", gap: "8px", marginBottom: "20px" }}>
+            {push.supported && (
+              <button onClick={() => { if (navigator.vibrate) navigator.vibrate(50); if (!subscribed) push.subscribeToZone?.(zone.id); else push.unsubscribeFromZone?.(zone.id); }} className="tap-target" style={{ flex: 1, padding: "10px", borderRadius: "var(--radius-md)", background: subscribed ? "rgba(91,156,246,0.08)" : "rgba(255,255,255,0.02)", border: `1px solid ${subscribed ? "rgba(91,156,246,0.15)" : "var(--border)"}`, color: subscribed ? "var(--accent)" : "var(--text-dim)", fontSize: "12px", fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
+                <BellIcon size={14} color={subscribed ? "var(--accent)" : "var(--text-dim)"} />
+                {subscribed ? (es ? "Suscrito" : "Subscribed") : (es ? "Notificarme" : "Notify me")}
+              </button>
+            )}
+          </div>
+
+          {/* Alt routes */}
+          {altRoutes.length > 0 && (
+            <div style={{ marginBottom: "20px", background: "rgba(34,197,94,0.04)", border: "1px solid rgba(34,197,94,0.12)", borderRadius: "var(--radius-md)", padding: "12px 14px" }}>
+              <div style={{ fontSize: "10px", color: "var(--safe)", textTransform: "uppercase", letterSpacing: "1.5px", fontWeight: 700, marginBottom: "8px" }}>{es ? "Rutas alternas" : "Alternate routes"}</div>
+              {altRoutes.slice(0, 3).map((r, i) => (
+                <div key={r.id} style={{ padding: "6px 0", borderTop: i > 0 ? "1px solid rgba(34,197,94,0.08)" : "none", fontSize: "13px", color: "var(--text-secondary)", lineHeight: 1.5 }}>
+                  <span style={{ color: "var(--safe)", fontWeight: 700, marginRight: "6px" }}>↗</span>{r.alt_route}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Reports */}
+          <div style={{ fontSize: "10px", color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "1.5px", marginBottom: "12px", fontWeight: 600 }}>{t.recentReports} ({reports.length})</div>
+          {!reports.length && (
+            <div style={{ textAlign: "center", padding: "24px 0" }}>
+              <p style={{ color: "var(--text-dim)", fontSize: "14px", fontWeight: 500 }}>{es ? "Todo tranquilo por aquí" : "All quiet here"}</p>
+              <p style={{ color: "var(--text-faint)", fontSize: "12px", marginTop: "4px" }}>{es ? "No hay reportes en las últimas 4 horas" : "No reports in the last 4 hours"}</p>
+            </div>
+          )}
+          {reports.map((r, i) => {
+            const cfg = SEVERITY[r.severity];
+            return (
+              <div key={r.id} className={`card-interactive card-accent-${r.severity}`} style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: "var(--radius-md)", padding: "14px", marginBottom: "8px", animation: `fadeIn 0.2s ease ${i * 0.04}s both` }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: 8 }}>
+                  <SeverityIcon severity={r.severity} size={16} />
+                  <span style={{ fontSize: "12px", fontWeight: 600, color: cfg.color }}>{getSevLabel(r.severity, lang)}</span>
+                  <span style={{ flex: 1 }} />
+                  <span style={{ fontSize: "11px", color: "var(--text-faint)" }}>{timeAgoLocalized(r.created_at, lang)}</span>
+                </div>
+                {r.text && <p style={{ margin: "0 0 8px", fontSize: "14px", lineHeight: 1.55, color: "var(--text-secondary)" }}>{r.text}</p>}
+                {r.photo_url && <div style={{ marginBottom: "10px", borderRadius: "var(--radius-sm)", overflow: "hidden", border: "1px solid var(--border)" }}><img src={r.photo_url} alt="" style={{ width: "100%", maxHeight: 200, objectFit: "cover", display: "block" }} loading="lazy" /></div>}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+
+    // SIDE PANEL — map view
+    if (isSidePanel) {
+      return (
+        <>
+          <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 999, pointerEvents: "auto" }} />
+          <div style={{
+            position: "fixed", top: 0, right: 0, bottom: 0, width: 400, zIndex: 1001,
+            background: "rgba(14,22,40,0.98)", backdropFilter: "blur(24px) saturate(1.5)",
+            borderLeft: "1px solid var(--border)",
+            boxShadow: "-12px 0 48px rgba(0,0,0,0.4)",
+            animation: "desktopPanelIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)",
+            display: "flex", flexDirection: "column",
+          }}>
+            {panelContent}
+          </div>
+        </>
+      );
+    }
+
+    // MODAL — list view
+    return (
+      <>
+        <div onClick={onClose} style={{
+          position: "fixed", inset: 0, zIndex: 1000,
+          background: "rgba(0,0,0,0.5)", backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)",
+          animation: "fadeIn 0.2s ease",
+        }} />
+        <div style={{
+          position: "fixed", top: "50%", left: "50%", transform: "translate(-50%, -50%)", zIndex: 1001,
+          width: "100%", maxWidth: 480, maxHeight: "80vh",
+          background: "rgba(14,22,40,0.98)", backdropFilter: "blur(24px) saturate(1.5)",
+          borderRadius: "var(--radius-xl)", border: "1px solid rgba(255,255,255,0.08)",
+          boxShadow: "0 24px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04)",
+          animation: "desktopModalIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)",
+          display: "flex", flexDirection: "column", overflow: "hidden",
+        }}>
+          {panelContent}
+        </div>
+      </>
+    );
+  }
+
+  // === MOBILE: Multi-snap bottom sheet ===
 
   const snapPx = (key) => (SNAPS[key] / 100) * (typeof window !== "undefined" ? window.innerHeight : 800);
   const targetHeight = entered ? (closing ? 0 : snapPx(snap) + dragOffset) : 0;
@@ -696,6 +847,9 @@ function AppContent() {
             watchZone={watchZone}
             unwatchZone={unwatchZone}
             onLogoClick={handleLogoClick}
+            isDesktop={isDesktop}
+            desktopView={desktopView}
+            mapInstance={mapInstance}
           />
         );
       })()}
