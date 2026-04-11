@@ -1,5 +1,5 @@
 "use client";
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { useLanguage } from "@/lib/LanguageContext";
 
 const OWM_KEY = process.env.NEXT_PUBLIC_OWM_KEY;
@@ -59,9 +59,24 @@ export function useRainRadar(mapInstance) {
 export function RainRadarButton({ enabled, onToggle }) {
   const { lang } = useLanguage();
   const es = lang === "es";
+  const [showLegend, setShowLegend] = useState(false);
+  const [legendClosing, setLegendClosing] = useState(false);
+
+  useEffect(() => {
+    if (enabled) {
+      const t = setTimeout(() => setShowLegend(true), 80);
+      return () => clearTimeout(t);
+    } else {
+      if (showLegend) {
+        setLegendClosing(true);
+        const t = setTimeout(() => { setShowLegend(false); setLegendClosing(false); }, 200);
+        return () => clearTimeout(t);
+      }
+    }
+  }, [enabled]);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "4px" }}>
+    <div style={{ position: "relative" }}>
       <button onClick={onToggle} style={{
         width: 40, height: 40, borderRadius: "50%",
         background: enabled ? "rgba(96,165,250,0.15)" : "rgba(10,15,26,0.9)",
@@ -80,17 +95,20 @@ export function RainRadarButton({ enabled, onToggle }) {
           <line x1="16" y1="16" x2="16" y2="20" />
         </svg>
       </button>
-      {enabled && (
+      {showLegend && (
         <div style={{
+          position: "absolute", top: "calc(100% + 8px)", right: 0,
           background: "rgba(10,15,26,0.92)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)",
           padding: "8px 10px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.08)",
           boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
-          animation: "fadeIn 0.2s ease",
+          transformOrigin: "top right",
+          animation: legendClosing ? "radarLegendOut 0.2s ease forwards" : "radarLegendIn 0.25s cubic-bezier(0.32, 0.72, 0, 1) forwards",
+          whiteSpace: "nowrap",
         }}>
           <div style={{ fontSize: "9px", color: "var(--accent)", fontWeight: 700, letterSpacing: "0.5px", marginBottom: "6px", textTransform: "uppercase" }}>
             {es ? "Precipitación" : "Precipitation"}
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: "3px" }}>
+          <div style={{ display: "flex", alignItems: "center" }}>
             <div style={{ width: 80, height: 8, borderRadius: 4, background: "linear-gradient(90deg, rgba(120,200,255,0.3), #60a5fa, #3b82f6, #facc15, #f97316, #ef4444)", border: "1px solid rgba(255,255,255,0.06)" }} />
           </div>
           <div style={{ display: "flex", justifyContent: "space-between", marginTop: "3px" }}>
@@ -99,6 +117,16 @@ export function RainRadarButton({ enabled, onToggle }) {
           </div>
         </div>
       )}
+      <style>{`
+        @keyframes radarLegendIn {
+          from { opacity: 0; transform: scale(0.9) translateY(-4px); }
+          to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        @keyframes radarLegendOut {
+          from { opacity: 1; transform: scale(1) translateY(0); }
+          to { opacity: 0; transform: scale(0.9) translateY(-4px); }
+        }
+      `}</style>
     </div>
   );
 }
