@@ -2,7 +2,7 @@
 import { useState, useCallback, useEffect, useRef, lazy, Suspense } from "react";
 import { useReports } from "@/lib/useReports";
 import { usePushNotifications, notifyZone } from "@/lib/usePushNotifications";
-import { ZONES, SEVERITY, getZoneSeverity, getZoneReports } from "@/lib/zones";
+import { ZONES, SEVERITY, getZoneSeverity, getZoneReports, getSevLabel } from "@/lib/zones";
 import { LanguageProvider, useLanguage } from "@/lib/LanguageContext";
 import { timeAgoLocalized } from "@/lib/translations";
 import { checkEmergencyMode, getFloodPredictions } from "@/lib/predictions";
@@ -139,78 +139,239 @@ function MoreMenu({ onSelect, lang, onClose }) {
   );
 }
 
-/* ====== BOTTOM SHEET for Zone Detail — swipe to dismiss ====== */
+/* ====== MULTI-SNAP BOTTOM SHEET — peek / half / full ====== */
 function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push, zoneWatchers, prediction, watchZone, unwatchZone, onLogoClick }) {
-  const [dragY, setDragY] = useState(0);
+  const { lang, t } = useLanguage();
+  const es = lang === "es";
+  const sevColor = severity ? SEVERITY[severity].color : "var(--border)";
+
+  // Snap points as % of viewport height (from bottom)
+  const SNAPS = { peek: 22, half: 50, full: 88 };
+  const [snap, setSnap] = useState("peek");
+  const [dragOffset, setDragOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [closing, setClosing] = useState(false);
-  const touchStart = useRef(null);
-  const sheetRef = useRef(null);
+  const touchRef = useRef({ startY: 0, startSnap: 0, lastY: 0, lastTime: 0, velocity: 0 });
   const contentRef = useRef(null);
+  const sheetRef = useRef(null);
+
+  const snapPx = (key) => (SNAPS[key] / 100) * window.innerHeight;
+  const currentHeight = snapPx(snap) + dragOffset;
 
   const animateClose = useCallback(() => {
     if (closing) return;
     setClosing(true);
-    setTimeout(onClose, 280);
+    setTimeout(onClose, 300);
   }, [closing, onClose]);
 
   const handleTouchStart = (e) => {
-    // Only allow drag from the handle area or when scrolled to top
     const scrollTop = contentRef.current?.scrollTop || 0;
-    const touch = e.touches[0];
-    if (scrollTop <= 0) {
-      touchStart.current = touch.clientY;
-      setIsDragging(true);
-    }
+    // If full and scrolled down, don't start drag
+    if (snap === "full" && scrollTop > 5) return;
+    const y = e.touches[0].clientY;
+    touchRef.current = { startY: y, startSnap: snapPx(snap), lastY: y, lastTime: Date.now(), velocity: 0 };
+    setIsDragging(true);
   };
 
   const handleTouchMove = (e) => {
-    if (!isDragging || touchStart.current === null) return;
-    const delta = e.touches[0].clientY - touchStart.current;
-    if (delta > 0) {
-      setDragY(delta);
-      e.preventDefault();
-    } else {
-      setDragY(0);
-    }
+    if (!isDragging) return;
+    const y = e.touches[0].clientY;
+    const now = Date.now();
+    const dt = now - touchRef.current.lastTime;
+    if (dt > 0) touchRef.current.velocity = (touchRef.current.lastY - y) / dt * 1000;
+    touchRef.current.lastY = y;
+    touchRef.current.lastTime = now;
+    const delta = touchRef.current.startY - y; // positive = dragging up
+    const newH = touchRef.current.startSnap + delta;
+    const maxH = snapPx("full");
+    const clampedH = Math.max(0, Math.min(maxH + 40, newH));
+    setDragOffset(clampedH - snapPx(snap));
+    if (delta > 0 || (snap !== "full")) e.preventDefault();
   };
 
   const handleTouchEnd = () => {
-    if (dragY > 120) {
-      animateClose();
-    } else {
-      setDragY(0);
-    }
+    if (!isDragging) return;
     setIsDragging(false);
-    touchStart.current = null;
+    const finalH = currentHeight;
+    const velocity = touchRef.current.velocity; // px/s, positive = upward
+
+    // If dragged below peek threshold, close
+    if (finalH < snapPx("peek") * 0.5) {
+      animateClose();
+      setDragOffset(0);
+      return;
+    }
+
+    // Find nearest snap, biased by velocity
+    const velocityBias = velocity * 0.15;
+    const targets = [
+      { key: "peek", dist: Math.abs(finalH + velocityBias - snapPx("peek")) },
+      { key: "half", dist: Math.abs(finalH + velocityBias - snapPx("half")) },
+      { key: "full", dist: Math.abs(finalH + velocityBias - snapPx("full")) },
+    ];
+
+    // Strong flick up from peek -> go to half, from half -> go to full
+    if (velocity > 600) {
+      if (snap === "peek") { setSnap("half"); setDragOffset(0); return; }
+      if (snap === "half") { setSnap("full"); setDragOffset(0); return; }
+    }
+    // Strong flick down
+    if (velocity < -600) {
+      if (snap === "full") { setSnap("half"); setDragOffset(0); return; }
+      if (snap === "half") { setSnap("peek"); setDragOffset(0); return; }
+      if (snap === "peek") { animateClose(); setDragOffset(0); return; }
+    }
+
+    targets.sort((a, b) => a.dist - b.dist);
+    setSnap(targets[0].key);
+    setDragOffset(0);
   };
 
-  const opacity = closing ? 0 : Math.max(0, 1 - dragY / 400);
-  const translate = closing ? "translateY(100%)" : `translateY(${dragY}px)`;
+  const heightPx = closing ? 0 : currentHeight;
+  const backdropOpacity = closing ? 0 : Math.min(0.6, (heightPx / window.innerHeight) * 0.8);
+  const backdropBlur = Math.min(8, (heightPx / window.innerHeight) * 12);
+  const canScroll = snap === "full" && !isDragging;
+
+  // Data for display
+  const subscribed = push.isSubscribed?.(zone.id);
+  const watcherCount = zoneWatchers?.[zone.id] || 0;
+  const altRoutes = reports.filter(r => r.alt_route && r.alt_route.trim() && (r.severity === "danger" || r.severity === "caution"));
 
   return (
     <>
-      <div className="sheet-backdrop" onClick={animateClose}
-        style={{ opacity, transition: closing ? "opacity 0.3s ease" : (isDragging ? "none" : "opacity 0.3s ease") }} />
-      <div ref={sheetRef} className="sheet-container"
+      {/* Backdrop */}
+      <div onClick={animateClose} style={{
+        position: "fixed", inset: 0, zIndex: 1000,
+        background: `rgba(0,0,0,${backdropOpacity})`,
+        backdropFilter: `blur(${backdropBlur}px)`, WebkitBackdropFilter: `blur(${backdropBlur}px)`,
+        transition: isDragging ? "none" : "all 0.35s cubic-bezier(0.32, 0.72, 0, 1)",
+        pointerEvents: closing ? "none" : "auto",
+      }} />
+
+      {/* Sheet */}
+      <div ref={sheetRef}
         onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd}
         style={{
-          transform: translate,
-          transition: closing ? "transform 0.3s cubic-bezier(0.4, 0, 1, 1)" : (isDragging ? "none" : "transform 0.3s cubic-bezier(0.32, 0.72, 0, 1)"),
+          position: "fixed", left: 0, right: 0, bottom: 0, zIndex: 1001,
+          height: `${heightPx}px`,
+          maxHeight: "92vh",
+          background: "rgba(14,22,40,0.98)",
+          backdropFilter: "blur(24px) saturate(1.5)", WebkitBackdropFilter: "blur(24px) saturate(1.5)",
+          borderRadius: "20px 20px 0 0",
+          boxShadow: "0 -16px 64px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.06)",
+          display: "flex", flexDirection: "column",
+          transition: isDragging ? "none" : "height 0.35s cubic-bezier(0.32, 0.72, 0, 1)",
+          overflow: "hidden",
+          willChange: "height",
         }}>
-        <div className="sheet-handle-area">
-          <div className="sheet-handle" />
+
+        {/* Handle */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "10px 0 4px", flexShrink: 0, cursor: "grab" }}>
+          <div style={{ width: 36, height: 4, borderRadius: 2, background: "rgba(255,255,255,0.15)" }} />
         </div>
-        <div className="sheet-content" ref={contentRef}>
-          <ZoneDetail
-            zone={zone} severity={severity} reports={reports}
-            onBack={animateClose} onReport={onReport} onUpvote={onUpvote}
-            pushSupported={push.supported} isSubscribed={push.isSubscribed}
-            onSubscribe={push.subscribeToZone} onUnsubscribe={push.unsubscribeFromZone}
-            onLogoClick={onLogoClick} zoneWatchers={zoneWatchers}
-            prediction={prediction} onWatchZone={watchZone} onUnwatchZone={unwatchZone}
-            isSheet={true}
-          />
+
+        {/* PEEK CONTENT — always visible */}
+        <div style={{ padding: "4px 20px 12px", flexShrink: 0, borderBottom: snap !== "peek" ? `1px solid ${sevColor}25` : "none" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <div style={{ width: 40, height: 40, borderRadius: "var(--radius-sm)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: severity ? `${sevColor}10` : "rgba(255,255,255,0.03)", border: `1px solid ${severity ? sevColor + "20" : "var(--border)"}` }}>
+              <SeverityIcon severity={severity} size={24} />
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <h2 style={{ margin: 0, fontSize: "17px", fontWeight: 700, letterSpacing: "-0.2px" }}>{zone.name}</h2>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "2px" }}>
+                <span style={{ fontSize: "12px", color: "var(--text-dim)" }}>{zone.area}</span>
+                {severity && <span style={{ fontSize: "11px", fontWeight: 600, color: sevColor, background: `${sevColor}0a`, padding: "2px 8px", borderRadius: "6px" }}>{getSevLabel(severity, lang)}</span>}
+                {reports.length > 0 && <span style={{ fontSize: "11px", color: "var(--text-faint)", fontVariantNumeric: "tabular-nums" }}>{reports.length} {reports.length === 1 ? "report" : es ? "reportes" : "reports"}</span>}
+              </div>
+            </div>
+            <button onClick={animateClose} style={{ width: 30, height: 30, borderRadius: "50%", background: "rgba(255,255,255,0.06)", border: "none", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <svg width="10" height="10" viewBox="0 0 10 10" stroke="var(--text-dim)" strokeWidth="1.5" strokeLinecap="round"><line x1="2" y1="2" x2="8" y2="8"/><line x1="8" y1="2" x2="2" y2="8"/></svg>
+            </button>
+          </div>
+          {/* Peek hint — only in peek mode */}
+          {snap === "peek" && (
+            <div style={{ textAlign: "center", marginTop: "8px", animation: "fadeIn 0.3s ease 0.3s both" }}>
+              <span style={{ fontSize: "11px", color: "var(--text-faint)" }}>{es ? "Desliza hacia arriba para más detalles" : "Swipe up for details"}</span>
+            </div>
+          )}
+        </div>
+
+        {/* HALF + FULL CONTENT — visible above peek */}
+        <div ref={contentRef} style={{
+          flex: 1, overflowY: canScroll ? "auto" : "hidden",
+          WebkitOverflowScrolling: "touch", overscrollBehavior: "contain",
+          opacity: snap === "peek" ? 0 : 1,
+          transition: "opacity 0.25s ease",
+        }}>
+          <div style={{ padding: "14px 20px calc(20px + env(safe-area-inset-bottom, 20px))" }}>
+            {/* Description */}
+            {zone.desc && <p style={{ color: "var(--text-dim)", fontSize: "12px", marginBottom: "14px", lineHeight: 1.5 }}>{es ? zone.desc : (zone.descEn || zone.desc)}</p>}
+
+            {/* Watchers + prediction */}
+            <div style={{ display: "flex", gap: "10px", marginBottom: "14px", flexWrap: "wrap" }}>
+              {watcherCount > 1 && (
+                <div style={{ display: "flex", alignItems: "center", gap: "5px", fontSize: "12px", color: "var(--text-dim)" }}>
+                  <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--safe)", animation: "blink 2s ease infinite" }} />
+                  {watcherCount} {es ? "monitoreando" : "watching"}
+                </div>
+              )}
+              {prediction && prediction.score >= 20 && !severity && (
+                <div style={{ fontSize: "12px", fontWeight: 600, color: prediction.score >= 70 ? "var(--danger)" : prediction.score >= 40 ? "var(--caution)" : "var(--accent)" }}>
+                  {prediction.score}% {es ? "probabilidad" : "probability"}
+                </div>
+              )}
+            </div>
+
+            {/* Action buttons */}
+            <button onClick={onReport} style={{ width: "100%", padding: "14px", marginBottom: "12px", background: "linear-gradient(135deg, #D42A2A, #b91c1c)", color: "#fff", border: "none", borderRadius: "var(--radius-md)", fontSize: "15px", fontWeight: 700, boxShadow: "0 6px 20px rgba(212,42,42,0.25)" }}>{t.reportThisZone}</button>
+
+            <div style={{ display: "flex", gap: "8px", marginBottom: "20px" }}>
+              {push.supported && (
+                <button onClick={() => { const ns = !subscribed; if (navigator.vibrate) navigator.vibrate(50); if (ns) push.subscribeToZone?.(zone.id); else push.unsubscribeFromZone?.(zone.id); }} className="tap-target" style={{ flex: 1, padding: "10px", borderRadius: "var(--radius-md)", background: subscribed ? "rgba(91,156,246,0.08)" : "rgba(255,255,255,0.02)", border: `1px solid ${subscribed ? "rgba(91,156,246,0.15)" : "var(--border)"}`, color: subscribed ? "var(--accent)" : "var(--text-dim)", fontSize: "12px", fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
+                  <BellIcon size={14} color={subscribed ? "var(--accent)" : "var(--text-dim)"} />
+                  {subscribed ? (es ? "Suscrito" : "Subscribed") : (es ? "Notificarme" : "Notify me")}
+                </button>
+              )}
+            </div>
+
+            {/* Alt routes */}
+            {altRoutes.length > 0 && (
+              <div style={{ marginBottom: "20px", background: "rgba(34,197,94,0.04)", border: "1px solid rgba(34,197,94,0.12)", borderRadius: "var(--radius-md)", padding: "12px 14px" }}>
+                <div style={{ fontSize: "10px", color: "var(--safe)", textTransform: "uppercase", letterSpacing: "1.5px", fontWeight: 700, marginBottom: "8px" }}>
+                  {es ? "Rutas alternas" : "Alternate routes"}
+                </div>
+                {altRoutes.slice(0, 3).map((r, i) => (
+                  <div key={r.id} style={{ padding: "6px 0", borderTop: i > 0 ? "1px solid rgba(34,197,94,0.08)" : "none", fontSize: "13px", color: "var(--text-secondary)", lineHeight: 1.5 }}>
+                    <span style={{ color: "var(--safe)", fontWeight: 700, marginRight: "6px" }}>↗</span>{r.alt_route}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Reports */}
+            <div style={{ fontSize: "10px", color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "1.5px", marginBottom: "12px", fontWeight: 600 }}>{t.recentReports} ({reports.length})</div>
+            {!reports.length && (
+              <div style={{ textAlign: "center", padding: "16px 0 24px" }}>
+                <p style={{ color: "var(--text-dim)", fontSize: "14px", fontWeight: 500 }}>{es ? "Todo tranquilo por aquí" : "All quiet here"}</p>
+                <p style={{ color: "var(--text-faint)", fontSize: "12px", marginTop: "4px" }}>{es ? "No hay reportes en las últimas 4 horas" : "No reports in the last 4 hours"}</p>
+              </div>
+            )}
+            {reports.map((r, i) => {
+              const cfg = SEVERITY[r.severity];
+              return (
+                <div key={r.id} className={`card-interactive card-accent-${r.severity}`} style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: "var(--radius-md)", padding: "14px", marginBottom: "8px", animation: `fadeIn 0.2s ease ${i * 0.04}s both` }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: 8 }}>
+                    <SeverityIcon severity={r.severity} size={16} />
+                    <span style={{ fontSize: "12px", fontWeight: 600, color: cfg.color }}>{getSevLabel(r.severity, lang)}</span>
+                    <span style={{ flex: 1 }} />
+                    <span style={{ fontSize: "11px", color: "var(--text-faint)" }}>{timeAgoLocalized(r.created_at, lang)}</span>
+                  </div>
+                  {r.text && <p style={{ margin: "0 0 8px", fontSize: "14px", lineHeight: 1.55, color: "var(--text-secondary)" }}>{r.text}</p>}
+                  {r.photo_url && <div style={{ marginBottom: "10px", borderRadius: "var(--radius-sm)", overflow: "hidden", border: "1px solid var(--border)" }}><img src={r.photo_url} alt="" style={{ width: "100%", maxHeight: 200, objectFit: "cover", display: "block" }} loading="lazy" /></div>}
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
     </>
