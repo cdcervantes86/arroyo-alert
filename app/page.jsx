@@ -426,7 +426,7 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
   const peekH = snapPx("peek"), fullH = snapPx("full");
   const expansion = Math.max(0, Math.min(1, (heightPx - peekH) / (fullH - peekH)));
   const sheetMargin = Math.round(12 * (1 - expansion));
-  const sheetRadius = Math.round(24 - expansion * 16);
+  const sheetRadius = Math.round(32 - expansion * 20);
 
   return (
     <>
