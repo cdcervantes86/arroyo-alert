@@ -57,34 +57,28 @@ export default function WeeklyDigest({ onClose, onZoneClick }) {
     fetchWeekly();
   }, [es]);
 
-  if (loading) {
-    return (
-      <div style={{ position: "fixed", inset: 0, zIndex: 1100, background: "rgba(0,0,0,0.85)", backdropFilter: "blur(12px)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ color: "var(--text-dim)", fontSize: "14px", animation: "blink 1s ease infinite" }}>
+  return (
+    <div style={{ position: "fixed", inset: 0, zIndex: 1100, display: "flex", alignItems: "center", justifyContent: "center", padding: "16px" }}>
+      {/* Persistent backdrop — never re-mounts */}
+      <div onClick={onClose} style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.6)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", animation: "fadeIn 0.2s ease" }} />
+
+      {loading ? (
+        <div style={{ position: "relative", zIndex: 1, color: "var(--text-dim)", fontSize: "14px", animation: "blink 1s ease infinite" }}>
           {es ? "Cargando resumen..." : "Loading digest..."}
         </div>
-      </div>
-    );
-  }
-
-  if (!data || data.totalReports === 0) {
-    return (
-      <div style={{ position: "fixed", inset: 0, zIndex: 1100, background: "rgba(0,0,0,0.85)", backdropFilter: "blur(12px)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "20px" }}>
-        <span style={{ fontSize: "48px", marginBottom: "16px" }}>📊</span>
-        <h3 style={{ fontSize: "18px", fontWeight: 700, marginBottom: "8px" }}>{es ? "Sin actividad esta semana" : "No activity this week"}</h3>
-        <p style={{ fontSize: "13px", color: "var(--text-dim)", marginBottom: "24px", textAlign: "center" }}>
-          {es ? "No se han registrado reportes en los últimos 7 días" : "No reports recorded in the last 7 days"}
-        </p>
-        <button onClick={onClose} style={{ padding: "12px 32px", borderRadius: "var(--radius-md)", background: "rgba(255,255,255,0.06)", border: "1px solid var(--border)", color: "var(--text-secondary)", fontSize: "14px", fontWeight: 600 }}>
-          {es ? "Cerrar" : "Close"}
-        </button>
-      </div>
-    );
-  }
-
-  return (
-    <div style={{ position: "fixed", inset: 0, zIndex: 1100, background: "rgba(0,0,0,0.85)", backdropFilter: "blur(12px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "16px", animation: "fadeIn 0.2s ease" }}>
-      <div style={{ width: "100%", maxWidth: 380, background: "var(--bg-elevated)", borderRadius: "var(--radius-xl)", border: "1px solid var(--border)", overflow: "hidden", animation: "slideUp 0.3s ease" }}>
+      ) : !data || data.totalReports === 0 ? (
+        <div style={{ position: "relative", zIndex: 1, textAlign: "center", animation: "fadeIn 0.2s ease" }}>
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--text-faint)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: "16px", opacity: 0.5 }}><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>
+          <h3 style={{ fontSize: "18px", fontWeight: 700, marginBottom: "8px", color: "var(--text)" }}>{es ? "Sin actividad esta semana" : "No activity this week"}</h3>
+          <p style={{ fontSize: "13px", color: "var(--text-dim)", marginBottom: "24px" }}>
+            {es ? "No se han registrado reportes en los últimos 7 días" : "No reports recorded in the last 7 days"}
+          </p>
+          <button onClick={onClose} style={{ padding: "12px 32px", borderRadius: "var(--radius-md)", background: "rgba(255,255,255,0.06)", border: "1px solid var(--border)", color: "var(--text-secondary)", fontSize: "14px", fontWeight: 600 }}>
+            {es ? "Cerrar" : "Close"}
+          </button>
+        </div>
+      ) : (
+      <div style={{ position: "relative", zIndex: 1, width: "100%", maxWidth: 380, background: "var(--bg-elevated)", borderRadius: "var(--radius-xl)", border: "1px solid var(--border)", overflow: "hidden", animation: "desktopModalIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", willChange: "transform, opacity" }}>
         {/* Header */}
         <div style={{ padding: "24px 24px 16px", background: "linear-gradient(135deg, rgba(91,156,246,0.06), rgba(34,197,94,0.04))" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "4px" }}>
@@ -177,6 +171,7 @@ export default function WeeklyDigest({ onClose, onZoneClick }) {
           </div>
         </div>
       </div>
+      )}
     </div>
   );
 }
