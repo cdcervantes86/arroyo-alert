@@ -58,7 +58,7 @@ export default function ReportFlow({ zones, reports, initialZoneId, onSubmit, on
   return (
     <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "var(--bg)", overflow: "auto" }}>
       {/* Header */}
-      <div style={{ padding: "12px 16px", display: "flex", alignItems: "center", gap: "10px", borderBottom: "1px solid var(--border)", flexShrink: 0, background: "rgba(10,15,26,0.95)", backdropFilter: "blur(20px) saturate(1.5)", WebkitBackdropFilter: "blur(20px) saturate(1.5)", boxShadow: "0 1px 0 var(--border), 0 4px 16px rgba(0,0,0,0.15)" }}>
+      <div style={{ padding: "12px 16px", display: "flex", alignItems: "center", gap: "10px", borderBottom: "1px solid rgba(255,255,255,0.04)", flexShrink: 0, background: "#0a0f1a", boxShadow: "0 1px 0 rgba(255,255,255,0.02), 0 4px 20px rgba(0,0,0,0.2)" }}>
         <button onClick={onLogoClick} style={{ display: "flex", alignItems: "center", gap: "8px", background: "none", border: "none", padding: 0, cursor: "pointer" }}>
           <svg width={22} height={22} viewBox="0 0 512 512" style={{ borderRadius: 5 }}><defs><linearGradient id="lBg2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor="#14261a" /><stop offset="100%" stopColor="#0a1210" /></linearGradient></defs><rect width="512" height="512" rx="112" fill="url(#lBg2)" /><path d="M60 210 Q130 160 200 210 Q270 260 340 210 Q410 160 460 210" fill="none" stroke="#D42A2A" strokeWidth="28" strokeLinecap="round" opacity="0.9" /><path d="M60 290 Q130 240 200 290 Q270 340 340 290 Q410 240 460 290" fill="none" stroke="#F5D033" strokeWidth="28" strokeLinecap="round" opacity="0.85" /><path d="M60 370 Q130 320 200 370 Q270 420 340 370 Q410 320 460 370" fill="none" stroke="#2d8a2d" strokeWidth="28" strokeLinecap="round" opacity="0.75" /></svg>
           <span style={{ fontSize: "14px", fontWeight: 700, color: "var(--text)" }}>Alerta<span style={{ color: "var(--baq-yellow)" }}>Arroyo</span></span>
@@ -67,12 +67,12 @@ export default function ReportFlow({ zones, reports, initialZoneId, onSubmit, on
         <span style={{ flex: 1, textAlign: "center", fontSize: "12px", color: "var(--text-faint)", fontWeight: 600, letterSpacing: "0.5px" }}>
           {t.step} {step + 1} / 3
         </span>
-        <button onClick={goBack} style={{ background: "none", border: "none", color: "var(--accent)", fontSize: "14px", fontWeight: 600 }}>{t.back}</button>
+        <button onClick={goBack} style={{ background: "none", border: "none", color: "var(--accent)", fontSize: "14px", fontWeight: 600, display: "flex", alignItems: "center", gap: "4px" }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>{t.back}</button>
       </div>
 
       {/* Progress */}
-      <div style={{ height: 2, background: "rgba(255,255,255,0.02)", flexShrink: 0 }}>
-        <div style={{ height: "100%", background: "var(--accent)", width: `${((step + 1) / 3) * 100}%`, transition: "width 0.4s cubic-bezier(0.4,0,0.2,1)", borderRadius: "0 2px 2px 0" }} />
+      <div style={{ height: 3, background: "rgba(255,255,255,0.03)", flexShrink: 0 }}>
+        <div style={{ height: "100%", background: "var(--accent)", width: `${((step + 1) / 3) * 100}%`, transition: "width 0.45s cubic-bezier(0.34, 1.4, 0.64, 1)", borderRadius: "0 3px 3px 0", boxShadow: "0 0 8px rgba(91,156,246,0.3)" }} />
       </div>
 
       <div style={{ padding: "24px 20px", flex: 1, overflowY: "auto", maxWidth: 520, margin: "0 auto", width: "100%" }}>
@@ -84,13 +84,22 @@ export default function ReportFlow({ zones, reports, initialZoneId, onSubmit, on
               {zones.map((z, i) => {
                 const sv = getZoneSeverity(z.id, reports);
                 return (
-                  <button key={z.id} onClick={() => { setZoneId(z.id); setStep(1); }} className="card-interactive" style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: "var(--radius-md)", padding: "13px 14px", display: "flex", alignItems: "center", gap: "12px", textAlign: "left", animation: `fadeIn 0.2s ease ${i * 0.02}s both` }}>
-                    <SeverityIcon severity={sv} size={18} />
-                    <div style={{ flex: 1 }}>
-                      <div style={{ color: "var(--text)", fontSize: "14px", fontWeight: 600 }}>{z.name} <span style={{ fontWeight: 400, color: "var(--text-dim)" }}>({z.area})</span></div>
-                      <div style={{ color: "var(--text-faint)", fontSize: "11px", marginTop: 2 }}>{z.desc}</div>
+                  <button key={z.id} onClick={() => { setZoneId(z.id); setStep(1); }} className="card-interactive" style={{
+                    background: sv ? `${SEVERITY[sv].color}04` : "rgba(255,255,255,0.02)",
+                    border: `1px solid ${sv ? SEVERITY[sv].color + "15" : "var(--border)"}`,
+                    borderRadius: "var(--radius-lg)", padding: "14px 16px",
+                    display: "flex", alignItems: "center", gap: "14px", textAlign: "left",
+                    animation: `fadeIn 0.2s ease ${i * 0.02}s both`, position: "relative", overflow: "hidden",
+                  }}>
+                    {sv && <div style={{ position: "absolute", left: 0, top: "15%", bottom: "15%", width: 3, borderRadius: "0 2px 2px 0", background: SEVERITY[sv].color }} />}
+                    <div style={{ width: 38, height: 38, borderRadius: "var(--radius-md)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: sv ? `${SEVERITY[sv].color}0a` : "rgba(255,255,255,0.03)", border: `1px solid ${sv ? SEVERITY[sv].color + "18" : "rgba(255,255,255,0.06)"}` }}>
+                      <SeverityIcon severity={sv} size={20} />
                     </div>
-                    <span style={{ color: "var(--text-faint)", fontSize: "14px" }}>›</span>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ color: "var(--text)", fontSize: "15px", fontWeight: 700, letterSpacing: "-0.2px" }}>{z.name}</div>
+                      <div style={{ color: "var(--text-dim)", fontSize: "12px", marginTop: 2 }}>{z.area}</div>
+                    </div>
+                    <svg width="7" height="12" viewBox="0 0 7 12" fill="none" style={{ flexShrink: 0, opacity: 0.15 }}><path d="M1 1l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
                   </button>
                 );
               })}
