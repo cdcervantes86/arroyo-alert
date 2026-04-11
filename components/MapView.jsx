@@ -44,6 +44,51 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
     map.addControl(new mapboxgl.AttributionControl({ compact: true }), "bottom-left");
 
     map.on("load", () => {
+      // === CUSTOM MAP STYLE — match app's dark theme ===
+      // Water — deep navy matching our bg
+      map.setPaintProperty("water", "fill-color", "#080e1c");
+      // Land background — slightly lighter than water
+      try { map.setPaintProperty("land", "background-color", "#0c1322"); } catch(e) {}
+      // Buildings — very subtle
+      try {
+        map.setPaintProperty("building", "fill-color", "rgba(255,255,255,0.02)");
+        map.setPaintProperty("building", "fill-outline-color", "rgba(255,255,255,0.03)");
+      } catch(e) {}
+      // Roads — dim, just enough to navigate
+      const roadLayers = map.getStyle().layers.filter(l => l.id.includes("road") && l.type === "line");
+      roadLayers.forEach(l => {
+        try {
+          if (l.id.includes("major") || l.id.includes("trunk") || l.id.includes("primary")) {
+            map.setPaintProperty(l.id, "line-color", "rgba(255,255,255,0.08)");
+          } else if (l.id.includes("street") || l.id.includes("secondary")) {
+            map.setPaintProperty(l.id, "line-color", "rgba(255,255,255,0.04)");
+          } else {
+            map.setPaintProperty(l.id, "line-color", "rgba(255,255,255,0.03)");
+          }
+        } catch(e) {}
+      });
+      // Labels — subtle, match our text colors
+      const labelLayers = map.getStyle().layers.filter(l => l.type === "symbol" && l.id.includes("label"));
+      labelLayers.forEach(l => {
+        try {
+          if (l.id.includes("place") || l.id.includes("poi")) {
+            map.setPaintProperty(l.id, "text-color", "rgba(255,255,255,0.35)");
+            map.setPaintProperty(l.id, "text-halo-color", "rgba(8,14,28,0.9)");
+            map.setPaintProperty(l.id, "text-halo-width", 1.5);
+          } else if (l.id.includes("road")) {
+            map.setPaintProperty(l.id, "text-color", "rgba(255,255,255,0.2)");
+            map.setPaintProperty(l.id, "text-halo-color", "rgba(8,14,28,0.8)");
+          }
+        } catch(e) {}
+      });
+      // Parks/green areas — very dark green
+      const parkLayers = map.getStyle().layers.filter(l => l.id.includes("park") || l.id.includes("landuse"));
+      parkLayers.forEach(l => {
+        try {
+          if (l.type === "fill") map.setPaintProperty(l.id, "fill-color", "rgba(34,197,94,0.03)");
+        } catch(e) {}
+      });
+
       // Add arroyo corridor lines
       map.addSource("arroyo-corridors", {
         type: "geojson",
@@ -183,8 +228,8 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
       const dot = document.createElement("div");
       dot.style.cssText = `
         width: ${size}px; height: ${size}px; border-radius: 50%;
-        background: ${col}; border: 2px solid rgba(255,255,255,0.6);
-        box-shadow: 0 0 12px ${col}60;
+        background: ${col}; border: 1.5px solid rgba(255,255,255,0.5);
+        box-shadow: 0 0 ${size}px ${col}50, 0 0 ${size * 2}px ${col}20;
         position: relative;
       `;
       el.appendChild(dot);
@@ -247,7 +292,7 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
   if (mapError) {
     return (
       <div style={{ width: "100%", height: "100%", background: "#070b14", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "20px", textAlign: "center" }}>
-        <span style={{ fontSize: "32px", marginBottom: "12px" }}>🗺️</span>
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: "12px" }}><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" /><line x1="8" y1="2" x2="8" y2="18" /><line x1="16" y1="6" x2="16" y2="22" /></svg>
         <p style={{ fontSize: "14px", color: "var(--text-secondary)", marginBottom: "8px" }}>Map could not load on this device</p>
         <p style={{ fontSize: "12px", color: "var(--text-faint)" }}>Switch to the Zones tab to see arroyo alerts</p>
       </div>
@@ -281,6 +326,28 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
         }
         .mapboxgl-ctrl-attrib a {
           color: rgba(255,255,255,0.3) !important;
+        }
+        .mapboxgl-ctrl-group {
+          background: rgba(10,15,26,0.85) !important;
+          border: 1px solid rgba(255,255,255,0.08) !important;
+          border-radius: 8px !important;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+          backdrop-filter: blur(12px) !important;
+          -webkit-backdrop-filter: blur(12px) !important;
+          overflow: hidden !important;
+        }
+        .mapboxgl-ctrl-group button {
+          background: transparent !important;
+          border-color: rgba(255,255,255,0.06) !important;
+        }
+        .mapboxgl-ctrl-group button + button {
+          border-top: 1px solid rgba(255,255,255,0.06) !important;
+        }
+        .mapboxgl-ctrl-group button .mapboxgl-ctrl-icon {
+          filter: invert(1) brightness(0.6) !important;
+        }
+        .mapboxgl-ctrl-group button:hover .mapboxgl-ctrl-icon {
+          filter: invert(1) brightness(0.9) !important;
         }
       `}</style>
     </>
