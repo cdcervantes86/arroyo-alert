@@ -145,7 +145,7 @@ export default function ReportFlow({ zones, reports, initialZoneId, onSubmit, on
                 </div>
               ) : (
                 <button onClick={() => fileInputRef.current?.click()} style={{ width: "100%", padding: "16px", borderRadius: "var(--radius-md)", background: "rgba(255,255,255,0.015)", border: "1px dashed var(--border-light)", color: "var(--text-dim)", fontSize: "14px", fontWeight: 500, display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", cursor: "pointer" }}>
-                  📸 {es ? "Agregar foto (opcional)" : "Add photo (optional)"}
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg> {es ? "Agregar foto (opcional)" : "Add photo (optional)"}
                 </button>
               )}
             </div>
@@ -154,7 +154,7 @@ export default function ReportFlow({ zones, reports, initialZoneId, onSubmit, on
             {(severity === "danger" || severity === "caution") && (
               <div style={{ marginTop: "16px" }}>
                 <label style={{ fontSize: "13px", fontWeight: 600, color: "var(--safe)", display: "flex", alignItems: "center", gap: "6px", marginBottom: "8px" }}>
-                  🛣️ {es ? "Ruta alterna (opcional)" : "Alternate route (optional)"}
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="6" cy="19" r="3"/><circle cx="18" cy="5" r="3"/><path d="M12 19h4.5a3.5 3.5 0 000-7h-8a3.5 3.5 0 010-7H12"/></svg> {es ? "Ruta alterna (opcional)" : "Alternate route (optional)"}
                 </label>
                 <textarea value={altRoute} onChange={(e) => setAltRoute(e.target.value)}
                   placeholder={es ? "Ej: Usa la Calle 30 como alternativa, o desvíate por la Cra 46..." : "E.g. Use Calle 30 as alternative, or detour via Cra 46..."}
@@ -167,13 +167,13 @@ export default function ReportFlow({ zones, reports, initialZoneId, onSubmit, on
             <div style={{ marginTop: 20, background: "rgba(255,255,255,0.015)", borderRadius: "var(--radius-md)", padding: "16px", border: "1px solid var(--border)" }}>
               <div style={{ fontSize: "10px", color: "var(--text-faint)", marginBottom: 10, textTransform: "uppercase", letterSpacing: "1.5px", fontWeight: 600 }}>{t.reportSummary}</div>
               <div style={{ fontSize: "14px", marginBottom: 6, display: "flex", alignItems: "center", gap: "6px" }}>
-                📍 {zones.find((z) => z.id === zoneId)?.name} ({zones.find((z) => z.id === zoneId)?.area})
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg> {zones.find((z) => z.id === zoneId)?.name} ({zones.find((z) => z.id === zoneId)?.area})
               </div>
               <div style={{ fontSize: "14px", color: severity ? SEVERITY[severity].color : "var(--text)", display: "flex", alignItems: "center", gap: "6px" }}>
                 {severity ? <SeverityIcon severity={severity} size={16} /> : ""} {severity ? getSevLabel(severity, lang) : ""}
               </div>
-              {altRoute.trim() && <div style={{ fontSize: "12px", color: "var(--safe)", marginTop: 6, display: "flex", alignItems: "center", gap: "5px" }}>🛣️ {altRoute.trim()}</div>}
-              {photo && <div style={{ fontSize: "12px", color: "var(--text-dim)", marginTop: 6 }}>📸 1 {es ? "foto adjunta" : "photo attached"}</div>}
+              {altRoute.trim() && <div style={{ fontSize: "12px", color: "var(--safe)", marginTop: 6, display: "flex", alignItems: "center", gap: "5px" }}><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="6" cy="19" r="3"/><circle cx="18" cy="5" r="3"/><path d="M12 19h4.5a3.5 3.5 0 000-7h-8a3.5 3.5 0 010-7H12"/></svg>{altRoute.trim()}</div>}
+              {photo && <div style={{ fontSize: "12px", color: "var(--text-dim)", marginTop: 6 }}><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" style={{ verticalAlign: "middle", marginRight: 4 }}><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>1 {es ? "foto adjunta" : "photo attached"}</div>}
             </div>
 
             <button onClick={handleSubmit} disabled={submitting} style={{

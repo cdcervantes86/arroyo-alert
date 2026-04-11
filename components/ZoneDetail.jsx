@@ -106,7 +106,7 @@ export default function ZoneDetail({ zone, severity, reports, onBack, onReport, 
           )}
           {prediction && prediction.score >= 20 && !severity && (
             <div style={{ display: "flex", alignItems: "center", gap: "5px", fontSize: "12px", fontWeight: 600, color: prediction.score >= 70 ? "var(--danger)" : prediction.score >= 40 ? "var(--caution)" : "var(--accent)" }}>
-              🧠 {prediction.score}% {es ? "probabilidad de arroyo" : "flood probability"}
+              {prediction.score}% {es ? "probabilidad de arroyo" : "flood probability"}
             </div>
           )}
         </div>

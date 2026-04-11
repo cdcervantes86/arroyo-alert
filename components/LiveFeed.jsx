@@ -5,6 +5,7 @@ import { useLanguage } from "@/lib/LanguageContext";
 import { timeAgoLocalized } from "@/lib/translations";
 import ShareCard from "./ShareCard";
 import CommentThread from "./CommentThread";
+import { SeverityIcon } from "./SeverityIcon";
 
 function Countdown({ createdAt }) {
   const [, tick] = useState(0);
@@ -92,7 +93,7 @@ export default function LiveFeed({ reports, onZoneClick, onUpvote, upvotedSet, o
               }} onClick={() => onZoneClick?.(zone.id)}>
                 {/* Header row */}
                 <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "10px" }}>
-                  <span style={{ fontSize: "15px" }}>{cfg.emoji}</span>
+                  <SeverityIcon severity={r.severity} size={18} />
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: "14px", fontWeight: 700, color: "var(--text)", letterSpacing: "-0.2px" }}>
                       {zone.name}
