@@ -53,6 +53,10 @@ export default function CommentThread({ reportId, allDeviceCounts }) {
   useEffect(() => {
     if (!expanded) return;
     fetchComments();
+    // Auto-scroll the thread into view
+    setTimeout(() => {
+      threadRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }, 100);
 
     const channel = supabase
       .channel(`comments-${reportId}`)
@@ -195,7 +199,7 @@ export default function CommentThread({ reportId, allDeviceCounts }) {
           {/* Input */}
           <div style={{
             display: "flex", gap: "8px", alignItems: "center",
-            marginTop: "8px", paddingBottom: "4px",
+            marginTop: "8px", paddingBottom: "env(safe-area-inset-bottom, 20px)",
           }}>
             <input
               ref={inputRef}

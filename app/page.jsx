@@ -187,6 +187,7 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
   // === DESKTOP: Side panel (map view) or centered modal (list view) ===
   if (isDesktop) {
     const isSidePanel = desktopView === "map";
+    const handleDesktopClose = () => { if (closing) return; setClosing(true); setTimeout(onClose, 280); };
 
     const subscribed = push.isSubscribed?.(zone.id);
     const watcherCount = zoneWatchers?.[zone.id] || 0;
@@ -207,7 +208,7 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
                 {severity && <span style={{ fontSize: "11px", fontWeight: 600, color: sevColor, background: `${sevColor}0a`, padding: "2px 8px", borderRadius: "6px" }}>{getSevLabel(severity, lang)}</span>}
               </div>
             </div>
-            <button onClick={onClose} className="tap-target" style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(255,255,255,0.06)", border: "none", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <button onClick={handleDesktopClose} className="tap-target" style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(255,255,255,0.06)", border: "none", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
               <svg width="10" height="10" viewBox="0 0 10 10" stroke="var(--text-dim)" strokeWidth="1.5" strokeLinecap="round"><line x1="2" y1="2" x2="8" y2="8"/><line x1="8" y1="2" x2="2" y2="8"/></svg>
             </button>
           </div>
@@ -276,8 +277,8 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
                 {r.text && <p style={{ margin: "0 0 8px", fontSize: "14px", lineHeight: 1.55, color: "var(--text-secondary)" }}>{r.text}</p>}
                 {r.photo_url && <div style={{ marginBottom: "10px", borderRadius: "var(--radius-sm)", overflow: "hidden", border: "1px solid var(--border)" }}><img src={r.photo_url} alt="" style={{ width: "100%", maxHeight: 200, objectFit: "cover", display: "block" }} loading="lazy" /></div>}
                 {!r.text && !r.photo_url && <div style={{ marginBottom: "8px" }} />}
-                <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
-                  <button onClick={() => handleUpvote(r)} className="tap-target" style={{ background: upvoted.has(r.id) ? "var(--accent-glow)" : "rgba(255,255,255,0.02)", border: `1px solid ${upvoted.has(r.id) ? "rgba(91,156,246,0.15)" : "var(--border)"}`, borderRadius: "var(--radius-sm)", padding: "6px 12px", color: upvoted.has(r.id) ? "var(--accent)" : "var(--text-dim)", fontSize: "12px", display: "flex", alignItems: "center", gap: "6px", fontWeight: 500 }}><svg width="13" height="13" viewBox="0 0 24 24" fill={upvoted.has(r.id) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14z"/><path d="M7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg>{upvoted.has(r.id) ? (es ? "Confirmado" : "Confirmed") : (es ? "Confirmar" : "Confirm")} · {r.upvotes + (upvoted.has(r.id) ? 1 : 0)}</button>
+                <div style={{ display: "flex", gap: "6px", alignItems: "center", flexWrap: "wrap" }}>
+                  <button onClick={() => handleUpvote(r)} className="tap-target" style={{ background: upvoted.has(r.id) ? "var(--accent-glow)" : "rgba(255,255,255,0.02)", border: `1px solid ${upvoted.has(r.id) ? "rgba(91,156,246,0.15)" : "var(--border)"}`, borderRadius: "var(--radius-sm)", padding: "6px 12px", color: upvoted.has(r.id) ? "var(--accent)" : "var(--text-dim)", fontSize: "12px", display: "inline-flex", alignItems: "center", gap: "6px", fontWeight: 500, flexShrink: 0 }}><svg width="13" height="13" viewBox="0 0 24 24" fill={upvoted.has(r.id) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14z"/><path d="M7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg>{upvoted.has(r.id) ? (es ? "Confirmado" : "Confirmed") : (es ? "Confirmar" : "Confirm")} · {r.upvotes + (upvoted.has(r.id) ? 1 : 0)}</button>
                   <CommentThread reportId={r.id} allDeviceCounts={deviceCounts} />
                 </div>
               </div>
@@ -291,13 +292,13 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
     if (isSidePanel) {
       return (
         <>
-          <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 999, pointerEvents: "auto" }} />
+          <div onClick={handleDesktopClose} style={{ position: "fixed", inset: 0, zIndex: 999, pointerEvents: "auto", background: closing ? "transparent" : "rgba(0,0,0,0.15)", transition: "background 0.25s ease" }} />
           <div style={{
             position: "fixed", top: 0, right: 0, bottom: 0, width: 400, zIndex: 1001,
             background: "rgba(14,22,40,0.98)", backdropFilter: "blur(24px) saturate(1.5)",
             borderLeft: "1px solid var(--border)",
             boxShadow: "-12px 0 48px rgba(0,0,0,0.4)",
-            animation: "desktopPanelIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)",
+            animation: closing ? "desktopPanelOut 0.25s ease forwards" : "desktopPanelIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)",
             display: "flex", flexDirection: "column",
           }}>
             {panelContent}
@@ -309,10 +310,10 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
     // MODAL — list view
     return (
       <>
-        <div onClick={onClose} style={{
+        <div onClick={handleDesktopClose} style={{
           position: "fixed", inset: 0, zIndex: 1000,
           background: "rgba(0,0,0,0.5)", backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)",
-          animation: "fadeIn 0.2s ease",
+          animation: closing ? "menuBackdropOut 0.25s ease forwards" : "fadeIn 0.2s ease",
         }} />
         <div style={{
           position: "fixed", top: "50%", left: "50%", transform: "translate(-50%, -50%)", zIndex: 1001,
@@ -320,7 +321,7 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
           background: "rgba(14,22,40,0.98)", backdropFilter: "blur(24px) saturate(1.5)",
           borderRadius: "var(--radius-xl)", border: "1px solid rgba(255,255,255,0.08)",
           boxShadow: "0 24px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04)",
-          animation: "desktopModalIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)",
+          animation: closing ? "desktopModalOut 0.25s ease forwards" : "desktopModalIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)",
           display: "flex", flexDirection: "column", overflow: "hidden",
         }}>
           {panelContent}
@@ -560,8 +561,8 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
                   {r.text && <p style={{ margin: "0 0 8px", fontSize: "14px", lineHeight: 1.55, color: "var(--text-secondary)" }}>{r.text}</p>}
                   {r.photo_url && <div style={{ marginBottom: "10px", borderRadius: "var(--radius-sm)", overflow: "hidden", border: "1px solid var(--border)" }}><img src={r.photo_url} alt="" style={{ width: "100%", maxHeight: 200, objectFit: "cover", display: "block" }} loading="lazy" /></div>}
                   {!r.text && !r.photo_url && <div style={{ marginBottom: "8px" }} />}
-                  <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
-                    <button onClick={() => handleUpvote(r)} className="tap-target" style={{ background: upvoted.has(r.id) ? "var(--accent-glow)" : "rgba(255,255,255,0.02)", border: `1px solid ${upvoted.has(r.id) ? "rgba(91,156,246,0.15)" : "var(--border)"}`, borderRadius: "var(--radius-sm)", padding: "6px 12px", color: upvoted.has(r.id) ? "var(--accent)" : "var(--text-dim)", fontSize: "12px", display: "flex", alignItems: "center", gap: "6px", fontWeight: 500 }}><svg width="13" height="13" viewBox="0 0 24 24" fill={upvoted.has(r.id) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14z"/><path d="M7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg>{upvoted.has(r.id) ? (es ? "Confirmado" : "Confirmed") : (es ? "Confirmar" : "Confirm")} · {r.upvotes + (upvoted.has(r.id) ? 1 : 0)}</button>
+                  <div style={{ display: "flex", gap: "6px", alignItems: "center", flexWrap: "wrap" }}>
+                    <button onClick={() => handleUpvote(r)} className="tap-target" style={{ background: upvoted.has(r.id) ? "var(--accent-glow)" : "rgba(255,255,255,0.02)", border: `1px solid ${upvoted.has(r.id) ? "rgba(91,156,246,0.15)" : "var(--border)"}`, borderRadius: "var(--radius-sm)", padding: "6px 12px", color: upvoted.has(r.id) ? "var(--accent)" : "var(--text-dim)", fontSize: "12px", display: "inline-flex", alignItems: "center", gap: "6px", fontWeight: 500, flexShrink: 0 }}><svg width="13" height="13" viewBox="0 0 24 24" fill={upvoted.has(r.id) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14z"/><path d="M7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg>{upvoted.has(r.id) ? (es ? "Confirmado" : "Confirmed") : (es ? "Confirmar" : "Confirm")} · {r.upvotes + (upvoted.has(r.id) ? 1 : 0)}</button>
                     <CommentThread reportId={r.id} allDeviceCounts={deviceCounts} />
                   </div>
                 </div>

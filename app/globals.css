@@ -146,6 +146,14 @@ button:active { transform: scale(0.97); opacity: 0.85; }
   from { opacity: 0; transform: translate(-50%, -48%) scale(0.96); }
   to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 }
+@keyframes desktopModalOut {
+  from { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  to { opacity: 0; transform: translate(-50%, -48%) scale(0.96); }
+}
+@keyframes desktopPanelOut {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(100%); opacity: 0; }
+}
 @keyframes slideUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes menuSlideOut { from { opacity: 1; transform: scale(1) translateY(0); } to { opacity: 0; transform: scale(0.95) translateY(8px); } }
 @keyframes menuBackdropOut { from { opacity: 1; } to { opacity: 0; } }
