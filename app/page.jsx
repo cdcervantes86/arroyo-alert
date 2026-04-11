@@ -161,7 +161,7 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
   }, [isDesktop, desktopView, mapInstance, zone]);
 
   // Mobile sheet state (must be declared before any conditional returns)
-  const SNAPS = { peek: 26, half: 50, full: 88 };
+  const SNAPS = { peek: 19, half: 50, full: 88 };
   const [snap, setSnap] = useState("peek");
   const [dragOffset, setDragOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
@@ -479,19 +479,15 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
               <svg width="10" height="10" viewBox="0 0 10 10" stroke="var(--text-dim)" strokeWidth="1.5" strokeLinecap="round"><line x1="2" y1="2" x2="8" y2="8"/><line x1="8" y1="2" x2="2" y2="8"/></svg>
             </button>
           </div>
-          {/* Peek actions — visible only in peek mode */}
-          {snap === "peek" && (
-            <div style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: "10px", animation: "fadeIn 0.3s ease 0.2s both" }}>
-              <button onClick={onReport} style={{ flex: 1, padding: "11px", background: "linear-gradient(135deg, #D42A2A, #b91c1c)", color: "#fff", border: "none", borderRadius: "var(--radius-md)", fontSize: "13px", fontWeight: 700, boxShadow: "0 4px 14px rgba(212,42,42,0.25)", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
-                <AlertTriangleIcon size={14} color="#fff" />
-                {t.reportThisZone}
-              </button>
-              <div style={{ display: "flex", alignItems: "center", gap: "4px", color: "var(--text-faint)", fontSize: "10px", flexShrink: 0 }}>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
-                {es ? "Más" : "More"}
-              </div>
-            </div>
-          )}
+          {/* Peek actions removed — button teasers below */}
+        </div>
+
+        {/* REPORT BUTTON — always visible, gets clipped at peek to tease swiping up */}
+        <div style={{ padding: "12px 20px 14px", flexShrink: 0 }}>
+          <button onClick={onReport} style={{ width: "100%", padding: "15px", background: "linear-gradient(135deg, #D42A2A, #b91c1c)", color: "#fff", border: "none", borderRadius: "var(--radius-md)", fontSize: "15px", fontWeight: 700, boxShadow: "0 6px 20px rgba(212,42,42,0.25)", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
+            <AlertTriangleIcon size={16} color="#fff" />
+            {t.reportThisZone}
+          </button>
         </div>
 
         {/* HALF + FULL CONTENT — visible above peek */}
@@ -521,9 +517,7 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
               )}
             </div>
 
-            {/* Action buttons */}
-            <button onClick={onReport} style={{ width: "100%", padding: "14px", marginBottom: "12px", background: "linear-gradient(135deg, #D42A2A, #b91c1c)", color: "#fff", border: "none", borderRadius: "var(--radius-md)", fontSize: "15px", fontWeight: 700, boxShadow: "0 6px 20px rgba(212,42,42,0.25)" }}>{t.reportThisZone}</button>
-
+            {/* Subscribe + actions */}
             <div style={{ display: "flex", gap: "8px", marginBottom: "20px" }}>
               {push.supported && (
                 <button onClick={() => { const ns = !subscribed; if (navigator.vibrate) navigator.vibrate(50); if (ns) push.subscribeToZone?.(zone.id); else push.unsubscribeFromZone?.(zone.id); }} className="tap-target" style={{ flex: 1, padding: "10px", borderRadius: "var(--radius-md)", background: subscribed ? "rgba(91,156,246,0.08)" : "rgba(255,255,255,0.02)", border: `1px solid ${subscribed ? "rgba(91,156,246,0.15)" : "var(--border)"}`, color: subscribed ? "var(--accent)" : "var(--text-dim)", fontSize: "12px", fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
