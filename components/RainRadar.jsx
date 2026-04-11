@@ -12,13 +12,11 @@ export function useRainRadar(mapInstance) {
     if (!mapInstance || !OWM_KEY) return;
 
     if (enabled) {
-      // Remove layer
       if (mapInstance.getLayer("owm-rain")) mapInstance.removeLayer("owm-rain");
       if (mapInstance.getSource("owm-rain-src")) mapInstance.removeSource("owm-rain-src");
       addedRef.current = false;
       setEnabled(false);
     } else {
-      // Add precipitation tile layer
       const add = () => {
         if (addedRef.current) return;
         try {
@@ -35,8 +33,12 @@ export function useRainRadar(mapInstance) {
             type: "raster",
             source: "owm-rain-src",
             paint: {
-              "raster-opacity": 0.6,
+              "raster-opacity": 0.85,
               "raster-fade-duration": 300,
+              "raster-brightness-min": 0.1,
+              "raster-brightness-max": 1,
+              "raster-contrast": 0.4,
+              "raster-saturation": 0.3,
             },
           });
           addedRef.current = true;
@@ -62,22 +64,39 @@ export function RainRadarButton({ enabled, onToggle }) {
     <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "4px" }}>
       <button onClick={onToggle} style={{
         width: 40, height: 40, borderRadius: "50%",
-        background: enabled ? "rgba(96,165,250,0.15)" : "rgba(8,13,24,0.9)",
-        border: `1px solid ${enabled ? "rgba(96,165,250,0.25)" : "var(--border)"}`,
+        background: enabled ? "rgba(96,165,250,0.15)" : "rgba(10,15,26,0.9)",
+        border: `1px solid ${enabled ? "rgba(96,165,250,0.3)" : "var(--border)"}`,
         display: "flex", alignItems: "center", justifyContent: "center",
         cursor: "pointer", boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
         transition: "all 0.2s ease",
+        backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)",
       }}>
-        <span style={{ fontSize: "16px", opacity: enabled ? 1 : 0.5 }}>🌧️</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+          stroke={enabled ? "#60a5fa" : "rgba(255,255,255,0.45)"}
+          strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M20 17.58A5 5 0 0018 8h-1.26A8 8 0 104 16.25" />
+          <line x1="8" y1="16" x2="8" y2="20" />
+          <line x1="12" y1="18" x2="12" y2="22" />
+          <line x1="16" y1="16" x2="16" y2="20" />
+        </svg>
       </button>
       {enabled && (
         <div style={{
-          fontSize: "9px", color: "var(--accent)", fontWeight: 600,
-          background: "rgba(8,13,24,0.9)", padding: "3px 8px",
-          borderRadius: "6px", whiteSpace: "nowrap",
-          border: "1px solid rgba(96,165,250,0.15)",
+          background: "rgba(10,15,26,0.92)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)",
+          padding: "8px 10px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.08)",
+          boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
+          animation: "fadeIn 0.2s ease",
         }}>
-          {es ? "Lluvia activa" : "Rain active"}
+          <div style={{ fontSize: "9px", color: "var(--accent)", fontWeight: 700, letterSpacing: "0.5px", marginBottom: "6px", textTransform: "uppercase" }}>
+            {es ? "Precipitación" : "Precipitation"}
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: "3px" }}>
+            <div style={{ width: 80, height: 8, borderRadius: 4, background: "linear-gradient(90deg, rgba(120,200,255,0.3), #60a5fa, #3b82f6, #facc15, #f97316, #ef4444)", border: "1px solid rgba(255,255,255,0.06)" }} />
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between", marginTop: "3px" }}>
+            <span style={{ fontSize: "8px", color: "var(--text-faint)" }}>{es ? "Leve" : "Light"}</span>
+            <span style={{ fontSize: "8px", color: "var(--text-faint)" }}>{es ? "Fuerte" : "Heavy"}</span>
+          </div>
         </div>
       )}
     </div>
