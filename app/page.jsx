@@ -490,6 +490,20 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
           </button>
         </div>
 
+        {/* Bottom fade — visible at peek to hint "swipe up", fades away when expanded */}
+        <div style={{
+          position: "absolute", bottom: 0, left: 0, right: 0, height: 60,
+          background: "linear-gradient(to top, rgba(14,22,40,1) 0%, rgba(14,22,40,0.85) 40%, transparent 100%)",
+          pointerEvents: "none", zIndex: 5,
+          opacity: Math.max(0, 1 - expansion * 3),
+          transition: isDragging ? "none" : "opacity 0.3s ease",
+          display: "flex", alignItems: "flex-end", justifyContent: "center", paddingBottom: "10px",
+        }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ animation: "peekBounce 2s ease-in-out infinite" }}>
+            <polyline points="18 15 12 9 6 15"/>
+          </svg>
+        </div>
+
         {/* HALF + FULL CONTENT — visible above peek */}
         <div ref={contentRef} style={{
           flex: 1, overflowY: canScroll ? "auto" : "hidden",
