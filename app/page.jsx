@@ -129,7 +129,7 @@ function MoreMenu({ onSelect, lang, onClose }) {
           { key: "heatmap", Icon: FlameIcon, label: es ? "Historial" : "History", desc: es ? "Zonas más afectadas" : "Most affected zones" },
           { key: "about", Icon: InfoIcon, label: es ? "Info y seguridad" : "Info & safety", desc: es ? "Consejos, emergencias, ajustes" : "Tips, emergencies, settings" },
         ].map((item) => (
-          <button key={item.key} onClick={() => { onSelect(item.key); onClose(); }} style={{ width: "100%", display: "flex", alignItems: "center", gap: "14px", padding: "13px 12px", background: "none", border: "none", textAlign: "left", borderRadius: "var(--radius-sm)" }}>
+          <button key={item.key} onClick={() => { onSelect(item.key); onClose(); }} className="more-menu-item" style={{ width: "100%", display: "flex", alignItems: "center", gap: "14px", padding: "13px 12px", background: "none", border: "none", textAlign: "left", borderRadius: "var(--radius-sm)" }}>
             <div style={{ width: 32, height: 32, borderRadius: "var(--radius-sm)", background: "rgba(255,255,255,0.04)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><item.Icon size={16} color="var(--text-secondary)" /></div>
             <div><div style={{ fontSize: "14px", fontWeight: 600, color: "var(--text)" }}>{item.label}</div><div style={{ fontSize: "12px", color: "var(--text-dim)", marginTop: 1 }}>{item.desc}</div></div>
           </button>
@@ -332,10 +332,10 @@ function AppContent() {
         {totalWatchers > 1 && <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "11px", color: "var(--text-faint)", fontWeight: 500 }}><span style={{ width: 5, height: 5, borderRadius: "50%", background: "var(--safe)", animation: "blink 2s ease infinite" }} />{totalWatchers} {es ? "en línea" : "online"}</div>}
         <WeatherIndicator />
         {isDesktop && <>
-          <button onClick={() => setScreen("profile")} style={{ width: 32, height: 32, borderRadius: "50%", background: "none", border: "none", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><ProfileIcon size={18} color="var(--text-dim)" /></button>
-          <button onClick={() => setShowDigest(true)} style={{ width: 32, height: 32, borderRadius: "50%", background: "none", border: "none", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><ChartIcon size={18} color="var(--text-dim)" /></button>
-          <button onClick={() => setScreen("heatmap")} style={{ width: 32, height: 32, borderRadius: "50%", background: "none", border: "none", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><FlameIcon size={18} color="var(--text-dim)" /></button>
-          <button onClick={() => setScreen("about")} style={{ width: 32, height: 32, borderRadius: "50%", background: "none", border: "none", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><InfoIcon size={18} color="var(--text-dim)" /></button>
+          <button className="header-icon-btn" onClick={() => setScreen("profile")} style={{ width: 32, height: 32, borderRadius: "50%", background: "none", border: "none", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><ProfileIcon size={18} color="var(--text-dim)" /></button>
+          <button className="header-icon-btn" onClick={() => setShowDigest(true)} style={{ width: 32, height: 32, borderRadius: "50%", background: "none", border: "none", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><ChartIcon size={18} color="var(--text-dim)" /></button>
+          <button className="header-icon-btn" onClick={() => setScreen("heatmap")} style={{ width: 32, height: 32, borderRadius: "50%", background: "none", border: "none", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><FlameIcon size={18} color="var(--text-dim)" /></button>
+          <button className="header-icon-btn" onClick={() => setScreen("about")} style={{ width: 32, height: 32, borderRadius: "50%", background: "none", border: "none", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><InfoIcon size={18} color="var(--text-dim)" /></button>
         </>}
         <button onClick={toggleLang} style={{ padding: "4px 8px", borderRadius: "6px", background: "rgba(255,255,255,0.045)", border: "1px solid var(--border)", color: "var(--text-dim)", fontSize: "10px", fontWeight: 700, letterSpacing: "0.5px", textTransform: "uppercase", flexShrink: 0 }}>{lang === "es" ? "EN" : "ES"}</button>
         {isDesktop && (
@@ -354,7 +354,7 @@ function AppContent() {
           background: "rgba(34,197,94,0.08)", borderBottom: "1px solid rgba(34,197,94,0.15)",
           animation: "fadeIn 0.3s ease", flexShrink: 0,
         }}>
-          <span style={{ fontSize: "14px" }}>🔄</span>
+          <span style={{ opacity: 0.7 }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#86efac" strokeWidth="2" strokeLinecap="round"><path d="M1 4v6h6" /><path d="M3.51 15a9 9 0 105.64-12.36L1 10" /></svg></span>
           <div style={{ flex: 1 }}>
             <span style={{ fontSize: "13px", color: "var(--safe)", fontWeight: 600 }}>
               {es ? "Nueva versión disponible" : "New version available"}
@@ -396,7 +396,7 @@ function AppContent() {
             {!loading && reports.filter(r => new Date(r.created_at).getTime() > Date.now() - 4 * 3600000).length === 0 && (
               <div style={{ position: "absolute", bottom: 24, left: "50%", transform: "translateX(-50%)", zIndex: 6, pointerEvents: "none", animation: "fadeIn 0.5s ease 1s both" }}>
                 <div style={{ background: "rgba(10,15,26,0.92)", backdropFilter: "blur(12px)", borderRadius: "20px", padding: "10px 18px", border: "1px solid var(--border)", display: "flex", alignItems: "center", gap: "8px", whiteSpace: "nowrap" }}>
-                  <span style={{ fontSize: "14px" }}>👆</span>
+                  <span style={{ opacity: 0.5 }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round"><path d="M15 15l-2 5L9 9l11 4-5 2z" /><path d="M21 3l-8.5 8.5" /></svg></span>
                   <span style={{ fontSize: "12px", color: "var(--text-secondary)", fontWeight: 500 }}>{es ? "Toca una zona o usa Reportar" : "Tap a zone or use Report"}</span>
                 </div>
               </div>
@@ -419,7 +419,7 @@ function AppContent() {
             </>
           ) : currentMainView === "list" ? (
             <PullToRefresh onRefresh={refetch}>
-            <div style={{ padding: "14px 14px 20px" }}>
+            <div style={{ padding: "12px 14px 20px" }}>
               {loading ? Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} i={i} />) : (
                 <>
                   {favs.sortZones(ZONES.filter((z) => !activeFilter || getZoneSeverity(z.id, reports) === activeFilter)).map((z, i, arr) => {
@@ -427,34 +427,33 @@ function AppContent() {
                     const isSubbed = push.isSubscribed(z.id); const pred = predictions[z.id];
                     const isFav = favs.isFavorite(z.id);
                     const accentStyle = sv ? { borderLeft: `3px solid ${c.color}` } : pred && pred.score >= 40 ? { borderLeft: `3px dashed ${pred.score >= 70 ? "var(--danger)" : "var(--caution)"}` } : {};
-                    // Show divider between favorites and rest
                     const showDivider = favs.count > 0 && i > 0 && isFav === false && favs.isFavorite(arr[i - 1]?.id);
                     return (
                       <div key={z.id}>
-                        {showDivider && <div style={{ height: 1, background: "var(--border)", margin: "10px 0" }} />}
-                        <div style={{ display: "flex", alignItems: "center", gap: "0", marginBottom: "6px", animation: `fadeIn 0.25s ease ${i * 0.03}s both` }}>
+                        {showDivider && <div style={{ height: 1, background: "var(--border)", margin: "12px 0" }} />}
+                        <div style={{ display: "flex", alignItems: "center", gap: "0", marginBottom: "8px", animation: `fadeIn 0.25s ease ${i * 0.03}s both` }}>
                           <button onClick={(e) => { e.stopPropagation(); favs.toggle(z.id); }} style={{
                             width: 32, height: 32, borderRadius: "50%", background: "none", border: "none",
                             display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
-                            fontSize: "14px", opacity: isFav ? 1 : 0.25, transition: "opacity 0.2s, transform 0.2s",
+                            opacity: isFav ? 1 : 0.2, transition: "opacity 0.2s, transform 0.2s",
                             transform: isFav ? "scale(1.1)" : "scale(1)",
                           }}>
-                            <StarIcon size={16} color={isFav ? "#facc15" : "rgba(255,255,255,0.5)"} filled={isFav} />
+                            <StarIcon size={15} color={isFav ? "#facc15" : "rgba(255,255,255,0.5)"} filled={isFav} />
                           </button>
-                          <button onClick={() => handleZoneClick(z.id)} className="card-interactive" style={{ flex: 1, background: "var(--bg-card)", border: "1px solid var(--border)", ...accentStyle, borderRadius: "var(--radius-md)", padding: "13px 14px", textAlign: "left", display: "flex", gap: "12px", alignItems: "center" }}>
+                          <button onClick={() => handleZoneClick(z.id)} className="card-interactive" style={{ flex: 1, background: "var(--bg-card)", border: "1px solid var(--border)", ...accentStyle, borderRadius: "var(--radius-md)", padding: "14px 14px", textAlign: "left", display: "flex", gap: "12px", alignItems: "center" }}>
                             <div style={{ width: 38, height: 38, borderRadius: "var(--radius-sm)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: c ? `${c.color}08` : "rgba(255,255,255,0.035)", border: `1px solid ${c ? c.color + "15" : "var(--border)"}` }}><SeverityIcon severity={sv} size={22} /></div>
                             <div style={{ flex: 1, minWidth: 0 }}>
                               <div style={{ fontSize: "14px", fontWeight: 600, color: "var(--text)", display: "flex", alignItems: "center", gap: "6px" }}>
-                                {z.name} <span style={{ fontWeight: 400, color: "var(--text-dim)", fontSize: "13px" }}>{z.area}</span>
+                                {z.name} <span style={{ fontWeight: 400, color: "var(--text-dim)", fontSize: "12px" }}>{z.area}</span>
                                 {isSubbed && <BellIcon size={12} color="var(--accent)" />}
                               </div>
-                              {lt ? <div style={{ fontSize: "12px", color: "var(--text-secondary)", marginTop: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{lt.text ? `${lt.text} · ` : ""}{timeAgoLocalized(lt.created_at, lang)}</div>
-                                : pred && pred.score >= 30 ? <div style={{ fontSize: "12px", color: pred.score >= 70 ? "var(--danger)" : pred.score >= 40 ? "var(--caution)" : "var(--text-dim)", marginTop: 3 }}>🧠 {pred.score}% {es ? "probabilidad" : "probability"}</div>
-                                : <div style={{ fontSize: "12px", color: "var(--text-faint)", marginTop: 3 }}>{es ? z.desc : (z.descEn || z.desc)}</div>}
+                              {lt ? <div style={{ fontSize: "12px", color: "var(--text-secondary)", marginTop: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{lt.text ? `${lt.text} · ` : ""}{timeAgoLocalized(lt.created_at, lang)}</div>
+                                : pred && pred.score >= 30 ? <div style={{ fontSize: "12px", color: pred.score >= 70 ? "var(--danger)" : pred.score >= 40 ? "var(--caution)" : "var(--text-dim)", marginTop: 4, fontWeight: 500, letterSpacing: "0.2px" }}>{pred.score}% {es ? "probabilidad" : "probability"}</div>
+                                : <div style={{ fontSize: "12px", color: "var(--text-faint)", marginTop: 4 }}>{es ? z.desc : (z.descEn || z.desc)}</div>}
                             </div>
-                            {zr.length > 0 && <span style={{ fontSize: "11px", color: c ? c.color : "var(--text-dim)", background: c ? `${c.color}0a` : "rgba(255,255,255,0.045)", padding: "3px 8px", borderRadius: "6px", flexShrink: 0, fontWeight: 700 }}>{zr.length}</span>}
+                            {zr.length > 0 && <span style={{ fontSize: "11px", color: c ? c.color : "var(--text-dim)", background: c ? `${c.color}0a` : "rgba(255,255,255,0.045)", padding: "3px 8px", borderRadius: "6px", flexShrink: 0, fontWeight: 700, fontVariantNumeric: "tabular-nums" }}>{zr.length}</span>}
                             {lt?.photo_url && <img src={lt.photo_url} alt="" style={{ width: 32, height: 32, borderRadius: "var(--radius-sm)", objectFit: "cover", flexShrink: 0, border: "1px solid var(--border)" }} loading="lazy" />}
-                            <span style={{ color: "var(--text-faint)", fontSize: "14px", flexShrink: 0 }}>›</span>
+                            <svg width="7" height="12" viewBox="0 0 7 12" fill="none" style={{ flexShrink: 0, opacity: 0.2 }}><path d="M1 1l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
                           </button>
                         </div>
                       </div>
