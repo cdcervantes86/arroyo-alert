@@ -207,8 +207,8 @@ export default function ShareCard({ zoneName, zoneArea, severity, reportText, ph
         ? { danger: "PELIGROSO", caution: "Precauci\u00F3n", safe: "Despejado" }
         : { danger: "DANGEROUS", caution: "Caution", safe: "Clear" };
       const text = es
-        ? `\u26A0\uFE0F Arroyo ${sevLabels[severity]} en ${zoneName} (${zoneArea})\n${reportText ? reportText + "\n" : ""}\uD83D\uDCCD AlertaArroyo \u2014 https://${appUrl}`
-        : `\u26A0\uFE0F Arroyo ${sevLabels[severity]} at ${zoneName} (${zoneArea})\n${reportText ? reportText + "\n" : ""}\uD83D\uDCCD AlertaArroyo \u2014 https://${appUrl}`;
+        ? `\u26A0\uFE0F Arroyo ${sevLabels[severity]} en ${zoneName} (${zoneArea})\n${reportText ? reportText + "\n" : ""}\uD83D\uDCCD AlertaArroyo \u2014 https://${appUrl}?zone=${zoneId}`
+        : `\u26A0\uFE0F Arroyo ${sevLabels[severity]} at ${zoneName} (${zoneArea})\n${reportText ? reportText + "\n" : ""}\uD83D\uDCCD AlertaArroyo \u2014 https://${appUrl}?zone=${zoneId}`;
       if (navigator.share && navigator.canShare) {
         const file = new File([blob], "alerta-arroyo.png", { type: "image/png" });
         try { await navigator.share({ text, files: [file] }); onClose?.(); return; } catch (e) {}

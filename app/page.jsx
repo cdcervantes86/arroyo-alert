@@ -161,7 +161,7 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
   }, [isDesktop, desktopView, mapInstance, zone]);
 
   // Mobile sheet state (must be declared before any conditional returns)
-  const SNAPS = { peek: 22, half: 50, full: 88 };
+  const SNAPS = { peek: 26, half: 50, full: 88 };
   const [snap, setSnap] = useState("peek");
   const [dragOffset, setDragOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
@@ -479,10 +479,17 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
               <svg width="10" height="10" viewBox="0 0 10 10" stroke="var(--text-dim)" strokeWidth="1.5" strokeLinecap="round"><line x1="2" y1="2" x2="8" y2="8"/><line x1="8" y1="2" x2="2" y2="8"/></svg>
             </button>
           </div>
-          {/* Peek hint — only in peek mode */}
+          {/* Peek actions — visible only in peek mode */}
           {snap === "peek" && (
-            <div style={{ textAlign: "center", marginTop: "8px", animation: "fadeIn 0.3s ease 0.3s both" }}>
-              <span style={{ fontSize: "11px", color: "var(--text-faint)" }}>{es ? "Desliza hacia arriba para más detalles" : "Swipe up for details"}</span>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: "10px", animation: "fadeIn 0.3s ease 0.2s both" }}>
+              <button onClick={onReport} style={{ flex: 1, padding: "11px", background: "linear-gradient(135deg, #D42A2A, #b91c1c)", color: "#fff", border: "none", borderRadius: "var(--radius-md)", fontSize: "13px", fontWeight: 700, boxShadow: "0 4px 14px rgba(212,42,42,0.25)", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
+                <AlertTriangleIcon size={14} color="#fff" />
+                {t.reportThisZone}
+              </button>
+              <div style={{ display: "flex", alignItems: "center", gap: "4px", color: "var(--text-faint)", fontSize: "10px", flexShrink: 0 }}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+                {es ? "Más" : "More"}
+              </div>
             </div>
           )}
         </div>
@@ -605,6 +612,23 @@ function AppContent() {
   useEffect(() => { const c = () => setIsDesktop(window.innerWidth >= 900); c(); window.addEventListener("resize", c); return () => window.removeEventListener("resize", c); }, []);
   useEffect(() => { try { if (!localStorage.getItem("arroyo-onboarded")) setShowOnboarding(true); } catch(e) {} }, []);
 
+  // Deep link: ?zone=ID opens that zone's detail
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const zoneId = params.get("zone");
+      if (zoneId) {
+        const id = parseInt(zoneId);
+        const zone = ZONES.find(z => z.id === id);
+        if (zone) {
+          setTimeout(() => { setSelectedZone(id); setScreen("detail"); }, 500);
+          // Clean URL without reload
+          window.history.replaceState({}, "", window.location.pathname);
+        }
+      }
+    } catch(e) {}
+  }, []);
+
   useEffect(() => {
     const f = async () => { try {
       const r = await fetch("https://api.open-meteo.com/v1/forecast?latitude=10.96&longitude=-74.78&current=temperature_2m,weather_code,precipitation&hourly=precipitation_probability&forecast_days=1&timezone=America/Bogota");
@@ -673,7 +697,7 @@ function AppContent() {
   if (screen === "about" && !isDesktop) return <div style={{ animation: "screenSlideIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", position: "fixed", inset: 0, zIndex: 50, background: "var(--bg)" }}><AboutPage onBack={() => setScreen("main")} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} /></div>;
   if (screen === "heatmap") return <div style={{ animation: "screenSlideIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", position: "fixed", inset: 0, zIndex: 50, background: "var(--bg)" }}><HeatmapView onBack={() => setScreen("main")} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} /></div>;
   if (screen === "profile" && !isDesktop) return <div style={{ animation: "screenSlideIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", position: "fixed", inset: 0, zIndex: 50, background: "var(--bg)" }}><ReporterProfile reports={reports} onBack={() => setScreen("main")} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} /></div>;
-  if (screen === "report") return <div style={{ animation: "screenSlideIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", position: "fixed", inset: 0, zIndex: 50, background: "var(--bg)" }}><ReportFlow zones={ZONES} reports={reports} initialZoneId={selectedZone} onSubmit={async (data) => { await handleReport(data); const zone = ZONES.find(z => z.id === data.zoneId); setLastReport({ zoneName: zone?.name, zoneArea: zone?.area, severity: data.severity, text: data.text }); setScreen("main"); }} onBack={() => setScreen("main")} onLogoClick={handleLogoClick} /></div>;
+  if (screen === "report") return <div style={{ animation: "screenSlideIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", position: "fixed", inset: 0, zIndex: 50, background: "var(--bg)" }}><ReportFlow zones={ZONES} reports={reports} initialZoneId={selectedZone} onSubmit={async (data) => { await handleReport(data); const zone = ZONES.find(z => z.id === data.zoneId); setLastReport({ zoneId: data.zoneId, zoneName: zone?.name, zoneArea: zone?.area, severity: data.severity, text: data.text }); setScreen("main"); }} onBack={() => setScreen("main")} onLogoClick={handleLogoClick} /></div>;
 
   const desktopTabs = [{ key: "map", Icon: MapIcon }, { key: "list", Icon: ListIcon }, { key: "live", Icon: LiveIcon }];
 
@@ -916,8 +940,8 @@ function AppContent() {
                 ? { danger: "PELIGROSO", caution: "Precaución", safe: "Despejado" }
                 : { danger: "DANGEROUS", caution: "Caution", safe: "Clear" };
               const text = es
-                ? `⚠️ Arroyo ${sevLabels[lastReport.severity]} en ${lastReport.zoneName} (${lastReport.zoneArea})\n${lastReport.text ? lastReport.text + "\n" : ""}📍 AlertaArroyo — https://arroyo-alert.vercel.app`
-                : `⚠️ Arroyo ${sevLabels[lastReport.severity]} at ${lastReport.zoneName} (${lastReport.zoneArea})\n${lastReport.text ? lastReport.text + "\n" : ""}📍 AlertaArroyo — https://arroyo-alert.vercel.app`;
+                ? `⚠️ Arroyo ${sevLabels[lastReport.severity]} en ${lastReport.zoneName} (${lastReport.zoneArea})\n${lastReport.text ? lastReport.text + "\n" : ""}📍 AlertaArroyo — https://arroyo-alert.vercel.app?zone=${lastReport.zoneId}`
+                : `⚠️ Arroyo ${sevLabels[lastReport.severity]} at ${lastReport.zoneName} (${lastReport.zoneArea})\n${lastReport.text ? lastReport.text + "\n" : ""}📍 AlertaArroyo — https://arroyo-alert.vercel.app?zone=${lastReport.zoneId}`;
               window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
               setLastReport(null);
             }} style={{
