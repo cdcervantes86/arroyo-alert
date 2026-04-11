@@ -19,6 +19,7 @@ import { SeverityIcon } from "@/components/SeverityIcon";
 import { MapIcon, ListIcon, LiveIcon, MoreIcon, ProfileIcon, ChartIcon, FlameIcon, InfoIcon, StarIcon, AlertTriangleIcon, BellIcon } from "@/components/Icons";
 import { useRainRadar, RainRadarButton } from "@/components/RainRadar";
 import PullToRefresh from "@/components/PullToRefresh";
+import CommentThread from "@/components/CommentThread";
 import ReporterProfile from "@/components/ReporterProfile";
 import WeeklyDigest from "@/components/WeeklyDigest";
 import { useFavorites } from "@/lib/useFavorites";
@@ -170,6 +171,11 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
   const contentRef = useRef(null);
   const sheetRef = useRef(null);
 
+  const [upvoted, setUpvoted] = useState(new Set());
+  const deviceCounts = {};
+  reports.forEach((r) => { if (r.device_id) deviceCounts[r.device_id] = (deviceCounts[r.device_id] || 0) + 1; });
+  const handleUpvote = (r) => { if (upvoted.has(r.id)) return; onUpvote(r.id, r.upvotes); setUpvoted(prev => new Set([...prev, r.id])); if (navigator.vibrate) navigator.vibrate(50); };
+
   useEffect(() => {
     if (!isDesktop) {
       requestAnimationFrame(() => {
@@ -269,6 +275,11 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
                 </div>
                 {r.text && <p style={{ margin: "0 0 8px", fontSize: "14px", lineHeight: 1.55, color: "var(--text-secondary)" }}>{r.text}</p>}
                 {r.photo_url && <div style={{ marginBottom: "10px", borderRadius: "var(--radius-sm)", overflow: "hidden", border: "1px solid var(--border)" }}><img src={r.photo_url} alt="" style={{ width: "100%", maxHeight: 200, objectFit: "cover", display: "block" }} loading="lazy" /></div>}
+                {!r.text && !r.photo_url && <div style={{ marginBottom: "8px" }} />}
+                <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+                  <button onClick={() => handleUpvote(r)} className="tap-target" style={{ background: upvoted.has(r.id) ? "var(--accent-glow)" : "rgba(255,255,255,0.02)", border: `1px solid ${upvoted.has(r.id) ? "rgba(91,156,246,0.15)" : "var(--border)"}`, borderRadius: "var(--radius-sm)", padding: "6px 12px", color: upvoted.has(r.id) ? "var(--accent)" : "var(--text-dim)", fontSize: "12px", display: "flex", alignItems: "center", gap: "6px", fontWeight: 500 }}><svg width="13" height="13" viewBox="0 0 24 24" fill={upvoted.has(r.id) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14z"/><path d="M7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg>{upvoted.has(r.id) ? (es ? "Confirmado" : "Confirmed") : (es ? "Confirmar" : "Confirm")} · {r.upvotes + (upvoted.has(r.id) ? 1 : 0)}</button>
+                  <CommentThread reportId={r.id} allDeviceCounts={deviceCounts} />
+                </div>
               </div>
             );
           })}
@@ -548,6 +559,11 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
                   </div>
                   {r.text && <p style={{ margin: "0 0 8px", fontSize: "14px", lineHeight: 1.55, color: "var(--text-secondary)" }}>{r.text}</p>}
                   {r.photo_url && <div style={{ marginBottom: "10px", borderRadius: "var(--radius-sm)", overflow: "hidden", border: "1px solid var(--border)" }}><img src={r.photo_url} alt="" style={{ width: "100%", maxHeight: 200, objectFit: "cover", display: "block" }} loading="lazy" /></div>}
+                  {!r.text && !r.photo_url && <div style={{ marginBottom: "8px" }} />}
+                  <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+                    <button onClick={() => handleUpvote(r)} className="tap-target" style={{ background: upvoted.has(r.id) ? "var(--accent-glow)" : "rgba(255,255,255,0.02)", border: `1px solid ${upvoted.has(r.id) ? "rgba(91,156,246,0.15)" : "var(--border)"}`, borderRadius: "var(--radius-sm)", padding: "6px 12px", color: upvoted.has(r.id) ? "var(--accent)" : "var(--text-dim)", fontSize: "12px", display: "flex", alignItems: "center", gap: "6px", fontWeight: 500 }}><svg width="13" height="13" viewBox="0 0 24 24" fill={upvoted.has(r.id) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14z"/><path d="M7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg>{upvoted.has(r.id) ? (es ? "Confirmado" : "Confirmed") : (es ? "Confirmar" : "Confirm")} · {r.upvotes + (upvoted.has(r.id) ? 1 : 0)}</button>
+                    <CommentThread reportId={r.id} allDeviceCounts={deviceCounts} />
+                  </div>
                 </div>
               );
             })}
