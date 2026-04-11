@@ -141,7 +141,7 @@ function MoreMenu({ onSelect, lang, onClose }) {
   }, [onClose]);
 
   return (
-    <div onClick={handleClose} style={{ position: "fixed", inset: 0, zIndex: 900, background: "rgba(0,0,0,0.4)", backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)", animation: closing ? "menuBackdropOut 0.2s ease forwards" : "fadeIn 0.15s ease" }}>
+    <div onClick={handleClose} style={{ position: "fixed", inset: 0, zIndex: 900, background: "rgba(0,0,0,0.55)", animation: closing ? "menuBackdropOut 0.2s ease forwards" : "fadeIn 0.15s ease" }}>
       <div onClick={(e) => e.stopPropagation()} style={{ position: "absolute", bottom: 64, right: 12, left: 12, maxWidth: 300, marginLeft: "auto", background: "rgba(14,22,40,0.97)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "var(--radius-lg)", padding: "4px", animation: closing ? "menuSlideOut 0.2s ease forwards" : "slideUp 0.2s cubic-bezier(0.32, 0.72, 0, 1)", boxShadow: "0 -12px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04)", transformOrigin: "bottom right" }}>
         {[
           { key: "profile", Icon: ProfileIcon, label: es ? "Mi perfil" : "My profile", desc: es ? "Estadísticas y rango de reportero" : "Stats and reporter rank" },
@@ -324,7 +324,7 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
       <>
         <div onClick={handleDesktopClose} style={{
           position: "fixed", inset: 0, zIndex: 1000,
-          background: "rgba(0,0,0,0.5)", backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)",
+          background: "rgba(0,0,0,0.6)",
           animation: closing ? "menuBackdropOut 0.25s ease forwards" : "fadeIn 0.2s ease",
         }} />
         <div style={{
@@ -426,7 +426,7 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
   const vh = typeof window !== "undefined" ? window.innerHeight : 800;
   const progress = heightPx / vh;
   const backdropOpacity = closing ? 0 : Math.min(0.55, progress * 0.7);
-  const backdropBlur = Math.min(8, progress * 12);
+  const backdropBlur = 0; // removed to prevent Safari flicker
   const canScroll = snap === "full" && !isDragging;
   const contentOpacity = snap === "peek" && !isDragging ? 0 : Math.min(1, (heightPx - snapPx("peek")) / (snapPx("half") - snapPx("peek")));
 
@@ -446,7 +446,6 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
       <div onClick={animateClose} style={{
         position: "fixed", inset: 0, zIndex: 1000,
         background: `rgba(0,0,0,${backdropOpacity})`,
-        backdropFilter: `blur(${backdropBlur}px)`, WebkitBackdropFilter: `blur(${backdropBlur}px)`,
         transition: isDragging ? "none" : `all ${DURATION} ${SPRING}`,
         pointerEvents: closing ? "none" : "auto",
       }} />
@@ -941,7 +940,7 @@ function AppContent() {
       {/* Desktop About modal — overlays on top of main UI */}
       {isDesktop && screen === "about" && (
         <>
-          <div onClick={() => setScreen("main")} style={{ position: "fixed", inset: 0, zIndex: 1200, background: "rgba(0,0,0,0.6)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", animation: "fadeIn 0.2s ease" }} />
+          <div onClick={() => setScreen("main")} style={{ position: "fixed", inset: 0, zIndex: 1200, background: "rgba(0,0,0,0.7)", animation: "fadeIn 0.2s ease" }} />
           <div style={{ position: "fixed", top: "50%", left: "50%", transform: "translate(-50%, -50%)", zIndex: 1201, width: "100%", maxWidth: 560, height: "85vh", background: "var(--bg-elevated)", borderRadius: "var(--radius-xl)", border: "1px solid var(--border)", boxShadow: "0 24px 80px rgba(0,0,0,0.6)", animation: "desktopModalIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", overflow: "hidden", willChange: "transform, opacity" }}>
             <div style={{ position: "relative", width: "100%", height: "100%" }}>
               <AboutPage onBack={() => setScreen("main")} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} />
@@ -953,7 +952,7 @@ function AppContent() {
       {/* Desktop Profile modal — overlays on top of main UI */}
       {isDesktop && screen === "profile" && (
         <>
-          <div onClick={() => setScreen("main")} style={{ position: "fixed", inset: 0, zIndex: 1200, background: "rgba(0,0,0,0.6)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", animation: "fadeIn 0.2s ease" }} />
+          <div onClick={() => setScreen("main")} style={{ position: "fixed", inset: 0, zIndex: 1200, background: "rgba(0,0,0,0.7)", animation: "fadeIn 0.2s ease" }} />
           <div style={{ position: "fixed", top: "50%", left: "50%", transform: "translate(-50%, -50%)", zIndex: 1201, width: "100%", maxWidth: 480, height: "80vh", background: "var(--bg-elevated)", borderRadius: "var(--radius-xl)", border: "1px solid var(--border)", boxShadow: "0 24px 80px rgba(0,0,0,0.6)", animation: "desktopModalIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", overflow: "hidden", willChange: "transform, opacity" }}>
             <div style={{ position: "relative", width: "100%", height: "100%" }}>
               <ReporterProfile reports={reports} onBack={() => setScreen("main")} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} />
@@ -964,7 +963,7 @@ function AppContent() {
 
       {/* Post-report WhatsApp share prompt */}
       {lastReport && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 1100, background: "rgba(0,0,0,0.6)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px", animation: "fadeIn 0.2s ease" }}>
+        <div style={{ position: "fixed", inset: 0, zIndex: 1100, background: "rgba(0,0,0,0.7)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px", animation: "fadeIn 0.2s ease" }}>
           <div style={{ width: "100%", maxWidth: 340, background: "#0e1628", borderRadius: "var(--radius-xl)", border: "1px solid rgba(255,255,255,0.06)", boxShadow: "0 24px 80px rgba(0,0,0,0.6)", padding: "32px 24px 24px", textAlign: "center", animation: "modalScaleIn 0.35s cubic-bezier(0.34, 1.4, 0.64, 1)" }}>
             <div style={{ width: 56, height: 56, borderRadius: "50%", background: "rgba(34,197,94,0.1)", border: "2px solid rgba(34,197,94,0.25)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px", animation: "successPulse 0.5s ease" }}>
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>

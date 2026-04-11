@@ -60,7 +60,7 @@ export default function WeeklyDigest({ onClose, onZoneClick }) {
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 1100, display: "flex", alignItems: "center", justifyContent: "center", padding: "16px" }}>
       {/* Persistent backdrop — never re-mounts */}
-      <div onClick={onClose} style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.6)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", animation: "fadeIn 0.2s ease" }} />
+      <div onClick={onClose} style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.7)", animation: "fadeIn 0.2s ease" }} />
 
       {loading ? (
         <div style={{ position: "relative", zIndex: 1, color: "var(--text-dim)", fontSize: "14px", animation: "blink 1s ease infinite" }}>
