@@ -234,18 +234,30 @@ export default function Onboarding({ lang, onComplete, onToggleLang }) {
           ))}
         </div>
 
-        {/* CTA button */}
-        <button onClick={goNext} style={{
-          width: "100%", padding: "17px",
-          background: isLast
-            ? "linear-gradient(135deg, #D42A2A, #b91c1c)"
-            : step === 0 ? "var(--accent)" : "rgba(255,255,255,0.08)",
-          color: "#fff", border: "none", borderRadius: "var(--radius-md)",
-          fontSize: "16px", fontWeight: 700, letterSpacing: "-0.2px",
-          boxShadow: isLast ? "0 8px 24px rgba(212,42,42,0.25)" : step === 0 ? "0 8px 24px rgba(91,156,246,0.15)" : "none",
-        }}>
-          {isLast ? (lang === "es" ? "Comenzar" : "Get started") : (lang === "es" ? "Siguiente" : "Next")}
-        </button>
+        {/* Navigation buttons */}
+        <div style={{ display: "flex", gap: "10px" }}>
+          {step > 0 && (
+            <button onClick={() => { setDirection(-1); setStep(step - 1); }} style={{
+              width: 52, padding: "17px 0",
+              background: "rgba(255,255,255,0.06)", border: "1px solid var(--border)",
+              borderRadius: "var(--radius-md)", display: "flex", alignItems: "center", justifyContent: "center",
+              flexShrink: 0, transition: "all 0.2s ease",
+            }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-dim)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+          )}
+          <button onClick={goNext} style={{
+            flex: 1, padding: "17px",
+            background: isLast
+              ? "linear-gradient(135deg, #D42A2A, #b91c1c)"
+              : step === 0 ? "var(--accent)" : "rgba(255,255,255,0.08)",
+            color: "#fff", border: "none", borderRadius: "var(--radius-md)",
+            fontSize: "16px", fontWeight: 700, letterSpacing: "-0.2px",
+            boxShadow: isLast ? "0 8px 24px rgba(212,42,42,0.25)" : step === 0 ? "0 8px 24px rgba(91,156,246,0.15)" : "none",
+          }}>
+            {isLast ? (lang === "es" ? "Comenzar" : "Get started") : (lang === "es" ? "Siguiente" : "Next")}
+          </button>
+        </div>
 
         {!isLast && (
           <button onClick={handleSkip} style={{
