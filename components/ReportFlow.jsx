@@ -109,19 +109,24 @@ export default function ReportFlow({ zones, reports, initialZoneId, onSubmit, on
                 { key: "safe", label: getSevLabel("safe", lang), hint: lang === "en" ? SEVERITY.safe.hintEn : SEVERITY.safe.hint },
               ].map((opt, i) => {
                 const cfg = SEVERITY[opt.key];
+                const isSelected = severity === opt.key;
                 return (
-                  <button key={opt.key} onClick={() => { setSeverity(opt.key); setStep(2); }} style={{
-                    background: `${cfg.color}06`, border: `1px solid ${cfg.color}18`,
-                    borderLeft: `4px solid ${cfg.color}`,
-                    borderRadius: "var(--radius-md)", padding: "20px 18px",
-                    display: "flex", alignItems: "center", gap: "16px", textAlign: "left",
+                  <button key={opt.key} onClick={() => { setSeverity(opt.key); setStep(2); if (navigator.vibrate) navigator.vibrate(40); }} className="tap-target" style={{
+                    background: `${cfg.color}06`, border: `1.5px solid ${cfg.color}20`,
+                    borderRadius: "var(--radius-lg)", padding: "22px 20px",
+                    display: "flex", alignItems: "center", gap: "18px", textAlign: "left",
                     animation: `fadeIn 0.3s ease ${i * 0.08}s both`,
+                    transition: "all 0.2s ease", position: "relative", overflow: "hidden",
                   }}>
-                    <SeverityIcon severity={opt.key} size={38} />
-                    <div>
-                      <div style={{ color: cfg.color, fontSize: "17px", fontWeight: 700 }}>{opt.label}</div>
-                      <div style={{ color: "var(--text-secondary)", fontSize: "13px", marginTop: 4 }}>{opt.hint}</div>
+                    <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 4, background: cfg.color, borderRadius: "0 2px 2px 0" }} />
+                    <div style={{ width: 52, height: 52, borderRadius: "var(--radius-md)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: `${cfg.color}0c`, border: `1px solid ${cfg.color}20` }}>
+                      <SeverityIcon severity={opt.key} size={30} />
                     </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ color: cfg.color, fontSize: "18px", fontWeight: 800, letterSpacing: "-0.3px" }}>{opt.label}</div>
+                      <div style={{ color: "var(--text-secondary)", fontSize: "13px", marginTop: 4, lineHeight: 1.4 }}>{opt.hint}</div>
+                    </div>
+                    <svg width="8" height="14" viewBox="0 0 8 14" fill="none" style={{ flexShrink: 0, opacity: 0.2 }}><path d="M1 1l6 6-6 6" stroke={cfg.color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
                   </button>
                 );
               })}

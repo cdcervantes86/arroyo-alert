@@ -725,15 +725,17 @@ function AppContent() {
   return (
     <div style={{ position: "fixed", inset: 0, display: "flex", flexDirection: "column", background: "var(--bg)", overflow: "hidden" }}>
       {/* HEADER */}
-      <div style={{ padding: "10px 16px", display: "flex", alignItems: "center", gap: "8px", background: emergency.active ? "rgba(30,5,5,0.95)" : "rgba(10,15,26,0.95)", backdropFilter: "blur(20px) saturate(1.5)", borderBottom: `1px solid ${emergency.active ? "rgba(239,68,68,0.2)" : "var(--border)"}`, boxShadow: "0 1px 0 var(--border), 0 4px 16px rgba(0,0,0,0.15)", flexShrink: 0, position: "relative", zIndex: 900 }}>
+      <div style={{ padding: "10px 16px", display: "flex", alignItems: "center", gap: "10px", background: "#0a0f1a", borderBottom: "1px solid rgba(255,255,255,0.04)", boxShadow: "0 1px 0 rgba(255,255,255,0.02), 0 4px 20px rgba(0,0,0,0.2)", flexShrink: 0, position: "relative", zIndex: 900 }}>
         <div className={headerGlow} style={{ position: "absolute", top: -30, left: "10%", right: "10%", height: 80, borderRadius: "50%", filter: "blur(40px)", pointerEvents: "none", animation: "glowPulse 4s ease-in-out infinite" }} />
         <button onClick={handleLogoClick} style={{ display: "flex", alignItems: "center", gap: "8px", background: "none", border: "none", padding: 0, cursor: "pointer", flexShrink: 0 }}>
-          <Logo size={24} />
-          <span style={{ fontSize: "15px", fontWeight: 700, letterSpacing: "-0.3px", color: "var(--text)" }}>Alerta<span style={{ color: "var(--baq-yellow)" }}>Arroyo</span></span>
-          <span style={{ fontSize: "8px", fontWeight: 700, letterSpacing: "0.8px", textTransform: "uppercase", color: "var(--accent)", background: "var(--accent-glow)", padding: "2px 5px", borderRadius: "3px", border: "1px solid rgba(91,156,246,0.1)", marginLeft: "-2px", marginTop: "-8px" }}>Beta</span>
+          <Logo size={26} />
+          <div style={{ display: "flex", alignItems: "baseline", gap: "0" }}>
+            <span style={{ fontSize: "16px", fontWeight: 800, letterSpacing: "-0.4px", color: "var(--text)" }}>Alerta<span style={{ color: "var(--baq-yellow)" }}>Arroyo</span></span>
+            <span style={{ fontSize: "7px", fontWeight: 700, color: "var(--accent)", marginLeft: "4px", opacity: 0.6, letterSpacing: "0.5px" }}>BETA</span>
+          </div>
         </button>
         <div style={{ flex: 1 }} />
-        {totalWatchers > 1 && <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "11px", color: "var(--text-faint)", fontWeight: 500 }}><span style={{ width: 5, height: 5, borderRadius: "50%", background: "var(--safe)", animation: "blink 2s ease infinite" }} />{totalWatchers} {es ? "en línea" : "online"}</div>}
+        {totalWatchers > 1 && <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "11px", color: "var(--text-faint)", fontWeight: 500 }}><span style={{ width: 5, height: 5, borderRadius: "50%", background: "var(--safe)", animation: "blink 2s ease infinite" }} />{totalWatchers}</div>}
         <WeatherIndicator />
         {isDesktop && <>
           <button className="header-icon-btn" onClick={() => setScreen("profile")} style={{ width: 32, height: 32, borderRadius: "50%", background: "none", border: "none", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><ProfileIcon size={18} color="var(--text-dim)" /></button>

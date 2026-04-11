@@ -85,20 +85,26 @@ export default function LiveFeed({ reports, onZoneClick, onUpvote, upvotedSet, o
             const accentClass = `card-accent-${r.severity}`;
 
             return (
-              <div key={r.id} className={`card-interactive ${accentClass}`} style={{
-                background: "var(--bg-card)",
-                border: "1px solid var(--border)", borderRadius: "var(--radius-md)",
-                padding: "14px 14px 14px 16px",
+              <div key={r.id} className="card-interactive" style={{
+                background: `${cfg.color}04`,
+                border: `1px solid ${cfg.color}15`, borderRadius: "var(--radius-lg)",
+                padding: "16px 16px 16px 18px",
                 animation: `fadeIn 0.25s ease ${i * 0.04}s both`, cursor: "pointer",
+                position: "relative", overflow: "hidden",
               }} onClick={() => onZoneClick?.(zone.id)}>
+                {/* Accent bar */}
+                <div style={{ position: "absolute", left: 0, top: "12%", bottom: "12%", width: 3, borderRadius: "0 2px 2px 0", background: cfg.color }} />
+
                 {/* Header row */}
-                <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "10px" }}>
-                  <SeverityIcon severity={r.severity} size={18} />
+                <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
+                  <div style={{ width: 36, height: 36, borderRadius: "var(--radius-sm)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: `${cfg.color}0a`, border: `1px solid ${cfg.color}18` }}>
+                    <SeverityIcon severity={r.severity} size={20} />
+                  </div>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: "14px", fontWeight: 700, color: "var(--text)", letterSpacing: "-0.2px" }}>
+                    <div style={{ fontSize: "15px", fontWeight: 700, color: "var(--text)", letterSpacing: "-0.2px" }}>
                       {zone.name}
-                      <span style={{ fontWeight: 400, color: "var(--text-dim)", fontSize: "13px", marginLeft: 6 }}>{zone.area}</span>
                     </div>
+                    <div style={{ fontSize: "12px", color: "var(--text-dim)", marginTop: 1 }}>{zone.area}</div>
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "3px" }}>
                     <span style={{ fontSize: "11px", color: "var(--text-faint)", fontWeight: 500, display: "flex", alignItems: "center", gap: "4px" }}>
