@@ -744,7 +744,7 @@ function AppContent() {
           <button className="header-icon-btn" onClick={() => setScreen("heatmap")} style={{ width: 32, height: 32, borderRadius: "50%", background: "none", border: "none", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><FlameIcon size={18} color="var(--text-dim)" /></button>
           <button className="header-icon-btn" onClick={() => setScreen("about")} style={{ width: 32, height: 32, borderRadius: "50%", background: "none", border: "none", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><InfoIcon size={18} color="var(--text-dim)" /></button>
         </>}
-        <button onClick={toggleLang} style={{ padding: "4px 8px", borderRadius: "6px", background: "rgba(255,255,255,0.045)", border: "1px solid var(--border)", color: "var(--text-dim)", fontSize: "10px", fontWeight: 700, letterSpacing: "0.5px", textTransform: "uppercase", flexShrink: 0 }}>{lang === "es" ? "EN" : "ES"}</button>
+        <button onClick={toggleLang} className="tap-target" style={{ padding: "5px 10px", borderRadius: "8px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.06)", color: "var(--text-dim)", fontSize: "11px", fontWeight: 700, letterSpacing: "0.3px", flexShrink: 0, transition: "all 0.15s ease" }}>{lang === "es" ? "EN" : "ES"}</button>
         {isDesktop && (
           <div style={{ display: "flex", background: "rgba(255,255,255,0.045)", borderRadius: "8px", overflow: "hidden", border: "1px solid var(--border)" }}>
             {desktopTabs.map((tab) => { const isActive = tab.key === "live" ? showPanel : desktopView === tab.key; return <button key={tab.key} onClick={() => handleDesktopTab(tab.key)} style={{ padding: "6px 10px", fontSize: "12px", border: "none", background: isActive ? "var(--accent-glow)" : "transparent", color: isActive ? "var(--accent)" : "var(--text-faint)", fontWeight: isActive ? 600 : 400, position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}><tab.Icon size={16} color={isActive ? "var(--accent)" : "var(--text-faint)"} active={isActive} />{tab.key === "live" && liveCount > 0 && !isActive && <span style={{ position: "absolute", top: 2, right: 2, width: 5, height: 5, borderRadius: "50%", background: "var(--danger)", animation: "blink 1.5s ease-in-out infinite" }} />}</button>; })}
@@ -781,7 +781,7 @@ function AppContent() {
       <UpdateBanner />
 
       {/* STATUS BAR */}
-      <div style={{ padding: "8px 16px", display: "flex", gap: "8px", alignItems: "center", flexShrink: 0, borderBottom: "1px solid var(--border)", background: "var(--bg)" }}>
+      <div style={{ padding: "8px 16px", display: "flex", gap: "8px", alignItems: "center", flexShrink: 0, borderBottom: "1px solid rgba(255,255,255,0.04)", background: "#0a0f1a" }}>
         {dangerCount > 0 && <button onClick={() => handleFilterClick("danger")} className="tap-target" style={{ display: "flex", alignItems: "center", gap: "7px", background: activeFilter === "danger" ? "rgba(239,68,68,0.15)" : "var(--danger-bg)", padding: "6px 14px", borderRadius: "20px", border: activeFilter === "danger" ? "1.5px solid var(--danger)" : "1px solid var(--danger-border)", cursor: "pointer", transition: "all 0.2s ease" }}><span style={{ width: 6, height: 6, background: "var(--danger)", borderRadius: "50%", animation: "blink 1.5s ease-in-out infinite", flexShrink: 0 }} /><span style={{ fontSize: "12px", color: "#fca5a5", fontWeight: 600, fontVariantNumeric: "tabular-nums" }}>{dangerCount} {t.danger}</span></button>}
         {cautionCount > 0 && <button onClick={() => handleFilterClick("caution")} className="tap-target" style={{ display: "flex", alignItems: "center", gap: "7px", background: activeFilter === "caution" ? "rgba(234,179,8,0.15)" : "var(--caution-bg)", padding: "6px 14px", borderRadius: "20px", border: activeFilter === "caution" ? "1.5px solid var(--caution)" : "1px solid var(--caution-border)", cursor: "pointer", transition: "all 0.2s ease" }}><span style={{ width: 6, height: 6, background: "var(--caution)", borderRadius: "50%", flexShrink: 0 }} /><span style={{ fontSize: "12px", color: "#fde047", fontWeight: 600, fontVariantNumeric: "tabular-nums" }}>{cautionCount} {t.caution}</span></button>}
         {dangerCount === 0 && cautionCount === 0 && <div style={{ display: "flex", alignItems: "center", gap: "7px", background: "var(--safe-bg)", padding: "6px 14px", borderRadius: "20px", border: "1px solid var(--safe-border)" }}><span style={{ width: 6, height: 6, background: "var(--safe)", borderRadius: "50%", flexShrink: 0 }} /><span style={{ fontSize: "12px", color: "#86efac", fontWeight: 600 }}>{t.noActiveAlerts}</span></div>}
@@ -814,14 +814,16 @@ function AppContent() {
             {/* Floating map controls */}
             <div style={{ position: "absolute", top: 12, right: 12, zIndex: 800, display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "8px" }}>
               <RainRadarButton enabled={radar.enabled} onToggle={radar.toggle} />
-              <button onClick={handleLocate} style={{
+              <button onClick={handleLocate} className="tap-target" style={{
                 width: 40, height: 40, borderRadius: "50%",
                 background: userLocation ? "rgba(66,133,244,0.15)" : "rgba(10,15,26,0.9)",
-                border: `1px solid ${userLocation ? "rgba(66,133,244,0.25)" : "var(--border)"}`,
+                border: `1px solid ${userLocation ? "rgba(66,133,244,0.3)" : "rgba(255,255,255,0.08)"}`,
                 display: "flex", alignItems: "center", justifyContent: "center",
-                cursor: "pointer", boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+                backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)",
+                transition: "all 0.2s ease",
               }}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={userLocation ? "#4285F4" : "rgba(255,255,255,0.5)"} strokeWidth="2" strokeLinecap="round">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={userLocation ? "#4285F4" : "rgba(255,255,255,0.45)"} strokeWidth="1.75" strokeLinecap="round">
                   <circle cx="12" cy="12" r="3" /><path d="M12 2v4M12 18v4M2 12h4M18 12h4" />
                 </svg>
               </button>
@@ -963,8 +965,10 @@ function AppContent() {
       {/* Post-report WhatsApp share prompt */}
       {lastReport && (
         <div style={{ position: "fixed", inset: 0, zIndex: 1100, background: "rgba(0,0,0,0.6)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px", animation: "fadeIn 0.2s ease" }}>
-          <div style={{ width: "100%", maxWidth: 340, textAlign: "center" }}>
-            <div style={{ width: 56, height: 56, borderRadius: "50%", background: "rgba(34,197,94,0.12)", border: "2px solid rgba(34,197,94,0.3)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "16px", animation: "successPulse 0.5s ease" }}><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div style={{ width: "100%", maxWidth: 340, background: "#0e1628", borderRadius: "var(--radius-xl)", border: "1px solid rgba(255,255,255,0.06)", boxShadow: "0 24px 80px rgba(0,0,0,0.6)", padding: "32px 24px 24px", textAlign: "center", animation: "modalScaleIn 0.35s cubic-bezier(0.34, 1.4, 0.64, 1)" }}>
+            <div style={{ width: 56, height: 56, borderRadius: "50%", background: "rgba(34,197,94,0.1)", border: "2px solid rgba(34,197,94,0.25)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px", animation: "successPulse 0.5s ease" }}>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
             <h3 style={{ fontSize: "20px", fontWeight: 800, marginBottom: "8px", letterSpacing: "-0.3px" }}>
               {es ? "¡Reporte enviado!" : "Report sent!"}
             </h3>
@@ -982,21 +986,21 @@ function AppContent() {
                 : `⚠️ Arroyo ${sevLabels[lastReport.severity]} at ${lastReport.zoneName} (${lastReport.zoneArea})\n${lastReport.text ? lastReport.text + "\n" : ""}📍 AlertaArroyo — https://arroyo-alert.vercel.app?zone=${lastReport.zoneId}`;
               window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
               setLastReport(null);
-            }} style={{
-              width: "100%", padding: "16px", borderRadius: "var(--radius-md)",
+            }} className="tap-target" style={{
+              width: "100%", padding: "15px", borderRadius: "var(--radius-md)",
               background: "#25D366", border: "none", color: "#fff",
-              fontSize: "16px", fontWeight: 700, cursor: "pointer",
+              fontSize: "15px", fontWeight: 700,
               display: "flex", alignItems: "center", justifyContent: "center", gap: "10px",
-              boxShadow: "0 8px 24px rgba(37,211,102,0.25)",
+              boxShadow: "0 8px 24px rgba(37,211,102,0.3)",
             }}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg>
               {es ? "Compartir por WhatsApp" : "Share via WhatsApp"}
             </button>
-            <button onClick={() => setLastReport(null)} style={{
-              width: "100%", marginTop: "10px", padding: "14px",
-              background: "none", border: "1px solid rgba(255,255,255,0.08)",
+            <button onClick={() => setLastReport(null)} className="tap-target" style={{
+              width: "100%", marginTop: "8px", padding: "13px",
+              background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)",
               borderRadius: "var(--radius-md)", color: "var(--text-dim)",
-              fontSize: "14px", fontWeight: 500, cursor: "pointer",
+              fontSize: "14px", fontWeight: 500,
             }}>
               {es ? "Ahora no" : "Not now"}
             </button>
