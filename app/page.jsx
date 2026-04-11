@@ -672,15 +672,19 @@ function AppContent() {
   if (showOnboarding) return <Onboarding lang={lang} onComplete={() => setShowOnboarding(false)} onToggleLang={toggleLang} />;
   if (screen === "about") return isDesktop ? (
     <><div onClick={() => setScreen("main")} style={{ position: "fixed", inset: 0, zIndex: 50, background: "rgba(0,0,0,0.5)", backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)", animation: "fadeIn 0.2s ease" }} />
-    <div style={{ position: "fixed", top: "50%", left: "50%", transform: "translate(-50%, -50%)", zIndex: 51, width: "100%", maxWidth: 560, maxHeight: "85vh", background: "var(--bg-elevated)", borderRadius: "var(--radius-xl)", border: "1px solid var(--border)", boxShadow: "0 24px 80px rgba(0,0,0,0.6)", animation: "desktopModalIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", overflow: "hidden", display: "flex", flexDirection: "column" }}>
+    <div style={{ position: "fixed", top: "50%", left: "50%", transform: "translate(-50%, -50%)", zIndex: 51, width: "100%", maxWidth: 560, height: "85vh", background: "var(--bg-elevated)", borderRadius: "var(--radius-xl)", border: "1px solid var(--border)", boxShadow: "0 24px 80px rgba(0,0,0,0.6)", animation: "desktopModalIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", overflow: "hidden" }}>
+      <div style={{ position: "relative", width: "100%", height: "100%" }}>
       <AboutPage onBack={() => setScreen("main")} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} />
+      </div>
     </div></>
   ) : <div style={{ animation: "screenSlideIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", position: "fixed", inset: 0, zIndex: 50, background: "var(--bg)" }}><AboutPage onBack={() => setScreen("main")} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} /></div>;
   if (screen === "heatmap") return <div style={{ animation: "screenSlideIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", position: "fixed", inset: 0, zIndex: 50, background: "var(--bg)" }}><HeatmapView onBack={() => setScreen("main")} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} /></div>;
   if (screen === "profile") return isDesktop ? (
     <><div onClick={() => setScreen("main")} style={{ position: "fixed", inset: 0, zIndex: 50, background: "rgba(0,0,0,0.5)", backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)", animation: "fadeIn 0.2s ease" }} />
-    <div style={{ position: "fixed", top: "50%", left: "50%", transform: "translate(-50%, -50%)", zIndex: 51, width: "100%", maxWidth: 480, maxHeight: "85vh", background: "var(--bg-elevated)", borderRadius: "var(--radius-xl)", border: "1px solid var(--border)", boxShadow: "0 24px 80px rgba(0,0,0,0.6)", animation: "desktopModalIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", overflow: "hidden", display: "flex", flexDirection: "column" }}>
+    <div style={{ position: "fixed", top: "50%", left: "50%", transform: "translate(-50%, -50%)", zIndex: 51, width: "100%", maxWidth: 480, height: "80vh", background: "var(--bg-elevated)", borderRadius: "var(--radius-xl)", border: "1px solid var(--border)", boxShadow: "0 24px 80px rgba(0,0,0,0.6)", animation: "desktopModalIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", overflow: "hidden" }}>
+      <div style={{ position: "relative", width: "100%", height: "100%" }}>
       <ReporterProfile reports={reports} onBack={() => setScreen("main")} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} />
+      </div>
     </div></>
   ) : <div style={{ animation: "screenSlideIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", position: "fixed", inset: 0, zIndex: 50, background: "var(--bg)" }}><ReporterProfile reports={reports} onBack={() => setScreen("main")} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} /></div>;
   if (screen === "report") return <div style={{ animation: "screenSlideIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", position: "fixed", inset: 0, zIndex: 50, background: "var(--bg)" }}><ReportFlow zones={ZONES} reports={reports} initialZoneId={selectedZone} onSubmit={async (data) => { await handleReport(data); const zone = ZONES.find(z => z.id === data.zoneId); setLastReport({ zoneName: zone?.name, zoneArea: zone?.area, severity: data.severity, text: data.text }); setScreen("main"); }} onBack={() => setScreen("main")} onLogoClick={handleLogoClick} /></div>;
