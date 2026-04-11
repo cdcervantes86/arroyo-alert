@@ -19,7 +19,7 @@ function Countdown({ createdAt }) {
 }
 
 function VerifiedBadge({ lang }) {
-  return <span style={{ display: "inline-flex", fontSize: "9px", fontWeight: 700, color: "var(--accent)", background: "var(--accent-glow)", padding: "2px 6px", borderRadius: "4px", border: "1px solid rgba(91,156,246,0.12)", letterSpacing: "0.3px" }}>{lang === "en" ? "✓ Verified" : "✓ Verificado"}</span>;
+  return <span style={{ display: "inline-flex", alignItems: "center", gap: "3px", fontSize: "9px", fontWeight: 700, color: "var(--accent)", background: "var(--accent-glow)", padding: "2px 6px", borderRadius: "4px", border: "1px solid rgba(91,156,246,0.12)", letterSpacing: "0.3px" }}><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>{lang === "en" ? "Verified" : "Verificado"}</span>;
 }
 
 function EmptyState({ lang }) {
@@ -139,14 +139,14 @@ export default function LiveFeed({ reports, onZoneClick, onUpvote, upvotedSet, o
                     color: isUpvoted ? "var(--accent)" : "var(--text-dim)",
                     fontSize: "11px", display: "flex", alignItems: "center", gap: "5px", fontWeight: 500, cursor: "pointer",
                   }}>
-                    👍 {isUpvoted ? t.confirmed : t.confirm} · <span style={{ display: "inline-block", animation: isUpvoted ? "countUp 0.3s ease" : "none", fontVariantNumeric: "tabular-nums" }}>{r.upvotes + (isUpvoted ? 1 : 0)}</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill={isUpvoted ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14z"/><path d="M7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg> {isUpvoted ? t.confirmed : t.confirm} · <span style={{ display: "inline-block", animation: isUpvoted ? "countUp 0.3s ease" : "none", fontVariantNumeric: "tabular-nums" }}>{r.upvotes + (isUpvoted ? 1 : 0)}</span>
                   </button>
-                  <button onClick={(e) => { e.stopPropagation(); setShareData({ zoneName: zone.name, zoneArea: zone.area, severity: r.severity, reportText: r.text, photoUrl: r.photo_url }); }} style={{
+                  <button onClick={(e) => { e.stopPropagation(); setShareData({ zoneName: zone.name, zoneArea: zone.area, severity: r.severity, reportText: r.text, photoUrl: r.photo_url, zoneId: zone.id }); }} style={{
                     background: "rgba(37,211,102,0.05)", border: "1px solid rgba(37,211,102,0.1)",
                     borderRadius: "var(--radius-sm)", padding: "6px 11px",
                     color: "#25D366", fontSize: "11px", fontWeight: 600, display: "flex", alignItems: "center", gap: "4px", cursor: "pointer",
                   }}>
-                    📤
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
                   </button>
                   <CommentThread reportId={r.id} allDeviceCounts={deviceCounts} />
                 </div>
