@@ -24,15 +24,15 @@ export default function AboutPage({ onBack, onLogoClick, onToggleLang, lang: lan
   return (
     <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, overflowY: "auto", WebkitOverflowScrolling: "touch", background: "var(--bg)" }}>
       {/* Sticky header */}
-      <div className="desktop-center-header" style={{ position: "sticky", top: 0, zIndex: 10, padding: "12px 16px", display: "flex", alignItems: "center", gap: "10px", background: "rgba(10,15,26,0.97)", backdropFilter: "blur(16px)", borderBottom: "1px solid var(--border)" }}>
+      <div className="desktop-center-header" style={{ position: "sticky", top: 0, zIndex: 10, padding: "12px 16px", display: "flex", alignItems: "center", gap: "10px", background: "rgba(10,15,26,0.95)", backdropFilter: "blur(20px) saturate(1.5)", WebkitBackdropFilter: "blur(20px) saturate(1.5)", borderBottom: "1px solid var(--border)", boxShadow: "0 1px 0 var(--border), 0 4px 16px rgba(0,0,0,0.15)" }}>
         <button onClick={onLogoClick} style={{ display: "flex", alignItems: "center", gap: "8px", background: "none", border: "none", padding: 0, cursor: "pointer" }}>
           <svg width={22} height={22} viewBox="0 0 512 512" style={{ borderRadius: 5 }}><defs><linearGradient id="lBgA" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor="#14261a" /><stop offset="100%" stopColor="#0a1210" /></linearGradient></defs><rect width="512" height="512" rx="112" fill="url(#lBgA)" /><path d="M60 210 Q130 160 200 210 Q270 260 340 210 Q410 160 460 210" fill="none" stroke="#D42A2A" strokeWidth="28" strokeLinecap="round" opacity="0.9" /><path d="M60 290 Q130 240 200 290 Q270 340 340 290 Q410 240 460 290" fill="none" stroke="#F5D033" strokeWidth="28" strokeLinecap="round" opacity="0.85" /><path d="M60 370 Q130 320 200 370 Q270 420 340 370 Q410 320 460 370" fill="none" stroke="#2d8a2d" strokeWidth="28" strokeLinecap="round" opacity="0.75" /></svg>
-          <span style={{ fontSize: "14px", fontWeight: 700 }}>Alerta<span style={{ color: "var(--baq-yellow)" }}>Arroyo</span></span>
+          <span style={{ fontSize: "14px", fontWeight: 700, color: "var(--text)" }}>Alerta<span style={{ color: "var(--baq-yellow)" }}>Arroyo</span></span>
           <span style={{ fontSize: "8px", fontWeight: 700, letterSpacing: "0.8px", textTransform: "uppercase", color: "var(--accent)", background: "var(--accent-glow)", padding: "2px 5px", borderRadius: "3px", border: "1px solid rgba(91,156,246,0.1)", marginLeft: "-2px", marginTop: "-8px" }}>Beta</span>
         </button>
         <span style={{ flex: 1 }} />
         {onToggleLang && <button onClick={onToggleLang} style={{ padding: "4px 8px", borderRadius: "6px", background: "rgba(255,255,255,0.045)", border: "1px solid var(--border)", color: "var(--text-dim)", fontSize: "10px", fontWeight: 700, letterSpacing: "0.5px", textTransform: "uppercase" }}>{lang === "es" ? "EN" : "ES"}</button>}
-        <button onClick={onBack} style={{ background: "none", border: "none", color: "var(--accent)", fontSize: "14px", fontWeight: 600 }}>{es ? "← Volver" : "← Back"}</button>
+        <button onClick={onBack} style={{ background: "none", border: "none", color: "var(--accent)", fontSize: "14px", fontWeight: 600, display: "flex", alignItems: "center", gap: "4px" }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>{es ? "Volver" : "Back"}</button>
       </div>
 
       <div className="desktop-center-content" style={{ padding: "24px 20px calc(24px + env(safe-area-inset-bottom, 20px))" }}>
@@ -45,7 +45,7 @@ export default function AboutPage({ onBack, onLogoClick, onToggleLang, lang: lan
         <div style={{ fontSize: "10px", color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "1.5px", fontWeight: 600, marginBottom: "12px" }}>{es ? "Configuración" : "Settings"}</div>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px", background: "var(--bg-card)", borderRadius: "var(--radius-md)", border: "1px solid var(--border)", marginBottom: "32px" }}>
           <div>
-            <div style={{ fontSize: "14px", fontWeight: 600 }}>🔊 {es ? "Alerta sonora" : "Sound alerts"}</div>
+            <div style={{ fontSize: "14px", fontWeight: 600, display: "flex", alignItems: "center", gap: "8px" }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14"/><path d="M15.54 8.46a5 5 0 010 7.07"/></svg>{es ? "Alerta sonora" : "Sound alerts"}</div>
             <div style={{ fontSize: "12px", color: "var(--text-dim)", marginTop: "2px" }}>{es ? "Sonido al recibir reportes de peligro" : "Sound on danger reports"}</div>
           </div>
           <button onClick={() => { const n = !audioOn; setAudioOn(n); setAudioEnabled(n); if (n) playDangerAlert(); }} style={{
@@ -60,14 +60,14 @@ export default function AboutPage({ onBack, onLogoClick, onToggleLang, lang: lan
         {/* Safety tips */}
         <div style={{ fontSize: "10px", color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "1.5px", fontWeight: 600, marginBottom: "12px" }}>{es ? "Consejos de seguridad" : "Safety tips"}</div>
         {[
-          { icon: "🚫", es: "NUNCA cruce un arroyo, sin importar su tamaño", en: "NEVER cross an arroyo, regardless of size" },
-          { icon: "🚗", es: "No intente cruzar en vehículo — los carros son arrastrados fácilmente", en: "Don't try to cross by car — vehicles are easily swept away" },
-          { icon: "🏠", es: "Si está lloviendo fuerte, quédese donde está hasta que pase", en: "If it's raining heavily, stay where you are until it passes" },
-          { icon: "👀", es: "Si ve un arroyo, repórtelo inmediatamente para alertar a otros", en: "If you see an arroyo, report it immediately to alert others" },
-          { icon: "📱", es: "Comparta las alertas con familiares y vecinos por WhatsApp", en: "Share alerts with family and neighbors via WhatsApp" },
+          { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>, es: "NUNCA cruce un arroyo, sin importar su tamaño", en: "NEVER cross an arroyo, regardless of size" },
+          { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="6" width="15" height="12" rx="2"/><path d="M16 10l5-3v10l-5-3z"/></svg>, es: "No intente cruzar en vehículo — los carros son arrastrados fácilmente", en: "Don't try to cross by car — vehicles are easily swept away" },
+          { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>, es: "Si está lloviendo fuerte, quédese donde está hasta que pase", en: "If it's raining heavily, stay where you are until it passes" },
+          { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>, es: "Si ve un arroyo, repórtelo inmediatamente para alertar a otros", en: "If you see an arroyo, report it immediately to alert others" },
+          { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.79 19.79 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>, es: "Comparta las alertas con familiares y vecinos por WhatsApp", en: "Share alerts with family and neighbors via WhatsApp" },
         ].map((tip, i) => (
           <div key={i} style={{ display: "flex", gap: "12px", alignItems: "flex-start", padding: "13px 14px", marginBottom: "6px", background: "var(--bg-card)", borderRadius: "var(--radius-md)", border: "1px solid var(--border)", animation: `fadeIn 0.2s ease ${i * 0.04}s both` }}>
-            <span style={{ fontSize: "18px", flexShrink: 0 }}>{tip.icon}</span>
+            <div style={{ flexShrink: 0, marginTop: "1px" }}>{tip.icon}</div>
             <p style={{ fontSize: "14px", color: "var(--text-secondary)", lineHeight: 1.5, margin: 0 }}>{es ? tip.es : tip.en}</p>
           </div>
         ))}
@@ -116,7 +116,7 @@ export default function AboutPage({ onBack, onLogoClick, onToggleLang, lang: lan
           padding: "14px", background: "var(--bg-card)", borderRadius: "var(--radius-md)",
           border: "1px solid var(--border)", textAlign: "left", marginBottom: "6px",
         }}>
-          <span style={{ fontSize: "18px" }}>✨</span>
+          <span style={{ flexShrink: 0 }}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: "14px", fontWeight: 600, color: "var(--text)" }}>AlertaArroyo v{APP_VERSION}</div>
             <div style={{ fontSize: "12px", color: "var(--text-dim)", marginTop: "2px" }}>{CHANGELOG[0]?.title?.[lang] || CHANGELOG[0]?.title?.es}</div>
@@ -138,7 +138,7 @@ export default function AboutPage({ onBack, onLogoClick, onToggleLang, lang: lan
                   padding: "10px 14px", background: "none", border: "none",
                   borderTop: "1px solid var(--border)", marginTop: "6px",
                 }}>
-                  <span style={{ fontSize: "12px" }}>🐛</span>
+                  <span style={{ flexShrink: 0 }}><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--text-dim)" strokeWidth="2" strokeLinecap="round"><path d="M8 2l1.88 1.88M14.12 3.88L16 2M9 7.13v-1a3 3 0 016 0v1"/><path d="M12 20c-3.3 0-6-2.7-6-6v-3a4 4 0 014-4h4a4 4 0 014 4v3c0 3.3-2.7 6-6 6z"/><path d="M5 11H1M23 11h-4M5 17H2M22 17h-3"/></svg></span>
                   <span style={{ fontSize: "12px", color: "var(--text-dim)", fontWeight: 600, flex: 1, textAlign: "left" }}>
                     {es ? `${(CHANGELOG[0].bugfixes[lang] || CHANGELOG[0].bugfixes.es).length} correcciones` : `${(CHANGELOG[0].bugfixes[lang] || CHANGELOG[0].bugfixes.es).length} bug fixes`}
                   </span>
