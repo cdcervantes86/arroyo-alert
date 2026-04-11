@@ -130,9 +130,9 @@ export default function UpdateBanner() {
         </button>
       </span>
       <button onClick={handleDismiss} style={{
-        background: "none", border: "none", color: "var(--text-dim)",
-        fontSize: "16px", cursor: "pointer", padding: "0 4px",
-      }}>✕</button>
+        background: "none", border: "none", cursor: "pointer", padding: "4px",
+        display: "flex", alignItems: "center", justifyContent: "center",
+      }}><svg width="10" height="10" viewBox="0 0 10 10" stroke="var(--text-dim)" strokeWidth="1.5" strokeLinecap="round"><line x1="2" y1="2" x2="8" y2="8"/><line x1="8" y1="2" x2="2" y2="8"/></svg></button>
     </div>
   );
 }

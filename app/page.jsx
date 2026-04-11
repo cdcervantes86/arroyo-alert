@@ -120,16 +120,23 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, lang }) {
 
 function MoreMenu({ onSelect, lang, onClose }) {
   const es = lang === "es";
+  const [closing, setClosing] = useState(false);
+
+  const handleClose = useCallback(() => {
+    setClosing(true);
+    setTimeout(onClose, 200);
+  }, [onClose]);
+
   return (
-    <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 900, background: "rgba(0,0,0,0.4)", backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)", animation: "fadeIn 0.15s ease" }}>
-      <div onClick={(e) => e.stopPropagation()} style={{ position: "absolute", bottom: 64, right: 12, left: 12, maxWidth: 300, marginLeft: "auto", background: "rgba(14,22,40,0.97)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "var(--radius-lg)", padding: "4px", animation: "slideUp 0.2s cubic-bezier(0.32, 0.72, 0, 1)", boxShadow: "0 -12px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04)" }}>
+    <div onClick={handleClose} style={{ position: "fixed", inset: 0, zIndex: 900, background: "rgba(0,0,0,0.4)", backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)", animation: closing ? "menuBackdropOut 0.2s ease forwards" : "fadeIn 0.15s ease" }}>
+      <div onClick={(e) => e.stopPropagation()} style={{ position: "absolute", bottom: 64, right: 12, left: 12, maxWidth: 300, marginLeft: "auto", background: "rgba(14,22,40,0.97)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "var(--radius-lg)", padding: "4px", animation: closing ? "menuSlideOut 0.2s ease forwards" : "slideUp 0.2s cubic-bezier(0.32, 0.72, 0, 1)", boxShadow: "0 -12px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04)", transformOrigin: "bottom right" }}>
         {[
           { key: "profile", Icon: ProfileIcon, label: es ? "Mi perfil" : "My profile", desc: es ? "Estadísticas y rango de reportero" : "Stats and reporter rank" },
           { key: "digest", Icon: ChartIcon, label: es ? "Resumen semanal" : "Weekly digest", desc: es ? "Actividad de los últimos 7 días" : "Last 7 days activity" },
           { key: "heatmap", Icon: FlameIcon, label: es ? "Historial" : "History", desc: es ? "Zonas más afectadas" : "Most affected zones" },
           { key: "about", Icon: InfoIcon, label: es ? "Info y seguridad" : "Info & safety", desc: es ? "Consejos, emergencias, ajustes" : "Tips, emergencies, settings" },
         ].map((item) => (
-          <button key={item.key} onClick={() => { onSelect(item.key); onClose(); }} className="more-menu-item" style={{ width: "100%", display: "flex", alignItems: "center", gap: "14px", padding: "13px 12px", background: "none", border: "none", textAlign: "left", borderRadius: "var(--radius-sm)" }}>
+          <button key={item.key} onClick={() => { onSelect(item.key); handleClose(); }} className="more-menu-item" style={{ width: "100%", display: "flex", alignItems: "center", gap: "14px", padding: "13px 12px", background: "none", border: "none", textAlign: "left", borderRadius: "var(--radius-sm)" }}>
             <div style={{ width: 32, height: 32, borderRadius: "var(--radius-sm)", background: "rgba(255,255,255,0.04)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><item.Icon size={16} color="var(--text-secondary)" /></div>
             <div><div style={{ fontSize: "14px", fontWeight: 600, color: "var(--text)" }}>{item.label}</div><div style={{ fontSize: "12px", color: "var(--text-dim)", marginTop: 1 }}>{item.desc}</div></div>
           </button>
@@ -252,6 +259,12 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
   const watcherCount = zoneWatchers?.[zone.id] || 0;
   const altRoutes = reports.filter(r => r.alt_route && r.alt_route.trim() && (r.severity === "danger" || r.severity === "caution"));
 
+  // Width progression: floating card at peek → edge-to-edge at full
+  const peekH = snapPx("peek"), fullH = snapPx("full");
+  const expansion = Math.max(0, Math.min(1, (heightPx - peekH) / (fullH - peekH)));
+  const sheetMargin = Math.round(10 * (1 - expansion));
+  const sheetRadius = Math.round(20 - expansion * 12);
+
   return (
     <>
       {/* Backdrop */}
@@ -267,15 +280,15 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
       <div ref={sheetRef}
         onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd}
         style={{
-          position: "fixed", left: 0, right: 0, bottom: 0, zIndex: 1001,
+          position: "fixed", left: sheetMargin, right: sheetMargin, bottom: 0, zIndex: 1001,
           height: `${heightPx}px`,
           maxHeight: "92vh",
           background: "rgba(14,22,40,0.98)",
           backdropFilter: "blur(24px) saturate(1.5)", WebkitBackdropFilter: "blur(24px) saturate(1.5)",
-          borderRadius: "20px 20px 0 0",
+          borderRadius: `${sheetRadius}px ${sheetRadius}px 0 0`,
           boxShadow: "0 -16px 64px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.06)",
           display: "flex", flexDirection: "column",
-          transition: isDragging ? "none" : `height ${DURATION} ${SPRING}`,
+          transition: isDragging ? "none" : `height ${DURATION} ${SPRING}, left ${DURATION} ${SPRING}, right ${DURATION} ${SPRING}, border-radius ${DURATION} ${SPRING}`,
           overflow: "hidden",
           willChange: "height",
         }}>

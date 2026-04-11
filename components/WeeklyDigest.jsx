@@ -91,7 +91,7 @@ export default function WeeklyDigest({ onClose, onZoneClick }) {
             <span style={{ fontSize: "10px", color: "var(--accent)", textTransform: "uppercase", letterSpacing: "1.5px", fontWeight: 700 }}>
               {es ? "Resumen semanal" : "Weekly digest"}
             </span>
-            <button onClick={onClose} style={{ width: 28, height: 28, borderRadius: "50%", background: "rgba(255,255,255,0.06)", border: "none", color: "var(--text-dim)", fontSize: "14px", display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
+            <button onClick={onClose} style={{ width: 28, height: 28, borderRadius: "50%", background: "rgba(255,255,255,0.06)", border: "none", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="10" height="10" viewBox="0 0 10 10" stroke="var(--text-dim)" strokeWidth="1.5" strokeLinecap="round"><line x1="2" y1="2" x2="8" y2="8"/><line x1="8" y1="2" x2="2" y2="8"/></svg></button>
           </div>
           <h3 style={{ fontSize: "22px", fontWeight: 800, letterSpacing: "-0.3px", margin: "8px 0 0" }}>
             {data.totalReports} {es ? "reportes" : "reports"}
@@ -167,7 +167,7 @@ export default function WeeklyDigest({ onClose, onZoneClick }) {
             background: "rgba(245,208,51,0.04)", border: "1px solid rgba(245,208,51,0.1)",
             display: "flex", alignItems: "center", gap: "12px",
           }}>
-            <span style={{ fontSize: "20px" }}>👍</span>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--baq-yellow)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14z"/><path d="M7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg>
             <div>
               <span style={{ fontSize: "16px", fontWeight: 700, color: "var(--baq-yellow)" }}>{data.totalUpvotes}</span>
               <span style={{ fontSize: "13px", color: "var(--text-dim)", marginLeft: "6px" }}>
