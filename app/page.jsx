@@ -34,7 +34,7 @@ class MapErrorBoundary extends React.Component {
   render() {
     if (this.state.hasError) return (
       <div style={{ width: "100%", height: "100%", background: "#070b14", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "20px", textAlign: "center" }}>
-        <span style={{ fontSize: "32px", marginBottom: "12px" }}>🗺️</span>
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: "12px" }}><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" /><line x1="8" y1="2" x2="8" y2="18" /><line x1="16" y1="6" x2="16" y2="22" /></svg>
         <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.5)" }}>Map could not load</p>
         <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.3)" }}>Switch to Zones tab</p>
       </div>
@@ -64,7 +64,7 @@ function OfflineBanner({ lang }) {
   const [offline, setOffline] = useState(false);
   useEffect(() => { const off = () => setOffline(true); const on = () => setOffline(false); window.addEventListener("offline", off); window.addEventListener("online", on); setOffline(!navigator.onLine); return () => { window.removeEventListener("offline", off); window.removeEventListener("online", on); }; }, []);
   if (!offline) return null;
-  return <div style={{ padding: "8px 16px", background: "rgba(239,68,68,0.08)", borderBottom: "1px solid rgba(239,68,68,0.1)", display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}><span style={{ fontSize: "12px" }}>📡</span><span style={{ fontSize: "12px", color: "#fca5a5", fontWeight: 600 }}>{lang === "es" ? "Sin conexión" : "Offline"}</span></div>;
+  return <div style={{ padding: "8px 16px", background: "rgba(239,68,68,0.08)", borderBottom: "1px solid rgba(239,68,68,0.1)", display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fca5a5" strokeWidth="2" strokeLinecap="round"><line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0119 12.55"/><path d="M5 12.55a10.94 10.94 0 015.17-2.39"/><path d="M10.71 5.05A16 16 0 0122.56 9"/><path d="M1.42 9a15.91 15.91 0 014.7-2.88"/><path d="M8.53 16.11a6 6 0 016.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg><span style={{ fontSize: "12px", color: "#fca5a5", fontWeight: 600 }}>{lang === "es" ? "Sin conexión" : "Offline"}</span></div>;
 }
 
 function EmergencyBanner({ emergency, lang }) {
@@ -72,7 +72,7 @@ function EmergencyBanner({ emergency, lang }) {
   const es = lang === "es";
   return (
     <div style={{ padding: "12px 16px", background: "rgba(239,68,68,0.12)", borderBottom: "2px solid rgba(239,68,68,0.3)", display: "flex", alignItems: "center", gap: "10px", flexShrink: 0, animation: "fadeIn 0.3s ease" }}>
-      <span style={{ fontSize: "20px", animation: "blink 1s ease infinite" }}>🚨</span>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fca5a5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ animation: "blink 1s ease infinite", flexShrink: 0 }}><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
       <div style={{ flex: 1 }}>
         <div style={{ fontSize: "14px", fontWeight: 700, color: "#fca5a5" }}>{es ? "ALERTA MÁXIMA" : "MAXIMUM ALERT"}</div>
         <div style={{ fontSize: "12px", color: "rgba(252,165,165,0.7)", marginTop: 1 }}>{es ? `${emergency.dangerCount} reportes de peligro en los últimos 30 min` : `${emergency.dangerCount} danger reports in the last 30 min`}</div>
@@ -239,6 +239,7 @@ function AppContent() {
   const [locationMarker, setLocationMarker] = useState(null);
   const [showDigest, setShowDigest] = useState(false);
   const [lastReport, setLastReport] = useState(null);
+  const [hintDismissed, setHintDismissed] = useState(false);
   const radar = useRainRadar(mapInstance);
   const favs = useFavorites();
   const pwaUpdate = useUpdateChecker();
@@ -393,11 +394,14 @@ function AppContent() {
             </MapErrorBoundary>
             {isRaining && <div className="rain-overlay" />}
             {/* First-time hint — shows when no reports are active */}
-            {!loading && reports.filter(r => new Date(r.created_at).getTime() > Date.now() - 4 * 3600000).length === 0 && (
-              <div style={{ position: "absolute", bottom: 24, left: "50%", transform: "translateX(-50%)", zIndex: 6, pointerEvents: "none", animation: "fadeIn 0.5s ease 1s both" }}>
-                <div style={{ background: "rgba(10,15,26,0.92)", backdropFilter: "blur(12px)", borderRadius: "20px", padding: "10px 18px", border: "1px solid var(--border)", display: "flex", alignItems: "center", gap: "8px", whiteSpace: "nowrap" }}>
-                  <span style={{ opacity: 0.5 }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round"><path d="M15 15l-2 5L9 9l11 4-5 2z" /><path d="M21 3l-8.5 8.5" /></svg></span>
+            {!loading && !hintDismissed && reports.filter(r => new Date(r.created_at).getTime() > Date.now() - 4 * 3600000).length === 0 && (
+              <div style={{ position: "absolute", bottom: 24, left: "50%", transform: "translateX(-50%)", zIndex: 6, animation: "fadeIn 0.5s ease 1s both" }}>
+                <div style={{ background: "rgba(10,15,26,0.92)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", borderRadius: "20px", padding: "10px 14px 10px 16px", border: "1px solid var(--border)", display: "flex", alignItems: "center", gap: "8px", whiteSpace: "nowrap", boxShadow: "0 4px 16px rgba(0,0,0,0.3)" }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
                   <span style={{ fontSize: "12px", color: "var(--text-secondary)", fontWeight: 500 }}>{es ? "Toca una zona o usa Reportar" : "Tap a zone or use Report"}</span>
+                  <button onClick={() => setHintDismissed(true)} style={{ width: 20, height: 20, borderRadius: "50%", background: "rgba(255,255,255,0.06)", border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0, marginLeft: "2px" }}>
+                    <svg width="8" height="8" viewBox="0 0 8 8" stroke="var(--text-faint)" strokeWidth="1.5" strokeLinecap="round"><line x1="1" y1="1" x2="7" y2="7"/><line x1="7" y1="1" x2="1" y2="7"/></svg>
+                  </button>
                 </div>
               </div>
             )}
@@ -509,7 +513,7 @@ function AppContent() {
       {lastReport && (
         <div style={{ position: "fixed", inset: 0, zIndex: 1100, background: "rgba(0,0,0,0.85)", backdropFilter: "blur(12px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px", animation: "fadeIn 0.2s ease" }}>
           <div style={{ width: "100%", maxWidth: 340, textAlign: "center" }}>
-            <div style={{ fontSize: "48px", marginBottom: "16px", animation: "successPulse 0.5s ease" }}>✅</div>
+            <div style={{ width: 56, height: 56, borderRadius: "50%", background: "rgba(34,197,94,0.12)", border: "2px solid rgba(34,197,94,0.3)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "16px", animation: "successPulse 0.5s ease" }}><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
             <h3 style={{ fontSize: "20px", fontWeight: 800, marginBottom: "8px", letterSpacing: "-0.3px" }}>
               {es ? "¡Reporte enviado!" : "Report sent!"}
             </h3>
