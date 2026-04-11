@@ -78,7 +78,7 @@ export default function WeeklyDigest({ onClose, onZoneClick }) {
           </button>
         </div>
       ) : (
-      <div style={{ position: "relative", zIndex: 1, width: "100%", maxWidth: 380, background: "var(--bg-elevated)", borderRadius: "var(--radius-xl)", border: "1px solid var(--border)", overflow: "hidden", animation: "desktopModalIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", willChange: "transform, opacity" }}>
+      <div style={{ position: "relative", zIndex: 1, width: "100%", maxWidth: 380, background: "var(--bg-elevated)", borderRadius: "var(--radius-xl)", border: "1px solid var(--border)", overflow: "hidden", animation: "modalScaleIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", willChange: "transform, opacity" }}>
         {/* Header */}
         <div style={{ padding: "24px 24px 16px", background: "linear-gradient(135deg, rgba(91,156,246,0.06), rgba(34,197,94,0.04))" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "4px" }}>
