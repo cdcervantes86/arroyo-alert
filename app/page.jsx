@@ -145,28 +145,38 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
   const es = lang === "es";
   const sevColor = severity ? SEVERITY[severity].color : "var(--border)";
 
-  // Snap points as % of viewport height (from bottom)
   const SNAPS = { peek: 22, half: 50, full: 88 };
   const [snap, setSnap] = useState("peek");
   const [dragOffset, setDragOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [closing, setClosing] = useState(false);
+  const [entered, setEntered] = useState(false);
   const touchRef = useRef({ startY: 0, startSnap: 0, lastY: 0, lastTime: 0, velocity: 0 });
   const contentRef = useRef(null);
   const sheetRef = useRef(null);
 
-  const snapPx = (key) => (SNAPS[key] / 100) * window.innerHeight;
-  const currentHeight = snapPx(snap) + dragOffset;
+  // Entrance: mount at height 0, then animate to peek
+  useEffect(() => {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => setEntered(true));
+    });
+  }, []);
+
+  const snapPx = (key) => (SNAPS[key] / 100) * (typeof window !== "undefined" ? window.innerHeight : 800);
+  const targetHeight = entered ? (closing ? 0 : snapPx(snap) + dragOffset) : 0;
+  const heightPx = Math.max(0, Math.min(snapPx("full") + 40, targetHeight));
+
+  const SPRING = "cubic-bezier(0.32, 0.72, 0, 1)";
+  const DURATION = "0.4s";
 
   const animateClose = useCallback(() => {
     if (closing) return;
     setClosing(true);
-    setTimeout(onClose, 300);
+    setTimeout(onClose, 380);
   }, [closing, onClose]);
 
   const handleTouchStart = (e) => {
     const scrollTop = contentRef.current?.scrollTop || 0;
-    // If full and scrolled down, don't start drag
     if (snap === "full" && scrollTop > 5) return;
     const y = e.touches[0].clientY;
     touchRef.current = { startY: y, startSnap: snapPx(snap), lastY: y, lastTime: Date.now(), velocity: 0 };
@@ -178,61 +188,66 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
     const y = e.touches[0].clientY;
     const now = Date.now();
     const dt = now - touchRef.current.lastTime;
-    if (dt > 0) touchRef.current.velocity = (touchRef.current.lastY - y) / dt * 1000;
+    if (dt > 0) {
+      const newVel = (touchRef.current.lastY - y) / dt * 1000;
+      touchRef.current.velocity = touchRef.current.velocity * 0.3 + newVel * 0.7; // smoothed
+    }
     touchRef.current.lastY = y;
     touchRef.current.lastTime = now;
-    const delta = touchRef.current.startY - y; // positive = dragging up
+    const delta = touchRef.current.startY - y;
     const newH = touchRef.current.startSnap + delta;
     const maxH = snapPx("full");
-    const clampedH = Math.max(0, Math.min(maxH + 40, newH));
+    // Rubber band effect beyond bounds
+    const overMax = newH - maxH;
+    const underMin = -newH;
+    let clampedH;
+    if (overMax > 0) clampedH = maxH + overMax * 0.2;
+    else if (underMin > 0) clampedH = -underMin * 0.2;
+    else clampedH = newH;
     setDragOffset(clampedH - snapPx(snap));
-    if (delta > 0 || (snap !== "full")) e.preventDefault();
+    if (delta > 0 || snap !== "full") e.preventDefault();
   };
 
   const handleTouchEnd = () => {
     if (!isDragging) return;
     setIsDragging(false);
-    const finalH = currentHeight;
-    const velocity = touchRef.current.velocity; // px/s, positive = upward
+    const finalH = heightPx;
+    const velocity = touchRef.current.velocity;
 
-    // If dragged below peek threshold, close
-    if (finalH < snapPx("peek") * 0.5) {
-      animateClose();
-      setDragOffset(0);
-      return;
+    if (finalH < snapPx("peek") * 0.4) {
+      setDragOffset(0); animateClose(); return;
     }
 
-    // Find nearest snap, biased by velocity
-    const velocityBias = velocity * 0.15;
-    const targets = [
-      { key: "peek", dist: Math.abs(finalH + velocityBias - snapPx("peek")) },
-      { key: "half", dist: Math.abs(finalH + velocityBias - snapPx("half")) },
-      { key: "full", dist: Math.abs(finalH + velocityBias - snapPx("full")) },
-    ];
-
-    // Strong flick up from peek -> go to half, from half -> go to full
-    if (velocity > 600) {
+    // Flick thresholds
+    if (velocity > 500) {
       if (snap === "peek") { setSnap("half"); setDragOffset(0); return; }
       if (snap === "half") { setSnap("full"); setDragOffset(0); return; }
     }
-    // Strong flick down
-    if (velocity < -600) {
+    if (velocity < -500) {
       if (snap === "full") { setSnap("half"); setDragOffset(0); return; }
       if (snap === "half") { setSnap("peek"); setDragOffset(0); return; }
-      if (snap === "peek") { animateClose(); setDragOffset(0); return; }
+      if (snap === "peek") { setDragOffset(0); animateClose(); return; }
     }
 
+    // Nearest snap with velocity bias
+    const bias = velocity * 0.12;
+    const targets = [
+      { key: "peek", dist: Math.abs(finalH + bias - snapPx("peek")) },
+      { key: "half", dist: Math.abs(finalH + bias - snapPx("half")) },
+      { key: "full", dist: Math.abs(finalH + bias - snapPx("full")) },
+    ];
     targets.sort((a, b) => a.dist - b.dist);
     setSnap(targets[0].key);
     setDragOffset(0);
   };
 
-  const heightPx = closing ? 0 : currentHeight;
-  const backdropOpacity = closing ? 0 : Math.min(0.6, (heightPx / window.innerHeight) * 0.8);
-  const backdropBlur = Math.min(8, (heightPx / window.innerHeight) * 12);
+  const vh = typeof window !== "undefined" ? window.innerHeight : 800;
+  const progress = heightPx / vh;
+  const backdropOpacity = closing ? 0 : Math.min(0.55, progress * 0.7);
+  const backdropBlur = Math.min(8, progress * 12);
   const canScroll = snap === "full" && !isDragging;
+  const contentOpacity = snap === "peek" && !isDragging ? 0 : Math.min(1, (heightPx - snapPx("peek")) / (snapPx("half") - snapPx("peek")));
 
-  // Data for display
   const subscribed = push.isSubscribed?.(zone.id);
   const watcherCount = zoneWatchers?.[zone.id] || 0;
   const altRoutes = reports.filter(r => r.alt_route && r.alt_route.trim() && (r.severity === "danger" || r.severity === "caution"));
@@ -244,7 +259,7 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
         position: "fixed", inset: 0, zIndex: 1000,
         background: `rgba(0,0,0,${backdropOpacity})`,
         backdropFilter: `blur(${backdropBlur}px)`, WebkitBackdropFilter: `blur(${backdropBlur}px)`,
-        transition: isDragging ? "none" : "all 0.35s cubic-bezier(0.32, 0.72, 0, 1)",
+        transition: isDragging ? "none" : `all ${DURATION} ${SPRING}`,
         pointerEvents: closing ? "none" : "auto",
       }} />
 
@@ -260,7 +275,7 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
           borderRadius: "20px 20px 0 0",
           boxShadow: "0 -16px 64px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.06)",
           display: "flex", flexDirection: "column",
-          transition: isDragging ? "none" : "height 0.35s cubic-bezier(0.32, 0.72, 0, 1)",
+          transition: isDragging ? "none" : `height ${DURATION} ${SPRING}`,
           overflow: "hidden",
           willChange: "height",
         }}>
@@ -300,8 +315,9 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
         <div ref={contentRef} style={{
           flex: 1, overflowY: canScroll ? "auto" : "hidden",
           WebkitOverflowScrolling: "touch", overscrollBehavior: "contain",
-          opacity: snap === "peek" ? 0 : 1,
-          transition: "opacity 0.25s ease",
+          opacity: contentOpacity,
+          transition: isDragging ? "none" : `opacity 0.3s ease`,
+          pointerEvents: contentOpacity < 0.1 ? "none" : "auto",
         }}>
           <div style={{ padding: "14px 20px calc(20px + env(safe-area-inset-bottom, 20px))" }}>
             {/* Description */}
@@ -473,10 +489,10 @@ function AppContent() {
   const isRaining = weather?.isRaining || false;
 
   if (showOnboarding) return <Onboarding lang={lang} onComplete={() => setShowOnboarding(false)} onToggleLang={toggleLang} />;
-  if (screen === "about") return <AboutPage onBack={() => setScreen("main")} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} />;
-  if (screen === "heatmap") return <HeatmapView onBack={() => setScreen("main")} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} />;
-  if (screen === "profile") return <ReporterProfile reports={reports} onBack={() => setScreen("main")} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} />;
-  if (screen === "report") return <ReportFlow zones={ZONES} reports={reports} initialZoneId={selectedZone} onSubmit={async (data) => { await handleReport(data); const zone = ZONES.find(z => z.id === data.zoneId); setLastReport({ zoneName: zone?.name, zoneArea: zone?.area, severity: data.severity, text: data.text }); setScreen("main"); }} onBack={() => setScreen("main")} onLogoClick={handleLogoClick} />;
+  if (screen === "about") return <div style={{ animation: "screenSlideIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", position: "fixed", inset: 0, zIndex: 50, background: "var(--bg)" }}><AboutPage onBack={() => setScreen("main")} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} /></div>;
+  if (screen === "heatmap") return <div style={{ animation: "screenSlideIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", position: "fixed", inset: 0, zIndex: 50, background: "var(--bg)" }}><HeatmapView onBack={() => setScreen("main")} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} /></div>;
+  if (screen === "profile") return <div style={{ animation: "screenSlideIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", position: "fixed", inset: 0, zIndex: 50, background: "var(--bg)" }}><ReporterProfile reports={reports} onBack={() => setScreen("main")} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} /></div>;
+  if (screen === "report") return <div style={{ animation: "screenSlideIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", position: "fixed", inset: 0, zIndex: 50, background: "var(--bg)" }}><ReportFlow zones={ZONES} reports={reports} initialZoneId={selectedZone} onSubmit={async (data) => { await handleReport(data); const zone = ZONES.find(z => z.id === data.zoneId); setLastReport({ zoneName: zone?.name, zoneArea: zone?.area, severity: data.severity, text: data.text }); setScreen("main"); }} onBack={() => setScreen("main")} onLogoClick={handleLogoClick} /></div>;
 
   const desktopTabs = [{ key: "map", Icon: MapIcon }, { key: "list", Icon: ListIcon }, { key: "live", Icon: LiveIcon }];
 
@@ -583,6 +599,7 @@ function AppContent() {
             </div>
             </>
           ) : currentMainView === "list" ? (
+            <div key="list-view" style={{ animation: "viewFadeIn 0.25s ease", height: "100%", overflow: "hidden" }}>
             <PullToRefresh onRefresh={refetch}>
             <div style={{ padding: "12px 14px 20px" }}>
               {loading ? Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} i={i} />) : (
@@ -629,8 +646,11 @@ function AppContent() {
               )}
             </div>
             </PullToRefresh>
+            </div>
           ) : (
+            <div key="live-view" style={{ animation: "viewFadeIn 0.25s ease", height: "100%", overflow: "hidden" }}>
             <LiveFeed reports={reports} onZoneClick={handleZoneClick} onUpvote={upvoteReport} upvotedSet={upvotedSet} onUpvoteLocal={handleUpvoteLocal} activeFilter={activeFilter} />
+            </div>
           )}
         </div>
         {isDesktop && (
