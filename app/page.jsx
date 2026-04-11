@@ -92,26 +92,37 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, lang }) {
   ];
   return (
     <div className="bottom-nav" style={{
-      display: "flex", alignItems: "stretch",
-      background: "rgba(10,15,26,0.97)", backdropFilter: "blur(20px)",
-      borderTop: "1px solid var(--border)", flexShrink: 0, height: 56,
+      display: "flex", alignItems: "center", justifyContent: "space-around",
+      background: "#0a0f1a", flexShrink: 0, height: 64,
+      borderTop: "1px solid rgba(255,255,255,0.05)",
     }}>
       {tabs.map((tab) => {
         const isActive = activeTab === tab.key;
         if (tab.isReport) return (
-          <button key={tab.key} onClick={onReport} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "2px", background: "none", border: "none", padding: 0 }}>
-            <div style={{ width: 40, height: 40, borderRadius: "50%", background: "linear-gradient(135deg, #D42A2A, #b91c1c)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 16px rgba(212,42,42,0.35)", marginTop: "-12px" }}>
-              <AlertTriangleIcon size={17} color="#fff" />
+          <button key={tab.key} onClick={onReport} style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "4px", background: "none", border: "none", padding: "0 16px", position: "relative" }}>
+            <div style={{ width: 44, height: 44, borderRadius: "50%", background: "linear-gradient(135deg, #D42A2A, #a11a1a)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 18px rgba(212,42,42,0.4)", marginTop: "-18px", border: "2px solid rgba(255,255,255,0.1)" }}>
+              <AlertTriangleIcon size={18} color="#fff" />
             </div>
-            <span style={{ fontSize: "9px", fontWeight: 600, color: "var(--baq-red)" }}>{tab.label}</span>
+            <span style={{ fontSize: "9px", fontWeight: 700, color: "#ef4444", letterSpacing: "0.3px" }}>{tab.label}</span>
           </button>
         );
         return (
-          <button key={tab.key} onClick={() => onTab(tab.key)} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "3px", background: "none", border: "none", padding: "4px 0", position: "relative" }}>
-            {isActive && <div style={{ position: "absolute", top: 0, left: "30%", right: "30%", height: 2, borderRadius: "0 0 2px 2px", background: "var(--accent)" }} />}
-            <tab.Icon size={20} color={isActive ? "var(--accent)" : "rgba(255,255,255,0.35)"} active={isActive} />
-            <span style={{ fontSize: "9px", fontWeight: isActive ? 700 : 500, color: isActive ? "var(--accent)" : "var(--text-faint)" }}>{tab.label}</span>
-            {tab.badge > 0 && !isActive && <span style={{ position: "absolute", top: 4, right: "calc(50% - 14px)", width: 6, height: 6, borderRadius: "50%", background: "var(--danger)", animation: "blink 1.5s ease-in-out infinite" }} />}
+          <button key={tab.key} onClick={() => onTab(tab.key)} style={{
+            display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+            gap: "3px", background: "none", border: "none", padding: "6px 18px", position: "relative",
+            borderRadius: "14px", transition: "all 0.25s cubic-bezier(0.34, 1.4, 0.64, 1)",
+          }}>
+            {/* Active pill background */}
+            {isActive && <div style={{
+              position: "absolute", inset: "2px 6px", borderRadius: "12px",
+              background: "rgba(91,156,246,0.08)", border: "1px solid rgba(91,156,246,0.1)",
+              transition: "all 0.3s cubic-bezier(0.34, 1.4, 0.64, 1)",
+            }} />}
+            <div style={{ position: "relative", zIndex: 1 }}>
+              <tab.Icon size={21} color={isActive ? "var(--accent)" : "rgba(255,255,255,0.3)"} active={isActive} />
+              {tab.badge > 0 && !isActive && <span style={{ position: "absolute", top: -2, right: -4, width: 7, height: 7, borderRadius: "50%", background: "var(--danger)", border: "1.5px solid #0a0f1a", animation: "blink 1.5s ease-in-out infinite" }} />}
+            </div>
+            <span style={{ position: "relative", zIndex: 1, fontSize: "10px", fontWeight: isActive ? 700 : 500, color: isActive ? "var(--accent)" : "rgba(255,255,255,0.3)", letterSpacing: isActive ? "0.2px" : "0", transition: "all 0.2s ease" }}>{tab.label}</span>
           </button>
         );
       })}
@@ -474,6 +485,9 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
                 {reports.length > 0 && <span style={{ fontSize: "11px", color: "var(--text-faint)", fontVariantNumeric: "tabular-nums" }}>{reports.length} {reports.length === 1 ? "report" : es ? "reportes" : "reports"}</span>}
               </div>
             </div>
+            <button onClick={(e) => { e.stopPropagation(); favs.toggle(zone.id); if (navigator.vibrate) navigator.vibrate(30); }} style={{ width: 32, height: 32, borderRadius: "50%", background: favs.isFavorite(zone.id) ? "rgba(250,204,21,0.1)" : "rgba(255,255,255,0.06)", border: favs.isFavorite(zone.id) ? "1px solid rgba(250,204,21,0.2)" : "none", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all 0.2s ease" }}>
+              <StarIcon size={14} color={favs.isFavorite(zone.id) ? "#facc15" : "rgba(255,255,255,0.35)"} filled={favs.isFavorite(zone.id)} />
+            </button>
             <button onClick={animateClose} style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(255,255,255,0.08)", border: "none", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "background 0.15s ease" }}>
               <svg width="11" height="11" viewBox="0 0 10 10" stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" strokeLinecap="round"><line x1="2" y1="2" x2="8" y2="8"/><line x1="8" y1="2" x2="2" y2="8"/></svg>
             </button>
@@ -813,43 +827,56 @@ function AppContent() {
           ) : currentMainView === "list" ? (
             <div key="list-view" style={{ animation: "viewFadeIn 0.25s ease", height: "100%", overflow: "hidden" }}>
             <PullToRefresh onRefresh={refetch}>
-            <div style={{ padding: "12px 14px 20px" }}>
+            <div style={{ padding: "12px 16px 20px" }}>
               {loading ? Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} i={i} />) : (
                 <>
                   {favs.sortZones(ZONES.filter((z) => !activeFilter || getZoneSeverity(z.id, reports) === activeFilter)).map((z, i, arr) => {
                     const sv = getZoneSeverity(z.id, reports); const zr = getZoneReports(z.id, reports); const lt = zr[0]; const c = sv ? SEVERITY[sv] : null;
                     const isSubbed = push.isSubscribed(z.id); const pred = predictions[z.id];
                     const isFav = favs.isFavorite(z.id);
-                    const accentStyle = sv ? { borderLeft: `3px solid ${c.color}` } : pred && pred.score >= 40 ? { borderLeft: `3px dashed ${pred.score >= 70 ? "var(--danger)" : "var(--caution)"}` } : {};
                     const showDivider = favs.count > 0 && i > 0 && isFav === false && favs.isFavorite(arr[i - 1]?.id);
+                    const hasActivity = sv || (pred && pred.score >= 40);
                     return (
                       <div key={z.id}>
                         {showDivider && <div style={{ height: 1, background: "var(--border)", margin: "12px 0" }} />}
-                        <div style={{ display: "flex", alignItems: "center", gap: "0", marginBottom: "8px", animation: `fadeIn 0.25s ease ${i * 0.03}s both` }}>
-                          <button onClick={(e) => { e.stopPropagation(); favs.toggle(z.id); }} style={{
-                            width: 32, height: 32, borderRadius: "50%", background: "none", border: "none",
-                            display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
-                            opacity: isFav ? 1 : 0.2, transition: "opacity 0.2s, transform 0.2s",
-                            transform: isFav ? "scale(1.1)" : "scale(1)",
-                          }}>
-                            <StarIcon size={15} color={isFav ? "#facc15" : "rgba(255,255,255,0.5)"} filled={isFav} />
-                          </button>
-                          <button onClick={() => handleZoneClick(z.id)} className="card-interactive" style={{ flex: 1, background: "var(--bg-card)", border: "1px solid var(--border)", ...accentStyle, borderRadius: "var(--radius-md)", padding: "14px 14px", textAlign: "left", display: "flex", gap: "12px", alignItems: "center" }}>
-                            <div style={{ width: 38, height: 38, borderRadius: "var(--radius-sm)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: c ? `${c.color}08` : "rgba(255,255,255,0.035)", border: `1px solid ${c ? c.color + "15" : "var(--border)"}` }}><SeverityIcon severity={sv} size={22} /></div>
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                              <div style={{ fontSize: "14px", fontWeight: 600, color: "var(--text)", display: "flex", alignItems: "center", gap: "6px" }}>
-                                {z.name} <span style={{ fontWeight: 400, color: "var(--text-dim)", fontSize: "12px" }}>{z.area}</span>
-                                {isSubbed && <BellIcon size={12} color="var(--accent)" />}
-                              </div>
-                              {lt ? <div style={{ fontSize: "12px", color: "var(--text-secondary)", marginTop: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{lt.text ? `${lt.text} · ` : ""}{timeAgoLocalized(lt.created_at, lang)}</div>
-                                : pred && pred.score >= 30 ? <div style={{ fontSize: "12px", color: pred.score >= 70 ? "var(--danger)" : pred.score >= 40 ? "var(--caution)" : "var(--text-dim)", marginTop: 4, fontWeight: 500, letterSpacing: "0.2px" }}>{pred.score}% {es ? "probabilidad" : "probability"}</div>
-                                : <div style={{ fontSize: "12px", color: "var(--text-faint)", marginTop: 4 }}>{es ? z.desc : (z.descEn || z.desc)}</div>}
+                        <button onClick={() => handleZoneClick(z.id)} className="card-interactive" style={{
+                          width: "100%", textAlign: "left", display: "flex", gap: "14px", alignItems: "center",
+                          padding: "14px 16px", marginBottom: "6px", borderRadius: "var(--radius-lg)",
+                          background: hasActivity ? `${c ? c.color : "var(--accent)"}04` : "rgba(255,255,255,0.02)",
+                          border: `1px solid ${c ? c.color + "18" : "var(--border)"}`,
+                          animation: `fadeIn 0.25s ease ${i * 0.03}s both`,
+                          position: "relative", overflow: "hidden",
+                        }}>
+                          {/* Severity accent bar */}
+                          {sv && <div style={{ position: "absolute", left: 0, top: "15%", bottom: "15%", width: 3, borderRadius: "0 2px 2px 0", background: c.color }} />}
+
+                          {/* Icon */}
+                          <div style={{ width: 42, height: 42, borderRadius: "var(--radius-md)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: c ? `${c.color}0a` : "rgba(255,255,255,0.03)", border: `1px solid ${c ? c.color + "18" : "rgba(255,255,255,0.06)"}` }}>
+                            <SeverityIcon severity={sv} size={22} />
+                          </div>
+
+                          {/* Content */}
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                              <span style={{ fontSize: "15px", fontWeight: 700, color: "var(--text)", letterSpacing: "-0.2px" }}>{z.name}</span>
+                              <span onClick={(e) => { e.stopPropagation(); favs.toggle(z.id); }} style={{ cursor: "pointer", display: "inline-flex", opacity: isFav ? 1 : 0, transition: "opacity 0.2s" }}>
+                                <StarIcon size={12} color="#facc15" filled />
+                              </span>
+                              {isSubbed && <BellIcon size={11} color="var(--accent)" />}
                             </div>
-                            {zr.length > 0 && <span style={{ fontSize: "11px", color: c ? c.color : "var(--text-dim)", background: c ? `${c.color}0a` : "rgba(255,255,255,0.045)", padding: "3px 8px", borderRadius: "6px", flexShrink: 0, fontWeight: 700, fontVariantNumeric: "tabular-nums" }}>{zr.length}</span>}
-                            {lt?.photo_url && <img src={lt.photo_url} alt="" style={{ width: 32, height: 32, borderRadius: "var(--radius-sm)", objectFit: "cover", flexShrink: 0, border: "1px solid var(--border)" }} loading="lazy" />}
-                            <svg width="7" height="12" viewBox="0 0 7 12" fill="none" style={{ flexShrink: 0, opacity: 0.2 }}><path d="M1 1l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
-                          </button>
-                        </div>
+                            <div style={{ fontSize: "12px", color: "var(--text-dim)", marginTop: 2 }}>{z.area}</div>
+                            {lt ? <div style={{ fontSize: "12px", color: "var(--text-secondary)", marginTop: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{lt.text ? `${lt.text} · ` : ""}{timeAgoLocalized(lt.created_at, lang)}</div>
+                              : pred && pred.score >= 30 ? <div style={{ fontSize: "12px", color: pred.score >= 70 ? "var(--danger)" : pred.score >= 40 ? "var(--caution)" : "var(--text-dim)", marginTop: 4, fontWeight: 500 }}>{pred.score}% {es ? "probabilidad" : "probability"}</div>
+                              : <div style={{ fontSize: "12px", color: "var(--text-faint)", marginTop: 4 }}>{es ? z.desc : (z.descEn || z.desc)}</div>}
+                          </div>
+
+                          {/* Right side */}
+                          <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
+                            {zr.length > 0 && <span style={{ fontSize: "12px", color: c ? c.color : "var(--text-dim)", background: c ? `${c.color}0c` : "rgba(255,255,255,0.04)", padding: "4px 10px", borderRadius: "8px", fontWeight: 700, fontVariantNumeric: "tabular-nums", minWidth: 28, textAlign: "center" }}>{zr.length}</span>}
+                            {lt?.photo_url && <img src={lt.photo_url} alt="" style={{ width: 36, height: 36, borderRadius: "var(--radius-sm)", objectFit: "cover", flexShrink: 0, border: "1px solid var(--border)" }} loading="lazy" />}
+                            <svg width="7" height="12" viewBox="0 0 7 12" fill="none" style={{ flexShrink: 0, opacity: 0.15 }}><path d="M1 1l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                          </div>
+                        </button>
                       </div>
                     );
                   })}
