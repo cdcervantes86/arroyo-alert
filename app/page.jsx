@@ -757,8 +757,14 @@ function AppContent() {
     const f = async () => { try {
       const r = await fetch("https://api.open-meteo.com/v1/forecast?latitude=10.96&longitude=-74.78&current=temperature_2m,weather_code,precipitation&hourly=precipitation_probability&forecast_days=1&timezone=America/Bogota");
       const d = await r.json(); const c = d.current; const h = d.hourly;
-      const idx = new Date().getHours(); const probs = h.precipitation_probability.slice(idx, idx+3).filter(Boolean);
-      setWeather({ isRaining: c.precipitation > 0, isStormy: c.weather_code >= 95, maxProb: Math.max(...probs, 0) });
+      const idx = new Date().getHours(); const probs = h.precipitation_probability.slice(idx, idx+6).filter(Boolean);
+      const maxProb = Math.max(...probs, 0);
+      // Find hours until high probability rain
+      let hoursUntilRain = null;
+      for (let i = 0; i < probs.length; i++) {
+        if (probs[i] >= 60) { hoursUntilRain = i; break; }
+      }
+      setWeather({ isRaining: c.precipitation > 0, isStormy: c.weather_code >= 95, maxProb, hoursUntilRain });
     } catch(e) {} };
     f(); const i = setInterval(f, 600000); return () => clearInterval(i);
   }, []);
@@ -886,6 +892,43 @@ function AppContent() {
 
       <EmergencyBanner emergency={emergency} lang={lang} />
       <OfflineBanner lang={lang} />
+
+      {/* Proactive rain alert */}
+      {weather && (weather.isRaining || (weather.maxProb >= 70 && weather.hoursUntilRain !== null)) && !emergency.active && (
+        <div style={{
+          padding: "10px 16px", display: "flex", alignItems: "center", gap: "10px",
+          background: weather.isRaining ? "rgba(239,68,68,0.08)" : "rgba(234,179,8,0.06)",
+          borderBottom: `1px solid ${weather.isRaining ? "rgba(239,68,68,0.12)" : "rgba(234,179,8,0.1)"}`,
+          animation: "fadeIn 0.3s ease", flexShrink: 0,
+        }}>
+          <div style={{
+            width: 28, height: 28, borderRadius: "var(--radius-sm)",
+            background: weather.isRaining ? "rgba(239,68,68,0.1)" : "rgba(234,179,8,0.08)",
+            border: `1px solid ${weather.isRaining ? "rgba(239,68,68,0.15)" : "rgba(234,179,8,0.12)"}`,
+            display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+          }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={weather.isRaining ? "#fca5a5" : "#fde047"} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20 17.58A5 5 0 0018 8h-1.26A8 8 0 104 16.25"/>
+              <line x1="8" y1="16" x2="8" y2="20"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="16" y1="16" x2="16" y2="20"/>
+            </svg>
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: "13px", fontWeight: 700, color: weather.isRaining ? "#fca5a5" : "#fde047" }}>
+              {weather.isRaining
+                ? (es ? "Lluvia detectada" : "Rain detected")
+                : weather.hoursUntilRain === 0
+                  ? (es ? "Lluvia inminente" : "Rain imminent")
+                  : (es ? `Lluvia probable en ~${weather.hoursUntilRain}h` : `Rain likely in ~${weather.hoursUntilRain}h`)}
+            </div>
+            <div style={{ fontSize: "11px", color: weather.isRaining ? "rgba(252,165,165,0.6)" : "rgba(253,224,71,0.5)", marginTop: "1px" }}>
+              {weather.isRaining
+                ? (es ? "Evita cruzar arroyos — reporta si ves uno" : "Avoid crossing arroyos — report if you see one")
+                : (es ? "Prepárate y revisa las zonas cercanas" : "Be prepared and check nearby zones")}
+            </div>
+          </div>
+          <span style={{ fontSize: "12px", fontWeight: 700, color: weather.isRaining ? "#fca5a5" : "#fde047", fontVariantNumeric: "tabular-nums" }}>{weather.maxProb}%</span>
+        </div>
+      )}
       {/* PWA update available */}
       {pwaUpdate.updateAvailable && (
         <div style={{
