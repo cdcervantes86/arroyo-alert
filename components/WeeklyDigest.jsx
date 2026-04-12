@@ -4,7 +4,7 @@ import { useLanguage } from "@/lib/LanguageContext";
 import { supabase } from "@/lib/supabase";
 import { ZONES, SEVERITY } from "@/lib/zones";
 
-export default function WeeklyDigest({ onClose, onZoneClick }) {
+export default function WeeklyDigest({ onClose, onZoneClick, closing }) {
   const { lang } = useLanguage();
   const es = lang === "es";
   const [data, setData] = useState(null);
@@ -60,7 +60,7 @@ export default function WeeklyDigest({ onClose, onZoneClick }) {
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 1100, display: "flex", alignItems: "center", justifyContent: "center", padding: "16px" }}>
       {/* Persistent backdrop — never re-mounts */}
-      <div onClick={onClose} style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.7)", animation: "fadeIn 0.2s ease" }} />
+      <div onClick={onClose} style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.7)", animation: closing ? "backdropOut 0.25s ease forwards" : "fadeIn 0.2s ease" }} />
 
       {loading ? (
         <div style={{ position: "relative", zIndex: 1, color: "var(--text-dim)", fontSize: "14px", animation: "blink 1s ease infinite" }}>
@@ -78,7 +78,7 @@ export default function WeeklyDigest({ onClose, onZoneClick }) {
           </button>
         </div>
       ) : (
-      <div style={{ position: "relative", zIndex: 1, width: "100%", maxWidth: 380, background: "#0e1628", borderRadius: "var(--radius-xl)", border: "1px solid rgba(255,255,255,0.06)", overflow: "hidden", animation: "modalScaleIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", willChange: "transform, opacity" }}>
+      <div style={{ position: "relative", zIndex: 1, width: "100%", maxWidth: 380, background: "#0e1628", borderRadius: "var(--radius-xl)", border: "1px solid rgba(255,255,255,0.06)", overflow: "hidden", animation: closing ? "desktopModalOut 0.25s ease forwards" : "modalScaleIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", willChange: "transform, opacity" }}>
         {/* Header */}
         <div style={{ padding: "24px 24px 16px", background: "linear-gradient(135deg, rgba(91,156,246,0.06), rgba(34,197,94,0.04))" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "4px" }}>

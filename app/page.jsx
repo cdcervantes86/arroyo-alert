@@ -691,6 +691,9 @@ function AppContent() {
   const [userLocation, setUserLocation] = useState(null);
   const [locationMarker, setLocationMarker] = useState(null);
   const [showDigest, setShowDigest] = useState(false);
+  const [closingScreen, setClosingScreen] = useState(null);
+  const [closingWhatsApp, setClosingWhatsApp] = useState(false);
+  const [closingDigest, setClosingDigest] = useState(false);
   const [lastReport, setLastReport] = useState(null);
   const [hintDismissed, setHintDismissed] = useState(false);
   const radar = useRainRadar(mapInstance);
@@ -769,6 +772,11 @@ function AppContent() {
     mapRestoreRef.current = null;
     setScreen("main"); setSelectedZone(null);
   };
+
+  const closeScreenAnimated = useCallback(() => {
+    setClosingScreen(screen);
+    setTimeout(() => { setScreen("main"); setClosingScreen(null); }, 250);
+  }, [screen]);
   const handleMapReady = useCallback((map) => { setMapInstance(map); }, []);
   const handleLocate = useCallback(() => {
     if (!mapInstance) return;
@@ -1029,30 +1037,30 @@ function AppContent() {
       })()}
 
       {/* Weekly Digest modal */}
-      {showDigest && <WeeklyDigest onClose={() => setShowDigest(false)} onZoneClick={(id) => handleZoneClick(id, "list")} />}
+      {(showDigest || closingDigest) && <WeeklyDigest onClose={() => { setClosingDigest(true); setTimeout(() => { setShowDigest(false); setClosingDigest(false); }, 250); }} onZoneClick={(id) => handleZoneClick(id, "list")} closing={closingDigest} />}
 
       {/* Desktop About modal — single container to prevent layer flicker */}
-      {isDesktop && screen === "about" && (
-        <div onClick={() => setScreen("main")} style={{ position: "fixed", inset: 0, zIndex: 1200, background: "rgba(0,0,0,0.7)", display: "flex", alignItems: "center", justifyContent: "center", animation: "fadeIn 0.2s ease" }}>
-          <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 560, height: "85vh", background: "#0e1628", borderRadius: "var(--radius-xl)", border: "1px solid rgba(255,255,255,0.06)", boxShadow: "0 24px 80px rgba(0,0,0,0.6)", animation: "modalScaleIn 0.3s cubic-bezier(0.34, 1.4, 0.64, 1)", overflow: "hidden", position: "relative" }}>
-            <AboutPage onBack={() => setScreen("main")} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} />
+      {isDesktop && (screen === "about" || closingScreen === "about") && (
+        <div onClick={closeScreenAnimated} style={{ position: "fixed", inset: 0, zIndex: 1200, background: "rgba(0,0,0,0.7)", display: "flex", alignItems: "center", justifyContent: "center", animation: closingScreen === "about" ? "backdropOut 0.25s ease forwards" : "fadeIn 0.2s ease" }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 560, height: "85vh", background: "#0e1628", borderRadius: "var(--radius-xl)", border: "1px solid rgba(255,255,255,0.06)", boxShadow: "0 24px 80px rgba(0,0,0,0.6)", animation: closingScreen === "about" ? "desktopModalOut 0.25s ease forwards" : "modalScaleIn 0.3s cubic-bezier(0.34, 1.4, 0.64, 1)", overflow: "hidden", position: "relative" }}>
+            <AboutPage onBack={closeScreenAnimated} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} />
           </div>
         </div>
       )}
 
       {/* Desktop Profile modal — single container to prevent layer flicker */}
-      {isDesktop && screen === "profile" && (
-        <div onClick={() => setScreen("main")} style={{ position: "fixed", inset: 0, zIndex: 1200, background: "rgba(0,0,0,0.7)", display: "flex", alignItems: "center", justifyContent: "center", animation: "fadeIn 0.2s ease" }}>
-          <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 480, height: "80vh", background: "#0e1628", borderRadius: "var(--radius-xl)", border: "1px solid rgba(255,255,255,0.06)", boxShadow: "0 24px 80px rgba(0,0,0,0.6)", animation: "modalScaleIn 0.3s cubic-bezier(0.34, 1.4, 0.64, 1)", overflow: "hidden", position: "relative" }}>
-            <ReporterProfile reports={reports} onBack={() => setScreen("main")} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} />
+      {isDesktop && (screen === "profile" || closingScreen === "profile") && (
+        <div onClick={closeScreenAnimated} style={{ position: "fixed", inset: 0, zIndex: 1200, background: "rgba(0,0,0,0.7)", display: "flex", alignItems: "center", justifyContent: "center", animation: closingScreen === "profile" ? "backdropOut 0.25s ease forwards" : "fadeIn 0.2s ease" }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 480, height: "80vh", background: "#0e1628", borderRadius: "var(--radius-xl)", border: "1px solid rgba(255,255,255,0.06)", boxShadow: "0 24px 80px rgba(0,0,0,0.6)", animation: closingScreen === "profile" ? "desktopModalOut 0.25s ease forwards" : "modalScaleIn 0.3s cubic-bezier(0.34, 1.4, 0.64, 1)", overflow: "hidden", position: "relative" }}>
+            <ReporterProfile reports={reports} onBack={closeScreenAnimated} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} />
           </div>
         </div>
       )}
 
       {/* Post-report WhatsApp share prompt */}
-      {lastReport && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 1100, background: "rgba(0,0,0,0.7)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px", animation: "fadeIn 0.2s ease" }}>
-          <div style={{ width: "100%", maxWidth: 340, background: "#0e1628", borderRadius: "var(--radius-xl)", border: "1px solid rgba(255,255,255,0.06)", boxShadow: "0 24px 80px rgba(0,0,0,0.6)", padding: "32px 24px 24px", textAlign: "center", animation: "modalScaleIn 0.35s cubic-bezier(0.34, 1.4, 0.64, 1)" }}>
+      {(lastReport || closingWhatsApp) && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 1100, background: "rgba(0,0,0,0.7)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px", animation: closingWhatsApp ? "backdropOut 0.25s ease forwards" : "fadeIn 0.2s ease" }}>
+          <div style={{ width: "100%", maxWidth: 340, background: "#0e1628", borderRadius: "var(--radius-xl)", border: "1px solid rgba(255,255,255,0.06)", boxShadow: "0 24px 80px rgba(0,0,0,0.6)", padding: "32px 24px 24px", textAlign: "center", animation: closingWhatsApp ? "desktopModalOut 0.25s ease forwards" : "modalScaleIn 0.35s cubic-bezier(0.34, 1.4, 0.64, 1)" }}>
             <div style={{ width: 56, height: 56, borderRadius: "50%", background: "rgba(34,197,94,0.1)", border: "2px solid rgba(34,197,94,0.25)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px", animation: "successPulse 0.5s ease" }}>
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
             </div>
@@ -1072,7 +1080,7 @@ function AppContent() {
                 ? `⚠️ Arroyo ${sevLabels[lastReport.severity]} en ${lastReport.zoneName} (${lastReport.zoneArea})\n${lastReport.text ? lastReport.text + "\n" : ""}📍 AlertaArroyo — https://arroyo-alert.vercel.app?zone=${lastReport.zoneId}`
                 : `⚠️ Arroyo ${sevLabels[lastReport.severity]} at ${lastReport.zoneName} (${lastReport.zoneArea})\n${lastReport.text ? lastReport.text + "\n" : ""}📍 AlertaArroyo — https://arroyo-alert.vercel.app?zone=${lastReport.zoneId}`;
               window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
-              setLastReport(null);
+              setClosingWhatsApp(true); setTimeout(() => { setLastReport(null); setClosingWhatsApp(false); }, 250);
             }} className="tap-target" style={{
               width: "100%", padding: "15px", borderRadius: "var(--radius-md)",
               background: "#25D366", border: "none", color: "#fff",
@@ -1083,7 +1091,7 @@ function AppContent() {
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg>
               {es ? "Compartir por WhatsApp" : "Share via WhatsApp"}
             </button>
-            <button onClick={() => setLastReport(null)} className="tap-target" style={{
+            <button onClick={() => { setClosingWhatsApp(true); setTimeout(() => { setLastReport(null); setClosingWhatsApp(false); }, 250); }} className="tap-target" style={{
               width: "100%", marginTop: "8px", padding: "13px",
               background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)",
               borderRadius: "var(--radius-md)", color: "var(--text-dim)",
