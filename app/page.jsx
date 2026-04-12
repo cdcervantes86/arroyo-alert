@@ -375,6 +375,14 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
     setTimeout(onClose, 380);
   }, [closing, onClose]);
 
+  // Dismiss sheet when clicking empty map space (markers don't propagate to this)
+  useEffect(() => {
+    if (!mapInstance || isDesktop) return;
+    const handleMapClick = () => { animateClose(); };
+    mapInstance.on("click", handleMapClick);
+    return () => { mapInstance.off("click", handleMapClick); };
+  }, [mapInstance, isDesktop, animateClose]);
+
   const handleTouchStart = (e) => {
     const scrollTop = contentRef.current?.scrollTop || 0;
     if (snap === "full" && scrollTop > 5) return;
@@ -460,32 +468,13 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
 
   return (
     <>
-      {/* Backdrop — dismisses on tap or short touch */}
+      {/* Backdrop — visual only, doesn't block map interaction */}
       <div
-        onTouchStart={(e) => { e.target._touchStart = { x: e.touches[0].clientX, y: e.touches[0].clientY, time: Date.now(), dismissed: false }; }}
-        onTouchMove={(e) => {
-          const s = e.target._touchStart;
-          if (!s || s.dismissed) return;
-          const dx = Math.abs(e.touches[0].clientX - s.x);
-          const dy = Math.abs(e.touches[0].clientY - s.y);
-          if (dx > 30 || dy > 30) {
-            s.dismissed = true;
-            animateClose();
-          }
-        }}
-        onTouchEnd={(e) => {
-          const s = e.target._touchStart;
-          if (!s || s.dismissed) return;
-          const dy = Math.abs(e.changedTouches[0].clientY - s.y);
-          const dt = Date.now() - s.time;
-          if (dy < 20 && dt < 400) animateClose();
-        }}
-        onClick={animateClose}
         style={{
           position: "fixed", inset: 0, zIndex: 1000,
           background: `rgba(0,0,0,${backdropOpacity})`,
           transition: isDragging ? "none" : `all ${DURATION} ${SPRING}`,
-          pointerEvents: closing ? "none" : "auto",
+          pointerEvents: "none",
         }}
       />
 
@@ -713,14 +702,16 @@ function AppContent() {
 
   const handleZoneClick = useCallback((zoneId, source = "map") => {
     if (source === "map" && mapInstance && !isDesktop) {
-      mapRestoreRef.current = {
-        center: mapInstance.getCenter().toArray(),
-        zoom: mapInstance.getZoom(),
-      };
+      // Only save on first click — don't overwrite when switching zones
+      if (!mapRestoreRef.current) {
+        mapRestoreRef.current = {
+          center: mapInstance.getCenter().toArray(),
+          zoom: mapInstance.getZoom(),
+        };
+      }
       const zone = ZONES.find(z => z.id === zoneId);
       if (zone) {
-        // Shift center up slightly so marker sits above the sheet
-        const sheetOffset = 0.003; // ~300m north in lat
+        const sheetOffset = 0.003;
         mapInstance.easeTo({
           center: [zone.lng, zone.lat + sheetOffset],
           duration: 500,
