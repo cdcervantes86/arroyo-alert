@@ -781,6 +781,7 @@ function AppContent() {
   const [upvotedSet, setUpvotedSet] = useState(new Set());
   const [activeFilter, setActiveFilter] = useState(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showNotifPrompt, setShowNotifPrompt] = useState(false);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const [weather, setWeather] = useState(null);
   const [predictions, setPredictions] = useState({});
@@ -900,6 +901,13 @@ function AppContent() {
   const closeSheet = () => {
     mapRestoreRef.current = null;
     setScreen("main"); setSelectedZone(null);
+    // Show notification prompt once after first zone view
+    try {
+      if (typeof Notification !== "undefined" && Notification.permission === "default" && !localStorage.getItem("arroyo-notif-prompted")) {
+        localStorage.setItem("arroyo-notif-prompted", "1");
+        setTimeout(() => setShowNotifPrompt(true), 600);
+      }
+    } catch(e) {}
   };
 
   const closeScreenAnimated = useCallback(() => {
@@ -1338,6 +1346,46 @@ function AppContent() {
             </div>
             <div style={{ fontSize: "12px", color: "var(--baq-yellow)", textTransform: "uppercase", letterSpacing: "2px", fontWeight: 700, marginBottom: "8px" }}>{es ? "Nuevo rango" : "Rank up"}</div>
             <div style={{ fontSize: "24px", fontWeight: 800, color: "#fff", letterSpacing: "-0.5px" }}>{rankUp}</div>
+          </div>
+        </div>
+      )}
+
+      {/* Notification permission prompt */}
+      {showNotifPrompt && (
+        <div onClick={() => setShowNotifPrompt(false)} style={{ position: "fixed", inset: 0, zIndex: 1100, background: "rgba(0,0,0,0.7)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px", animation: "fadeIn 0.2s ease" }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 340, background: "#0e1628", borderRadius: "var(--radius-xl)", border: "1px solid rgba(255,255,255,0.06)", boxShadow: "0 24px 80px rgba(0,0,0,0.6)", padding: "32px 24px 24px", textAlign: "center", animation: "modalScaleIn 0.35s cubic-bezier(0.34, 1.4, 0.64, 1)" }}>
+            <div style={{ width: 56, height: 56, borderRadius: "50%", background: "rgba(91,156,246,0.08)", border: "2px solid rgba(91,156,246,0.15)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+            </div>
+            <h3 style={{ fontSize: "18px", fontWeight: 800, marginBottom: "8px", letterSpacing: "-0.3px", color: "var(--text)" }}>
+              {es ? "Activa las notificaciones" : "Enable notifications"}
+            </h3>
+            <p style={{ fontSize: "14px", color: "var(--text-secondary)", lineHeight: 1.6, marginBottom: "24px" }}>
+              {es
+                ? "Recibe alertas cuando se reporte un arroyo peligroso cerca de ti. Puede salvar tu vida."
+                : "Get alerted when a dangerous arroyo is reported near you. It could save your life."}
+            </p>
+            <button onClick={async () => {
+              try { await Notification.requestPermission(); } catch(e) {}
+              setShowNotifPrompt(false);
+            }} className="tap-target" style={{
+              width: "100%", padding: "15px", borderRadius: "var(--radius-lg)",
+              background: "var(--accent)", border: "none", color: "#fff",
+              fontSize: "15px", fontWeight: 700,
+              boxShadow: "0 8px 24px rgba(91,156,246,0.2)",
+              display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
+            }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+              {es ? "Activar alertas" : "Enable alerts"}
+            </button>
+            <button onClick={() => setShowNotifPrompt(false)} className="tap-target" style={{
+              width: "100%", marginTop: "8px", padding: "13px",
+              background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)",
+              borderRadius: "var(--radius-lg)", color: "var(--text-dim)",
+              fontSize: "14px", fontWeight: 500,
+            }}>
+              {es ? "Ahora no" : "Not now"}
+            </button>
           </div>
         </div>
       )}
