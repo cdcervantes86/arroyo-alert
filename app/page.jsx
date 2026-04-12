@@ -318,22 +318,19 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
       </div>
     );
 
-    // SIDE PANEL — map view
+    // SIDE PANEL — map view (no backdrop - map stays interactive)
     if (isSidePanel) {
       return (
-        <>
-          <div onClick={handleDesktopClose} style={{ position: "fixed", inset: 0, zIndex: 999, pointerEvents: "auto", background: closing ? "transparent" : "rgba(0,0,0,0.15)", transition: "background 0.25s ease" }} />
-          <div style={{
-            position: "fixed", top: 0, right: 0, bottom: 0, width: 400, zIndex: 1001,
-            background: "#0e1628",
-            borderLeft: "1px solid rgba(255,255,255,0.06)",
-            boxShadow: "-12px 0 48px rgba(0,0,0,0.4)",
-            animation: closing ? "desktopPanelOut 0.25s ease forwards" : "desktopPanelIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)",
-            display: "flex", flexDirection: "column",
-          }}>
-            {panelContent}
-          </div>
-        </>
+        <div style={{
+          position: "fixed", top: 0, right: 0, bottom: 0, width: 400, zIndex: 1001,
+          background: "#0e1628",
+          borderLeft: "1px solid rgba(255,255,255,0.06)",
+          boxShadow: "-12px 0 48px rgba(0,0,0,0.4)",
+          animation: closing ? "desktopPanelOut 0.25s ease forwards" : "desktopPanelIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)",
+          display: "flex", flexDirection: "column",
+        }}>
+          {panelContent}
+        </div>
       );
     }
 
@@ -388,11 +385,11 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
 
   // Dismiss sheet when clicking empty map space (markers don't propagate to this)
   useEffect(() => {
-    if (!mapInstance || isDesktop) return;
+    if (!mapInstance) return;
     const handleMapClick = () => { animateClose(); };
     mapInstance.on("click", handleMapClick);
     return () => { mapInstance.off("click", handleMapClick); };
-  }, [mapInstance, isDesktop, animateClose]);
+  }, [mapInstance, animateClose]);
 
   const handleTouchStart = (e) => {
     const scrollTop = contentRef.current?.scrollTop || 0;
