@@ -145,7 +145,7 @@ export default function WeeklyDigest({ onClose, onZoneClick }) {
                 display: "flex", alignItems: "center", gap: "12px", textAlign: "left",
                 marginBottom: "16px",
               }}>
-                <span style={{ fontSize: "24px" }}>📍</span>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="1.75" strokeLinecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: "15px", fontWeight: 700, color: "var(--text)" }}>{data.topZone.name}</div>
                   <div style={{ fontSize: "12px", color: "var(--text-dim)" }}>{data.topZone.area} · {data.topZoneCount} {es ? "reportes" : "reports"}</div>

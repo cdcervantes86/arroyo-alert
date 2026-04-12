@@ -6,12 +6,12 @@ import { getReporterStats, getDeviceId } from "@/lib/deviceId";
 function StatCard({ value, label, icon, color, delay = 0 }) {
   return (
     <div style={{
-      flex: 1, minWidth: 100, padding: "20px 16px", borderRadius: "var(--radius-md)",
+      flex: 1, minWidth: 100, padding: "20px 16px", borderRadius: "var(--radius-lg)",
       background: `${color}06`, border: `1px solid ${color}15`,
       display: "flex", flexDirection: "column", alignItems: "center", gap: "6px",
       animation: `fadeIn 0.3s ease ${delay}s both`,
     }}>
-      <span style={{ fontSize: "24px" }}>{icon}</span>
+      <div style={{ width: 40, height: 40, borderRadius: "var(--radius-md)", background: `${color}0a`, border: `1px solid ${color}18`, display: "flex", alignItems: "center", justifyContent: "center" }}>{icon}</div>
       <span style={{ fontSize: "28px", fontWeight: 800, color, fontVariantNumeric: "tabular-nums" }}>{value}</span>
       <span style={{ fontSize: "11px", color: "var(--text-dim)", fontWeight: 500, textAlign: "center" }}>{label}</span>
     </div>
@@ -84,9 +84,17 @@ export default function ReporterProfile({ onBack, onLogoClick, reports, onToggle
           <div style={{ position: "relative", marginBottom: "16px" }}>
             <ProgressRing progress={milestoneProgress} size={90} strokeWidth={4} color={rankColor} />
             <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <span style={{ fontSize: "32px" }}>
-                {stats.reportCount >= 50 ? "🛡️" : stats.reportCount >= 20 ? "⭐" : stats.reportCount >= 5 ? "✓" : stats.reportCount >= 1 ? "📍" : "👋"}
-              </span>
+              {stats.reportCount >= 50 ? (
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={rankColor} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              ) : stats.reportCount >= 20 ? (
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={rankColor} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              ) : stats.reportCount >= 5 ? (
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={rankColor} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              ) : stats.reportCount >= 1 ? (
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={rankColor} strokeWidth="1.75" strokeLinecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              ) : (
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={rankColor} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              )}
             </div>
           </div>
           <span style={{ fontSize: "18px", fontWeight: 700, color: rankColor }}>{rank}</span>
@@ -95,16 +103,16 @@ export default function ReporterProfile({ onBack, onLogoClick, reports, onToggle
           </span>
           {stats.verified && (
             <div style={{ marginTop: "10px", display: "flex", alignItems: "center", gap: "5px", padding: "5px 12px", borderRadius: "20px", background: "var(--accent-glow)", border: "1px solid rgba(91,156,246,0.15)" }}>
-              <span style={{ fontSize: "11px", color: "var(--accent)", fontWeight: 700 }}>✓ {es ? "Reportero Verificado" : "Verified Reporter"}</span>
+              <span style={{ fontSize: "11px", color: "var(--accent)", fontWeight: 700, display: "flex", alignItems: "center", gap: "4px" }}><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>{es ? "Reportero Verificado" : "Verified Reporter"}</span>
             </div>
           )}
         </div>
 
         {/* Stats grid */}
         <div style={{ display: "flex", gap: "10px", marginBottom: "24px", flexWrap: "wrap" }}>
-          <StatCard value={stats.reportCount} label={es ? "Reportes enviados" : "Reports sent"} icon="📍" color="var(--accent)" delay={0.1} />
-          <StatCard value={totalUpvotes || stats.upvotesReceived} label={es ? "Confirmaciones" : "Confirmations"} icon="👍" color="var(--safe)" delay={0.15} />
-          <StatCard value={peopleProtected} label={es ? "Personas protegidas" : "People protected"} icon="🛡️" color="var(--baq-yellow)" delay={0.2} />
+          <StatCard value={stats.reportCount} label={es ? "Reportes enviados" : "Reports sent"} icon={<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="1.75" strokeLinecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>} color="var(--accent)" delay={0.1} />
+          <StatCard value={totalUpvotes || stats.upvotesReceived} label={es ? "Confirmaciones" : "Confirmations"} icon={<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--safe)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14z"/><path d="M7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg>} color="var(--safe)" delay={0.15} />
+          <StatCard value={peopleProtected} label={es ? "Personas protegidas" : "People protected"} icon={<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--baq-yellow)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>} color="var(--baq-yellow)" delay={0.2} />
         </div>
 
         {/* Impact message */}
@@ -131,28 +139,28 @@ export default function ReporterProfile({ onBack, onLogoClick, reports, onToggle
           {es ? "Rangos" : "Ranks"}
         </div>
         {[
-          { min: 0, icon: "👋", name: es ? "Nuevo" : "New", desc: es ? "Bienvenido a AlertaArroyo" : "Welcome to AlertaArroyo", color: "var(--text-dim)" },
-          { min: 1, icon: "📍", name: es ? "Reportero" : "Reporter", desc: es ? "1+ reportes enviados" : "1+ reports sent", color: "var(--text-secondary)" },
-          { min: 5, icon: "✓", name: es ? "Vigía Verificado" : "Verified Watcher", desc: es ? "5+ reportes — tu insignia aparece en reportes" : "5+ reports — your badge shows on reports", color: "var(--accent)" },
-          { min: 20, icon: "⭐", name: es ? "Protector" : "Protector", desc: es ? "20+ reportes — defensor de tu comunidad" : "20+ reports — community defender", color: "#22c55e" },
-          { min: 50, icon: "🛡️", name: es ? "Guardián" : "Guardian", desc: es ? "50+ reportes — leyenda de Barranquilla" : "50+ reports — Barranquilla legend", color: "#F5D033" },
+          { min: 0, icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>, name: es ? "Nuevo" : "New", desc: es ? "Bienvenido a AlertaArroyo" : "Welcome to AlertaArroyo", color: "var(--text-dim)" },
+          { min: 1, icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>, name: es ? "Reportero" : "Reporter", desc: es ? "1+ reportes enviados" : "1+ reports sent", color: "var(--text-secondary)" },
+          { min: 5, icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>, name: es ? "Vigía Verificado" : "Verified Watcher", desc: es ? "5+ reportes — tu insignia aparece en reportes" : "5+ reports — your badge shows on reports", color: "var(--accent)" },
+          { min: 20, icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>, name: es ? "Protector" : "Protector", desc: es ? "20+ reportes — defensor de tu comunidad" : "20+ reports — community defender", color: "#22c55e" },
+          { min: 50, icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>, name: es ? "Guardián" : "Guardian", desc: es ? "50+ reportes — leyenda de Barranquilla" : "50+ reports — Barranquilla legend", color: "#F5D033" },
         ].map((r, i) => {
           const achieved = stats.reportCount >= r.min;
           return (
             <div key={i} style={{
-              display: "flex", gap: "12px", alignItems: "center", padding: "12px 14px",
-              marginBottom: "6px", borderRadius: "var(--radius-md)",
-              background: achieved ? `${r.color}06` : "rgba(255,255,255,0.025)",
+              display: "flex", gap: "14px", alignItems: "center", padding: "13px 14px",
+              marginBottom: "6px", borderRadius: "var(--radius-lg)",
+              background: achieved ? `${r.color}06` : "rgba(255,255,255,0.02)",
               border: `1px solid ${achieved ? r.color + "15" : "rgba(255,255,255,0.06)"}`,
-              opacity: achieved ? 1 : 0.5,
+              opacity: achieved ? 1 : 0.4,
               animation: `fadeIn 0.2s ease ${0.3 + i * 0.05}s both`,
             }}>
-              <span style={{ fontSize: "20px" }}>{r.icon}</span>
+              <div style={{ width: 34, height: 34, borderRadius: "var(--radius-md)", background: achieved ? `${r.color}0a` : "rgba(255,255,255,0.03)", border: `1px solid ${achieved ? r.color + "18" : "rgba(255,255,255,0.06)"}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, color: achieved ? r.color : "var(--text-faint)" }}>{r.icon}</div>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: "14px", fontWeight: 600, color: achieved ? r.color : "var(--text-dim)" }}>{r.name}</div>
+                <div style={{ fontSize: "14px", fontWeight: 700, color: achieved ? r.color : "var(--text-dim)" }}>{r.name}</div>
                 <div style={{ fontSize: "11px", color: "var(--text-dim)", marginTop: "2px" }}>{r.desc}</div>
               </div>
-              {achieved && <span style={{ fontSize: "12px", color: r.color }}>✓</span>}
+              {achieved && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={r.color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
             </div>
           );
         })}

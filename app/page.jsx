@@ -142,16 +142,17 @@ function MoreMenu({ onSelect, lang, onClose }) {
 
   return (
     <div onClick={handleClose} style={{ position: "fixed", inset: 0, zIndex: 900, background: "rgba(0,0,0,0.55)", animation: closing ? "menuBackdropOut 0.2s ease forwards" : "fadeIn 0.15s ease" }}>
-      <div onClick={(e) => e.stopPropagation()} style={{ position: "absolute", bottom: 64, right: 12, left: 12, maxWidth: 300, marginLeft: "auto", background: "#0e1628", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "var(--radius-lg)", padding: "4px", animation: closing ? "menuSlideOut 0.2s ease forwards" : "slideUp 0.2s cubic-bezier(0.32, 0.72, 0, 1)", boxShadow: "0 -12px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04)", transformOrigin: "bottom right" }}>
+      <div onClick={(e) => e.stopPropagation()} style={{ position: "absolute", bottom: 64, right: 12, left: 12, maxWidth: 300, marginLeft: "auto", background: "#0e1628", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "var(--radius-xl)", padding: "6px", animation: closing ? "menuSlideOut 0.2s ease forwards" : "slideUp 0.2s cubic-bezier(0.34, 1.4, 0.64, 1)", boxShadow: "0 -12px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04)", transformOrigin: "bottom right" }}>
         {[
-          { key: "profile", Icon: ProfileIcon, label: es ? "Mi perfil" : "My profile", desc: es ? "Estadísticas y rango de reportero" : "Stats and reporter rank" },
-          { key: "digest", Icon: ChartIcon, label: es ? "Resumen semanal" : "Weekly digest", desc: es ? "Actividad de los últimos 7 días" : "Last 7 days activity" },
+          { key: "profile", Icon: ProfileIcon, label: es ? "Mi perfil" : "My profile", desc: es ? "Estadísticas y rango" : "Stats and rank" },
+          { key: "digest", Icon: ChartIcon, label: es ? "Resumen semanal" : "Weekly digest", desc: es ? "Últimos 7 días" : "Last 7 days" },
           { key: "heatmap", Icon: FlameIcon, label: es ? "Historial" : "History", desc: es ? "Zonas más afectadas" : "Most affected zones" },
-          { key: "about", Icon: InfoIcon, label: es ? "Info y seguridad" : "Info & safety", desc: es ? "Consejos, emergencias, ajustes" : "Tips, emergencies, settings" },
-        ].map((item) => (
-          <button key={item.key} onClick={() => { onSelect(item.key); handleClose(); }} className="more-menu-item" style={{ width: "100%", display: "flex", alignItems: "center", gap: "14px", padding: "13px 12px", background: "none", border: "none", textAlign: "left", borderRadius: "var(--radius-sm)" }}>
-            <div style={{ width: 32, height: 32, borderRadius: "var(--radius-sm)", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><item.Icon size={16} color="var(--text-secondary)" /></div>
-            <div><div style={{ fontSize: "14px", fontWeight: 600, color: "var(--text)" }}>{item.label}</div><div style={{ fontSize: "12px", color: "var(--text-dim)", marginTop: 1 }}>{item.desc}</div></div>
+          { key: "about", Icon: InfoIcon, label: es ? "Info y seguridad" : "Info & safety", desc: es ? "Consejos y emergencias" : "Tips & emergencies" },
+        ].map((item, i) => (
+          <button key={item.key} onClick={() => { onSelect(item.key); handleClose(); }} className="more-menu-item" style={{ width: "100%", display: "flex", alignItems: "center", gap: "14px", padding: "14px 14px", background: "none", border: "none", textAlign: "left", borderRadius: "var(--radius-md)", borderBottom: i < 3 ? "1px solid rgba(255,255,255,0.04)" : "none" }}>
+            <div style={{ width: 36, height: 36, borderRadius: "var(--radius-md)", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><item.Icon size={17} color="var(--text-secondary)" /></div>
+            <div><div style={{ fontSize: "14px", fontWeight: 700, color: "var(--text)", letterSpacing: "-0.1px" }}>{item.label}</div><div style={{ fontSize: "11px", color: "var(--text-dim)", marginTop: 2 }}>{item.desc}</div></div>
+            <svg width="7" height="12" viewBox="0 0 7 12" fill="none" style={{ flexShrink: 0, opacity: 0.12, marginLeft: "auto" }}><path d="M1 1l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </button>
         ))}
       </div>
@@ -822,8 +823,8 @@ function AppContent() {
         </>}
         <button onClick={toggleLang} className="tap-target" style={{ padding: "5px 10px", borderRadius: "8px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.06)", color: "var(--text-dim)", fontSize: "11px", fontWeight: 700, letterSpacing: "0.3px", flexShrink: 0, transition: "all 0.15s ease" }}>{lang === "es" ? "EN" : "ES"}</button>
         {isDesktop && (
-          <div style={{ display: "flex", background: "rgba(255,255,255,0.045)", borderRadius: "8px", overflow: "hidden", border: "1px solid rgba(255,255,255,0.06)" }}>
-            {desktopTabs.map((tab) => { const isActive = tab.key === "live" ? showPanel : desktopView === tab.key; return <button key={tab.key} onClick={() => handleDesktopTab(tab.key)} style={{ padding: "6px 10px", fontSize: "12px", border: "none", background: isActive ? "var(--accent-glow)" : "transparent", color: isActive ? "var(--accent)" : "var(--text-faint)", fontWeight: isActive ? 600 : 400, position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}><tab.Icon size={16} color={isActive ? "var(--accent)" : "var(--text-faint)"} active={isActive} />{tab.key === "live" && liveCount > 0 && !isActive && <span style={{ position: "absolute", top: 2, right: 2, width: 5, height: 5, borderRadius: "50%", background: "var(--danger)", animation: "blink 1.5s ease-in-out infinite" }} />}</button>; })}
+          <div style={{ display: "flex", background: "rgba(255,255,255,0.03)", borderRadius: "10px", overflow: "hidden", border: "1px solid rgba(255,255,255,0.06)", padding: "2px" }}>
+            {desktopTabs.map((tab) => { const isActive = tab.key === "live" ? showPanel : desktopView === tab.key; return <button key={tab.key} onClick={() => handleDesktopTab(tab.key)} style={{ padding: "7px 14px", fontSize: "12px", border: "none", borderRadius: "8px", background: isActive ? "rgba(91,156,246,0.1)" : "transparent", color: isActive ? "var(--accent)" : "var(--text-faint)", fontWeight: isActive ? 700 : 500, position: "relative", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s ease" }}><tab.Icon size={15} color={isActive ? "var(--accent)" : "var(--text-faint)"} active={isActive} />{tab.key === "live" && liveCount > 0 && !isActive && <span style={{ position: "absolute", top: 3, right: 5, width: 5, height: 5, borderRadius: "50%", background: "var(--danger)", animation: "blink 1.5s ease-in-out infinite" }} />}</button>; })}
           </div>
         )}
       </div>
