@@ -166,8 +166,24 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
   const es = lang === "es";
   const sevColor = severity ? SEVERITY[severity].color : "rgba(255,255,255,0.06)";
 
-  // Center map on zone when in desktop map view
+  // ALL state and refs declared first — before any useEffect
+  const SNAPS = { peek: 19, half: 50, full: 88 };
+  const [snap, setSnap] = useState(initialSnap);
+  const [dragOffset, setDragOffset] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const [closing, setClosing] = useState(false);
+  const [entered, setEntered] = useState(false);
+  const [upvoted, setUpvoted] = useState(new Set());
+  const touchRef = useRef({ startY: 0, startSnap: 0, lastY: 0, lastTime: 0, velocity: 0 });
+  const contentRef = useRef(null);
+  const sheetRef = useRef(null);
   const desktopRestoreRef = useRef(null);
+
+  const deviceCounts = {};
+  reports.forEach((r) => { if (r.device_id) deviceCounts[r.device_id] = (deviceCounts[r.device_id] || 0) + 1; });
+  const handleUpvote = (r) => { if (upvoted.has(r.id)) return; onUpvote(r.id, r.upvotes); setUpvoted(prev => new Set([...prev, r.id])); if (navigator.vibrate) navigator.vibrate(50); };
+
+  // Center map on zone when in desktop map view
   useEffect(() => {
     if (isDesktop && desktopView === "map" && mapInstance && zone) {
       if (!desktopRestoreRef.current) {
@@ -192,21 +208,7 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
     }
   }, [closing, mapInstance, isDesktop]);
 
-  // Mobile sheet state (must be declared before any conditional returns)
-  const SNAPS = { peek: 19, half: 50, full: 88 };
-  const [snap, setSnap] = useState(initialSnap);
-  const [dragOffset, setDragOffset] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
-  const [closing, setClosing] = useState(false);
-  const [entered, setEntered] = useState(false);
-  const touchRef = useRef({ startY: 0, startSnap: 0, lastY: 0, lastTime: 0, velocity: 0 });
-  const contentRef = useRef(null);
-  const sheetRef = useRef(null);
-
-  const [upvoted, setUpvoted] = useState(new Set());
-  const deviceCounts = {};
-  reports.forEach((r) => { if (r.device_id) deviceCounts[r.device_id] = (deviceCounts[r.device_id] || 0) + 1; });
-  const handleUpvote = (r) => { if (upvoted.has(r.id)) return; onUpvote(r.id, r.upvotes); setUpvoted(prev => new Set([...prev, r.id])); if (navigator.vibrate) navigator.vibrate(50); };
+  // Effects — all state is declared above, safe to reference
 
   useEffect(() => {
     if (!isDesktop) {
