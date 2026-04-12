@@ -373,7 +373,14 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
           )}
 
           {/* Reports */}
-          <div style={{ fontSize: "10px", color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "1.5px", marginBottom: "12px", fontWeight: 600 }}>{t.recentReports} ({reports.length})</div>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
+              <span style={{ fontSize: "10px", color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "1.5px", fontWeight: 600 }}>{t.recentReports} ({reports.length})</span>
+              <span style={{ flex: 1 }} />
+              <span style={{ fontSize: "10px", color: "var(--text-faint)", display: "flex", alignItems: "center", gap: "3px", opacity: 0.6 }}>
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                {es ? "expiran en 4h" : "expire in 4h"}
+              </span>
+            </div>
           {!reports.length && (
             <div style={{ textAlign: "center", padding: "24px 0" }}>
               <div style={{ width: 48, height: 48, borderRadius: "var(--radius-lg)", background: "rgba(34,197,94,0.04)", border: "1px solid rgba(34,197,94,0.08)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 12px" }}>
@@ -695,7 +702,14 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
             )}
 
             {/* Reports */}
-            <div style={{ fontSize: "10px", color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "1.5px", marginBottom: "12px", fontWeight: 600 }}>{t.recentReports} ({reports.length})</div>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
+              <span style={{ fontSize: "10px", color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "1.5px", fontWeight: 600 }}>{t.recentReports} ({reports.length})</span>
+              <span style={{ flex: 1 }} />
+              <span style={{ fontSize: "10px", color: "var(--text-faint)", display: "flex", alignItems: "center", gap: "3px", opacity: 0.6 }}>
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                {es ? "expiran en 4h" : "expire in 4h"}
+              </span>
+            </div>
             {!reports.length && (
               <div style={{ textAlign: "center", padding: "16px 0 24px" }}>
                 <div style={{ width: 48, height: 48, borderRadius: "var(--radius-lg)", background: "rgba(34,197,94,0.04)", border: "1px solid rgba(34,197,94,0.08)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 12px" }}>
