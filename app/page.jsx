@@ -702,12 +702,10 @@ function AppContent() {
       };
       const zone = ZONES.find(z => z.id === zoneId);
       if (zone) {
-        mapInstance.flyTo({
+        mapInstance.easeTo({
           center: [zone.lng, zone.lat],
-          zoom: Math.max(mapInstance.getZoom(), 14),
-          duration: 600,
-          offset: [0, -80],
-          essential: true,
+          duration: 500,
+          padding: { bottom: Math.round(window.innerHeight * 0.2) },
         });
       }
     }
@@ -720,13 +718,12 @@ function AppContent() {
   const handleMobileTab = (key) => { if (key === "more") { setShowMoreMenu(true); return; } setMobileView(key); };
   const handleDesktopTab = (key) => { if (key === "live") setShowPanel((p) => !p); else setDesktopView(key); };
   const closeSheet = () => {
-    // Fly back to saved position (mobile map only)
     if (mapRestoreRef.current && mapInstance && !isDesktop && mobileView === "map") {
-      mapInstance.flyTo({
+      mapInstance.easeTo({
         center: mapRestoreRef.current.center,
         zoom: mapRestoreRef.current.zoom,
-        duration: 400,
-        essential: true,
+        duration: 350,
+        padding: { bottom: 0 },
       });
       mapRestoreRef.current = null;
     }
