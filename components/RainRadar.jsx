@@ -20,6 +20,10 @@ export function useRainRadar(mapInstance) {
       const add = () => {
         if (addedRef.current) return;
         try {
+          // Ensure map is at a useful zoom for Barranquilla
+          if (mapInstance.getZoom() < 10) {
+            mapInstance.flyTo({ center: [-74.805, 10.96], zoom: 11, duration: 800 });
+          }
           mapInstance.addSource("owm-rain-src", {
             type: "raster",
             tiles: [
@@ -33,12 +37,12 @@ export function useRainRadar(mapInstance) {
             type: "raster",
             source: "owm-rain-src",
             paint: {
-              "raster-opacity": 0.85,
+              "raster-opacity": 0.9,
               "raster-fade-duration": 300,
-              "raster-brightness-min": 0.1,
+              "raster-brightness-min": 0,
               "raster-brightness-max": 1,
-              "raster-contrast": 0.4,
-              "raster-saturation": 0.3,
+              "raster-contrast": 0.6,
+              "raster-saturation": 0.7,
             },
           });
           addedRef.current = true;
