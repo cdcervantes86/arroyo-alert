@@ -24,17 +24,16 @@ function VerifiedBadge({ lang }) {
 
 function EmptyState({ lang }) {
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", padding: "40px 20px", textAlign: "center" }}>
-      <div style={{ width: 80, height: 80, borderRadius: "50%", background: "rgba(255,255,255,0.015)", border: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "16px" }}>
-        <svg width="36" height="36" viewBox="0 0 120 80" fill="none" style={{ opacity: 0.2 }}>
-          <path d="M10 60 Q30 20 60 40 Q90 60 110 30" stroke="var(--accent)" strokeWidth="3" strokeLinecap="round" fill="none" />
-          <circle cx="60" cy="40" r="4" fill="var(--accent)" />
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", padding: "40px 24px", textAlign: "center" }}>
+      <div style={{ width: 72, height: 72, borderRadius: "var(--radius-xl)", background: "rgba(91,156,246,0.04)", border: "1px solid rgba(91,156,246,0.08)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "20px" }}>
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.4 }}>
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
         </svg>
       </div>
-      <div style={{ fontSize: "15px", fontWeight: 600, color: "var(--text-dim)", marginBottom: "6px" }}>
+      <div style={{ fontSize: "16px", fontWeight: 700, color: "var(--text)", marginBottom: "8px", letterSpacing: "-0.2px" }}>
         {lang === "es" ? "Sin actividad reciente" : "No recent activity"}
       </div>
-      <div style={{ fontSize: "13px", color: "var(--text-faint)", maxWidth: 240, lineHeight: 1.5 }}>
+      <div style={{ fontSize: "13px", color: "var(--text-dim)", maxWidth: 240, lineHeight: 1.6 }}>
         {lang === "es" ? "Los reportes aparecerán aquí en tiempo real cuando alguien reporte un arroyo" : "Reports will appear here in real time when someone reports an arroyo"}
       </div>
     </div>

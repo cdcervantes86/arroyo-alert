@@ -44,9 +44,14 @@ export default function AboutPage({ onBack, onLogoClick, onToggleLang, lang: lan
         {/* Audio settings */}
         <div style={{ fontSize: "10px", color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "1.5px", fontWeight: 600, marginBottom: "12px" }}>{es ? "Configuración" : "Settings"}</div>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px", background: "rgba(255,255,255,0.025)", borderRadius: "var(--radius-lg)", border: "1px solid rgba(255,255,255,0.06)", marginBottom: "32px" }}>
-          <div>
-            <div style={{ fontSize: "14px", fontWeight: 600, display: "flex", alignItems: "center", gap: "8px" }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14"/><path d="M15.54 8.46a5 5 0 010 7.07"/></svg>{es ? "Alerta sonora" : "Sound alerts"}</div>
-            <div style={{ fontSize: "12px", color: "var(--text-dim)", marginTop: "2px" }}>{es ? "Sonido al recibir reportes de peligro" : "Sound on danger reports"}</div>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <div style={{ width: 36, height: 36, borderRadius: "var(--radius-md)", background: "rgba(91,156,246,0.06)", border: "1px solid rgba(91,156,246,0.1)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14"/><path d="M15.54 8.46a5 5 0 010 7.07"/></svg>
+            </div>
+            <div>
+              <div style={{ fontSize: "14px", fontWeight: 700 }}>{es ? "Alerta sonora" : "Sound alerts"}</div>
+              <div style={{ fontSize: "12px", color: "var(--text-dim)", marginTop: "2px" }}>{es ? "Sonido al recibir reportes de peligro" : "Sound on danger reports"}</div>
+            </div>
           </div>
           <button onClick={() => { const n = !audioOn; setAudioOn(n); setAudioEnabled(n); if (n) playDangerAlert(); }} style={{
             width: 48, height: 28, borderRadius: 14, border: "none",
@@ -66,8 +71,8 @@ export default function AboutPage({ onBack, onLogoClick, onToggleLang, lang: lan
           { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>, es: "Si ve un arroyo, repórtelo inmediatamente para alertar a otros", en: "If you see an arroyo, report it immediately to alert others" },
           { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.79 19.79 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>, es: "Comparta las alertas con familiares y vecinos por WhatsApp", en: "Share alerts with family and neighbors via WhatsApp" },
         ].map((tip, i) => (
-          <div key={i} style={{ display: "flex", gap: "12px", alignItems: "flex-start", padding: "13px 14px", marginBottom: "6px", background: "rgba(255,255,255,0.025)", borderRadius: "var(--radius-lg)", border: "1px solid rgba(255,255,255,0.06)", animation: `fadeIn 0.2s ease ${i * 0.04}s both` }}>
-            <div style={{ flexShrink: 0, marginTop: "1px" }}>{tip.icon}</div>
+          <div key={i} style={{ display: "flex", gap: "14px", alignItems: "flex-start", padding: "14px 16px", marginBottom: "6px", background: "rgba(255,255,255,0.025)", borderRadius: "var(--radius-lg)", border: "1px solid rgba(255,255,255,0.06)", animation: `fadeIn 0.2s ease ${i * 0.04}s both` }}>
+            <div style={{ flexShrink: 0, marginTop: "2px", width: 32, height: 32, borderRadius: "var(--radius-sm)", background: i === 0 ? "rgba(239,68,68,0.06)" : "rgba(255,255,255,0.03)", border: `1px solid ${i === 0 ? "rgba(239,68,68,0.1)" : "rgba(255,255,255,0.06)"}`, display: "flex", alignItems: "center", justifyContent: "center" }}>{tip.icon}</div>
             <p style={{ fontSize: "14px", color: "var(--text-secondary)", lineHeight: 1.5, margin: 0 }}>{es ? tip.es : tip.en}</p>
           </div>
         ))}
@@ -78,10 +83,11 @@ export default function AboutPage({ onBack, onLogoClick, onToggleLang, lang: lan
           {es ? "Los arroyos de Barranquilla han cobrado más de 115 vidas desde 1933. Estos son algunos incidentes recientes:" : "Barranquilla's arroyos have claimed over 115 lives since 1933. These are some recent incidents:"}
         </p>
         {incidents.slice(0, showAllIncidents ? incidents.length : 3).map((inc, i) => (
-          <div key={i} style={{ display: "flex", gap: "12px", alignItems: "flex-start", padding: "13px 14px", marginBottom: "6px", background: "rgba(212,42,42,0.03)", borderRadius: "var(--radius-md)", border: "1px solid rgba(212,42,42,0.08)", animation: `fadeIn 0.2s ease ${i * 0.04}s both` }}>
+          <div key={i} style={{ display: "flex", gap: "14px", alignItems: "flex-start", padding: "14px 16px", marginBottom: "6px", background: "rgba(212,42,42,0.03)", borderRadius: "var(--radius-lg)", border: "1px solid rgba(212,42,42,0.08)", position: "relative", overflow: "hidden", animation: `fadeIn 0.2s ease ${i * 0.04}s both` }}>
+            <div style={{ position: "absolute", left: 0, top: "12%", bottom: "12%", width: 3, borderRadius: "0 2px 2px 0", background: "rgba(212,42,42,0.5)" }} />
             <div style={{ flexShrink: 0, textAlign: "center", minWidth: 36 }}>
-              <div style={{ fontSize: "14px", fontWeight: 800, color: "var(--danger)" }}>{inc.year}</div>
-              <div style={{ fontSize: "9px", color: "var(--text-faint)" }}>{monthName(inc.month, es)}</div>
+              <div style={{ fontSize: "15px", fontWeight: 800, color: "var(--danger)" }}>{inc.year}</div>
+              <div style={{ fontSize: "9px", color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "0.5px" }}>{monthName(inc.month, es)}</div>
             </div>
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: "12px", fontWeight: 700, color: "var(--text)", marginBottom: "3px" }}>{inc.zone} <span style={{ fontWeight: 400, color: "var(--text-dim)" }}>· {inc.area}</span></div>
@@ -98,14 +104,17 @@ export default function AboutPage({ onBack, onLogoClick, onToggleLang, lang: lan
         {/* Emergency numbers */}
         <div style={{ fontSize: "10px", color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "1.5px", fontWeight: 600, marginTop: "32px", marginBottom: "12px" }}>{es ? "Números de emergencia" : "Emergency numbers"}</div>
         {[
-          { label: es ? "Línea de emergencia" : "Emergency line", number: "123" },
-          { label: es ? "Bomberos Barranquilla" : "Fire Department", number: "119" },
-          { label: es ? "Defensa Civil" : "Civil Defense", number: "144" },
-          { label: es ? "Cruz Roja" : "Red Cross", number: "132" },
+          { label: es ? "Línea de emergencia" : "Emergency line", number: "123", color: "#ef4444" },
+          { label: es ? "Bomberos Barranquilla" : "Fire Department", number: "119", color: "#D97706" },
+          { label: es ? "Defensa Civil" : "Civil Defense", number: "144", color: "#5b9cf6" },
+          { label: es ? "Cruz Roja" : "Red Cross", number: "132", color: "#DC2626" },
         ].map((item, i) => (
-          <a key={i} href={`tel:${item.number}`} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px", marginBottom: "6px", background: "rgba(255,255,255,0.025)", borderRadius: "var(--radius-lg)", border: "1px solid rgba(255,255,255,0.06)", textDecoration: "none" }}>
-            <span style={{ fontSize: "14px", color: "var(--text-secondary)" }}>{item.label}</span>
-            <span style={{ fontSize: "16px", fontWeight: 700, color: "var(--baq-red)", fontVariantNumeric: "tabular-nums" }}>{item.number}</span>
+          <a key={i} href={`tel:${item.number}`} style={{ display: "flex", alignItems: "center", gap: "14px", padding: "14px 16px", marginBottom: "6px", background: "rgba(255,255,255,0.025)", borderRadius: "var(--radius-lg)", border: "1px solid rgba(255,255,255,0.06)", textDecoration: "none" }}>
+            <div style={{ width: 36, height: 36, borderRadius: "var(--radius-md)", background: `${item.color}08`, border: `1px solid ${item.color}15`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={item.color} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.79 19.79 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>
+            </div>
+            <span style={{ flex: 1, fontSize: "14px", color: "var(--text-secondary)", fontWeight: 500 }}>{item.label}</span>
+            <span style={{ fontSize: "18px", fontWeight: 800, color: item.color, fontVariantNumeric: "tabular-nums", letterSpacing: "-0.3px" }}>{item.number}</span>
           </a>
         ))}
 
