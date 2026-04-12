@@ -150,6 +150,18 @@ function MoreMenu({ onSelect, lang, onClose }) {
     setTimeout(onClose, 200);
   }, [onClose]);
 
+  const handleShare = async () => {
+    const shareText = es
+      ? "AlertaArroyo — Alertas de arroyos en tiempo real para Barranquilla. Protege a tu familia.\nhttps://arroyo-alert.vercel.app"
+      : "AlertaArroyo — Real-time arroyo flood alerts for Barranquilla. Protect your family.\nhttps://arroyo-alert.vercel.app";
+    if (navigator.share) {
+      try { await navigator.share({ title: "AlertaArroyo", text: shareText, url: "https://arroyo-alert.vercel.app" }); } catch(e) {}
+    } else {
+      try { await navigator.clipboard.writeText(shareText); } catch(e) {}
+    }
+    handleClose();
+  };
+
   return (
     <div onClick={handleClose} style={{ position: "fixed", inset: 0, zIndex: 900, background: "rgba(0,0,0,0.55)", animation: closing ? "menuBackdropOut 0.2s ease forwards" : "fadeIn 0.15s ease" }}>
       <div onClick={(e) => e.stopPropagation()} style={{ position: "absolute", bottom: 64, right: 12, left: 12, maxWidth: 300, marginLeft: "auto", background: "#0e1628", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "var(--radius-xl)", padding: "6px", animation: closing ? "menuSlideOut 0.2s ease forwards" : "slideUp 0.2s cubic-bezier(0.34, 1.4, 0.64, 1)", boxShadow: "0 -12px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04)", transformOrigin: "bottom right" }}>
@@ -159,12 +171,19 @@ function MoreMenu({ onSelect, lang, onClose }) {
           { key: "heatmap", Icon: FlameIcon, label: es ? "Historial" : "History", desc: es ? "Zonas más afectadas" : "Most affected zones" },
           { key: "about", Icon: InfoIcon, label: es ? "Info y seguridad" : "Info & safety", desc: es ? "Consejos y emergencias" : "Tips & emergencies" },
         ].map((item, i) => (
-          <button key={item.key} onClick={() => { onSelect(item.key); handleClose(); }} className="more-menu-item" style={{ width: "100%", display: "flex", alignItems: "center", gap: "14px", padding: "14px 14px", background: "none", border: "none", textAlign: "left", borderRadius: "var(--radius-md)", borderBottom: i < 3 ? "1px solid rgba(255,255,255,0.04)" : "none" }}>
+          <button key={item.key} onClick={() => { onSelect(item.key); handleClose(); }} className="more-menu-item" style={{ width: "100%", display: "flex", alignItems: "center", gap: "14px", padding: "14px 14px", background: "none", border: "none", textAlign: "left", borderRadius: "var(--radius-md)", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
             <div style={{ width: 36, height: 36, borderRadius: "var(--radius-md)", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><item.Icon size={17} color="var(--text-secondary)" /></div>
             <div><div style={{ fontSize: "14px", fontWeight: 700, color: "var(--text)", letterSpacing: "-0.1px" }}>{item.label}</div><div style={{ fontSize: "11px", color: "var(--text-dim)", marginTop: 2 }}>{item.desc}</div></div>
             <svg width="7" height="12" viewBox="0 0 7 12" fill="none" style={{ flexShrink: 0, opacity: 0.12, marginLeft: "auto" }}><path d="M1 1l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </button>
         ))}
+        {/* Share button */}
+        <button onClick={handleShare} className="more-menu-item" style={{ width: "100%", display: "flex", alignItems: "center", gap: "14px", padding: "14px 14px", background: "none", border: "none", textAlign: "left", borderRadius: "var(--radius-md)" }}>
+          <div style={{ width: 36, height: 36, borderRadius: "var(--radius-md)", background: "rgba(34,197,94,0.06)", border: "1px solid rgba(34,197,94,0.1)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          </div>
+          <div><div style={{ fontSize: "14px", fontWeight: 700, color: "var(--safe)", letterSpacing: "-0.1px" }}>{es ? "Invitar amigos" : "Invite friends"}</div><div style={{ fontSize: "11px", color: "var(--text-dim)", marginTop: 2 }}>{es ? "Comparte AlertaArroyo" : "Share AlertaArroyo"}</div></div>
+        </button>
       </div>
     </div>
   );

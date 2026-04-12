@@ -182,6 +182,31 @@ export default function AboutPage({ onBack, onLogoClick, onToggleLang, lang: lan
           </div>
         )}
 
+        {/* Share AlertaArroyo */}
+        <button onClick={async () => {
+          const shareText = es
+            ? "AlertaArroyo — Alertas de arroyos en tiempo real para Barranquilla. Protege a tu familia.\nhttps://arroyo-alert.vercel.app"
+            : "AlertaArroyo — Real-time arroyo flood alerts for Barranquilla. Protect your family.\nhttps://arroyo-alert.vercel.app";
+          if (navigator.share) {
+            try { await navigator.share({ title: "AlertaArroyo", text: shareText, url: "https://arroyo-alert.vercel.app" }); } catch(e) {}
+          } else {
+            try { await navigator.clipboard.writeText(shareText); } catch(e) {}
+          }
+        }} className="tap-target" style={{
+          width: "100%", padding: "16px", marginTop: "24px",
+          background: "linear-gradient(135deg, rgba(34,197,94,0.08), rgba(34,197,94,0.04))",
+          border: "1px solid rgba(34,197,94,0.15)", borderRadius: "var(--radius-lg)",
+          display: "flex", alignItems: "center", gap: "14px", textAlign: "left",
+        }}>
+          <div style={{ width: 40, height: 40, borderRadius: "var(--radius-md)", background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.15)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          </div>
+          <div>
+            <div style={{ fontSize: "15px", fontWeight: 700, color: "var(--safe)" }}>{es ? "Invitar amigos" : "Invite friends"}</div>
+            <div style={{ fontSize: "12px", color: "var(--text-dim)", marginTop: "2px" }}>{es ? "Comparte AlertaArroyo con tu comunidad" : "Share AlertaArroyo with your community"}</div>
+          </div>
+        </button>
+
         <div style={{ textAlign: "center", padding: "36px 0 16px", fontSize: "12px", color: "var(--text-faint)" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>{es ? "Hecho para Barranquilla" : "Made for Barranquilla"} <svg width="20" height="14" viewBox="0 0 30 20" style={{ borderRadius: "2px", boxShadow: "0 0 0 0.5px rgba(255,255,255,0.1)" }}><rect width="30" height="20" fill="#D42A2A"/><rect x="3" y="3" width="24" height="14" fill="#F5D033"/><rect x="6" y="6" width="18" height="8" fill="#2D8A2D"/><polygon points="15,7.5 15.9,9.3 17.8,9.6 16.4,11 16.7,12.9 15,12 13.3,12.9 13.6,11 12.2,9.6 14.1,9.3" fill="rgba(255,255,255,0.9)"/></svg></div>
           <br /><span style={{ fontSize: "11px", opacity: 0.5 }}>v{APP_VERSION} Beta</span>
