@@ -73,7 +73,7 @@ export default function WeeklyDigest({ onClose, onZoneClick, closing }) {
           <p style={{ fontSize: "13px", color: "var(--text-dim)", marginBottom: "24px" }}>
             {es ? "No se han registrado reportes en los últimos 7 días" : "No reports recorded in the last 7 days"}
           </p>
-          <button onClick={onClose} style={{ padding: "12px 32px", borderRadius: "var(--radius-md)", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.06)", color: "var(--text-secondary)", fontSize: "14px", fontWeight: 600 }}>
+          <button onClick={onClose} style={{ padding: "12px 32px", borderRadius: "var(--radius-lg)", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.06)", color: "var(--text-secondary)", fontSize: "14px", fontWeight: 600 }}>
             {es ? "Cerrar" : "Close"}
           </button>
         </div>
@@ -104,7 +104,7 @@ export default function WeeklyDigest({ onClose, onZoneClick, closing }) {
               { count: data.safeCount, label: es ? "Despejado" : "Clear", color: "var(--safe)" },
             ].map((s, i) => (
               <div key={i} style={{
-                flex: 1, padding: "12px 8px", borderRadius: "var(--radius-sm)",
+                flex: 1, padding: "12px 8px", borderRadius: "var(--radius-lg)",
                 background: `${s.color}08`, border: `1px solid ${s.color}15`,
                 textAlign: "center",
               }}>
@@ -139,25 +139,27 @@ export default function WeeklyDigest({ onClose, onZoneClick, closing }) {
               <div style={{ fontSize: "10px", color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "1.5px", fontWeight: 600, marginBottom: "10px" }}>
                 {es ? "Zona más activa" : "Most active zone"}
               </div>
-              <button onClick={() => { onClose(); setTimeout(() => onZoneClick(data.topZone.id), 200); }} style={{
-                width: "100%", padding: "14px 16px", borderRadius: "var(--radius-md)",
+              <button onClick={() => { onClose(); setTimeout(() => onZoneClick(data.topZone.id), 200); }} className="card-interactive" style={{
+                width: "100%", padding: "14px 16px", borderRadius: "var(--radius-lg)",
                 background: "rgba(255,255,255,0.025)", border: "1px solid rgba(255,255,255,0.06)",
-                display: "flex", alignItems: "center", gap: "12px", textAlign: "left",
+                display: "flex", alignItems: "center", gap: "14px", textAlign: "left",
                 marginBottom: "16px",
               }}>
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="1.75" strokeLinecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                <div style={{ width: 38, height: 38, borderRadius: "var(--radius-md)", background: "rgba(91,156,246,0.06)", border: "1px solid rgba(91,156,246,0.1)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="1.75" strokeLinecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                </div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: "15px", fontWeight: 700, color: "var(--text)" }}>{data.topZone.name}</div>
                   <div style={{ fontSize: "12px", color: "var(--text-dim)" }}>{data.topZone.area} · {data.topZoneCount} {es ? "reportes" : "reports"}</div>
                 </div>
-                <span style={{ color: "var(--text-faint)", fontSize: "14px" }}>›</span>
+                <svg width="7" height="12" viewBox="0 0 7 12" fill="none" style={{ flexShrink: 0, opacity: 0.15 }}><path d="M1 1l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
               </button>
             </>
           )}
 
           {/* Upvotes */}
           <div style={{
-            padding: "14px 16px", borderRadius: "var(--radius-md)",
+            padding: "14px 16px", borderRadius: "var(--radius-lg)",
             background: "rgba(245,208,51,0.04)", border: "1px solid rgba(245,208,51,0.1)",
             display: "flex", alignItems: "center", gap: "12px",
           }}>

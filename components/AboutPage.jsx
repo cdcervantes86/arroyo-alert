@@ -96,7 +96,7 @@ export default function AboutPage({ onBack, onLogoClick, onToggleLang, lang: lan
           </div>
         ))}
         {incidents.length > 3 && (
-          <button onClick={() => setShowAllIncidents(!showAllIncidents)} style={{ width: "100%", padding: "10px", background: "none", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "var(--radius-md)", color: "var(--accent)", fontSize: "12px", fontWeight: 600, marginBottom: "6px" }}>
+          <button onClick={() => setShowAllIncidents(!showAllIncidents)} style={{ width: "100%", padding: "10px", background: "none", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "var(--radius-lg)", color: "var(--accent)", fontSize: "12px", fontWeight: 600, marginBottom: "6px" }}>
             {showAllIncidents ? (es ? "Ver menos" : "Show less") : (es ? `Ver ${incidents.length - 3} más` : `Show ${incidents.length - 3} more`)}
           </button>
         )}

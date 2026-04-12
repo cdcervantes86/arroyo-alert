@@ -304,7 +304,7 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
             )}
           </div>
 
-          <button onClick={onReport} style={{ width: "100%", padding: "13px", marginBottom: "12px", background: "linear-gradient(135deg, #D42A2A, #b91c1c)", color: "#fff", border: "none", borderRadius: "var(--radius-md)", fontSize: "14px", fontWeight: 700, boxShadow: "0 6px 20px rgba(212,42,42,0.25)" }}>{t.reportThisZone}</button>
+          <button onClick={onReport} style={{ width: "100%", padding: "13px", marginBottom: "12px", background: "linear-gradient(135deg, #D42A2A, #b91c1c)", color: "#fff", border: "none", borderRadius: "var(--radius-lg)", fontSize: "14px", fontWeight: 700, boxShadow: "0 6px 20px rgba(212,42,42,0.25)" }}>{t.reportThisZone}</button>
 
           <div style={{ display: "flex", gap: "8px", marginBottom: "20px" }}>
             {push.supported && (
@@ -317,7 +317,7 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
 
           {/* Alt routes */}
           {altRoutes.length > 0 && (
-            <div style={{ marginBottom: "20px", background: "rgba(34,197,94,0.04)", border: "1px solid rgba(34,197,94,0.12)", borderRadius: "var(--radius-md)", padding: "12px 14px" }}>
+            <div style={{ marginBottom: "20px", background: "rgba(34,197,94,0.04)", border: "1px solid rgba(34,197,94,0.12)", borderRadius: "var(--radius-lg)", padding: "12px 14px" }}>
               <div style={{ fontSize: "10px", color: "var(--safe)", textTransform: "uppercase", letterSpacing: "1.5px", fontWeight: 700, marginBottom: "8px" }}>{es ? "Rutas alternas" : "Alternate routes"}</div>
               {altRoutes.slice(0, 3).map((r, i) => (
                 <div key={r.id} style={{ padding: "6px 0", borderTop: i > 0 ? "1px solid rgba(34,197,94,0.08)" : "none", fontSize: "13px", color: "var(--text-secondary)", lineHeight: 1.5 }}>
@@ -558,7 +558,7 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
 
         {/* REPORT BUTTON — always visible, gets clipped at peek to tease swiping up */}
         <div style={{ padding: "12px 20px 14px", flexShrink: 0 }}>
-          <button onClick={onReport} style={{ width: "100%", padding: "15px", background: "linear-gradient(135deg, #D42A2A, #b91c1c)", color: "#fff", border: "none", borderRadius: "var(--radius-md)", fontSize: "15px", fontWeight: 700, boxShadow: "0 6px 20px rgba(212,42,42,0.25)", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
+          <button onClick={onReport} style={{ width: "100%", padding: "15px", background: "linear-gradient(135deg, #D42A2A, #b91c1c)", color: "#fff", border: "none", borderRadius: "var(--radius-lg)", fontSize: "15px", fontWeight: 700, boxShadow: "0 6px 20px rgba(212,42,42,0.25)", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
             <AlertTriangleIcon size={16} color="#fff" />
             {t.reportThisZone}
           </button>
@@ -617,7 +617,7 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
 
             {/* Alt routes */}
             {altRoutes.length > 0 && (
-              <div style={{ marginBottom: "20px", background: "rgba(34,197,94,0.04)", border: "1px solid rgba(34,197,94,0.12)", borderRadius: "var(--radius-md)", padding: "12px 14px" }}>
+              <div style={{ marginBottom: "20px", background: "rgba(34,197,94,0.04)", border: "1px solid rgba(34,197,94,0.12)", borderRadius: "var(--radius-lg)", padding: "12px 14px" }}>
                 <div style={{ fontSize: "10px", color: "var(--safe)", textTransform: "uppercase", letterSpacing: "1.5px", fontWeight: 700, marginBottom: "8px" }}>
                   {es ? "Rutas alternas" : "Alternate routes"}
                 </div>
@@ -1082,7 +1082,7 @@ function AppContent() {
               window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
               setClosingWhatsApp(true); setTimeout(() => { setLastReport(null); setClosingWhatsApp(false); }, 250);
             }} className="tap-target" style={{
-              width: "100%", padding: "15px", borderRadius: "var(--radius-md)",
+              width: "100%", padding: "15px", borderRadius: "var(--radius-lg)",
               background: "#25D366", border: "none", color: "#fff",
               fontSize: "15px", fontWeight: 700,
               display: "flex", alignItems: "center", justifyContent: "center", gap: "10px",
@@ -1094,7 +1094,7 @@ function AppContent() {
             <button onClick={() => { setClosingWhatsApp(true); setTimeout(() => { setLastReport(null); setClosingWhatsApp(false); }, 250); }} className="tap-target" style={{
               width: "100%", marginTop: "8px", padding: "13px",
               background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)",
-              borderRadius: "var(--radius-md)", color: "var(--text-dim)",
+              borderRadius: "var(--radius-lg)", color: "var(--text-dim)",
               fontSize: "14px", fontWeight: 500,
             }}>
               {es ? "Ahora no" : "Not now"}

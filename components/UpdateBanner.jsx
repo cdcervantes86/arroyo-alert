@@ -103,7 +103,7 @@ export default function UpdateBanner() {
           <button onClick={handleDismiss} style={{
             width: "100%", padding: "14px",
             background: "var(--accent)", border: "none",
-            borderRadius: "var(--radius-md)", color: "#fff",
+            borderRadius: "var(--radius-lg)", color: "#fff",
             fontSize: "15px", fontWeight: 700, cursor: "pointer",
           }}>
             {es ? "¡Entendido!" : "Got it!"}
