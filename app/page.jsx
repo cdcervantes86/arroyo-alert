@@ -214,6 +214,26 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
     }
   }, [isDesktop]);
 
+  // Map click to dismiss — works for both desktop and mobile
+  useEffect(() => {
+    if (!mapInstance) return;
+    const handleMapClick = () => {
+      if (closing) return;
+      setClosing(true);
+      // Restore map position immediately (mobile)
+      if (!isDesktop && mapRestoreRef?.current) {
+        mapInstance.easeTo({
+          center: mapRestoreRef.current.center,
+          zoom: mapRestoreRef.current.zoom,
+          duration: 350,
+        });
+      }
+      setTimeout(onClose, isDesktop ? 280 : 380);
+    };
+    mapInstance.on("click", handleMapClick);
+    return () => { mapInstance.off("click", handleMapClick); };
+  }, [mapInstance, closing, onClose, isDesktop, mapRestoreRef]);
+
   // === DESKTOP: Side panel (map view) or centered modal (list view) ===
   if (isDesktop) {
     const isSidePanel = desktopView === "map";
@@ -382,14 +402,6 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
     }
     setTimeout(onClose, 380);
   }, [closing, onClose, mapInstance, isDesktop]);
-
-  // Dismiss sheet when clicking empty map space (markers don't propagate to this)
-  useEffect(() => {
-    if (!mapInstance) return;
-    const handleMapClick = () => { animateClose(); };
-    mapInstance.on("click", handleMapClick);
-    return () => { mapInstance.off("click", handleMapClick); };
-  }, [mapInstance, animateClose]);
 
   const handleTouchStart = (e) => {
     const scrollTop = contentRef.current?.scrollTop || 0;
