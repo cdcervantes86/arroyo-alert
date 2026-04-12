@@ -691,14 +691,47 @@ function AppContent() {
   const es = lang === "es";
 
   const [zoneClickSource, setZoneClickSource] = useState("map");
-  const handleZoneClick = useCallback((zoneId, source = "map") => { setSelectedZone(zoneId); setZoneClickSource(source); setScreen("detail"); }, []);
+  const mapRestoreRef = useRef(null);
+
+  const handleZoneClick = useCallback((zoneId, source = "map") => {
+    // Save map position before flying to zone (mobile map only)
+    if (source === "map" && mapInstance && !isDesktop) {
+      mapRestoreRef.current = {
+        center: mapInstance.getCenter().toArray(),
+        zoom: mapInstance.getZoom(),
+      };
+      const zone = ZONES.find(z => z.id === zoneId);
+      if (zone) {
+        mapInstance.flyTo({
+          center: [zone.lng, zone.lat],
+          zoom: Math.max(mapInstance.getZoom(), 14),
+          duration: 600,
+          offset: [0, -80],
+          essential: true,
+        });
+      }
+    }
+    setSelectedZone(zoneId); setZoneClickSource(source); setScreen("detail");
+  }, [mapInstance, isDesktop]);
   const handleReport = useCallback(async ({ zoneId, severity, text, photo, altRoute }) => { await submitReport({ zoneId, severity, text, photo, altRoute }); const zone = ZONES.find((z) => z.id === zoneId); if (zone) notifyZone({ zoneId, zoneName: `${zone.name} (${zone.area})`, severity, text }); }, [submitReport]);
   const handleUpvoteLocal = useCallback((id) => { setUpvotedSet((prev) => new Set([...prev, id])); }, []);
   const handleLogoClick = () => { setScreen("main"); setSelectedZone(null); setActiveFilter(null); setShowMoreMenu(false); if (isDesktop) setDesktopView("map"); else setMobileView("map"); };
   const handleFilterClick = (filter) => { setActiveFilter((prev) => prev === filter ? null : filter); };
   const handleMobileTab = (key) => { if (key === "more") { setShowMoreMenu(true); return; } setMobileView(key); };
   const handleDesktopTab = (key) => { if (key === "live") setShowPanel((p) => !p); else setDesktopView(key); };
-  const closeSheet = () => { setScreen("main"); setSelectedZone(null); };
+  const closeSheet = () => {
+    // Fly back to saved position (mobile map only)
+    if (mapRestoreRef.current && mapInstance && !isDesktop && mobileView === "map") {
+      mapInstance.flyTo({
+        center: mapRestoreRef.current.center,
+        zoom: mapRestoreRef.current.zoom,
+        duration: 400,
+        essential: true,
+      });
+      mapRestoreRef.current = null;
+    }
+    setScreen("main"); setSelectedZone(null);
+  };
   const handleMapReady = useCallback((map) => { setMapInstance(map); }, []);
   const handleLocate = useCallback(() => {
     if (!mapInstance) return;
