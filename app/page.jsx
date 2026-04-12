@@ -216,6 +216,23 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
     }
   }, [isDesktop]);
 
+  // Close animation — must be above desktop early return for hooks ordering
+  const animateClose = useCallback(() => {
+    if (closing) return;
+    setClosing(true);
+    if (mapInstance && !isDesktop) {
+      const restore = mapRestoreRef?.current;
+      if (restore) {
+        mapInstance.easeTo({
+          center: restore.center,
+          zoom: restore.zoom,
+          duration: 350,
+        });
+      }
+    }
+    setTimeout(onClose, 380);
+  }, [closing, onClose, mapInstance, isDesktop, mapRestoreRef]);
+
   // Map click to dismiss — works for both desktop and mobile
   useEffect(() => {
     if (!mapInstance) return;
@@ -387,23 +404,6 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
 
   const SPRING = "cubic-bezier(0.34, 1.4, 0.64, 1)";
   const DURATION = "0.45s";
-
-  const animateClose = useCallback(() => {
-    if (closing) return;
-    setClosing(true);
-    // Start map restore immediately (don't wait for sheet animation)
-    if (mapInstance && !isDesktop) {
-      const restore = mapRestoreRef?.current;
-      if (restore) {
-        mapInstance.easeTo({
-          center: restore.center,
-          zoom: restore.zoom,
-          duration: 350,
-        });
-      }
-    }
-    setTimeout(onClose, 380);
-  }, [closing, onClose, mapInstance, isDesktop]);
 
   const handleTouchStart = (e) => {
     const scrollTop = contentRef.current?.scrollTop || 0;
