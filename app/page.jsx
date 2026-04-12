@@ -687,6 +687,20 @@ function AppContent() {
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const [weather, setWeather] = useState(null);
   const [predictions, setPredictions] = useState({});
+  const [communityStats, setCommunityStats] = useState(null);
+
+  // Fetch community stats once on mount
+  useEffect(() => {
+    const fetchCommunityStats = async () => {
+      try {
+        const { count: totalReports } = await supabase.from("reports").select("*", { count: "exact", head: true });
+        const { data: reporters } = await supabase.from("reports").select("device_id").limit(2000);
+        const uniqueReporters = reporters ? new Set(reporters.map(r => r.device_id).filter(Boolean)).size : 0;
+        setCommunityStats({ totalReports: totalReports || 0, reporters: uniqueReporters });
+      } catch(e) {}
+    };
+    fetchCommunityStats();
+  }, []);
   const [mapInstance, setMapInstance] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
   const [locationMarker, setLocationMarker] = useState(null);
@@ -883,7 +897,20 @@ function AppContent() {
       <div style={{ padding: "8px 16px", display: "flex", gap: "8px", alignItems: "center", flexShrink: 0, borderBottom: "1px solid rgba(255,255,255,0.04)", background: "#0a0f1a" }}>
         {dangerCount > 0 && <button onClick={() => handleFilterClick("danger")} className="tap-target" style={{ display: "flex", alignItems: "center", gap: "7px", background: activeFilter === "danger" ? "rgba(239,68,68,0.15)" : "var(--danger-bg)", padding: "6px 14px", borderRadius: "20px", border: activeFilter === "danger" ? "1.5px solid var(--danger)" : "1px solid var(--danger-border)", cursor: "pointer", transition: "all 0.2s ease" }}><span style={{ width: 6, height: 6, background: "var(--danger)", borderRadius: "50%", animation: "blink 1.5s ease-in-out infinite", flexShrink: 0 }} /><span style={{ fontSize: "12px", color: "#fca5a5", fontWeight: 600, fontVariantNumeric: "tabular-nums" }}>{dangerCount} {t.danger}</span></button>}
         {cautionCount > 0 && <button onClick={() => handleFilterClick("caution")} className="tap-target" style={{ display: "flex", alignItems: "center", gap: "7px", background: activeFilter === "caution" ? "rgba(234,179,8,0.15)" : "var(--caution-bg)", padding: "6px 14px", borderRadius: "20px", border: activeFilter === "caution" ? "1.5px solid var(--caution)" : "1px solid var(--caution-border)", cursor: "pointer", transition: "all 0.2s ease" }}><span style={{ width: 6, height: 6, background: "var(--caution)", borderRadius: "50%", flexShrink: 0 }} /><span style={{ fontSize: "12px", color: "#fde047", fontWeight: 600, fontVariantNumeric: "tabular-nums" }}>{cautionCount} {t.caution}</span></button>}
-        {dangerCount === 0 && cautionCount === 0 && <div style={{ display: "flex", alignItems: "center", gap: "7px", background: "var(--safe-bg)", padding: "6px 14px", borderRadius: "20px", border: "1px solid var(--safe-border)" }}><span style={{ width: 6, height: 6, background: "var(--safe)", borderRadius: "50%", flexShrink: 0 }} /><span style={{ fontSize: "12px", color: "#86efac", fontWeight: 600 }}>{t.noActiveAlerts}</span></div>}
+        {dangerCount === 0 && cautionCount === 0 && (
+          <div style={{ display: "flex", alignItems: "center", gap: "7px", flex: 1 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "7px", background: "var(--safe-bg)", padding: "6px 14px", borderRadius: "20px", border: "1px solid var(--safe-border)" }}>
+              <span style={{ width: 6, height: 6, background: "var(--safe)", borderRadius: "50%", flexShrink: 0 }} />
+              <span style={{ fontSize: "12px", color: "#86efac", fontWeight: 600 }}>{t.noActiveAlerts}</span>
+            </div>
+            {communityStats && communityStats.totalReports > 0 && (
+              <span style={{ fontSize: "11px", color: "var(--text-faint)", display: "flex", alignItems: "center", gap: "4px", marginLeft: "auto" }}>
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                {communityStats.totalReports} {es ? "reportes" : "reports"} · {communityStats.reporters} {es ? "reporteros" : "reporters"}
+              </span>
+            )}
+          </div>
+        )}
         {activeFilter && <button onClick={() => setActiveFilter(null)} className="tap-target" style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 28, height: 28, background: "rgba(255,255,255,0.045)", borderRadius: "50%", border: "1px solid rgba(255,255,255,0.06)", cursor: "pointer", transition: "all 0.15s ease" }}><svg width="10" height="10" viewBox="0 0 10 10" stroke="var(--text-dim)" strokeWidth="1.5" strokeLinecap="round"><line x1="2" y1="2" x2="8" y2="8"/><line x1="8" y1="2" x2="2" y2="8"/></svg></button>}
       </div>
 
@@ -934,6 +961,21 @@ function AppContent() {
             <div style={{ padding: "12px 16px 20px" }}>
               {loading ? Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} i={i} />) : (
                 <>
+                  {/* Community stats card */}
+                  {communityStats && communityStats.totalReports > 0 && dangerCount === 0 && cautionCount === 0 && (
+                    <div style={{ display: "flex", gap: "8px", marginBottom: "14px", animation: "fadeIn 0.3s ease" }}>
+                      {[
+                        { value: communityStats.totalReports, label: es ? "Reportes" : "Reports", icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="1.75" strokeLinecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg> },
+                        { value: communityStats.reporters, label: es ? "Reporteros" : "Reporters", icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--safe)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg> },
+                        { value: ZONES.length, label: es ? "Zonas" : "Zones", icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--baq-yellow)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> },
+                      ].map((s, i) => (
+                        <div key={i} style={{ flex: 1, padding: "12px 8px", borderRadius: "var(--radius-lg)", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)", textAlign: "center" }}>
+                          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "5px", marginBottom: "4px" }}>{s.icon}<span style={{ fontSize: "16px", fontWeight: 800, color: "var(--text)", fontVariantNumeric: "tabular-nums" }}>{s.value}</span></div>
+                          <div style={{ fontSize: "9px", color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "0.5px" }}>{s.label}</div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                   {favs.sortZones(ZONES.filter((z) => !activeFilter || getZoneSeverity(z.id, reports) === activeFilter)).map((z, i, arr) => {
                     const sv = getZoneSeverity(z.id, reports); const zr = getZoneReports(z.id, reports); const lt = zr[0]; const c = sv ? SEVERITY[sv] : null;
                     const isSubbed = push.isSubscribed(z.id); const pred = predictions[z.id];
