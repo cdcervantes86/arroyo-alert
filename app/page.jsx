@@ -817,6 +817,7 @@ function AppContent() {
   const [closingDigest, setClosingDigest] = useState(false);
   const [lastReport, setLastReport] = useState(null);
   const [viewPhoto, setViewPhoto] = useState(null);
+  const [rankUp, setRankUp] = useState(null);
   const [hintDismissed, setHintDismissed] = useState(false);
   const radar = useRainRadar(mapInstance);
   const favs = useFavorites();
@@ -946,7 +947,22 @@ function AppContent() {
   if (screen === "about" && !isDesktop) return <div style={{ animation: "screenSlideIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", position: "fixed", inset: 0, zIndex: 50, background: "var(--bg)" }}><AboutPage onBack={() => setScreen("main")} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} onShowOnboarding={() => { setScreen("main"); setShowOnboarding(true); }} /></div>;
   if (screen === "heatmap") return <div style={{ animation: "screenSlideIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", position: "fixed", inset: 0, zIndex: 50, background: "var(--bg)" }}><HeatmapView onBack={() => setScreen("main")} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} /></div>;
   if (screen === "profile" && !isDesktop) return <div style={{ animation: "screenSlideIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", position: "fixed", inset: 0, zIndex: 50, background: "var(--bg)" }}><ReporterProfile reports={reports} onBack={() => setScreen("main")} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} /></div>;
-  if (screen === "report") return <div style={{ animation: "screenSlideIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", position: "fixed", inset: 0, zIndex: 50, background: "var(--bg)" }}><ReportFlow zones={ZONES} reports={reports} initialZoneId={selectedZone} onSubmit={async (data) => { await handleReport(data); const zone = ZONES.find(z => z.id === data.zoneId); setLastReport({ zoneId: data.zoneId, zoneName: zone?.name, zoneArea: zone?.area, severity: data.severity, text: data.text }); setScreen("main"); }} onBack={() => setScreen("main")} onLogoClick={handleLogoClick} /></div>;
+  if (screen === "report") return <div style={{ animation: "screenSlideIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", position: "fixed", inset: 0, zIndex: 50, background: "var(--bg)" }}><ReportFlow zones={ZONES} reports={reports} initialZoneId={selectedZone} onSubmit={async (data) => {
+    const { getReporterStats } = require("@/lib/deviceId");
+    const prevCount = getReporterStats().reportCount;
+    await handleReport(data);
+    const newCount = getReporterStats().reportCount;
+    const milestones = [1, 5, 20, 50];
+    const crossedMilestone = milestones.find(m => prevCount < m && newCount >= m);
+    if (crossedMilestone) {
+      const ranks = { 1: es ? "Reportero" : "Reporter", 5: es ? "Vigía Verificado" : "Verified Watcher", 20: es ? "Protector" : "Protector", 50: es ? "Guardián" : "Guardian" };
+      setRankUp(ranks[crossedMilestone]);
+      setTimeout(() => setRankUp(null), 4500);
+    }
+    const zone = ZONES.find(z => z.id === data.zoneId);
+    setLastReport({ zoneId: data.zoneId, zoneName: zone?.name, zoneArea: zone?.area, severity: data.severity, text: data.text });
+    setScreen("main");
+  }} onBack={() => setScreen("main")} onLogoClick={handleLogoClick} /></div>;
 
   const desktopTabs = [{ key: "map", Icon: MapIcon }, { key: "list", Icon: ListIcon }, { key: "live", Icon: LiveIcon }];
 
@@ -1309,6 +1325,19 @@ function AppContent() {
             }}>
               {es ? "Ahora no" : "Not now"}
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Rank-up celebration */}
+      {rankUp && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 1950, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.7)", animation: "fadeIn 0.2s ease", pointerEvents: "none" }}>
+          <div style={{ textAlign: "center", animation: "modalScaleIn 0.4s cubic-bezier(0.34, 1.4, 0.64, 1)" }}>
+            <div style={{ width: 80, height: 80, borderRadius: "50%", background: "rgba(245,208,51,0.1)", border: "2px solid rgba(245,208,51,0.25)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px", animation: "successPulse 0.6s ease" }}>
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#F5D033" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </div>
+            <div style={{ fontSize: "12px", color: "var(--baq-yellow)", textTransform: "uppercase", letterSpacing: "2px", fontWeight: 700, marginBottom: "8px" }}>{es ? "Nuevo rango" : "Rank up"}</div>
+            <div style={{ fontSize: "24px", fontWeight: 800, color: "#fff", letterSpacing: "-0.5px" }}>{rankUp}</div>
           </div>
         </div>
       )}
