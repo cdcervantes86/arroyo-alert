@@ -37,12 +37,12 @@ export function useRainRadar(mapInstance) {
             type: "raster",
             source: "owm-rain-src",
             paint: {
-              "raster-opacity": 0.9,
+              "raster-opacity": 0.85,
               "raster-fade-duration": 300,
               "raster-brightness-min": 0,
               "raster-brightness-max": 1,
-              "raster-contrast": 0.6,
-              "raster-saturation": 0.7,
+              "raster-contrast": 0.85,
+              "raster-saturation": 0.8,
             },
           });
           addedRef.current = true;
