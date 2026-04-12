@@ -306,17 +306,30 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
         .setPopup(popup)
         .addTo(map);
 
-      el.addEventListener("mouseenter", () => { marker.togglePopup(); });
-      el.addEventListener("mouseleave", () => { marker.getPopup().remove(); });
+      let pinned = false;
+      el.addEventListener("mouseenter", () => { if (!pinned) marker.togglePopup(); });
+      el.addEventListener("mouseleave", () => { if (!pinned) marker.getPopup().remove(); });
 
-      // Click handler
+      // Click handler — pin popup open + trigger zone detail
       el.addEventListener("click", (e) => {
         e.stopPropagation();
+        // Close all other pinned popups
+        markersRef.current.forEach(m => { try { m._pinned = false; m.getPopup().remove(); } catch(e) {} });
+        pinned = true;
+        marker._pinned = true;
+        if (!marker.getPopup().isOpen()) marker.togglePopup();
         onZoneClick(zone.id);
       });
 
       markersRef.current.push(marker);
     });
+
+    // Close pinned popups when clicking empty map space
+    const clearPinned = () => {
+      markersRef.current.forEach(m => { try { m._pinned = false; m.getPopup().remove(); } catch(e) {} });
+    };
+    map.on("click", clearPinned);
+    return () => { map.off("click", clearPinned); };
   }, [reports, onZoneClick, activeFilter, predictions]);
 
   if (mapError) {
