@@ -689,6 +689,14 @@ function AppContent() {
   const handleMobileTab = (key) => { if (key === "more") { setShowMoreMenu(true); return; } setMobileView(key); };
   const handleDesktopTab = (key) => { if (key === "live") setShowPanel((p) => !p); else setDesktopView(key); };
   const closeSheet = () => { setScreen("main"); setSelectedZone(null); };
+
+  // Dismiss sheet when user starts panning the map
+  useEffect(() => {
+    if (!mapInstance || screen !== "detail" || isDesktop) return;
+    const handleDrag = () => { closeSheet(); };
+    mapInstance.on("dragstart", handleDrag);
+    return () => { mapInstance.off("dragstart", handleDrag); };
+  }, [mapInstance, screen, isDesktop]);
   const handleMapReady = useCallback((map) => { setMapInstance(map); }, []);
   const handleLocate = useCallback(() => {
     if (!mapInstance) return;
