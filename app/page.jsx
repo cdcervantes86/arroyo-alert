@@ -789,7 +789,7 @@ function AppContent() {
     }
   }, [addToast, lang]);
 
-  const { reports, loading, submitReport, upvoteReport, refetch } = useReports(handleRealtimeEvent);
+  const { reports, loading, lastUpdated, submitReport, upvoteReport, refetch } = useReports(handleRealtimeEvent);
   const push = usePushNotifications();
   const { totalWatchers, zoneWatchers, watchZone, unwatchZone } = useLiveWatchers();
   const [screen, setScreen] = useState("main");
@@ -1024,6 +1024,7 @@ function AppContent() {
         </button>
         <div style={{ flex: 1 }} />
         {totalWatchers > 1 && <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "11px", color: "var(--text-faint)", fontWeight: 500 }}><span style={{ width: 5, height: 5, borderRadius: "50%", background: "var(--safe)", animation: "blink 2s ease infinite" }} />{totalWatchers}</div>}
+        {!totalWatchers && lastUpdated && <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "10px", color: "var(--text-faint)", fontWeight: 500, opacity: 0.6 }}><span style={{ width: 4, height: 4, borderRadius: "50%", background: "var(--safe)" }} />{es ? "En línea" : "Live"}</div>}
         <WeatherIndicator />
         {isDesktop && <>
           <button className="header-icon-btn" onClick={() => setScreen("profile")} style={{ width: 32, height: 32, borderRadius: "50%", background: "none", border: "none", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><ProfileIcon size={18} color="var(--text-dim)" /></button>
