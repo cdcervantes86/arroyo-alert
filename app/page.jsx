@@ -444,10 +444,20 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
     <>
       {/* Backdrop — dismisses on tap or short touch */}
       <div
-        onTouchStart={(e) => { e.target._touchStart = { y: e.touches[0].clientY, time: Date.now() }; }}
+        onTouchStart={(e) => { e.target._touchStart = { x: e.touches[0].clientX, y: e.touches[0].clientY, time: Date.now(), dismissed: false }; }}
+        onTouchMove={(e) => {
+          const s = e.target._touchStart;
+          if (!s || s.dismissed) return;
+          const dx = Math.abs(e.touches[0].clientX - s.x);
+          const dy = Math.abs(e.touches[0].clientY - s.y);
+          if (dx > 30 || dy > 30) {
+            s.dismissed = true;
+            animateClose();
+          }
+        }}
         onTouchEnd={(e) => {
           const s = e.target._touchStart;
-          if (!s) return;
+          if (!s || s.dismissed) return;
           const dy = Math.abs(e.changedTouches[0].clientY - s.y);
           const dt = Date.now() - s.time;
           if (dy < 20 && dt < 400) animateClose();
@@ -689,14 +699,6 @@ function AppContent() {
   const handleMobileTab = (key) => { if (key === "more") { setShowMoreMenu(true); return; } setMobileView(key); };
   const handleDesktopTab = (key) => { if (key === "live") setShowPanel((p) => !p); else setDesktopView(key); };
   const closeSheet = () => { setScreen("main"); setSelectedZone(null); };
-
-  // Dismiss sheet when user starts panning the map
-  useEffect(() => {
-    if (!mapInstance || screen !== "detail" || isDesktop) return;
-    const handleDrag = () => { closeSheet(); };
-    mapInstance.on("dragstart", handleDrag);
-    return () => { mapInstance.off("dragstart", handleDrag); };
-  }, [mapInstance, screen, isDesktop]);
   const handleMapReady = useCallback((map) => { setMapInstance(map); }, []);
   const handleLocate = useCallback(() => {
     if (!mapInstance) return;
