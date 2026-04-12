@@ -160,7 +160,7 @@ function MoreMenu({ onSelect, lang, onClose }) {
 }
 
 /* ====== MULTI-SNAP BOTTOM SHEET — peek / half / full ====== */
-function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push, zoneWatchers, prediction, watchZone, unwatchZone, onLogoClick, isDesktop, desktopView, mapInstance, favs, initialSnap = "peek" }) {
+function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push, zoneWatchers, prediction, watchZone, unwatchZone, onLogoClick, isDesktop, desktopView, mapInstance, favs, initialSnap = "peek", mapRestoreRef }) {
   const { lang, t } = useLanguage();
   const es = lang === "es";
   const sevColor = severity ? SEVERITY[severity].color : "rgba(255,255,255,0.06)";
@@ -372,8 +372,19 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
   const animateClose = useCallback(() => {
     if (closing) return;
     setClosing(true);
+    // Start map restore immediately (don't wait for sheet animation)
+    if (mapInstance && !isDesktop) {
+      const restore = mapRestoreRef?.current;
+      if (restore) {
+        mapInstance.easeTo({
+          center: restore.center,
+          zoom: restore.zoom,
+          duration: 350,
+        });
+      }
+    }
     setTimeout(onClose, 380);
-  }, [closing, onClose]);
+  }, [closing, onClose, mapInstance, isDesktop]);
 
   // Dismiss sheet when clicking empty map space (markers don't propagate to this)
   useEffect(() => {
@@ -468,15 +479,18 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
 
   return (
     <>
-      {/* Backdrop — visual only, doesn't block map interaction */}
-      <div
-        style={{
-          position: "fixed", inset: 0, zIndex: 1000,
-          background: `rgba(0,0,0,${backdropOpacity})`,
-          transition: isDragging ? "none" : `all ${DURATION} ${SPRING}`,
-          pointerEvents: "none",
-        }}
-      />
+      {/* Backdrop — desktop only (mobile uses map click to dismiss) */}
+      {isDesktop && (
+        <div
+          onClick={animateClose}
+          style={{
+            position: "fixed", inset: 0, zIndex: 1000,
+            background: `rgba(0,0,0,${backdropOpacity})`,
+            transition: isDragging ? "none" : `all ${DURATION} ${SPRING}`,
+            pointerEvents: closing ? "none" : "auto",
+          }}
+        />
+      )}
 
       {/* Sheet */}
       <div ref={sheetRef}
@@ -727,14 +741,7 @@ function AppContent() {
   const handleMobileTab = (key) => { if (key === "more") { setShowMoreMenu(true); return; } setMobileView(key); };
   const handleDesktopTab = (key) => { if (key === "live") setShowPanel((p) => !p); else setDesktopView(key); };
   const closeSheet = () => {
-    if (mapRestoreRef.current && mapInstance && !isDesktop && mobileView === "map") {
-      mapInstance.easeTo({
-        center: mapRestoreRef.current.center,
-        zoom: mapRestoreRef.current.zoom,
-        duration: 350,
-      });
-      mapRestoreRef.current = null;
-    }
+    mapRestoreRef.current = null;
     setScreen("main"); setSelectedZone(null);
   };
   const handleMapReady = useCallback((map) => { setMapInstance(map); }, []);
@@ -991,6 +998,7 @@ function AppContent() {
             mapInstance={mapInstance}
             favs={favs}
             initialSnap={zoneClickSource === "map" ? "peek" : "half"}
+            mapRestoreRef={mapRestoreRef}
           />
         );
       })()}
