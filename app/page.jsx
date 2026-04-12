@@ -58,7 +58,7 @@ function Logo({ size = 24 }) {
 }
 
 function SkeletonCard({ i }) {
-  return <div style={{ display: "flex", gap: "12px", alignItems: "center", padding: "14px", marginBottom: "6px", borderRadius: "var(--radius-md)", border: "1px solid var(--border)", animation: `fadeIn 0.3s ease ${i * 0.05}s both` }}><div className="skeleton" style={{ width: 38, height: 38, borderRadius: "var(--radius-sm)", flexShrink: 0 }} /><div style={{ flex: 1 }}><div className="skeleton" style={{ width: "55%", height: 13, marginBottom: 8 }} /><div className="skeleton" style={{ width: "35%", height: 10 }} /></div></div>;
+  return <div style={{ display: "flex", gap: "14px", alignItems: "center", padding: "14px 16px", marginBottom: "6px", borderRadius: "var(--radius-lg)", border: "1px solid rgba(255,255,255,0.04)", background: "rgba(255,255,255,0.01)", animation: `fadeIn 0.3s ease ${i * 0.05}s both` }}><div className="skeleton" style={{ width: 42, height: 42, borderRadius: "var(--radius-md)", flexShrink: 0 }} /><div style={{ flex: 1 }}><div className="skeleton" style={{ width: "45%", height: 14, marginBottom: 8, borderRadius: 4 }} /><div className="skeleton" style={{ width: "30%", height: 10, borderRadius: 3 }} /></div></div>;
 }
 
 function OfflineBanner({ lang }) {
@@ -425,7 +425,7 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
 
   const vh = typeof window !== "undefined" ? window.innerHeight : 800;
   const progress = heightPx / vh;
-  const backdropOpacity = closing ? 0 : Math.min(0.55, progress * 0.7);
+  const backdropOpacity = closing ? 0 : Math.max(0.15, Math.min(0.55, progress * 0.7));
   const backdropBlur = 0; // removed to prevent Safari flicker
   const canScroll = snap === "full" && !isDragging;
   const contentOpacity = snap === "peek" && !isDragging ? 0 : Math.min(1, (heightPx - snapPx("peek")) / (snapPx("half") - snapPx("peek")));
@@ -442,13 +442,24 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
 
   return (
     <>
-      {/* Backdrop */}
-      <div onClick={animateClose} style={{
-        position: "fixed", inset: 0, zIndex: 1000,
-        background: `rgba(0,0,0,${backdropOpacity})`,
-        transition: isDragging ? "none" : `all ${DURATION} ${SPRING}`,
-        pointerEvents: closing ? "none" : "auto",
-      }} />
+      {/* Backdrop — dismisses on tap or short touch */}
+      <div
+        onTouchStart={(e) => { e.target._touchStart = { y: e.touches[0].clientY, time: Date.now() }; }}
+        onTouchEnd={(e) => {
+          const s = e.target._touchStart;
+          if (!s) return;
+          const dy = Math.abs(e.changedTouches[0].clientY - s.y);
+          const dt = Date.now() - s.time;
+          if (dy < 20 && dt < 400) animateClose();
+        }}
+        onClick={animateClose}
+        style={{
+          position: "fixed", inset: 0, zIndex: 1000,
+          background: `rgba(0,0,0,${backdropOpacity})`,
+          transition: isDragging ? "none" : `all ${DURATION} ${SPRING}`,
+          pointerEvents: closing ? "none" : "auto",
+        }}
+      />
 
       {/* Sheet */}
       <div ref={sheetRef}

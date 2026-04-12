@@ -234,7 +234,7 @@ export default function ShareCard({ zoneName, zoneArea, severity, reportText, ph
   return (
     <div style={{
       position: "fixed", inset: 0, zIndex: 1100,
-      background: "rgba(0,0,0,0.85)", backdropFilter: "blur(12px)",
+      background: "rgba(0,0,0,0.85)",
       display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
       padding: "20px", animation: "fadeIn 0.2s ease",
     }}>

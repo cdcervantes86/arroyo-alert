@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { SEVERITY, getZoneSeverity, getSevLabel } from "@/lib/zones";
 import { useLanguage } from "@/lib/LanguageContext";
 import { getReporterStats } from "@/lib/deviceId";
+import { AlertTriangleIcon } from "@/components/Icons";
 import { SeverityIcon, SuccessRipple } from "@/components/SeverityIcon";
 
 export default function ReportFlow({ zones, reports, initialZoneId, onSubmit, onBack, onLogoClick }) {
@@ -148,7 +149,7 @@ export default function ReportFlow({ zones, reports, initialZoneId, onSubmit, on
             <h2 style={{ fontSize: "20px", fontWeight: 700, margin: "0 0 4px", letterSpacing: "-0.3px" }}>{t.anythingElse}</h2>
             <p style={{ color: "var(--text-dim)", fontSize: "13px", margin: "0 0 20px" }}>{t.optional}</p>
             <textarea value={text} onChange={(e) => setText(e.target.value)} placeholder={t.textPlaceholder}
-              style={{ width: "100%", minHeight: 100, background: "rgba(255,255,255,0.02)", border: "1px solid var(--border-light)", borderRadius: "var(--radius-md)", padding: "14px 16px", color: "var(--text)", fontSize: "15px", resize: "vertical", outline: "none", fontFamily: "inherit", lineHeight: 1.5 }} />
+              style={{ width: "100%", minHeight: 100, background: "rgba(255,255,255,0.025)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "var(--radius-lg)", padding: "16px", color: "var(--text)", fontSize: "15px", resize: "vertical", outline: "none", fontFamily: "inherit", lineHeight: 1.5, transition: "border-color 0.2s ease" }} />
 
             <input ref={fileInputRef} type="file" accept="image/*" onChange={handlePhoto} style={{ display: "none" }} />
             <div style={{ marginTop: "14px" }}>
@@ -178,7 +179,7 @@ export default function ReportFlow({ zones, reports, initialZoneId, onSubmit, on
             )}
 
             {/* Summary */}
-            <div style={{ marginTop: 20, background: "rgba(255,255,255,0.015)", borderRadius: "var(--radius-md)", padding: "16px", border: "1px solid var(--border)" }}>
+            <div style={{ marginTop: 20, background: "rgba(255,255,255,0.02)", borderRadius: "var(--radius-lg)", padding: "18px", border: "1px solid rgba(255,255,255,0.06)" }}>
               <div style={{ fontSize: "10px", color: "var(--text-faint)", marginBottom: 10, textTransform: "uppercase", letterSpacing: "1.5px", fontWeight: 600 }}>{t.reportSummary}</div>
               <div style={{ fontSize: "14px", marginBottom: 6, display: "flex", alignItems: "center", gap: "6px" }}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg> {zones.find((z) => z.id === zoneId)?.name} ({zones.find((z) => z.id === zoneId)?.area})
@@ -190,14 +191,17 @@ export default function ReportFlow({ zones, reports, initialZoneId, onSubmit, on
               {photo && <div style={{ fontSize: "12px", color: "var(--text-dim)", marginTop: 6 }}><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" style={{ verticalAlign: "middle", marginRight: 4 }}><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>1 {es ? "foto adjunta" : "photo attached"}</div>}
             </div>
 
-            <button onClick={handleSubmit} disabled={submitting} style={{
+            <button onClick={handleSubmit} disabled={submitting} className="tap-target" style={{
               width: "100%", marginTop: 20, padding: "16px",
-              background: submitting ? "rgba(255,255,255,0.04)" : "linear-gradient(135deg, #D42A2A, #b91c1c)",
+              background: submitting ? "rgba(255,255,255,0.04)" : "linear-gradient(135deg, #D42A2A, #a11a1a)",
               color: "#fff", border: "none", borderRadius: "var(--radius-md)",
               fontSize: "16px", fontWeight: 700,
-              boxShadow: submitting ? "none" : "0 8px 24px rgba(212,42,42,0.25)",
+              boxShadow: submitting ? "none" : "0 8px 24px rgba(212,42,42,0.3)",
               opacity: submitting ? 0.6 : 1,
+              display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
+              transition: "all 0.2s ease",
             }}>
+              {!submitting && <AlertTriangleIcon size={16} color="#fff" />}
               {submitting ? (photo ? (es ? "Subiendo foto..." : "Uploading...") : t.sending) : t.submitReport}
             </button>
           </>
