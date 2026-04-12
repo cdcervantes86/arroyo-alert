@@ -882,7 +882,6 @@ function AppContent() {
       {/* CONTENT */}
       <div style={{ flex: 1, minHeight: 0, display: "flex", overflow: "hidden" }}>
         <div style={{ flex: 1, minHeight: 0, position: "relative", overflow: "hidden" }}>
-                <div style={{ position: "absolute", left: 0, top: "10%", bottom: "10%", width: 3, borderRadius: "0 2px 2px 0", background: cfg.color, opacity: 0.5 }} />
           {currentMainView === "map" ? (
             <>
             <MapErrorBoundary>
