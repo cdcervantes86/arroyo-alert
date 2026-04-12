@@ -168,7 +168,14 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
   // Center map on zone when in desktop map view
   useEffect(() => {
     if (isDesktop && desktopView === "map" && mapInstance && zone) {
-      mapInstance.flyTo({ center: [zone.lng, zone.lat], zoom: 14, duration: 800, offset: [-190, 0] });
+      // Panel is 380px on right. Shift center left by half the panel width
+      // so zone appears centered in the visible (non-panel) area
+      mapInstance.easeTo({
+        center: [zone.lng, zone.lat],
+        zoom: 14,
+        duration: 600,
+        offset: [190, 0], // positive x = zone renders centered in visible area (left of panel)
+      });
     }
   }, [isDesktop, desktopView, mapInstance, zone]);
 
