@@ -39,10 +39,11 @@ export default function UpdateBanner() {
         <div style={{
           width: "100%", maxWidth: 360, maxHeight: "85vh", overflowY: "auto",
           background: "#0e1628",
-          borderRadius: "var(--radius-lg)", border: "1px solid rgba(255,255,255,0.06)",
-          padding: "28px 24px", animation: "slideUp 0.3s ease",
+          borderRadius: "var(--radius-xl)", border: "1px solid rgba(255,255,255,0.06)",
+          padding: "28px 24px", animation: "modalScaleIn 0.3s cubic-bezier(0.34, 1.4, 0.64, 1)",
+          boxShadow: "0 24px 80px rgba(0,0,0,0.6)",
         }}>
-          <div style={{ fontSize: "32px", textAlign: "center", marginBottom: "12px" }}>✨</div>
+          <div style={{ textAlign: "center", marginBottom: "12px" }}><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
           <h2 style={{ fontSize: "20px", fontWeight: 700, textAlign: "center", marginBottom: "4px", color: "var(--text)" }}>
             {latest.title[lang] || latest.title.es}
           </h2>
@@ -57,9 +58,9 @@ export default function UpdateBanner() {
           <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginBottom: "20px" }}>
             {(latest.items[lang] || latest.items.es).map((item, i) => (
               <div key={i} style={{
-                padding: "10px 14px", borderRadius: "var(--radius-md)",
+                padding: "10px 14px", borderRadius: "var(--radius-lg)",
                 background: "rgba(255,255,255,0.025)", border: "1px solid rgba(255,255,255,0.06)",
-                fontSize: "14px", color: "var(--text-secondary)",
+                fontSize: "13px", color: "var(--text-secondary)", lineHeight: 1.5,
                 animation: `fadeIn 0.2s ease ${i * 0.04}s both`,
               }}>
                 {item}
@@ -76,7 +77,7 @@ export default function UpdateBanner() {
                 borderTop: "1px solid rgba(255,255,255,0.06)", marginBottom: showBugfixes ? "10px" : "20px",
                 cursor: "pointer",
               }}>
-                <span style={{ fontSize: "12px" }}>🐛</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-dim)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
                 <span style={{ fontSize: "13px", color: "var(--text-dim)", fontWeight: 600, flex: 1, textAlign: "left" }}>
                   {es ? `${bugfixes.length} correcciones` : `${bugfixes.length} bug fixes`}
                 </span>
@@ -90,7 +91,7 @@ export default function UpdateBanner() {
                       fontSize: "12px", color: "var(--text-dim)", lineHeight: 1.5,
                       display: "flex", gap: "8px", alignItems: "flex-start",
                     }}>
-                      <span style={{ color: "var(--safe)", fontSize: "10px", marginTop: "2px", flexShrink: 0 }}>✓</span>
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--safe)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: "3px" }}><polyline points="20 6 9 17 4 12"/></svg>
                       {fix}
                     </div>
                   ))}
@@ -118,7 +119,7 @@ export default function UpdateBanner() {
       background: "rgba(96,165,250,0.08)", borderBottom: "1px solid rgba(96,165,250,0.15)",
       animation: "fadeIn 0.3s ease", flexShrink: 0,
     }}>
-      <span style={{ fontSize: "14px" }}>✨</span>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
       <span style={{ flex: 1, fontSize: "13px", color: "var(--accent)", fontWeight: 600 }}>
         {`AlertaArroyo v${APP_VERSION} — `}
         <button onClick={() => setShowChangelog(true)} style={{

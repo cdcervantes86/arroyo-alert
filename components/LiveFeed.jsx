@@ -15,7 +15,7 @@ function Countdown({ createdAt }) {
   const m = Math.floor((remaining % 3600000) / 60000);
   const pct = remaining / (4 * 3600000);
   const color = pct > 0.5 ? "var(--text-faint)" : pct > 0.2 ? "var(--caution)" : "var(--danger)";
-  return <span style={{ fontSize: "10px", color, fontWeight: 500, fontVariantNumeric: "tabular-nums" }}>⏱ {h}h {m}m</span>;
+  return <span style={{ fontSize: "10px", color, fontWeight: 500, fontVariantNumeric: "tabular-nums", display: "inline-flex", alignItems: "center", gap: "3px" }}><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>{h}h {m}m</span>;
 }
 
 function VerifiedBadge({ lang }) {
