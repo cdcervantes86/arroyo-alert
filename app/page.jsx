@@ -1,6 +1,7 @@
 "use client";
 import { useState, useCallback, useEffect, useRef, lazy, Suspense } from "react";
 import { useReports } from "@/lib/useReports";
+import { supabase } from "@/lib/supabase";
 import { usePushNotifications, notifyZone } from "@/lib/usePushNotifications";
 import { ZONES, SEVERITY, getZoneSeverity, getZoneReports, getSevLabel } from "@/lib/zones";
 import { LanguageProvider, useLanguage } from "@/lib/LanguageContext";
@@ -183,6 +184,7 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
   const [closing, setClosing] = useState(false);
   const [entered, setEntered] = useState(false);
   const [upvoted, setUpvoted] = useState(new Set());
+  const [zoneHistory, setZoneHistory] = useState(null);
   const touchRef = useRef({ startY: 0, startSnap: 0, lastY: 0, lastTime: 0, velocity: 0 });
   const contentRef = useRef(null);
   const sheetRef = useRef(null);
@@ -244,6 +246,20 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
     setTimeout(onClose, 380);
   }, [closing, onClose, mapInstance, isDesktop, mapRestoreRef]);
 
+  // Fetch zone history stats
+  useEffect(() => {
+    if (!zone) return;
+    const fetchHistory = async () => {
+      try {
+        const { count: total } = await supabase.from("reports").select("*", { count: "exact", head: true }).eq("zone_id", zone.id);
+        const thirtyDaysAgo = new Date(Date.now() - 30 * 86400000).toISOString();
+        const { count: recent } = await supabase.from("reports").select("*", { count: "exact", head: true }).eq("zone_id", zone.id).gte("created_at", thirtyDaysAgo);
+        setZoneHistory({ total: total || 0, recent: recent || 0 });
+      } catch(e) {}
+    };
+    fetchHistory();
+  }, [zone]);
+
   // Map click to dismiss — works for both desktop and mobile
   useEffect(() => {
     if (!mapInstance) return;
@@ -297,6 +313,26 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
         {/* Scrollable body */}
         <div style={{ flex: 1, overflowY: "auto", WebkitOverflowScrolling: "touch", padding: "16px 24px 24px" }}>
           {zone.desc && <p style={{ color: "var(--text-dim)", fontSize: "13px", marginBottom: "14px", lineHeight: 1.5 }}>{es ? zone.desc : (zone.descEn || zone.desc)}</p>}
+
+          {/* Zone history context */}
+          {zoneHistory && zoneHistory.total > 0 && (
+            <div style={{ display: "flex", gap: "8px", marginBottom: "14px" }}>
+              <div style={{ flex: 1, padding: "10px 12px", borderRadius: "var(--radius-lg)", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)", display: "flex", alignItems: "center", gap: "8px" }}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-faint)" strokeWidth="1.75" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <div>
+                  <span style={{ fontSize: "14px", fontWeight: 800, color: "var(--text)" }}>{zoneHistory.total}</span>
+                  <span style={{ fontSize: "11px", color: "var(--text-faint)", marginLeft: "4px" }}>{es ? "total" : "all time"}</span>
+                </div>
+              </div>
+              <div style={{ flex: 1, padding: "10px 12px", borderRadius: "var(--radius-lg)", background: zoneHistory.recent > 5 ? "rgba(239,68,68,0.04)" : "rgba(255,255,255,0.02)", border: `1px solid ${zoneHistory.recent > 5 ? "rgba(239,68,68,0.08)" : "rgba(255,255,255,0.04)"}`, display: "flex", alignItems: "center", gap: "8px" }}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={zoneHistory.recent > 5 ? "var(--danger)" : "var(--text-faint)"} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <div>
+                  <span style={{ fontSize: "14px", fontWeight: 800, color: zoneHistory.recent > 5 ? "var(--danger)" : "var(--text)" }}>{zoneHistory.recent}</span>
+                  <span style={{ fontSize: "11px", color: "var(--text-faint)", marginLeft: "4px" }}>{es ? "últimos 30d" : "last 30d"}</span>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Watchers + prediction */}
           <div style={{ display: "flex", gap: "10px", marginBottom: "14px", flexWrap: "wrap" }}>
@@ -598,6 +634,26 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
           <div style={{ padding: "14px 20px calc(20px + env(safe-area-inset-bottom, 20px))" }}>
             {/* Description */}
             {zone.desc && <p style={{ color: "var(--text-dim)", fontSize: "12px", marginBottom: "14px", lineHeight: 1.5 }}>{es ? zone.desc : (zone.descEn || zone.desc)}</p>}
+
+            {/* Zone history context */}
+            {zoneHistory && zoneHistory.total > 0 && (
+              <div style={{ display: "flex", gap: "8px", marginBottom: "14px" }}>
+                <div style={{ flex: 1, padding: "10px 12px", borderRadius: "var(--radius-lg)", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)", display: "flex", alignItems: "center", gap: "8px" }}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--text-faint)" strokeWidth="1.75" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  <div>
+                    <span style={{ fontSize: "14px", fontWeight: 800, color: "var(--text)" }}>{zoneHistory.total}</span>
+                    <span style={{ fontSize: "10px", color: "var(--text-faint)", marginLeft: "4px" }}>{es ? "total" : "all time"}</span>
+                  </div>
+                </div>
+                <div style={{ flex: 1, padding: "10px 12px", borderRadius: "var(--radius-lg)", background: zoneHistory.recent > 5 ? "rgba(239,68,68,0.04)" : "rgba(255,255,255,0.02)", border: `1px solid ${zoneHistory.recent > 5 ? "rgba(239,68,68,0.08)" : "rgba(255,255,255,0.04)"}`, display: "flex", alignItems: "center", gap: "8px" }}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={zoneHistory.recent > 5 ? "var(--danger)" : "var(--text-faint)"} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  <div>
+                    <span style={{ fontSize: "14px", fontWeight: 800, color: zoneHistory.recent > 5 ? "var(--danger)" : "var(--text)" }}>{zoneHistory.recent}</span>
+                    <span style={{ fontSize: "10px", color: "var(--text-faint)", marginLeft: "4px" }}>{es ? "últimos 30d" : "last 30d"}</span>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Watchers + prediction */}
             <div style={{ display: "flex", gap: "10px", marginBottom: "14px", flexWrap: "wrap" }}>
