@@ -166,17 +166,28 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
   const sevColor = severity ? SEVERITY[severity].color : "rgba(255,255,255,0.06)";
 
   // Center map on zone when in desktop map view
+  const desktopRestoreRef = useRef(null);
   useEffect(() => {
     if (isDesktop && desktopView === "map" && mapInstance && zone) {
-      // Panel is 380px on right. Shift center left by half the panel width
-      // so zone appears centered in the visible (non-panel) area
-      mapInstance.easeTo({
-        center: [zone.lng, zone.lat],
-        zoom: 14,
-        duration: 600,
-        offset: [190, 0], // positive x = zone renders centered in visible area (left of panel)
-      });
+      if (!desktopRestoreRef.current) {
+        desktopRestoreRef.current = {
+          center: mapInstance.getCenter().toArray(),
+          zoom: mapInstance.getZoom(),
+        };
+      }
+      mapInstance.easeTo({ center: [zone.lng, zone.lat], zoom: 14, duration: 600 });
     }
+    // Restore on unmount (when sheet closes)
+    return () => {
+      if (desktopRestoreRef.current && mapInstance) {
+        mapInstance.easeTo({
+          center: desktopRestoreRef.current.center,
+          zoom: desktopRestoreRef.current.zoom,
+          duration: 350,
+        });
+        desktopRestoreRef.current = null;
+      }
+    };
   }, [isDesktop, desktopView, mapInstance, zone]);
 
   // Mobile sheet state (must be declared before any conditional returns)
