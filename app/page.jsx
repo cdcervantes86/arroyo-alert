@@ -801,6 +801,18 @@ function AppContent() {
   const [activeFilter, setActiveFilter] = useState(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showNotifPrompt, setShowNotifPrompt] = useState(false);
+  const [installPrompt, setInstallPrompt] = useState(null);
+  const [showInstallBanner, setShowInstallBanner] = useState(false);
+
+  // Capture PWA install prompt
+  useEffect(() => {
+    const handler = (e) => { e.preventDefault(); setInstallPrompt(e); };
+    window.addEventListener("beforeinstallprompt", handler);
+    return () => window.removeEventListener("beforeinstallprompt", handler);
+  }, []);
+
+  // Show install banner after some engagement (3rd zone view)
+  const zoneViewCount = useRef(0);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const [weather, setWeather] = useState(null);
   const [predictions, setPredictions] = useState({});
@@ -910,7 +922,12 @@ function AppContent() {
       }
     }
     setSelectedZone(zoneId); setZoneClickSource(source); setScreen("detail");
-  }, [mapInstance, isDesktop]);
+    // Show install banner after 3rd zone view
+    zoneViewCount.current++;
+    if (zoneViewCount.current === 3 && installPrompt && !window.matchMedia("(display-mode: standalone)").matches) {
+      try { if (!localStorage.getItem("arroyo-install-prompted")) { localStorage.setItem("arroyo-install-prompted", "1"); setTimeout(() => setShowInstallBanner(true), 1000); } } catch(e) {}
+    }
+  }, [mapInstance, isDesktop, installPrompt]);
   const handleReport = useCallback(async ({ zoneId, severity, text, photo, altRoute }) => { await submitReport({ zoneId, severity, text, photo, altRoute }); const zone = ZONES.find((z) => z.id === zoneId); if (zone) notifyZone({ zoneId, zoneName: `${zone.name} (${zone.area})`, severity, text }); }, [submitReport]);
   const handleUpvoteLocal = useCallback((id) => { setUpvotedSet((prev) => new Set([...prev, id])); }, []);
   const handleLogoClick = () => { setScreen("main"); setSelectedZone(null); setActiveFilter(null); setShowMoreMenu(false); if (isDesktop) setDesktopView("map"); else setMobileView("map"); };
@@ -1365,6 +1382,51 @@ function AppContent() {
             </div>
             <div style={{ fontSize: "12px", color: "var(--baq-yellow)", textTransform: "uppercase", letterSpacing: "2px", fontWeight: 700, marginBottom: "8px" }}>{es ? "Nuevo rango" : "Rank up"}</div>
             <div style={{ fontSize: "24px", fontWeight: 800, color: "#fff", letterSpacing: "-0.5px" }}>{rankUp}</div>
+          </div>
+        </div>
+      )}
+
+      {/* PWA install prompt */}
+      {showInstallBanner && (
+        <div onClick={() => setShowInstallBanner(false)} style={{ position: "fixed", inset: 0, zIndex: 1100, background: "rgba(0,0,0,0.7)", display: "flex", alignItems: "flex-end", justifyContent: "center", padding: "20px", animation: "fadeIn 0.2s ease" }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 380, background: "#0e1628", borderRadius: "var(--radius-xl)", border: "1px solid rgba(255,255,255,0.06)", boxShadow: "0 -12px 48px rgba(0,0,0,0.5)", padding: "28px 24px 24px", animation: "slideUp 0.3s cubic-bezier(0.34, 1.4, 0.64, 1)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "14px", marginBottom: "16px" }}>
+              <Logo size={44} />
+              <div>
+                <div style={{ fontSize: "17px", fontWeight: 800, color: "var(--text)", letterSpacing: "-0.3px" }}>{es ? "Instala AlertaArroyo" : "Install AlertaArroyo"}</div>
+                <div style={{ fontSize: "12px", color: "var(--text-dim)", marginTop: "2px" }}>{es ? "Acceso rápido desde tu pantalla" : "Quick access from your home screen"}</div>
+              </div>
+            </div>
+            <div style={{ display: "flex", gap: "8px", marginBottom: "16px" }}>
+              {[
+                { icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>, text: es ? "Alertas instantáneas" : "Instant alerts" },
+                { icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--safe)" strokeWidth="1.75" strokeLinecap="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>, text: es ? "Funciona sin internet" : "Works offline" },
+                { icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--baq-yellow)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>, text: es ? "Abre al instante" : "Opens instantly" },
+              ].map((item, i) => (
+                <div key={i} style={{ flex: 1, padding: "10px 8px", borderRadius: "var(--radius-lg)", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)", textAlign: "center" }}>
+                  <div style={{ display: "flex", justifyContent: "center", marginBottom: "5px" }}>{item.icon}</div>
+                  <div style={{ fontSize: "10px", color: "var(--text-dim)", fontWeight: 500 }}>{item.text}</div>
+                </div>
+              ))}
+            </div>
+            <button onClick={async () => { if (installPrompt) { installPrompt.prompt(); try { await installPrompt.userChoice; } catch(e) {} setInstallPrompt(null); } setShowInstallBanner(false); }} className="tap-target" style={{
+              width: "100%", padding: "15px", borderRadius: "var(--radius-lg)",
+              background: "var(--accent)", border: "none", color: "#fff",
+              fontSize: "15px", fontWeight: 700,
+              boxShadow: "0 8px 24px rgba(91,156,246,0.2)",
+              display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
+            }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              {es ? "Instalar app" : "Install app"}
+            </button>
+            <button onClick={() => setShowInstallBanner(false)} className="tap-target" style={{
+              width: "100%", marginTop: "8px", padding: "13px",
+              background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)",
+              borderRadius: "var(--radius-lg)", color: "var(--text-dim)",
+              fontSize: "14px", fontWeight: 500,
+            }}>
+              {es ? "Ahora no" : "Not now"}
+            </button>
           </div>
         </div>
       )}
