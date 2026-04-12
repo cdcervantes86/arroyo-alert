@@ -73,12 +73,12 @@ export default function WeeklyDigest({ onClose, onZoneClick }) {
           <p style={{ fontSize: "13px", color: "var(--text-dim)", marginBottom: "24px" }}>
             {es ? "No se han registrado reportes en los últimos 7 días" : "No reports recorded in the last 7 days"}
           </p>
-          <button onClick={onClose} style={{ padding: "12px 32px", borderRadius: "var(--radius-md)", background: "rgba(255,255,255,0.06)", border: "1px solid var(--border)", color: "var(--text-secondary)", fontSize: "14px", fontWeight: 600 }}>
+          <button onClick={onClose} style={{ padding: "12px 32px", borderRadius: "var(--radius-md)", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.06)", color: "var(--text-secondary)", fontSize: "14px", fontWeight: 600 }}>
             {es ? "Cerrar" : "Close"}
           </button>
         </div>
       ) : (
-      <div style={{ position: "relative", zIndex: 1, width: "100%", maxWidth: 380, background: "var(--bg-elevated)", borderRadius: "var(--radius-xl)", border: "1px solid var(--border)", overflow: "hidden", animation: "modalScaleIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", willChange: "transform, opacity" }}>
+      <div style={{ position: "relative", zIndex: 1, width: "100%", maxWidth: 380, background: "#0e1628", borderRadius: "var(--radius-xl)", border: "1px solid rgba(255,255,255,0.06)", overflow: "hidden", animation: "modalScaleIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", willChange: "transform, opacity" }}>
         {/* Header */}
         <div style={{ padding: "24px 24px 16px", background: "linear-gradient(135deg, rgba(91,156,246,0.06), rgba(34,197,94,0.04))" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "4px" }}>
@@ -141,7 +141,7 @@ export default function WeeklyDigest({ onClose, onZoneClick }) {
               </div>
               <button onClick={() => { onClose(); setTimeout(() => onZoneClick(data.topZone.id), 200); }} style={{
                 width: "100%", padding: "14px 16px", borderRadius: "var(--radius-md)",
-                background: "var(--bg-card)", border: "1px solid var(--border)",
+                background: "rgba(255,255,255,0.025)", border: "1px solid rgba(255,255,255,0.06)",
                 display: "flex", alignItems: "center", gap: "12px", textAlign: "left",
                 marginBottom: "16px",
               }}>

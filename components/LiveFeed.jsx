@@ -25,7 +25,7 @@ function VerifiedBadge({ lang }) {
 function EmptyState({ lang }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", padding: "40px 20px", textAlign: "center" }}>
-      <div style={{ width: 80, height: 80, borderRadius: "50%", background: "rgba(255,255,255,0.015)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "16px" }}>
+      <div style={{ width: 80, height: 80, borderRadius: "50%", background: "rgba(255,255,255,0.015)", border: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "16px" }}>
         <svg width="36" height="36" viewBox="0 0 120 80" fill="none" style={{ opacity: 0.2 }}>
           <path d="M10 60 Q30 20 60 40 Q90 60 110 30" stroke="var(--accent)" strokeWidth="3" strokeLinecap="round" fill="none" />
           <circle cx="60" cy="40" r="4" fill="var(--accent)" />
@@ -130,7 +130,7 @@ export default function LiveFeed({ reports, onZoneClick, onUpvote, upvotedSet, o
                 {/* Content */}
                 {r.text && <p style={{ margin: "0 0 10px", fontSize: "14px", lineHeight: 1.55, color: "var(--text-secondary)" }}>{r.text}</p>}
                 {r.photo_url && (
-                  <div style={{ marginBottom: "12px", borderRadius: "var(--radius-sm)", overflow: "hidden", border: "1px solid var(--border)", position: "relative" }}>
+                  <div style={{ marginBottom: "12px", borderRadius: "var(--radius-sm)", overflow: "hidden", border: "1px solid rgba(255,255,255,0.06)", position: "relative" }}>
                     <img src={r.photo_url} alt="Reporte" style={{ width: "100%", maxHeight: 200, objectFit: "cover", display: "block" }} loading="lazy" />
                     <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 40, background: "linear-gradient(transparent, rgba(0,0,0,0.4))" }} />
                   </div>
@@ -140,7 +140,7 @@ export default function LiveFeed({ reports, onZoneClick, onUpvote, upvotedSet, o
                 <div style={{ display: "flex", gap: "6px", alignItems: "center", flexWrap: "wrap" }}>
                   <button onClick={(e) => { e.stopPropagation(); if (!isUpvoted) { onUpvote?.(r.id, r.upvotes); onUpvoteLocal?.(r.id); if (navigator.vibrate) navigator.vibrate(50); } }} style={{
                     background: isUpvoted ? "var(--accent-glow)" : "rgba(255,255,255,0.02)",
-                    border: `1px solid ${isUpvoted ? "rgba(91,156,246,0.15)" : "var(--border)"}`,
+                    border: `1px solid ${isUpvoted ? "rgba(91,156,246,0.15)" : "rgba(255,255,255,0.06)"}`,
                     borderRadius: "var(--radius-sm)", padding: "6px 11px",
                     color: isUpvoted ? "var(--accent)" : "var(--text-dim)",
                     fontSize: "11px", display: "flex", alignItems: "center", gap: "5px", fontWeight: 500, cursor: "pointer",

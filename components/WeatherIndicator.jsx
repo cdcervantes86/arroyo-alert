@@ -140,7 +140,7 @@ export default function WeatherIndicator() {
           display: "flex", alignItems: "center", gap: "5px",
           padding: "4px 10px", borderRadius: "16px",
           background: expanded ? "rgba(255,255,255,0.08)" : hovered ? "rgba(255,255,255,0.06)" : pillBg,
-          border: `1px solid ${expanded ? "rgba(255,255,255,0.12)" : isAlert ? pillColor + "30" : hovered ? "rgba(255,255,255,0.1)" : "var(--border)"}`,
+          border: `1px solid ${expanded ? "rgba(255,255,255,0.12)" : isAlert ? pillColor + "30" : hovered ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.06)"}`,
           fontSize: "11px", fontWeight: 600, color: pillColor,
           transition: "all 0.25s cubic-bezier(0.32, 0.72, 0, 1)",
           transform: hovered && !expanded ? "scale(1.05)" : "scale(1)",
@@ -166,8 +166,8 @@ export default function WeatherIndicator() {
       {expanded && (
         <div className={animClass} style={{
           position: "absolute", top: "calc(100% + 8px)", right: 0,
-          width: 230, background: "var(--bg-elevated)",
-          borderRadius: "var(--radius-lg)", border: "1px solid var(--border)",
+          width: 230, background: "#0e1628",
+          borderRadius: "var(--radius-lg)", border: "1px solid rgba(255,255,255,0.06)",
           boxShadow: "0 16px 48px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.03)",
           overflow: "hidden",
           transformOrigin: "top right",
@@ -181,7 +181,7 @@ export default function WeatherIndicator() {
               <div style={{
                 marginTop: "10px", padding: "4px 12px", borderRadius: "12px", display: "inline-block",
                 background: lastRainHoursAgo <= 2 ? "rgba(234,179,8,0.08)" : "rgba(255,255,255,0.03)",
-                border: `1px solid ${lastRainHoursAgo <= 2 ? "rgba(234,179,8,0.12)" : "var(--border)"}`,
+                border: `1px solid ${lastRainHoursAgo <= 2 ? "rgba(234,179,8,0.12)" : "rgba(255,255,255,0.06)"}`,
                 fontSize: "11px", fontWeight: 600,
                 color: lastRainHoursAgo <= 2 ? "#f59e0b" : "var(--text-faint)",
               }}>
@@ -191,12 +191,12 @@ export default function WeatherIndicator() {
           </div>
 
           {/* Details row */}
-          <div style={{ display: "flex", borderTop: "1px solid var(--border)", padding: "12px 0" }}>
-            <div style={{ flex: 1, textAlign: "center", borderRight: "1px solid var(--border)" }}>
+          <div style={{ display: "flex", borderTop: "1px solid rgba(255,255,255,0.06)", padding: "12px 0" }}>
+            <div style={{ flex: 1, textAlign: "center", borderRight: "1px solid rgba(255,255,255,0.06)" }}>
               <div style={{ fontSize: "14px", fontWeight: 700, color: "var(--text)" }}>{weather.humidity}%</div>
               <div style={{ fontSize: "10px", color: "var(--text-faint)", marginTop: "2px" }}>{es ? "Humedad" : "Humidity"}</div>
             </div>
-            <div style={{ flex: 1, textAlign: "center", borderRight: "1px solid var(--border)" }}>
+            <div style={{ flex: 1, textAlign: "center", borderRight: "1px solid rgba(255,255,255,0.06)" }}>
               <div style={{ fontSize: "14px", fontWeight: 700, color: "var(--text)" }}>{weather.windSpeed} <span style={{ fontSize: "10px", fontWeight: 400 }}>km/h</span></div>
               <div style={{ fontSize: "10px", color: "var(--text-faint)", marginTop: "2px" }}>{es ? "Viento" : "Wind"}</div>
             </div>
@@ -209,7 +209,7 @@ export default function WeatherIndicator() {
           {/* Alert if rain likely */}
           {maxProb >= 50 && !isRaining && (
             <div style={{
-              padding: "10px 14px", borderTop: "1px solid var(--border)",
+              padding: "10px 14px", borderTop: "1px solid rgba(255,255,255,0.06)",
               background: "rgba(234,179,8,0.04)",
               fontSize: "12px", color: "#f59e0b", fontWeight: 600,
               display: "flex", alignItems: "center", gap: "6px",
@@ -220,7 +220,7 @@ export default function WeatherIndicator() {
           )}
 
           {/* Source + Barranquilla label */}
-          <div style={{ padding: "8px 14px", borderTop: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ padding: "8px 14px", borderTop: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <span style={{ fontSize: "10px", color: "var(--text-faint)", fontWeight: 500 }}>Barranquilla</span>
             <span style={{ fontSize: "9px", color: "var(--text-faint)", opacity: 0.4 }}>Open-Meteo</span>
           </div>

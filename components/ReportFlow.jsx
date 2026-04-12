@@ -87,7 +87,7 @@ export default function ReportFlow({ zones, reports, initialZoneId, onSubmit, on
                 return (
                   <button key={z.id} onClick={() => { setZoneId(z.id); setStep(1); }} className="card-interactive" style={{
                     background: sv ? `${SEVERITY[sv].color}04` : "rgba(255,255,255,0.02)",
-                    border: `1px solid ${sv ? SEVERITY[sv].color + "15" : "var(--border)"}`,
+                    border: `1px solid ${sv ? SEVERITY[sv].color + "15" : "rgba(255,255,255,0.06)"}`,
                     borderRadius: "var(--radius-lg)", padding: "14px 16px",
                     display: "flex", alignItems: "center", gap: "14px", textAlign: "left",
                     animation: `fadeIn 0.2s ease ${i * 0.02}s both`, position: "relative", overflow: "hidden",
@@ -154,7 +154,7 @@ export default function ReportFlow({ zones, reports, initialZoneId, onSubmit, on
             <input ref={fileInputRef} type="file" accept="image/*" onChange={handlePhoto} style={{ display: "none" }} />
             <div style={{ marginTop: "14px" }}>
               {photoPreview ? (
-                <div style={{ position: "relative", borderRadius: "var(--radius-md)", overflow: "hidden", border: "1px solid var(--border)" }}>
+                <div style={{ position: "relative", borderRadius: "var(--radius-md)", overflow: "hidden", border: "1px solid rgba(255,255,255,0.06)" }}>
                   <img src={photoPreview} alt="Preview" style={{ width: "100%", maxHeight: 200, objectFit: "cover", display: "block" }} />
                   <button onClick={() => { setPhoto(null); setPhotoPreview(null); }} style={{ position: "absolute", top: 8, right: 8, width: 28, height: 28, borderRadius: "50%", background: "rgba(0,0,0,0.7)", border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}><svg width="10" height="10" viewBox="0 0 10 10" stroke="#fff" strokeWidth="1.5" strokeLinecap="round"><line x1="2" y1="2" x2="8" y2="8"/><line x1="8" y1="2" x2="2" y2="8"/></svg></button>
                 </div>

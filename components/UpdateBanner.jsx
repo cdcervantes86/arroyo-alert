@@ -38,8 +38,8 @@ export default function UpdateBanner() {
       }}>
         <div style={{
           width: "100%", maxWidth: 360, maxHeight: "85vh", overflowY: "auto",
-          background: "var(--bg-elevated)",
-          borderRadius: "var(--radius-lg)", border: "1px solid var(--border)",
+          background: "#0e1628",
+          borderRadius: "var(--radius-lg)", border: "1px solid rgba(255,255,255,0.06)",
           padding: "28px 24px", animation: "slideUp 0.3s ease",
         }}>
           <div style={{ fontSize: "32px", textAlign: "center", marginBottom: "12px" }}>✨</div>
@@ -58,7 +58,7 @@ export default function UpdateBanner() {
             {(latest.items[lang] || latest.items.es).map((item, i) => (
               <div key={i} style={{
                 padding: "10px 14px", borderRadius: "var(--radius-md)",
-                background: "rgba(255,255,255,0.025)", border: "1px solid var(--border)",
+                background: "rgba(255,255,255,0.025)", border: "1px solid rgba(255,255,255,0.06)",
                 fontSize: "14px", color: "var(--text-secondary)",
                 animation: `fadeIn 0.2s ease ${i * 0.04}s both`,
               }}>
@@ -73,7 +73,7 @@ export default function UpdateBanner() {
               <button onClick={() => setShowBugfixes(!showBugfixes)} style={{
                 width: "100%", display: "flex", alignItems: "center", gap: "8px",
                 padding: "10px 0", background: "none", border: "none",
-                borderTop: "1px solid var(--border)", marginBottom: showBugfixes ? "10px" : "20px",
+                borderTop: "1px solid rgba(255,255,255,0.06)", marginBottom: showBugfixes ? "10px" : "20px",
                 cursor: "pointer",
               }}>
                 <span style={{ fontSize: "12px" }}>🐛</span>

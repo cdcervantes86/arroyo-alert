@@ -43,7 +43,7 @@ export default function ZoneDetail({ zone, severity, reports, onBack, onReport, 
   const handleUpvote = (report) => { if (upvoted.has(report.id)) return; onUpvote(report.id, report.upvotes); setUpvoted((prev) => new Set([...prev, report.id])); if (navigator.vibrate) navigator.vibrate(50); };
   const handleToggleSubscribe = async () => { const ns = !subscribed; setOptimisticSubscribed(ns); if (navigator.vibrate) navigator.vibrate(50); if (ns) await onSubscribe?.(zone.id); else await onUnsubscribe?.(zone.id); };
 
-  const sevColor = severity ? SEVERITY[severity].color : "var(--border)";
+  const sevColor = severity ? SEVERITY[severity].color : "rgba(255,255,255,0.06)";
   const altRoutes = reports.filter(r => r.alt_route && r.alt_route.trim() && (r.severity === "danger" || r.severity === "caution"));
 
   const content = (
@@ -84,7 +84,7 @@ export default function ZoneDetail({ zone, severity, reports, onBack, onReport, 
         {!isSheet && (
           <>
             <div style={{ display: "flex", alignItems: "flex-start", gap: "14px", marginBottom: "4px" }}>
-              <div style={{ width: 48, height: 48, borderRadius: "var(--radius-md)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: severity ? `${SEVERITY[severity].color}08` : "rgba(255,255,255,0.02)", border: `1px solid ${severity ? SEVERITY[severity].color + "15" : "var(--border)"}` }}><SeverityIcon severity={severity} size={28} /></div>
+              <div style={{ width: 48, height: 48, borderRadius: "var(--radius-md)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: severity ? `${SEVERITY[severity].color}08` : "rgba(255,255,255,0.02)", border: `1px solid ${severity ? SEVERITY[severity].color + "15" : "rgba(255,255,255,0.06)"}` }}><SeverityIcon severity={severity} size={28} /></div>
               <div style={{ flex: 1 }}>
                 <h2 style={{ margin: 0, fontSize: "20px", fontWeight: 700 }}>{zone.name}</h2>
                 <p style={{ margin: "2px 0 0", color: "var(--text-secondary)", fontSize: "14px" }}>{zone.area}</p>
@@ -115,7 +115,7 @@ export default function ZoneDetail({ zone, severity, reports, onBack, onReport, 
         {/* Badges row */}
         <div style={{ display: "flex", gap: "8px", alignItems: "center", margin: "0 0 16px", flexWrap: "wrap" }}>
           {severity && <div style={{ padding: "6px 14px", borderRadius: "20px", background: `${SEVERITY[severity].color}06`, color: SEVERITY[severity].color, fontSize: "12px", fontWeight: 600, border: `1px solid ${SEVERITY[severity].color}15` }}>{t.currentStatus}: {getSevLabel(severity, lang)}</div>}
-          {pushSupported && <button onClick={handleToggleSubscribe} style={{ padding: "6px 14px", borderRadius: "20px", background: subscribed ? "rgba(91,156,246,0.08)" : "rgba(255,255,255,0.02)", color: subscribed ? "var(--accent)" : "var(--text-dim)", fontSize: "12px", fontWeight: 600, border: `1px solid ${subscribed ? "rgba(91,156,246,0.15)" : "var(--border)"}`, display: "flex", alignItems: "center", gap: "5px" }}><BellIcon size={13} color={subscribed ? "var(--accent)" : "var(--text-dim)"} /> {subscribed ? t.notificationsActive : t.notifyMe}</button>}
+          {pushSupported && <button onClick={handleToggleSubscribe} style={{ padding: "6px 14px", borderRadius: "20px", background: subscribed ? "rgba(91,156,246,0.08)" : "rgba(255,255,255,0.02)", color: subscribed ? "var(--accent)" : "var(--text-dim)", fontSize: "12px", fontWeight: 600, border: `1px solid ${subscribed ? "rgba(91,156,246,0.15)" : "rgba(255,255,255,0.06)"}`, display: "flex", alignItems: "center", gap: "5px" }}><BellIcon size={13} color={subscribed ? "var(--accent)" : "var(--text-dim)"} /> {subscribed ? t.notificationsActive : t.notifyMe}</button>}
           {severity && <button onClick={() => { const latestPhoto = reports.find(r => r.photo_url)?.photo_url; setShareData({ zoneName: zone.name, zoneArea: zone.area, severity, reportText: reports[0]?.text, photoUrl: latestPhoto, zoneId: zone.id }); }} style={{ padding: "6px 14px", borderRadius: "20px", background: "rgba(37,211,102,0.05)", border: "1px solid rgba(37,211,102,0.1)", color: "#25D366", fontSize: "12px", fontWeight: 600, display: "flex", alignItems: "center", gap: "5px", cursor: "pointer" }}><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>{es ? "Compartir" : "Share"}</button>}
         </div>
 
@@ -158,7 +158,7 @@ export default function ZoneDetail({ zone, severity, reports, onBack, onReport, 
             const isVerified = r.device_id && (deviceCounts[r.device_id] || 0) >= 5;
             const accentClass = `card-accent-${r.severity}`;
             return (
-              <div key={r.id} className={`card-interactive ${accentClass}`} style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: "var(--radius-md)", padding: "14px 14px 14px 16px", animation: `fadeIn 0.25s ease ${i * 0.05}s both` }}>
+              <div key={r.id} className={`card-interactive ${accentClass}`} style={{ background: "rgba(255,255,255,0.025)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "var(--radius-lg)", padding: "14px 14px 14px 16px", animation: `fadeIn 0.25s ease ${i * 0.05}s both` }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: 8 }}>
                   <SeverityIcon severity={r.severity} size={16} />
                   <span style={{ fontSize: "12px", fontWeight: 600, color: SEVERITY[r.severity].color }}>{getSevLabel(r.severity, lang)}</span>
@@ -175,10 +175,10 @@ export default function ZoneDetail({ zone, severity, reports, onBack, onReport, 
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><circle cx="6" cy="19" r="3"/><circle cx="18" cy="5" r="3"/><path d="M12 19h4.5a3.5 3.5 0 000-7h-8a3.5 3.5 0 010-7H12"/></svg> {r.alt_route}
                   </div>
                 )}
-                {r.photo_url && <div onClick={() => setExpandedPhoto(r.photo_url)} style={{ marginBottom: "10px", borderRadius: "var(--radius-sm)", overflow: "hidden", border: "1px solid var(--border)", cursor: "pointer" }}><img src={r.photo_url} alt="" style={{ width: "100%", maxHeight: 200, objectFit: "cover", display: "block" }} loading="lazy" /></div>}
+                {r.photo_url && <div onClick={() => setExpandedPhoto(r.photo_url)} style={{ marginBottom: "10px", borderRadius: "var(--radius-sm)", overflow: "hidden", border: "1px solid rgba(255,255,255,0.06)", cursor: "pointer" }}><img src={r.photo_url} alt="" style={{ width: "100%", maxHeight: 200, objectFit: "cover", display: "block" }} loading="lazy" /></div>}
                 {!r.text && !r.photo_url && !r.alt_route && <div style={{ marginBottom: "8px" }} />}
                 <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
-                  <button onClick={() => handleUpvote(r)} style={{ background: isUpvoted ? "var(--accent-glow)" : "rgba(255,255,255,0.02)", border: `1px solid ${isUpvoted ? "rgba(91,156,246,0.15)" : "var(--border)"}`, borderRadius: "var(--radius-sm)", padding: "6px 12px", color: isUpvoted ? "var(--accent)" : "var(--text-dim)", fontSize: "12px", display: "flex", alignItems: "center", gap: "6px", fontWeight: 500 }}><svg width="13" height="13" viewBox="0 0 24 24" fill={isUpvoted ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14z"/><path d="M7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg>{isUpvoted ? t.confirmed : t.confirm} · <span style={{ display: "inline-block", animation: isUpvoted ? "countUp 0.3s ease" : "none" }}>{r.upvotes + (isUpvoted ? 1 : 0)}</span></button>
+                  <button onClick={() => handleUpvote(r)} style={{ background: isUpvoted ? "var(--accent-glow)" : "rgba(255,255,255,0.02)", border: `1px solid ${isUpvoted ? "rgba(91,156,246,0.15)" : "rgba(255,255,255,0.06)"}`, borderRadius: "var(--radius-sm)", padding: "6px 12px", color: isUpvoted ? "var(--accent)" : "var(--text-dim)", fontSize: "12px", display: "flex", alignItems: "center", gap: "6px", fontWeight: 500 }}><svg width="13" height="13" viewBox="0 0 24 24" fill={isUpvoted ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14z"/><path d="M7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg>{isUpvoted ? t.confirmed : t.confirm} · <span style={{ display: "inline-block", animation: isUpvoted ? "countUp 0.3s ease" : "none" }}>{r.upvotes + (isUpvoted ? 1 : 0)}</span></button>
                   <CommentThread reportId={r.id} allDeviceCounts={deviceCounts} />
                 </div>
               </div>

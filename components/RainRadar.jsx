@@ -80,7 +80,7 @@ export function RainRadarButton({ enabled, onToggle }) {
       <button onClick={onToggle} style={{
         width: 40, height: 40, borderRadius: "50%",
         background: enabled ? "rgba(96,165,250,0.15)" : "rgba(10,15,26,0.9)",
-        border: `1px solid ${enabled ? "rgba(96,165,250,0.3)" : "var(--border)"}`,
+        border: `1px solid ${enabled ? "rgba(96,165,250,0.3)" : "rgba(255,255,255,0.06)"}`,
         display: "flex", alignItems: "center", justifyContent: "center",
         cursor: "pointer", boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
         transition: "all 0.2s ease",

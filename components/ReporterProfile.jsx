@@ -73,7 +73,7 @@ export default function ReporterProfile({ onBack, onLogoClick, reports, onToggle
           <span style={{ fontSize: "14px", fontWeight: 700, color: "var(--text)" }}>Alerta<span style={{ color: "var(--baq-yellow)" }}>Arroyo</span></span>
         </button>
         <span style={{ flex: 1 }} />
-        {onToggleLang && <button onClick={onToggleLang} style={{ padding: "4px 8px", borderRadius: "6px", background: "rgba(255,255,255,0.045)", border: "1px solid var(--border)", color: "var(--text-dim)", fontSize: "10px", fontWeight: 700, letterSpacing: "0.5px", textTransform: "uppercase" }}>{es ? "EN" : "ES"}</button>}
+        {onToggleLang && <button onClick={onToggleLang} style={{ padding: "4px 8px", borderRadius: "6px", background: "rgba(255,255,255,0.045)", border: "1px solid rgba(255,255,255,0.06)", color: "var(--text-dim)", fontSize: "10px", fontWeight: 700, letterSpacing: "0.5px", textTransform: "uppercase" }}>{es ? "EN" : "ES"}</button>}
         <button onClick={onBack} style={{ background: "none", border: "none", color: "var(--accent)", fontSize: "14px", fontWeight: 600, display: "flex", alignItems: "center", gap: "4px" }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>{es ? "Volver" : "Back"}</button>
       </div>
 
@@ -142,8 +142,8 @@ export default function ReporterProfile({ onBack, onLogoClick, reports, onToggle
             <div key={i} style={{
               display: "flex", gap: "12px", alignItems: "center", padding: "12px 14px",
               marginBottom: "6px", borderRadius: "var(--radius-md)",
-              background: achieved ? `${r.color}06` : "var(--bg-card)",
-              border: `1px solid ${achieved ? r.color + "15" : "var(--border)"}`,
+              background: achieved ? `${r.color}06` : "rgba(255,255,255,0.025)",
+              border: `1px solid ${achieved ? r.color + "15" : "rgba(255,255,255,0.06)"}`,
               opacity: achieved ? 1 : 0.5,
               animation: `fadeIn 0.2s ease ${0.3 + i * 0.05}s both`,
             }}>

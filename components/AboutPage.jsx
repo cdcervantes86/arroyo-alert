@@ -31,7 +31,7 @@ export default function AboutPage({ onBack, onLogoClick, onToggleLang, lang: lan
           <span style={{ fontSize: "8px", fontWeight: 700, letterSpacing: "0.8px", textTransform: "uppercase", color: "var(--accent)", background: "var(--accent-glow)", padding: "2px 5px", borderRadius: "3px", border: "1px solid rgba(91,156,246,0.1)", marginLeft: "-2px", marginTop: "-8px" }}>Beta</span>
         </button>
         <span style={{ flex: 1 }} />
-        {onToggleLang && <button onClick={onToggleLang} style={{ padding: "4px 8px", borderRadius: "6px", background: "rgba(255,255,255,0.045)", border: "1px solid var(--border)", color: "var(--text-dim)", fontSize: "10px", fontWeight: 700, letterSpacing: "0.5px", textTransform: "uppercase" }}>{lang === "es" ? "EN" : "ES"}</button>}
+        {onToggleLang && <button onClick={onToggleLang} style={{ padding: "4px 8px", borderRadius: "6px", background: "rgba(255,255,255,0.045)", border: "1px solid rgba(255,255,255,0.06)", color: "var(--text-dim)", fontSize: "10px", fontWeight: 700, letterSpacing: "0.5px", textTransform: "uppercase" }}>{lang === "es" ? "EN" : "ES"}</button>}
         <button onClick={onBack} style={{ background: "none", border: "none", color: "var(--accent)", fontSize: "14px", fontWeight: 600, display: "flex", alignItems: "center", gap: "4px" }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>{es ? "Volver" : "Back"}</button>
       </div>
 
@@ -43,7 +43,7 @@ export default function AboutPage({ onBack, onLogoClick, onToggleLang, lang: lan
 
         {/* Audio settings */}
         <div style={{ fontSize: "10px", color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "1.5px", fontWeight: 600, marginBottom: "12px" }}>{es ? "Configuración" : "Settings"}</div>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px", background: "var(--bg-card)", borderRadius: "var(--radius-md)", border: "1px solid var(--border)", marginBottom: "32px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px", background: "rgba(255,255,255,0.025)", borderRadius: "var(--radius-lg)", border: "1px solid rgba(255,255,255,0.06)", marginBottom: "32px" }}>
           <div>
             <div style={{ fontSize: "14px", fontWeight: 600, display: "flex", alignItems: "center", gap: "8px" }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14"/><path d="M15.54 8.46a5 5 0 010 7.07"/></svg>{es ? "Alerta sonora" : "Sound alerts"}</div>
             <div style={{ fontSize: "12px", color: "var(--text-dim)", marginTop: "2px" }}>{es ? "Sonido al recibir reportes de peligro" : "Sound on danger reports"}</div>
@@ -66,7 +66,7 @@ export default function AboutPage({ onBack, onLogoClick, onToggleLang, lang: lan
           { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>, es: "Si ve un arroyo, repórtelo inmediatamente para alertar a otros", en: "If you see an arroyo, report it immediately to alert others" },
           { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.79 19.79 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>, es: "Comparta las alertas con familiares y vecinos por WhatsApp", en: "Share alerts with family and neighbors via WhatsApp" },
         ].map((tip, i) => (
-          <div key={i} style={{ display: "flex", gap: "12px", alignItems: "flex-start", padding: "13px 14px", marginBottom: "6px", background: "var(--bg-card)", borderRadius: "var(--radius-md)", border: "1px solid var(--border)", animation: `fadeIn 0.2s ease ${i * 0.04}s both` }}>
+          <div key={i} style={{ display: "flex", gap: "12px", alignItems: "flex-start", padding: "13px 14px", marginBottom: "6px", background: "rgba(255,255,255,0.025)", borderRadius: "var(--radius-lg)", border: "1px solid rgba(255,255,255,0.06)", animation: `fadeIn 0.2s ease ${i * 0.04}s both` }}>
             <div style={{ flexShrink: 0, marginTop: "1px" }}>{tip.icon}</div>
             <p style={{ fontSize: "14px", color: "var(--text-secondary)", lineHeight: 1.5, margin: 0 }}>{es ? tip.es : tip.en}</p>
           </div>
@@ -90,7 +90,7 @@ export default function AboutPage({ onBack, onLogoClick, onToggleLang, lang: lan
           </div>
         ))}
         {incidents.length > 3 && (
-          <button onClick={() => setShowAllIncidents(!showAllIncidents)} style={{ width: "100%", padding: "10px", background: "none", border: "1px solid var(--border)", borderRadius: "var(--radius-md)", color: "var(--accent)", fontSize: "12px", fontWeight: 600, marginBottom: "6px" }}>
+          <button onClick={() => setShowAllIncidents(!showAllIncidents)} style={{ width: "100%", padding: "10px", background: "none", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "var(--radius-md)", color: "var(--accent)", fontSize: "12px", fontWeight: 600, marginBottom: "6px" }}>
             {showAllIncidents ? (es ? "Ver menos" : "Show less") : (es ? `Ver ${incidents.length - 3} más` : `Show ${incidents.length - 3} more`)}
           </button>
         )}
@@ -103,7 +103,7 @@ export default function AboutPage({ onBack, onLogoClick, onToggleLang, lang: lan
           { label: es ? "Defensa Civil" : "Civil Defense", number: "144" },
           { label: es ? "Cruz Roja" : "Red Cross", number: "132" },
         ].map((item, i) => (
-          <a key={i} href={`tel:${item.number}`} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px", marginBottom: "6px", background: "var(--bg-card)", borderRadius: "var(--radius-md)", border: "1px solid var(--border)", textDecoration: "none" }}>
+          <a key={i} href={`tel:${item.number}`} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px", marginBottom: "6px", background: "rgba(255,255,255,0.025)", borderRadius: "var(--radius-lg)", border: "1px solid rgba(255,255,255,0.06)", textDecoration: "none" }}>
             <span style={{ fontSize: "14px", color: "var(--text-secondary)" }}>{item.label}</span>
             <span style={{ fontSize: "16px", fontWeight: 700, color: "var(--baq-red)", fontVariantNumeric: "tabular-nums" }}>{item.number}</span>
           </a>
@@ -113,8 +113,8 @@ export default function AboutPage({ onBack, onLogoClick, onToggleLang, lang: lan
         <div style={{ fontSize: "10px", color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "1.5px", fontWeight: 600, marginTop: "32px", marginBottom: "12px" }}>{es ? "Novedades" : "What's new"}</div>
         <button onClick={() => setShowChangelog(!showChangelog)} style={{
           width: "100%", display: "flex", alignItems: "center", gap: "12px",
-          padding: "14px", background: "var(--bg-card)", borderRadius: "var(--radius-md)",
-          border: "1px solid var(--border)", textAlign: "left", marginBottom: "6px",
+          padding: "14px", background: "rgba(255,255,255,0.025)", borderRadius: "var(--radius-lg)",
+          border: "1px solid rgba(255,255,255,0.06)", textAlign: "left", marginBottom: "6px",
         }}>
           <span style={{ flexShrink: 0 }}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>
           <div style={{ flex: 1 }}>
@@ -136,7 +136,7 @@ export default function AboutPage({ onBack, onLogoClick, onToggleLang, lang: lan
                 <button onClick={() => setShowBugfixes(!showBugfixes)} style={{
                   width: "100%", display: "flex", alignItems: "center", gap: "8px",
                   padding: "10px 14px", background: "none", border: "none",
-                  borderTop: "1px solid var(--border)", marginTop: "6px",
+                  borderTop: "1px solid rgba(255,255,255,0.06)", marginTop: "6px",
                 }}>
                   <span style={{ flexShrink: 0 }}><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--text-dim)" strokeWidth="2" strokeLinecap="round"><path d="M8 2l1.88 1.88M14.12 3.88L16 2M9 7.13v-1a3 3 0 016 0v1"/><path d="M12 20c-3.3 0-6-2.7-6-6v-3a4 4 0 014-4h4a4 4 0 014 4v3c0 3.3-2.7 6-6 6z"/><path d="M5 11H1M23 11h-4M5 17H2M22 17h-3"/></svg></span>
                   <span style={{ fontSize: "12px", color: "var(--text-dim)", fontWeight: 600, flex: 1, textAlign: "left" }}>

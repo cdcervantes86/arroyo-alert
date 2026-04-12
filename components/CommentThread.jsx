@@ -112,7 +112,7 @@ export default function CommentThread({ reportId, allDeviceCounts }) {
       {/* Toggle button */}
       <button onClick={handleToggle} className="tap-target" style={{
         background: expanded ? "var(--accent-glow)" : "rgba(255,255,255,0.03)",
-        border: `1px solid ${expanded ? "rgba(96,165,250,0.2)" : "var(--border)"}`,
+        border: `1px solid ${expanded ? "rgba(96,165,250,0.2)" : "rgba(255,255,255,0.06)"}`,
         borderRadius: "var(--radius-sm)", padding: "6px 10px",
         color: expanded ? "var(--accent)" : "var(--text-dim)",
         fontSize: "12px", display: "flex", alignItems: "center", gap: "5px",
@@ -128,7 +128,7 @@ export default function CommentThread({ reportId, allDeviceCounts }) {
       {expanded && (
         <div style={{
           marginTop: "10px", paddingTop: "12px",
-          borderTop: "1px solid var(--border)",
+          borderTop: "1px solid rgba(255,255,255,0.06)",
           animation: "fadeIn 0.2s ease",
         }}>
           {/* Comments list */}
@@ -163,7 +163,7 @@ export default function CommentThread({ reportId, allDeviceCounts }) {
                   <div style={{
                     width: 28, height: 28, borderRadius: "50%", flexShrink: 0,
                     background: isOwn ? "rgba(91,156,246,0.1)" : "rgba(255,255,255,0.04)",
-                    border: `1px solid ${isOwn ? "rgba(91,156,246,0.2)" : "var(--border)"}`,
+                    border: `1px solid ${isOwn ? "rgba(91,156,246,0.2)" : "rgba(255,255,255,0.06)"}`,
                     display: "flex", alignItems: "center", justifyContent: "center",
                   }}>
                     {isVerified ? (
@@ -186,7 +186,7 @@ export default function CommentThread({ reportId, allDeviceCounts }) {
                       margin: 0, fontSize: "13px", lineHeight: 1.5, color: "var(--text-secondary)",
                       wordBreak: "break-word", background: "rgba(255,255,255,0.02)",
                       padding: "8px 12px", borderRadius: "4px 12px 12px 12px",
-                      border: "1px solid var(--border)",
+                      border: "1px solid rgba(255,255,255,0.06)",
                     }}>
                       {c.text}
                     </p>

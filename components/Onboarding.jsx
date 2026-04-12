@@ -239,7 +239,7 @@ export default function Onboarding({ lang, onComplete, onToggleLang }) {
           {step > 0 && (
             <button onClick={() => { setDirection(-1); setStep(step - 1); }} style={{
               width: 52, padding: "17px 0",
-              background: "rgba(255,255,255,0.06)", border: "1px solid var(--border)",
+              background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.06)",
               borderRadius: "var(--radius-md)", display: "flex", alignItems: "center", justifyContent: "center",
               flexShrink: 0, transition: "all 0.2s ease",
             }}>
