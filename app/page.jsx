@@ -3,6 +3,7 @@ import { useState, useCallback, useEffect, useRef, lazy, Suspense } from "react"
 import { useReports } from "@/lib/useReports";
 import { supabase } from "@/lib/supabase";
 import { usePushNotifications, notifyZone } from "@/lib/usePushNotifications";
+import { getReporterStats, getDeviceId } from "@/lib/deviceId";
 import { ZONES, SEVERITY, getZoneSeverity, getZoneReports, getSevLabel } from "@/lib/zones";
 import { LanguageProvider, useLanguage } from "@/lib/LanguageContext";
 import { timeAgoLocalized } from "@/lib/translations";
@@ -778,7 +779,7 @@ function AppContent() {
   }, []);
 
   const handleRealtimeEvent = useCallback((type, report, oldReport) => {
-    const deviceId = typeof window !== "undefined" ? require("@/lib/deviceId").getDeviceId() : null;
+    const deviceId = typeof window !== "undefined" ? getDeviceId() : null;
     const zone = ZONES.find(z => z.id === report.zone_id);
     if (type === "upvote" && report.device_id === deviceId) {
       addToast(lang === "es" ? `Alguien confirmó tu reporte en ${zone?.name || ""}` : `Someone confirmed your report at ${zone?.name || ""}`, "var(--accent)");
@@ -992,7 +993,6 @@ function AppContent() {
   if (screen === "heatmap") return <div style={{ animation: "screenSlideIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", position: "fixed", inset: 0, zIndex: 50, background: "var(--bg)" }}><HeatmapView onBack={() => setScreen("main")} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} /></div>;
   if (screen === "profile" && !isDesktop) return <div style={{ animation: "screenSlideIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", position: "fixed", inset: 0, zIndex: 50, background: "var(--bg)" }}><ReporterProfile reports={reports} onBack={() => setScreen("main")} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} /></div>;
   if (screen === "report") return <div style={{ animation: "screenSlideIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", position: "fixed", inset: 0, zIndex: 50, background: "var(--bg)" }}><ReportFlow zones={ZONES} reports={reports} initialZoneId={selectedZone} onSubmit={async (data) => {
-    const { getReporterStats } = require("@/lib/deviceId");
     const prevCount = getReporterStats().reportCount;
     await handleReport(data);
     const newCount = getReporterStats().reportCount;
