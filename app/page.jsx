@@ -694,7 +694,6 @@ function AppContent() {
   const mapRestoreRef = useRef(null);
 
   const handleZoneClick = useCallback((zoneId, source = "map") => {
-    // Save map position before flying to zone (mobile map only)
     if (source === "map" && mapInstance && !isDesktop) {
       mapRestoreRef.current = {
         center: mapInstance.getCenter().toArray(),
@@ -702,10 +701,11 @@ function AppContent() {
       };
       const zone = ZONES.find(z => z.id === zoneId);
       if (zone) {
+        // Shift center up slightly so marker sits above the sheet
+        const sheetOffset = 0.003; // ~300m north in lat
         mapInstance.easeTo({
-          center: [zone.lng, zone.lat],
+          center: [zone.lng, zone.lat + sheetOffset],
           duration: 500,
-          padding: { bottom: Math.round(window.innerHeight * 0.2) },
         });
       }
     }
@@ -723,7 +723,6 @@ function AppContent() {
         center: mapRestoreRef.current.center,
         zoom: mapRestoreRef.current.zoom,
         duration: 350,
-        padding: { bottom: 0 },
       });
       mapRestoreRef.current = null;
     }
