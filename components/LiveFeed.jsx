@@ -40,7 +40,7 @@ function EmptyState({ lang }) {
   );
 }
 
-export default function LiveFeed({ reports, onZoneClick, onUpvote, upvotedSet, onUpvoteLocal, activeFilter }) {
+export default function LiveFeed({ reports, onZoneClick, onUpvote, upvotedSet, onUpvoteLocal, activeFilter, onPhotoClick }) {
   const { lang, t } = useLanguage();
   const [, forceUpdate] = useState(0);
   const [shareData, setShareData] = useState(null);
@@ -129,9 +129,10 @@ export default function LiveFeed({ reports, onZoneClick, onUpvote, upvotedSet, o
                 {/* Content */}
                 {r.text && <p style={{ margin: "0 0 10px", fontSize: "14px", lineHeight: 1.55, color: "var(--text-secondary)" }}>{r.text}</p>}
                 {r.photo_url && (
-                  <div style={{ marginBottom: "12px", borderRadius: "var(--radius-sm)", overflow: "hidden", border: "1px solid rgba(255,255,255,0.06)", position: "relative" }}>
+                  <div onClick={(e) => { e.stopPropagation(); onPhotoClick?.(r.photo_url); }} style={{ marginBottom: "12px", borderRadius: "var(--radius-lg)", overflow: "hidden", border: "1px solid rgba(255,255,255,0.06)", position: "relative", cursor: "zoom-in" }}>
                     <img src={r.photo_url} alt="Reporte" style={{ width: "100%", maxHeight: 200, objectFit: "cover", display: "block" }} loading="lazy" />
                     <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 40, background: "linear-gradient(transparent, rgba(0,0,0,0.4))" }} />
+                    <div style={{ position: "absolute", bottom: 8, right: 8, width: 28, height: 28, borderRadius: "50%", background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></div>
                   </div>
                 )}
 

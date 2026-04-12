@@ -361,7 +361,7 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
                   <span style={{ fontSize: "11px", color: "var(--text-faint)" }}>{timeAgoLocalized(r.created_at, lang)}</span>
                 </div>
                 {r.text && <p style={{ margin: "0 0 8px", fontSize: "14px", lineHeight: 1.55, color: "var(--text-secondary)" }}>{r.text}</p>}
-                {r.photo_url && <div style={{ marginBottom: "10px", borderRadius: "var(--radius-sm)", overflow: "hidden", border: "1px solid rgba(255,255,255,0.06)" }}><img src={r.photo_url} alt="" style={{ width: "100%", maxHeight: 200, objectFit: "cover", display: "block" }} loading="lazy" /></div>}
+                {r.photo_url && <div onClick={(e) => { e.stopPropagation(); setViewPhoto(r.photo_url); }} style={{ marginBottom: "10px", borderRadius: "var(--radius-lg)", overflow: "hidden", border: "1px solid rgba(255,255,255,0.06)", cursor: "zoom-in", position: "relative" }}><img src={r.photo_url} alt="" style={{ width: "100%", maxHeight: 200, objectFit: "cover", display: "block" }} loading="lazy" /><div style={{ position: "absolute", bottom: 8, right: 8, width: 28, height: 28, borderRadius: "50%", background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></div></div>}
                 {!r.text && !r.photo_url && <div style={{ marginBottom: "8px" }} />}
                 <div style={{ display: "flex", gap: "6px", alignItems: "center", flexWrap: "wrap" }}>
                   <button onClick={() => handleUpvote(r)} className="tap-target" style={{ background: upvoted.has(r.id) ? "var(--accent-glow)" : "rgba(255,255,255,0.02)", border: `1px solid ${upvoted.has(r.id) ? "rgba(91,156,246,0.15)" : "rgba(255,255,255,0.06)"}`, borderRadius: "var(--radius-sm)", padding: "6px 12px", color: upvoted.has(r.id) ? "var(--accent)" : "var(--text-dim)", fontSize: "12px", display: "inline-flex", alignItems: "center", gap: "6px", fontWeight: 500, flexShrink: 0 }}><svg width="13" height="13" viewBox="0 0 24 24" fill={upvoted.has(r.id) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14z"/><path d="M7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg>{upvoted.has(r.id) ? (es ? "Confirmado" : "Confirmed") : (es ? "Confirmar" : "Confirm")} · {r.upvotes + (upvoted.has(r.id) ? 1 : 0)}</button>
@@ -663,7 +663,7 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
                     <span style={{ fontSize: "11px", color: "var(--text-faint)" }}>{timeAgoLocalized(r.created_at, lang)}</span>
                   </div>
                   {r.text && <p style={{ margin: "0 0 8px", fontSize: "14px", lineHeight: 1.55, color: "var(--text-secondary)" }}>{r.text}</p>}
-                  {r.photo_url && <div style={{ marginBottom: "10px", borderRadius: "var(--radius-sm)", overflow: "hidden", border: "1px solid rgba(255,255,255,0.06)" }}><img src={r.photo_url} alt="" style={{ width: "100%", maxHeight: 200, objectFit: "cover", display: "block" }} loading="lazy" /></div>}
+                  {r.photo_url && <div onClick={(e) => { e.stopPropagation(); setViewPhoto(r.photo_url); }} style={{ marginBottom: "10px", borderRadius: "var(--radius-lg)", overflow: "hidden", border: "1px solid rgba(255,255,255,0.06)", cursor: "zoom-in", position: "relative" }}><img src={r.photo_url} alt="" style={{ width: "100%", maxHeight: 200, objectFit: "cover", display: "block" }} loading="lazy" /><div style={{ position: "absolute", bottom: 8, right: 8, width: 28, height: 28, borderRadius: "50%", background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></div></div>}
                   {!r.text && !r.photo_url && <div style={{ marginBottom: "8px" }} />}
                   <div style={{ display: "flex", gap: "6px", alignItems: "center", flexWrap: "wrap" }}>
                     <button onClick={() => handleUpvote(r)} className="tap-target" style={{ background: upvoted.has(r.id) ? "var(--accent-glow)" : "rgba(255,255,255,0.02)", border: `1px solid ${upvoted.has(r.id) ? "rgba(91,156,246,0.15)" : "rgba(255,255,255,0.06)"}`, borderRadius: "var(--radius-sm)", padding: "6px 12px", color: upvoted.has(r.id) ? "var(--accent)" : "var(--text-dim)", fontSize: "12px", display: "inline-flex", alignItems: "center", gap: "6px", fontWeight: 500, flexShrink: 0 }}><svg width="13" height="13" viewBox="0 0 24 24" fill={upvoted.has(r.id) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14z"/><path d="M7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg>{upvoted.has(r.id) ? (es ? "Confirmado" : "Confirmed") : (es ? "Confirmar" : "Confirm")} · {r.upvotes + (upvoted.has(r.id) ? 1 : 0)}</button>
@@ -728,6 +728,7 @@ function AppContent() {
   const [closingWhatsApp, setClosingWhatsApp] = useState(false);
   const [closingDigest, setClosingDigest] = useState(false);
   const [lastReport, setLastReport] = useState(null);
+  const [viewPhoto, setViewPhoto] = useState(null);
   const [hintDismissed, setHintDismissed] = useState(false);
   const radar = useRainRadar(mapInstance);
   const favs = useFavorites();
@@ -1097,7 +1098,7 @@ function AppContent() {
                           {/* Right side */}
                           <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
                             {zr.length > 0 && <span style={{ fontSize: "12px", color: c ? c.color : "var(--text-dim)", background: c ? `${c.color}0c` : "rgba(255,255,255,0.04)", padding: "4px 10px", borderRadius: "8px", fontWeight: 700, fontVariantNumeric: "tabular-nums", minWidth: 28, textAlign: "center" }}>{zr.length}</span>}
-                            {lt?.photo_url && <img src={lt.photo_url} alt="" style={{ width: 36, height: 36, borderRadius: "var(--radius-sm)", objectFit: "cover", flexShrink: 0, border: "1px solid rgba(255,255,255,0.06)" }} loading="lazy" />}
+                            {lt?.photo_url && <img onClick={(e) => { e.stopPropagation(); setViewPhoto(lt.photo_url); }} src={lt.photo_url} alt="" style={{ width: 36, height: 36, borderRadius: "var(--radius-sm)", objectFit: "cover", flexShrink: 0, border: "1px solid rgba(255,255,255,0.06)", cursor: "zoom-in" }} loading="lazy" />}
                             <svg width="7" height="12" viewBox="0 0 7 12" fill="none" style={{ flexShrink: 0, opacity: 0.15 }}><path d="M1 1l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
                           </div>
                         </button>
@@ -1113,14 +1114,14 @@ function AppContent() {
             </div>
           ) : (
             <div key="live-view" style={{ animation: "viewFadeIn 0.25s ease", height: "100%", overflow: "hidden" }}>
-            <LiveFeed reports={reports} onZoneClick={(id) => handleZoneClick(id, "live")} onUpvote={upvoteReport} upvotedSet={upvotedSet} onUpvoteLocal={handleUpvoteLocal} activeFilter={activeFilter} />
+            <LiveFeed reports={reports} onZoneClick={(id) => handleZoneClick(id, "live")} onUpvote={upvoteReport} upvotedSet={upvotedSet} onUpvoteLocal={handleUpvoteLocal} activeFilter={activeFilter} onPhotoClick={setViewPhoto} />
             </div>
           )}
         </div>
         {isDesktop && (
           <div onTransitionEnd={() => { window.dispatchEvent(new Event("resize")); }} style={{ width: showPanel ? 380 : 0, minWidth: 0, flexShrink: 0, borderLeft: showPanel ? "1px solid rgba(255,255,255,0.06)" : "none", background: "#0e1628", display: "flex", flexDirection: "column", overflow: "hidden", transition: "width 0.3s cubic-bezier(0.4, 0, 0.2, 1)" }}>
             <div style={{ width: 380, height: "100%", opacity: showPanel ? 1 : 0, transition: "opacity 0.2s ease", overflow: "hidden" }}>
-              <LiveFeed reports={reports} onZoneClick={(id) => handleZoneClick(id, "live")} onUpvote={upvoteReport} upvotedSet={upvotedSet} onUpvoteLocal={handleUpvoteLocal} activeFilter={activeFilter} />
+              <LiveFeed reports={reports} onZoneClick={(id) => handleZoneClick(id, "live")} onUpvote={upvoteReport} upvotedSet={upvotedSet} onUpvoteLocal={handleUpvoteLocal} activeFilter={activeFilter} onPhotoClick={setViewPhoto} />
             </div>
           </div>
         )}
@@ -1221,6 +1222,39 @@ function AppContent() {
               {es ? "Ahora no" : "Not now"}
             </button>
           </div>
+        </div>
+      )}
+
+      {/* Full-screen photo viewer */}
+      {viewPhoto && (
+        <div onClick={() => setViewPhoto(null)} style={{
+          position: "fixed", inset: 0, zIndex: 2000,
+          background: "rgba(0,0,0,0.92)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          padding: "20px", animation: "fadeIn 0.15s ease",
+          cursor: "zoom-out",
+        }}>
+          <button onClick={() => setViewPhoto(null)} style={{
+            position: "absolute", top: "max(16px, env(safe-area-inset-top, 16px))", right: 16, zIndex: 1,
+            width: 36, height: 36, borderRadius: "50%",
+            background: "rgba(255,255,255,0.1)", border: "none",
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}>
+            <svg width="14" height="14" viewBox="0 0 14 14" stroke="#fff" strokeWidth="1.5" strokeLinecap="round"><line x1="2" y1="2" x2="12" y2="12"/><line x1="12" y1="2" x2="2" y2="12"/></svg>
+          </button>
+          <img
+            src={viewPhoto}
+            alt=""
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              maxWidth: "100%", maxHeight: "85vh",
+              borderRadius: "var(--radius-lg)",
+              objectFit: "contain",
+              animation: "modalScaleIn 0.25s cubic-bezier(0.34, 1.4, 0.64, 1)",
+              cursor: "default",
+              boxShadow: "0 24px 80px rgba(0,0,0,0.5)",
+            }}
+          />
         </div>
       )}
     </div>
