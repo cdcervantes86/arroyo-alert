@@ -331,17 +331,23 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
           <div style={{ fontSize: "10px", color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "1.5px", marginBottom: "12px", fontWeight: 600 }}>{t.recentReports} ({reports.length})</div>
           {!reports.length && (
             <div style={{ textAlign: "center", padding: "24px 0" }}>
-              <p style={{ color: "var(--text-dim)", fontSize: "14px", fontWeight: 500 }}>{es ? "Todo tranquilo por aquí" : "All quiet here"}</p>
-              <p style={{ color: "var(--text-faint)", fontSize: "12px", marginTop: "4px" }}>{es ? "No hay reportes en las últimas 4 horas" : "No reports in the last 4 hours"}</p>
+              <div style={{ width: 48, height: 48, borderRadius: "var(--radius-lg)", background: "rgba(34,197,94,0.04)", border: "1px solid rgba(34,197,94,0.08)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 12px" }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <p style={{ color: "var(--text)", fontSize: "15px", fontWeight: 700 }}>{es ? "Todo tranquilo por aquí" : "All quiet here"}</p>
+              <p style={{ color: "var(--text-faint)", fontSize: "12px", marginTop: "6px" }}>{es ? "No hay reportes en las últimas 4 horas" : "No reports in the last 4 hours"}</p>
             </div>
           )}
           {reports.map((r, i) => {
             const cfg = SEVERITY[r.severity];
             return (
-              <div key={r.id} className={`card-interactive card-accent-${r.severity}`} style={{ background: "rgba(255,255,255,0.025)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "var(--radius-md)", padding: "14px", marginBottom: "8px", animation: `fadeIn 0.2s ease ${i * 0.04}s both` }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: 8 }}>
-                  <SeverityIcon severity={r.severity} size={16} />
-                  <span style={{ fontSize: "12px", fontWeight: 600, color: cfg.color }}>{getSevLabel(r.severity, lang)}</span>
+              <div key={r.id} className="card-interactive" style={{ background: `${cfg.color}04`, border: `1px solid ${cfg.color}12`, borderRadius: "var(--radius-lg)", padding: "14px 16px", marginBottom: "8px", position: "relative", overflow: "hidden", animation: `fadeIn 0.2s ease ${i * 0.04}s both` }}>
+                <div style={{ position: "absolute", left: 0, top: "10%", bottom: "10%", width: 3, borderRadius: "0 2px 2px 0", background: cfg.color, opacity: 0.5 }} />
+                <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: 8 }}>
+                  <div style={{ width: 28, height: 28, borderRadius: "var(--radius-sm)", background: `${cfg.color}0a`, border: `1px solid ${cfg.color}18`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <SeverityIcon severity={r.severity} size={15} />
+                  </div>
+                  <span style={{ fontSize: "13px", fontWeight: 700, color: cfg.color }}>{getSevLabel(r.severity, lang)}</span>
                   <span style={{ flex: 1 }} />
                   <span style={{ fontSize: "11px", color: "var(--text-faint)" }}>{timeAgoLocalized(r.created_at, lang)}</span>
                 </div>
@@ -627,17 +633,23 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
             <div style={{ fontSize: "10px", color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "1.5px", marginBottom: "12px", fontWeight: 600 }}>{t.recentReports} ({reports.length})</div>
             {!reports.length && (
               <div style={{ textAlign: "center", padding: "16px 0 24px" }}>
-                <p style={{ color: "var(--text-dim)", fontSize: "14px", fontWeight: 500 }}>{es ? "Todo tranquilo por aquí" : "All quiet here"}</p>
-                <p style={{ color: "var(--text-faint)", fontSize: "12px", marginTop: "4px" }}>{es ? "No hay reportes en las últimas 4 horas" : "No reports in the last 4 hours"}</p>
+                <div style={{ width: 48, height: 48, borderRadius: "var(--radius-lg)", background: "rgba(34,197,94,0.04)", border: "1px solid rgba(34,197,94,0.08)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 12px" }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <p style={{ color: "var(--text)", fontSize: "15px", fontWeight: 700 }}>{es ? "Todo tranquilo por aquí" : "All quiet here"}</p>
+                <p style={{ color: "var(--text-faint)", fontSize: "12px", marginTop: "6px" }}>{es ? "No hay reportes en las últimas 4 horas" : "No reports in the last 4 hours"}</p>
               </div>
             )}
             {reports.map((r, i) => {
               const cfg = SEVERITY[r.severity];
               return (
-                <div key={r.id} className={`card-interactive card-accent-${r.severity}`} style={{ background: "rgba(255,255,255,0.025)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "var(--radius-md)", padding: "14px", marginBottom: "8px", animation: `fadeIn 0.2s ease ${i * 0.04}s both` }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: 8 }}>
-                    <SeverityIcon severity={r.severity} size={16} />
-                    <span style={{ fontSize: "12px", fontWeight: 600, color: cfg.color }}>{getSevLabel(r.severity, lang)}</span>
+                <div key={r.id} className="card-interactive" style={{ background: `${cfg.color}04`, border: `1px solid ${cfg.color}12`, borderRadius: "var(--radius-lg)", padding: "14px 16px", marginBottom: "8px", position: "relative", overflow: "hidden", animation: `fadeIn 0.2s ease ${i * 0.04}s both` }}>
+                  <div style={{ position: "absolute", left: 0, top: "10%", bottom: "10%", width: 3, borderRadius: "0 2px 2px 0", background: cfg.color, opacity: 0.5 }} />
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: 8 }}>
+                    <div style={{ width: 28, height: 28, borderRadius: "var(--radius-sm)", background: `${cfg.color}0a`, border: `1px solid ${cfg.color}18`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                      <SeverityIcon severity={r.severity} size={15} />
+                    </div>
+                    <span style={{ fontSize: "13px", fontWeight: 700, color: cfg.color }}>{getSevLabel(r.severity, lang)}</span>
                     <span style={{ flex: 1 }} />
                     <span style={{ fontSize: "11px", color: "var(--text-faint)" }}>{timeAgoLocalized(r.created_at, lang)}</span>
                   </div>
@@ -870,6 +882,7 @@ function AppContent() {
       {/* CONTENT */}
       <div style={{ flex: 1, minHeight: 0, display: "flex", overflow: "hidden" }}>
         <div style={{ flex: 1, minHeight: 0, position: "relative", overflow: "hidden" }}>
+                <div style={{ position: "absolute", left: 0, top: "10%", bottom: "10%", width: 3, borderRadius: "0 2px 2px 0", background: cfg.color, opacity: 0.5 }} />
           {currentMainView === "map" ? (
             <>
             <MapErrorBoundary>
