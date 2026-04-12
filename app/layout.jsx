@@ -38,7 +38,7 @@ export default function RootLayout({ children }) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: `
           (function() {
-            var CURRENT = "1.0.0";
+            var CURRENT = "0.9.0";
             try {
               fetch("/api/version", { cache: "no-store" })
                 .then(function(r) { return r.json(); })
