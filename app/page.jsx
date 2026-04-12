@@ -27,6 +27,15 @@ import { useUpdateChecker } from "@/lib/useUpdateChecker";
 
 const MapView = lazy(() => import("@/components/MapView"));
 
+// Haversine distance in km
+function getDistanceKm(lat1, lon1, lat2, lon2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
 import React from "react";
 class MapErrorBoundary extends React.Component {
   constructor(props) { super(props); this.state = { hasError: false }; }
@@ -703,6 +712,16 @@ function AppContent() {
   }, []);
   const [mapInstance, setMapInstance] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
+
+  // Silently request location on mount for proximity sorting (no map marker)
+  useEffect(() => {
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(
+      (pos) => setUserLocation([pos.coords.latitude, pos.coords.longitude]),
+      () => {}, // Silently fail if denied
+      { enableHighAccuracy: false, timeout: 5000 }
+    );
+  }, []);
   const [locationMarker, setLocationMarker] = useState(null);
   const [showDigest, setShowDigest] = useState(false);
   const [closingScreen, setClosingScreen] = useState(null);
@@ -976,12 +995,24 @@ function AppContent() {
                       ))}
                     </div>
                   )}
-                  {favs.sortZones(ZONES.filter((z) => !activeFilter || getZoneSeverity(z.id, reports) === activeFilter)).map((z, i, arr) => {
+                  {(() => {
+                    // Sort zones: favorites first, then by distance if location available
+                    let sortedZones = favs.sortZones(ZONES.filter((z) => !activeFilter || getZoneSeverity(z.id, reports) === activeFilter));
+                    if (userLocation) {
+                      const favIds = new Set(sortedZones.filter(z => favs.isFavorite(z.id)).map(z => z.id));
+                      const favZones = sortedZones.filter(z => favIds.has(z.id));
+                      const restZones = sortedZones.filter(z => !favIds.has(z.id))
+                        .sort((a, b) => getDistanceKm(userLocation[0], userLocation[1], a.lat, a.lng) - getDistanceKm(userLocation[0], userLocation[1], b.lat, b.lng));
+                      sortedZones = [...favZones, ...restZones];
+                    }
+                    return sortedZones.map((z, i, arr) => {
                     const sv = getZoneSeverity(z.id, reports); const zr = getZoneReports(z.id, reports); const lt = zr[0]; const c = sv ? SEVERITY[sv] : null;
                     const isSubbed = push.isSubscribed(z.id); const pred = predictions[z.id];
                     const isFav = favs.isFavorite(z.id);
                     const showDivider = favs.count > 0 && i > 0 && isFav === false && favs.isFavorite(arr[i - 1]?.id);
                     const hasActivity = sv || (pred && pred.score >= 40);
+                    const distKm = userLocation ? getDistanceKm(userLocation[0], userLocation[1], z.lat, z.lng) : null;
+                    const isNearby = distKm !== null && distKm < 2;
                     return (
                       <div key={z.id}>
                         {showDivider && <div style={{ height: 1, background: "rgba(255,255,255,0.06)", margin: "12px 0" }} />}
@@ -1010,7 +1041,11 @@ function AppContent() {
                               </span>
                               {isSubbed && <BellIcon size={11} color="var(--accent)" />}
                             </div>
-                            <div style={{ fontSize: "12px", color: "var(--text-dim)", marginTop: 2 }}>{z.area}</div>
+                            <div style={{ fontSize: "12px", color: "var(--text-dim)", marginTop: 2, display: "flex", alignItems: "center", gap: "6px" }}>
+                              {z.area}
+                              {isNearby && <span style={{ fontSize: "9px", fontWeight: 700, color: "var(--safe)", background: "rgba(34,197,94,0.08)", padding: "1px 6px", borderRadius: "4px", border: "1px solid rgba(34,197,94,0.12)", letterSpacing: "0.3px" }}>{es ? "CERCA" : "NEAR"}</span>}
+                              {distKm !== null && !isNearby && <span style={{ fontSize: "10px", color: "var(--text-faint)", fontVariantNumeric: "tabular-nums" }}>{distKm < 10 ? distKm.toFixed(1) : Math.round(distKm)} km</span>}
+                            </div>
                             {lt ? <div style={{ fontSize: "12px", color: "var(--text-secondary)", marginTop: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{lt.text ? `${lt.text} · ` : ""}{timeAgoLocalized(lt.created_at, lang)}</div>
                               : pred && pred.score >= 30 ? <div style={{ fontSize: "12px", color: pred.score >= 70 ? "var(--danger)" : pred.score >= 40 ? "var(--caution)" : "var(--text-dim)", marginTop: 4, fontWeight: 500 }}>{pred.score}% {es ? "probabilidad" : "probability"}</div>
                               : <div style={{ fontSize: "12px", color: "var(--text-faint)", marginTop: 4 }}>{es ? z.desc : (z.descEn || z.desc)}</div>}
@@ -1025,7 +1060,8 @@ function AppContent() {
                         </button>
                       </div>
                     );
-                  })}
+                  });
+                  })()}
                   <div style={{ textAlign: "center", padding: "36px 0 16px", fontSize: "12px", color: "var(--text-faint)", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>{es ? "Hecho para Barranquilla" : "Made for Barranquilla"} <svg width="20" height="14" viewBox="0 0 30 20" style={{ borderRadius: "2px", verticalAlign: "middle", boxShadow: "0 0 0 0.5px rgba(255,255,255,0.1)" }}><rect width="30" height="20" fill="#D42A2A"/><rect x="3" y="3" width="24" height="14" fill="#F5D033"/><rect x="6" y="6" width="18" height="8" fill="#2D8A2D"/><polygon points="15,7.5 15.9,9.3 17.8,9.6 16.4,11 16.7,12.9 15,12 13.3,12.9 13.6,11 12.2,9.6 14.1,9.3" fill="rgba(255,255,255,0.9)"/></svg></div>
                 </>
               )}
