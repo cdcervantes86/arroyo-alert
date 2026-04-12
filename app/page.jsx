@@ -681,7 +681,25 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
 
 function AppContent() {
   const { lang, toggleLang, t } = useLanguage();
-  const { reports, loading, submitReport, upvoteReport, refetch } = useReports();
+  const [toasts, setToasts] = useState([]);
+  const addToast = useCallback((msg, color) => {
+    const id = Date.now();
+    setToasts(prev => [...prev, { id, msg, color }]);
+    setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 4000);
+  }, []);
+
+  const handleRealtimeEvent = useCallback((type, report, oldReport) => {
+    const deviceId = typeof window !== "undefined" ? require("@/lib/deviceId").getDeviceId() : null;
+    const zone = ZONES.find(z => z.id === report.zone_id);
+    if (type === "upvote" && report.device_id === deviceId) {
+      addToast(lang === "es" ? `Alguien confirmó tu reporte en ${zone?.name || ""}` : `Someone confirmed your report at ${zone?.name || ""}`, "var(--accent)");
+    } else if (type === "insert" && report.device_id !== deviceId) {
+      const sevLabel = report.severity === "danger" ? (lang === "es" ? "Peligro" : "Danger") : report.severity === "caution" ? (lang === "es" ? "Precaución" : "Caution") : (lang === "es" ? "Despejado" : "Clear");
+      addToast(`${sevLabel} — ${zone?.name || ""} (${zone?.area || ""})`, report.severity === "danger" ? "var(--danger)" : report.severity === "caution" ? "var(--caution)" : "var(--safe)");
+    }
+  }, [addToast, lang]);
+
+  const { reports, loading, submitReport, upvoteReport, refetch } = useReports(handleRealtimeEvent);
   const push = usePushNotifications();
   const { totalWatchers, zoneWatchers, watchZone, unwatchZone } = useLiveWatchers();
   const [screen, setScreen] = useState("main");
@@ -1222,6 +1240,25 @@ function AppContent() {
               {es ? "Ahora no" : "Not now"}
             </button>
           </div>
+        </div>
+      )}
+
+      {/* Toast notifications */}
+      {toasts.length > 0 && (
+        <div style={{ position: "fixed", top: "max(16px, env(safe-area-inset-top, 16px))", left: "50%", transform: "translateX(-50%)", zIndex: 1900, display: "flex", flexDirection: "column", gap: "8px", alignItems: "center", pointerEvents: "none", width: "90%", maxWidth: 360 }}>
+          {toasts.map(t => (
+            <div key={t.id} style={{
+              background: "#0e1628", border: `1px solid ${t.color}25`,
+              borderRadius: "var(--radius-lg)", padding: "12px 16px",
+              display: "flex", alignItems: "center", gap: "10px",
+              boxShadow: `0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04)`,
+              animation: "slideDown 0.3s cubic-bezier(0.34, 1.4, 0.64, 1)",
+              pointerEvents: "auto", width: "100%",
+            }}>
+              <div style={{ width: 8, height: 8, borderRadius: "50%", background: t.color, flexShrink: 0, animation: "blink 2s ease infinite" }} />
+              <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--text)", flex: 1 }}>{t.msg}</span>
+            </div>
+          ))}
         </div>
       )}
 
