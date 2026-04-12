@@ -160,7 +160,7 @@ function MoreMenu({ onSelect, lang, onClose }) {
 }
 
 /* ====== MULTI-SNAP BOTTOM SHEET — peek / half / full ====== */
-function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push, zoneWatchers, prediction, watchZone, unwatchZone, onLogoClick, isDesktop, desktopView, mapInstance, favs }) {
+function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push, zoneWatchers, prediction, watchZone, unwatchZone, onLogoClick, isDesktop, desktopView, mapInstance, favs, initialSnap = "peek" }) {
   const { lang, t } = useLanguage();
   const es = lang === "es";
   const sevColor = severity ? SEVERITY[severity].color : "var(--border)";
@@ -174,7 +174,7 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
 
   // Mobile sheet state (must be declared before any conditional returns)
   const SNAPS = { peek: 19, half: 50, full: 88 };
-  const [snap, setSnap] = useState("peek");
+  const [snap, setSnap] = useState(initialSnap);
   const [dragOffset, setDragOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [closing, setClosing] = useState(false);
@@ -653,7 +653,7 @@ function AppContent() {
         const id = parseInt(zoneId);
         const zone = ZONES.find(z => z.id === id);
         if (zone) {
-          setTimeout(() => { setSelectedZone(id); setScreen("detail"); }, 500);
+          setTimeout(() => { setSelectedZone(id); setZoneClickSource("list"); setScreen("detail"); }, 500);
           // Clean URL without reload
           window.history.replaceState({}, "", window.location.pathname);
         }
@@ -680,7 +680,8 @@ function AppContent() {
   const liveCount = reports.filter((r) => new Date(r.created_at).getTime() > cutoff).length;
   const es = lang === "es";
 
-  const handleZoneClick = useCallback((zoneId) => { setSelectedZone(zoneId); setScreen("detail"); }, []);
+  const [zoneClickSource, setZoneClickSource] = useState("map");
+  const handleZoneClick = useCallback((zoneId, source = "map") => { setSelectedZone(zoneId); setZoneClickSource(source); setScreen("detail"); }, []);
   const handleReport = useCallback(async ({ zoneId, severity, text, photo, altRoute }) => { await submitReport({ zoneId, severity, text, photo, altRoute }); const zone = ZONES.find((z) => z.id === zoneId); if (zone) notifyZone({ zoneId, zoneName: `${zone.name} (${zone.area})`, severity, text }); }, [submitReport]);
   const handleUpvoteLocal = useCallback((id) => { setUpvotedSet((prev) => new Set([...prev, id])); }, []);
   const handleLogoClick = () => { setScreen("main"); setSelectedZone(null); setActiveFilter(null); setShowMoreMenu(false); if (isDesktop) setDesktopView("map"); else setMobileView("map"); };
@@ -854,7 +855,7 @@ function AppContent() {
                     return (
                       <div key={z.id}>
                         {showDivider && <div style={{ height: 1, background: "var(--border)", margin: "12px 0" }} />}
-                        <button onClick={() => handleZoneClick(z.id)} className="card-interactive" style={{
+                        <button onClick={() => handleZoneClick(z.id, "list")} className="card-interactive" style={{
                           width: "100%", textAlign: "left", display: "flex", gap: "14px", alignItems: "center",
                           padding: "14px 16px", marginBottom: "6px", borderRadius: "var(--radius-lg)",
                           background: hasActivity ? `${c ? c.color : "var(--accent)"}04` : "rgba(255,255,255,0.02)",
@@ -903,14 +904,14 @@ function AppContent() {
             </div>
           ) : (
             <div key="live-view" style={{ animation: "viewFadeIn 0.25s ease", height: "100%", overflow: "hidden" }}>
-            <LiveFeed reports={reports} onZoneClick={handleZoneClick} onUpvote={upvoteReport} upvotedSet={upvotedSet} onUpvoteLocal={handleUpvoteLocal} activeFilter={activeFilter} />
+            <LiveFeed reports={reports} onZoneClick={(id) => handleZoneClick(id, "live")} onUpvote={upvoteReport} upvotedSet={upvotedSet} onUpvoteLocal={handleUpvoteLocal} activeFilter={activeFilter} />
             </div>
           )}
         </div>
         {isDesktop && (
           <div onTransitionEnd={() => { window.dispatchEvent(new Event("resize")); }} style={{ width: showPanel ? 380 : 0, minWidth: 0, flexShrink: 0, borderLeft: showPanel ? "1px solid var(--border)" : "none", background: "var(--bg-elevated)", display: "flex", flexDirection: "column", overflow: "hidden", transition: "width 0.3s cubic-bezier(0.4, 0, 0.2, 1)" }}>
             <div style={{ width: 380, height: "100%", opacity: showPanel ? 1 : 0, transition: "opacity 0.2s ease", overflow: "hidden" }}>
-              <LiveFeed reports={reports} onZoneClick={handleZoneClick} onUpvote={upvoteReport} upvotedSet={upvotedSet} onUpvoteLocal={handleUpvoteLocal} activeFilter={activeFilter} />
+              <LiveFeed reports={reports} onZoneClick={(id) => handleZoneClick(id, "live")} onUpvote={upvoteReport} upvotedSet={upvotedSet} onUpvoteLocal={handleUpvoteLocal} activeFilter={activeFilter} />
             </div>
           </div>
         )}
@@ -941,12 +942,13 @@ function AppContent() {
             desktopView={desktopView}
             mapInstance={mapInstance}
             favs={favs}
+            initialSnap={zoneClickSource === "map" ? "peek" : "half"}
           />
         );
       })()}
 
       {/* Weekly Digest modal */}
-      {showDigest && <WeeklyDigest onClose={() => setShowDigest(false)} onZoneClick={handleZoneClick} />}
+      {showDigest && <WeeklyDigest onClose={() => setShowDigest(false)} onZoneClick={(id) => handleZoneClick(id, "list")} />}
 
       {/* Desktop About modal — single container to prevent layer flicker */}
       {isDesktop && screen === "about" && (
