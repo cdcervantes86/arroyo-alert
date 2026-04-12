@@ -51,11 +51,13 @@ button:active { transform: scale(0.97); opacity: 0.85; }
 
 /* Map tooltip (Mapbox) */
 .mapboxgl-popup-content {
-  background: rgba(8,13,24,0.94) !important; color: #fff !important;
-  border: 1px solid rgba(255,255,255,0.08) !important; border-radius: 10px !important;
-  padding: 8px 12px !important; font-size: 12px !important;
-  font-family: 'DM Sans', sans-serif !important; box-shadow: 0 8px 32px rgba(0,0,0,0.6) !important;
+  background: #0e1628 !important; color: #fff !important;
+  border: 1px solid rgba(255,255,255,0.08) !important; border-radius: 12px !important;
+  padding: 10px 14px !important; font-size: 12px !important;
+  font-family: 'DM Sans', sans-serif !important; box-shadow: 0 8px 32px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04) !important;
 }
+.mapboxgl-popup-tip { border-top-color: #0e1628 !important; border-bottom-color: #0e1628 !important; }
+.mapboxgl-popup-close-button { color: rgba(255,255,255,0.3) !important; font-size: 16px !important; padding: 4px 8px !important; }
 
 /* Bottom sheet */
 .sheet-backdrop {

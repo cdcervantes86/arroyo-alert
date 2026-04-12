@@ -154,12 +154,12 @@ export default function ReportFlow({ zones, reports, initialZoneId, onSubmit, on
             <input ref={fileInputRef} type="file" accept="image/*" onChange={handlePhoto} style={{ display: "none" }} />
             <div style={{ marginTop: "14px" }}>
               {photoPreview ? (
-                <div style={{ position: "relative", borderRadius: "var(--radius-md)", overflow: "hidden", border: "1px solid rgba(255,255,255,0.06)" }}>
+                <div style={{ position: "relative", borderRadius: "var(--radius-lg)", overflow: "hidden", border: "1px solid rgba(255,255,255,0.06)" }}>
                   <img src={photoPreview} alt="Preview" style={{ width: "100%", maxHeight: 200, objectFit: "cover", display: "block" }} />
                   <button onClick={() => { setPhoto(null); setPhotoPreview(null); }} style={{ position: "absolute", top: 8, right: 8, width: 28, height: 28, borderRadius: "50%", background: "rgba(0,0,0,0.7)", border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}><svg width="10" height="10" viewBox="0 0 10 10" stroke="#fff" strokeWidth="1.5" strokeLinecap="round"><line x1="2" y1="2" x2="8" y2="8"/><line x1="8" y1="2" x2="2" y2="8"/></svg></button>
                 </div>
               ) : (
-                <button onClick={() => fileInputRef.current?.click()} style={{ width: "100%", padding: "16px", borderRadius: "var(--radius-md)", background: "rgba(255,255,255,0.015)", border: "1px dashed var(--border-light)", color: "var(--text-dim)", fontSize: "14px", fontWeight: 500, display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", cursor: "pointer" }}>
+                <button onClick={() => fileInputRef.current?.click()} style={{ width: "100%", padding: "16px", borderRadius: "var(--radius-lg)", background: "rgba(255,255,255,0.015)", border: "1px dashed rgba(255,255,255,0.12)", color: "var(--text-dim)", fontSize: "14px", fontWeight: 500, display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", cursor: "pointer" }}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg> {es ? "Agregar foto (opcional)" : "Add photo (optional)"}
                 </button>
               )}
@@ -173,7 +173,7 @@ export default function ReportFlow({ zones, reports, initialZoneId, onSubmit, on
                 </label>
                 <textarea value={altRoute} onChange={(e) => setAltRoute(e.target.value)}
                   placeholder={es ? "Ej: Usa la Calle 30 como alternativa, o desvíate por la Cra 46..." : "E.g. Use Calle 30 as alternative, or detour via Cra 46..."}
-                  style={{ width: "100%", minHeight: 70, background: "rgba(34,197,94,0.03)", border: "1px solid rgba(34,197,94,0.15)", borderRadius: "var(--radius-md)", padding: "12px 14px", color: "var(--text)", fontSize: "14px", resize: "vertical", outline: "none", fontFamily: "inherit", lineHeight: 1.5 }} />
+                  style={{ width: "100%", minHeight: 70, background: "rgba(34,197,94,0.03)", border: "1px solid rgba(34,197,94,0.15)", borderRadius: "var(--radius-lg)", padding: "14px 16px", color: "var(--text)", fontSize: "14px", resize: "vertical", outline: "none", fontFamily: "inherit", lineHeight: 1.5 }} />
                 <p style={{ fontSize: "11px", color: "var(--text-faint)", marginTop: "6px" }}>{es ? "Ayuda a otros a evitar esta zona" : "Help others avoid this zone"}</p>
               </div>
             )}
@@ -194,7 +194,7 @@ export default function ReportFlow({ zones, reports, initialZoneId, onSubmit, on
             <button onClick={handleSubmit} disabled={submitting} className="tap-target" style={{
               width: "100%", marginTop: 20, padding: "16px",
               background: submitting ? "rgba(255,255,255,0.04)" : "linear-gradient(135deg, #D42A2A, #a11a1a)",
-              color: "#fff", border: "none", borderRadius: "var(--radius-md)",
+              color: "#fff", border: "none", borderRadius: "var(--radius-lg)",
               fontSize: "16px", fontWeight: 700,
               boxShadow: submitting ? "none" : "0 8px 24px rgba(212,42,42,0.3)",
               opacity: submitting ? 0.6 : 1,

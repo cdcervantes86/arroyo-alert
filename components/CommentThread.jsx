@@ -184,8 +184,8 @@ export default function CommentThread({ reportId, allDeviceCounts }) {
                     </div>
                     <p style={{
                       margin: 0, fontSize: "13px", lineHeight: 1.5, color: "var(--text-secondary)",
-                      wordBreak: "break-word", background: "rgba(255,255,255,0.02)",
-                      padding: "8px 12px", borderRadius: "4px 12px 12px 12px",
+                      wordBreak: "break-word", background: "rgba(255,255,255,0.025)",
+                      padding: "9px 13px", borderRadius: "4px 14px 14px 14px",
                       border: "1px solid rgba(255,255,255,0.06)",
                     }}>
                       {c.text}
@@ -213,7 +213,7 @@ export default function CommentThread({ reportId, allDeviceCounts }) {
               style={{
                 flex: 1, padding: "10px 14px",
                 background: "rgba(255,255,255,0.03)",
-                border: "1px solid var(--border-light)",
+                border: "1px solid rgba(255,255,255,0.1)",
                 borderRadius: "20px", color: "var(--text)",
                 fontSize: "13px", outline: "none", fontFamily: "inherit",
                 transition: "border-color 0.2s ease",
