@@ -815,7 +815,7 @@ function AppContent() {
   const isRaining = weather?.isRaining || false;
 
   if (showOnboarding) return <Onboarding lang={lang} onComplete={() => setShowOnboarding(false)} onToggleLang={toggleLang} />;
-  if (screen === "about" && !isDesktop) return <div style={{ animation: "screenSlideIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", position: "fixed", inset: 0, zIndex: 50, background: "var(--bg)" }}><AboutPage onBack={() => setScreen("main")} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} /></div>;
+  if (screen === "about" && !isDesktop) return <div style={{ animation: "screenSlideIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", position: "fixed", inset: 0, zIndex: 50, background: "var(--bg)" }}><AboutPage onBack={() => setScreen("main")} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} onShowOnboarding={() => { setScreen("main"); setShowOnboarding(true); }} /></div>;
   if (screen === "heatmap") return <div style={{ animation: "screenSlideIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", position: "fixed", inset: 0, zIndex: 50, background: "var(--bg)" }}><HeatmapView onBack={() => setScreen("main")} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} /></div>;
   if (screen === "profile" && !isDesktop) return <div style={{ animation: "screenSlideIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", position: "fixed", inset: 0, zIndex: 50, background: "var(--bg)" }}><ReporterProfile reports={reports} onBack={() => setScreen("main")} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} /></div>;
   if (screen === "report") return <div style={{ animation: "screenSlideIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", position: "fixed", inset: 0, zIndex: 50, background: "var(--bg)" }}><ReportFlow zones={ZONES} reports={reports} initialZoneId={selectedZone} onSubmit={async (data) => { await handleReport(data); const zone = ZONES.find(z => z.id === data.zoneId); setLastReport({ zoneId: data.zoneId, zoneName: zone?.name, zoneArea: zone?.area, severity: data.severity, text: data.text }); setScreen("main"); }} onBack={() => setScreen("main")} onLogoClick={handleLogoClick} /></div>;
@@ -1043,7 +1043,7 @@ function AppContent() {
       {isDesktop && (screen === "about" || closingScreen === "about") && (
         <div onClick={closeScreenAnimated} style={{ position: "fixed", inset: 0, zIndex: 1200, background: "rgba(0,0,0,0.7)", display: "flex", alignItems: "center", justifyContent: "center", animation: closingScreen === "about" ? "backdropOut 0.25s ease forwards" : "fadeIn 0.2s ease" }}>
           <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 560, height: "85vh", background: "#0e1628", borderRadius: "var(--radius-xl)", border: "1px solid rgba(255,255,255,0.06)", boxShadow: "0 24px 80px rgba(0,0,0,0.6)", animation: closingScreen === "about" ? "desktopModalOut 0.25s ease forwards" : "modalScaleIn 0.3s cubic-bezier(0.34, 1.4, 0.64, 1)", overflow: "hidden", position: "relative" }}>
-            <AboutPage onBack={closeScreenAnimated} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} />
+            <AboutPage onBack={closeScreenAnimated} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} onShowOnboarding={() => { setClosingScreen("about"); setTimeout(() => { setScreen("main"); setClosingScreen(null); setShowOnboarding(true); }, 250); }} />
           </div>
         </div>
       )}

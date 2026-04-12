@@ -11,7 +11,7 @@ const months = {
 };
 function monthName(m, es) { return (es ? months.es : months.en)[m - 1] || ""; }
 
-export default function AboutPage({ onBack, onLogoClick, onToggleLang, lang: langProp }) {
+export default function AboutPage({ onBack, onLogoClick, onToggleLang, lang: langProp, onShowOnboarding }) {
   const { lang } = useLanguage();
   const es = lang === "es";
   const [audioOn, setAudioOn] = useState(true);
@@ -61,6 +61,24 @@ export default function AboutPage({ onBack, onLogoClick, onToggleLang, lang: lan
             <div style={{ width: 22, height: 22, borderRadius: "50%", background: "#fff", position: "absolute", top: 3, left: audioOn ? 23 : 3, transition: "left 0.2s ease", boxShadow: "0 2px 4px rgba(0,0,0,0.2)" }} />
           </button>
         </div>
+
+        {/* Help & Guide */}
+        {onShowOnboarding && (
+          <button onClick={onShowOnboarding} className="card-interactive" style={{
+            width: "100%", display: "flex", alignItems: "center", gap: "14px",
+            padding: "16px", background: "rgba(255,255,255,0.025)", borderRadius: "var(--radius-lg)",
+            border: "1px solid rgba(255,255,255,0.06)", textAlign: "left", marginBottom: "32px",
+          }}>
+            <div style={{ width: 36, height: 36, borderRadius: "var(--radius-md)", background: "rgba(245,208,51,0.06)", border: "1px solid rgba(245,208,51,0.1)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--baq-yellow)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: "14px", fontWeight: 700, color: "var(--text)" }}>{es ? "Guía de la app" : "App guide"}</div>
+              <div style={{ fontSize: "12px", color: "var(--text-dim)", marginTop: "2px" }}>{es ? "Volver a ver la introducción" : "Watch the intro again"}</div>
+            </div>
+            <svg width="7" height="12" viewBox="0 0 7 12" fill="none" style={{ flexShrink: 0, opacity: 0.15 }}><path d="M1 1l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
+          </button>
+        )}
 
         {/* Safety tips */}
         <div style={{ fontSize: "10px", color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "1.5px", fontWeight: 600, marginBottom: "12px" }}>{es ? "Consejos de seguridad" : "Safety tips"}</div>
