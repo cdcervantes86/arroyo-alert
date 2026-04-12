@@ -177,18 +177,19 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
       }
       mapInstance.easeTo({ center: [zone.lng, zone.lat], zoom: 14, duration: 600 });
     }
-    // Restore on unmount (when sheet closes)
-    return () => {
-      if (desktopRestoreRef.current && mapInstance) {
-        mapInstance.easeTo({
-          center: desktopRestoreRef.current.center,
-          zoom: desktopRestoreRef.current.zoom,
-          duration: 350,
-        });
-        desktopRestoreRef.current = null;
-      }
-    };
   }, [isDesktop, desktopView, mapInstance, zone]);
+
+  // Restore map position instantly when closing begins
+  useEffect(() => {
+    if (closing && desktopRestoreRef.current && mapInstance && isDesktop) {
+      mapInstance.easeTo({
+        center: desktopRestoreRef.current.center,
+        zoom: desktopRestoreRef.current.zoom,
+        duration: 350,
+      });
+      desktopRestoreRef.current = null;
+    }
+  }, [closing, mapInstance, isDesktop]);
 
   // Mobile sheet state (must be declared before any conditional returns)
   const SNAPS = { peek: 19, half: 50, full: 88 };
