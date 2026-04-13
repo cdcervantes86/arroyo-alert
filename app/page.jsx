@@ -487,7 +487,8 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
 
   const handleTouchStart = (e) => {
     const scrollTop = contentRef.current?.scrollTop || 0;
-    if (snap === "full" && scrollTop > 5) return;
+    // Allow scrolling when content is scrolled down (both full and half snaps)
+    if ((snap === "full" || snap === "half") && scrollTop > 5) return;
     const y = e.touches[0].clientY;
     touchRef.current = { startY: y, startSnap: snapPx(snap), lastY: y, lastTime: Date.now(), velocity: 0 };
     setIsDragging(true);
