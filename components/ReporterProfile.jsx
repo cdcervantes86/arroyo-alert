@@ -2,6 +2,9 @@
 import { useState, useEffect } from "react";
 import { useLanguage } from "@/lib/LanguageContext";
 import { getReporterStats, getDeviceId } from "@/lib/deviceId";
+import { ZONES, SEVERITY, getSevLabel } from "@/lib/zones";
+import { timeAgoLocalized } from "@/lib/translations";
+import { SeverityIcon } from "@/components/SeverityIcon";
 
 function StatCard({ value, label, icon, color, delay = 0 }) {
   return (
@@ -133,6 +136,38 @@ export default function ReporterProfile({ onBack, onLogoClick, reports, onToggle
             </p>
           </div>
         )}
+
+        {/* Your recent reports */}
+        {reports && (() => {
+          const deviceId = getDeviceId();
+          const myReports = reports.filter(r => r.device_id === deviceId).slice(0, 5);
+          if (!myReports.length) return null;
+          return (
+            <>
+              <div style={{ fontSize: "10px", color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "1.5px", fontWeight: 600, marginBottom: "12px" }}>
+                {es ? "Tus reportes recientes" : "Your recent reports"}
+              </div>
+              {myReports.map((r, i) => {
+                const zone = ZONES.find(z => z.id === r.zone_id);
+                const cfg = SEVERITY[r.severity];
+                return (
+                  <div key={r.id} style={{ display: "flex", gap: "12px", alignItems: "center", padding: "12px 14px", marginBottom: "6px", borderRadius: "var(--radius-lg)", background: `${cfg.color}04`, border: `1px solid ${cfg.color}10`, position: "relative", overflow: "hidden", animation: `fadeIn 0.2s ease ${i * 0.04}s both` }}>
+                    <div style={{ position: "absolute", left: 0, top: "12%", bottom: "12%", width: 3, borderRadius: "0 2px 2px 0", background: cfg.color, opacity: 0.5 }} />
+                    <div style={{ width: 28, height: 28, borderRadius: "var(--radius-sm)", background: `${cfg.color}0a`, border: `1px solid ${cfg.color}18`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                      <SeverityIcon severity={r.severity} size={15} />
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: "13px", fontWeight: 700, color: "var(--text)" }}>{zone?.name || "?"} <span style={{ fontWeight: 400, color: "var(--text-dim)" }}>· {zone?.area}</span></div>
+                      {r.text && <div style={{ fontSize: "12px", color: "var(--text-dim)", marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{r.text}</div>}
+                    </div>
+                    <div style={{ fontSize: "11px", color: "var(--text-faint)", flexShrink: 0 }}>{timeAgoLocalized(r.created_at, lang)}</div>
+                  </div>
+                );
+              })}
+              <div style={{ height: 20 }} />
+            </>
+          );
+        })()}
 
         {/* Ranks explained */}
         <div style={{ fontSize: "10px", color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "1.5px", fontWeight: 600, marginBottom: "12px" }}>

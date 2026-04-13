@@ -6,6 +6,7 @@ import { timeAgoLocalized } from "@/lib/translations";
 import ShareCard from "./ShareCard";
 import CommentThread from "./CommentThread";
 import { SeverityIcon } from "./SeverityIcon";
+import { getDeviceId } from "@/lib/deviceId";
 
 function Countdown({ createdAt }) {
   const [, tick] = useState(0);
@@ -74,6 +75,7 @@ export default function LiveFeed({ reports, onZoneClick, onUpvote, upvotedSet, o
 
   const deviceCounts = {};
   reports.forEach((r) => { if (r.device_id) deviceCounts[r.device_id] = (deviceCounts[r.device_id] || 0) + 1; });
+  const myDeviceId = typeof window !== "undefined" ? getDeviceId() : null;
 
   if (!recentReports.length) return <EmptyState lang={lang} onReport={onReport} />;
 
@@ -100,6 +102,7 @@ export default function LiveFeed({ reports, onZoneClick, onUpvote, upvotedSet, o
             const cfg = SEVERITY[r.severity];
             const isUpvoted = upvotedSet?.has(r.id);
             const isVerified = r.device_id && (deviceCounts[r.device_id] || 0) >= 5;
+            const isOwn = r.device_id && r.device_id === myDeviceId;
             const accentClass = `card-accent-${r.severity}`;
 
             return (
@@ -120,8 +123,9 @@ export default function LiveFeed({ reports, onZoneClick, onUpvote, upvotedSet, o
                     <SeverityIcon severity={r.severity} size={20} />
                   </div>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: "15px", fontWeight: 700, color: "var(--text)", letterSpacing: "-0.2px" }}>
+                    <div style={{ fontSize: "15px", fontWeight: 700, color: "var(--text)", letterSpacing: "-0.2px", display: "flex", alignItems: "center", gap: "6px" }}>
                       {zone.name}
+                      {isOwn && <span style={{ fontSize: "9px", fontWeight: 700, color: "var(--accent)", background: "var(--accent-glow)", padding: "1px 6px", borderRadius: "4px", border: "1px solid rgba(91,156,246,0.12)", letterSpacing: "0.3px" }}>{lang === "es" ? "Tú" : "You"}</span>}
                     </div>
                     <div style={{ fontSize: "12px", color: "var(--text-dim)", marginTop: 1 }}>{zone.area}</div>
                   </div>

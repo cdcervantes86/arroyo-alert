@@ -93,9 +93,9 @@ function EmergencyBanner({ emergency, lang }) {
   );
 }
 
-function BottomNav({ activeTab, onTab, onReport, liveCount, lang }) {
+function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang }) {
   const tabs = [
-    { key: "map", Icon: MapIcon, label: lang === "es" ? "Mapa" : "Map" },
+    { key: "map", Icon: MapIcon, label: lang === "es" ? "Mapa" : "Map", badge: dangerCount },
     { key: "list", Icon: ListIcon, label: lang === "es" ? "Zonas" : "Zones" },
     { key: "report", isReport: true, label: lang === "es" ? "Reportar" : "Report" },
     { key: "live", Icon: LiveIcon, label: lang === "es" ? "En vivo" : "Live", badge: liveCount },
@@ -132,7 +132,10 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, lang }) {
             }} />}
             <div style={{ position: "relative", zIndex: 1 }}>
               <tab.Icon size={21} color={isActive ? "var(--accent)" : "rgba(255,255,255,0.3)"} active={isActive} />
-              {tab.badge > 0 && !isActive && <span style={{ position: "absolute", top: -2, right: -4, width: 7, height: 7, borderRadius: "50%", background: "var(--danger)", border: "1.5px solid #0a0f1a", animation: "blink 1.5s ease-in-out infinite" }} />}
+              {tab.badge > 0 && !isActive && (tab.key === "map"
+                ? <span style={{ position: "absolute", top: -5, right: -8, minWidth: 16, height: 16, borderRadius: "8px", background: "var(--danger)", border: "1.5px solid #0a0f1a", fontSize: "9px", fontWeight: 800, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", padding: "0 3px", animation: "blink 1.5s ease-in-out infinite" }}>{tab.badge}</span>
+                : <span style={{ position: "absolute", top: -2, right: -4, width: 7, height: 7, borderRadius: "50%", background: "var(--danger)", border: "1.5px solid #0a0f1a", animation: "blink 1.5s ease-in-out infinite" }} />
+              )}
             </div>
             <span style={{ position: "relative", zIndex: 1, fontSize: "10px", fontWeight: isActive ? 700 : 500, color: isActive ? "var(--accent)" : "rgba(255,255,255,0.3)", letterSpacing: isActive ? "0.2px" : "0", transition: "all 0.2s ease" }}>{tab.label}</span>
           </button>
@@ -191,7 +194,7 @@ function MoreMenu({ onSelect, lang, onClose }) {
 }
 
 /* ====== MULTI-SNAP BOTTOM SHEET — peek / half / full ====== */
-function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push, zoneWatchers, prediction, watchZone, unwatchZone, onLogoClick, isDesktop, desktopView, mapInstance, favs, initialSnap = "peek", mapRestoreRef, onPhotoClick, onDelete }) {
+function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push, zoneWatchers, prediction, watchZone, unwatchZone, onLogoClick, isDesktop, desktopView, mapInstance, favs, initialSnap = "peek", mapRestoreRef, onPhotoClick, onDelete, userLocation }) {
   const { lang, t } = useLanguage();
   const es = lang === "es";
   const sevColor = severity ? SEVERITY[severity].color : "rgba(255,255,255,0.06)";
@@ -326,6 +329,7 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
               <h2 style={{ margin: 0, fontSize: "18px", fontWeight: 700, letterSpacing: "-0.2px" }}>{zone.name}</h2>
               <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "3px" }}>
                 <span style={{ fontSize: "13px", color: "var(--text-dim)" }}>{zone.area}</span>
+                {userLocation && (() => { const d = getDistanceKm(userLocation[0], userLocation[1], zone.lat, zone.lng); return <span style={{ fontSize: "11px", color: "var(--text-faint)", display: "inline-flex", alignItems: "center", gap: "3px" }}><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>{d < 1 ? `${Math.round(d * 1000)}m` : `${d.toFixed(1)}km`}</span>; })()}
                 {severity && <span style={{ fontSize: "11px", fontWeight: 600, color: sevColor, background: `${sevColor}0a`, padding: "2px 8px", borderRadius: "6px" }}>{getSevLabel(severity, lang)}</span>}
               </div>
             </div>
@@ -650,8 +654,9 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <h2 style={{ margin: 0, fontSize: "20px", fontWeight: 800, letterSpacing: "-0.4px" }}>{zone.name}</h2>
-              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "3px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "3px", flexWrap: "wrap" }}>
                 <span style={{ fontSize: "13px", color: "var(--text-dim)" }}>{zone.area}</span>
+                {userLocation && (() => { const d = getDistanceKm(userLocation[0], userLocation[1], zone.lat, zone.lng); return <span style={{ fontSize: "11px", color: "var(--text-faint)", display: "inline-flex", alignItems: "center", gap: "3px" }}><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>{d < 1 ? `${Math.round(d * 1000)}m` : `${d.toFixed(1)}km`}</span>; })()}
                 {severity && <span style={{ fontSize: "11px", fontWeight: 600, color: sevColor, background: `${sevColor}0a`, padding: "2px 8px", borderRadius: "6px" }}>{getSevLabel(severity, lang)}</span>}
                 {reports.length > 0 && <span style={{ fontSize: "11px", color: "var(--text-faint)", fontVariantNumeric: "tabular-nums" }}>{reports.length} {reports.length === 1 ? "report" : es ? "reportes" : "reports"}</span>}
               </div>
@@ -1020,7 +1025,7 @@ function AppContent() {
   const handleUpvoteLocal = useCallback((id) => { setUpvotedSet((prev) => new Set([...prev, id])); }, []);
   const handleLogoClick = () => { setScreen("main"); setSelectedZone(null); setActiveFilter(null); setShowMoreMenu(false); if (isDesktop) setDesktopView("map"); else setMobileView("map"); };
   const handleFilterClick = (filter) => { setActiveFilter((prev) => prev === filter ? null : filter); };
-  const handleMobileTab = (key) => { if (key === "more") { setShowMoreMenu(true); return; } setMobileView(key); };
+  const handleMobileTab = (key) => { if (navigator.vibrate) navigator.vibrate(10); if (key === "more") { setShowMoreMenu(true); return; } setMobileView(key); };
   const handleDesktopTab = (key) => { if (key === "live") setShowPanel((p) => !p); else setDesktopView(key); };
   const closeSheet = () => {
     mapRestoreRef.current = null;
@@ -1153,6 +1158,12 @@ function AppContent() {
         </>}
         <button onClick={toggleLang} className="tap-target" aria-label={lang === "es" ? "Switch to English" : "Cambiar a Español"} style={{ padding: "5px 10px", borderRadius: "8px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.06)", color: "var(--text-dim)", fontSize: "11px", fontWeight: 700, letterSpacing: "0.3px", flexShrink: 0, transition: "all 0.15s ease" }}>{lang === "es" ? "EN" : "ES"}</button>
         {isDesktop && (
+          <button onClick={() => setScreen("report")} style={{ padding: "7px 16px", borderRadius: "var(--radius-lg)", background: "linear-gradient(135deg, #D42A2A, #a11a1a)", border: "none", color: "#fff", fontSize: "12px", fontWeight: 700, display: "flex", alignItems: "center", gap: "6px", boxShadow: "0 4px 12px rgba(212,42,42,0.3)", flexShrink: 0, letterSpacing: "0.2px" }}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            {es ? "Reportar" : "Report"}
+          </button>
+        )}
+        {isDesktop && (
           <div style={{ display: "flex", background: "rgba(255,255,255,0.03)", borderRadius: "10px", overflow: "hidden", border: "1px solid rgba(255,255,255,0.06)", padding: "2px" }}>
             {desktopTabs.map((tab) => { const isActive = tab.key === "live" ? showPanel : desktopView === tab.key; return <button key={tab.key} onClick={() => handleDesktopTab(tab.key)} style={{ padding: "7px 14px", fontSize: "12px", border: "none", borderRadius: "8px", background: isActive ? "rgba(91,156,246,0.1)" : "transparent", color: isActive ? "var(--accent)" : "var(--text-faint)", fontWeight: isActive ? 700 : 500, position: "relative", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s ease" }}><tab.Icon size={15} color={isActive ? "var(--accent)" : "var(--text-faint)"} active={isActive} />{tab.key === "live" && liveCount > 0 && !isActive && <span style={{ position: "absolute", top: 3, right: 5, width: 5, height: 5, borderRadius: "50%", background: "var(--danger)", animation: "blink 1.5s ease-in-out infinite" }} />}</button>; })}
           </div>
@@ -1196,6 +1207,7 @@ function AppContent() {
             </div>
           </div>
           <span style={{ fontSize: "12px", fontWeight: 700, color: weather.isRaining ? "#fca5a5" : "#fde047", fontVariantNumeric: "tabular-nums" }}>{weather.maxProb}%</span>
+          {weather.isRaining && <button onClick={() => setScreen("report")} style={{ padding: "5px 12px", borderRadius: "var(--radius-sm)", background: "rgba(239,68,68,0.15)", border: "1px solid rgba(239,68,68,0.25)", color: "#fca5a5", fontSize: "11px", fontWeight: 700, whiteSpace: "nowrap", flexShrink: 0 }}>{es ? "Reportar" : "Report"}</button>}
         </div>
       )}
       {/* PWA update available */}
@@ -1338,6 +1350,27 @@ function AppContent() {
                         .sort((a, b) => getDistanceKm(userLocation[0], userLocation[1], a.lat, a.lng) - getDistanceKm(userLocation[0], userLocation[1], b.lat, b.lng));
                       sortedZones = [...favZones, ...restZones];
                     }
+                    if (sortedZones.length === 0) {
+                      return (
+                        <div style={{ textAlign: "center", padding: "40px 20px", animation: "fadeIn 0.3s ease" }}>
+                          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--text-faint)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.3, marginBottom: "12px" }}><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                          <div style={{ fontSize: "14px", fontWeight: 600, color: "var(--text-dim)", marginBottom: "6px" }}>
+                            {es ? "Sin resultados" : "No results"}
+                          </div>
+                          <div style={{ fontSize: "12px", color: "var(--text-faint)", lineHeight: 1.5 }}>
+                            {activeFilter
+                              ? (es ? `No hay zonas con nivel "${getSevLabel(activeFilter, lang)}" ahora` : `No zones with "${getSevLabel(activeFilter, lang)}" status right now`)
+                              : (es ? `No se encontró "${zoneSearch}"` : `No match for "${zoneSearch}"`)
+                            }
+                          </div>
+                          {(activeFilter || zoneSearch) && (
+                            <button onClick={() => { setActiveFilter(null); setZoneSearch(""); }} className="tap-target" style={{ marginTop: "16px", padding: "8px 20px", borderRadius: "var(--radius-lg)", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)", color: "var(--text-dim)", fontSize: "12px", fontWeight: 600 }}>
+                              {es ? "Limpiar filtros" : "Clear filters"}
+                            </button>
+                          )}
+                        </div>
+                      );
+                    }
                     return sortedZones.map((z, i, arr) => {
                     const sv = getZoneSeverity(z.id, reports); const zr = getZoneReports(z.id, reports); const lt = zr[0]; const c = sv ? SEVERITY[sv] : null;
                     const isSubbed = push.isSubscribed(z.id); const pred = predictions[z.id];
@@ -1376,6 +1409,7 @@ function AppContent() {
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                               <span style={{ fontSize: "15px", fontWeight: 700, color: "var(--text)", letterSpacing: "-0.2px" }}>{z.name}</span>
+                              {sv === "danger" && <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--danger)", animation: "blink 1.5s ease-in-out infinite", flexShrink: 0 }} />}
                               <span onClick={(e) => { e.stopPropagation(); favs.toggle(z.id); }} style={{ cursor: "pointer", display: "inline-flex", opacity: isFav ? 1 : 0, transition: "opacity 0.2s" }}>
                                 <StarIcon size={12} color="#facc15" filled />
                               </span>
@@ -1386,9 +1420,22 @@ function AppContent() {
                               {isNearby && <span style={{ fontSize: "9px", fontWeight: 700, color: "var(--safe)", background: "rgba(34,197,94,0.08)", padding: "1px 6px", borderRadius: "4px", border: "1px solid rgba(34,197,94,0.12)", letterSpacing: "0.3px" }}>{es ? "CERCA" : "NEAR"}</span>}
                               {distKm !== null && !isNearby && <span style={{ fontSize: "10px", color: "var(--text-faint)", fontVariantNumeric: "tabular-nums" }}>{distKm < 10 ? distKm.toFixed(1) : Math.round(distKm)} km</span>}
                             </div>
-                            {lt ? <div style={{ fontSize: "12px", color: "var(--text-secondary)", marginTop: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{lt.text ? `${lt.text} · ` : ""}{timeAgoLocalized(lt.created_at, lang)}</div>
-                              : pred && pred.score >= 30 ? <div style={{ fontSize: "12px", color: pred.score >= 70 ? "var(--danger)" : pred.score >= 40 ? "var(--caution)" : "var(--text-dim)", marginTop: 4, fontWeight: 500 }}>{pred.score}% {es ? "probabilidad" : "probability"}</div>
-                              : <div style={{ fontSize: "12px", color: "var(--text-faint)", marginTop: 4 }}>{es ? z.desc : (z.descEn || z.desc)}</div>}
+                            {lt ? (() => { const totalUp = zr.reduce((s, r) => s + (r.upvotes || 0), 0); return <div style={{ fontSize: "12px", color: "var(--text-secondary)", marginTop: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", display: "flex", alignItems: "center", gap: "4px" }}><span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>{lt.text ? `${lt.text} · ` : ""}{timeAgoLocalized(lt.created_at, lang)}</span>{totalUp > 0 && <span style={{ display: "inline-flex", alignItems: "center", gap: "3px", flexShrink: 0, color: "var(--accent)", fontSize: "11px", fontWeight: 600 }}><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14z"/></svg>{totalUp}</span>}</div>; })()
+                              : (() => {
+                                // Check for recently expired reports (within 12h)
+                                const recentExpired = reports.filter(r => r.zone_id === z.id).sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];
+                                const expiredAge = recentExpired ? (Date.now() - new Date(recentExpired.created_at).getTime()) / 3600000 : null;
+                                if (expiredAge && expiredAge < 12) {
+                                  const h = Math.floor(expiredAge);
+                                  return <div style={{ fontSize: "12px", color: "var(--text-faint)", marginTop: 4, display: "flex", alignItems: "center", gap: "4px" }}>
+                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                    {es ? `Activo hace ${h}h` : `Active ${h}h ago`}
+                                  </div>;
+                                }
+                                if (pred && pred.score >= 30) return <div style={{ fontSize: "12px", color: pred.score >= 70 ? "var(--danger)" : pred.score >= 40 ? "var(--caution)" : "var(--text-dim)", marginTop: 4, fontWeight: 500 }}>{pred.score}% {es ? "probabilidad" : "probability"}</div>;
+                                return <div style={{ fontSize: "12px", color: "var(--text-faint)", marginTop: 4 }}>{es ? z.desc : (z.descEn || z.desc)}</div>;
+                              })()
+                            }
                           </div>
 
                           {/* Right side */}
@@ -1404,11 +1451,15 @@ function AppContent() {
                   });
                   })()}
                   <div style={{ textAlign: "center", padding: "32px 0 20px" }}>
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", fontSize: "12px", color: "var(--text-faint)", marginBottom: "6px" }}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", fontSize: "12px", color: "var(--text-faint)", marginBottom: "10px" }}>
                       {es ? "Hecho para Barranquilla" : "Made for Barranquilla"}
                       <svg width="20" height="14" viewBox="0 0 30 20" style={{ borderRadius: "2px", boxShadow: "0 0 0 0.5px rgba(255,255,255,0.1)" }}><rect width="30" height="20" fill="#D42A2A"/><rect x="3" y="3" width="24" height="14" fill="#F5D033"/><rect x="6" y="6" width="18" height="8" fill="#2D8A2D"/><polygon points="15,7.5 15.9,9.3 17.8,9.6 16.4,11 16.7,12.9 15,12 13.3,12.9 13.6,11 12.2,9.6 14.1,9.3" fill="rgba(255,255,255,0.9)"/></svg>
                     </div>
-                    <div style={{ fontSize: "10px", color: "var(--text-faint)", opacity: 0.4 }}>AlertaArroyo v{APP_VERSION}</div>
+                    <a href="https://instagram.com/alertaarroyo" target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: "5px", fontSize: "11px", color: "var(--text-faint)", textDecoration: "none", opacity: 0.5, marginBottom: "8px" }}>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><circle cx="17.5" cy="6.5" r="1.5"/></svg>
+                      @alertaarroyo
+                    </a>
+                    <div style={{ fontSize: "10px", color: "var(--text-faint)", opacity: 0.3 }}>v{APP_VERSION}</div>
                   </div>
                 </>
               )}
@@ -1431,7 +1482,7 @@ function AppContent() {
       </div>
 
       {/* BOTTOM NAV — mobile only */}
-      {!isDesktop && <BottomNav activeTab={mobileView} onTab={handleMobileTab} onReport={() => setScreen("report")} liveCount={liveCount} lang={lang} />}
+      {!isDesktop && <BottomNav activeTab={mobileView} onTab={handleMobileTab} onReport={() => setScreen("report")} liveCount={liveCount} dangerCount={dangerCount} lang={lang} />}
       {showMoreMenu && <MoreMenu lang={lang} onSelect={(key) => { if (key === "digest") setShowDigest(true); else setScreen(key); }} onClose={() => setShowMoreMenu(false)} />}
 
       {/* ZONE DETAIL — Bottom Sheet overlay (map stays visible behind) */}
@@ -1459,6 +1510,7 @@ function AppContent() {
             mapRestoreRef={mapRestoreRef}
             onPhotoClick={setViewPhoto}
             onDelete={deleteReport}
+            userLocation={userLocation}
           />
         );
       })()}
