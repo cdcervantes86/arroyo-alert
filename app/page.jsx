@@ -861,6 +861,7 @@ function AppContent() {
   const [closingScreen, setClosingScreen] = useState(null);
   const [closingWhatsApp, setClosingWhatsApp] = useState(false);
   const [closingDigest, setClosingDigest] = useState(false);
+  const [closingMobile, setClosingMobile] = useState(null);
   const [lastReport, setLastReport] = useState(null);
   const [viewPhoto, setViewPhoto] = useState(null);
   const [rankUp, setRankUp] = useState(null);
@@ -964,6 +965,11 @@ function AppContent() {
     setClosingScreen(screen);
     setTimeout(() => { setScreen("main"); setClosingScreen(null); }, 250);
   }, [screen]);
+
+  const closeMobileScreen = useCallback(() => {
+    setClosingMobile(screen);
+    setTimeout(() => { setScreen("main"); setClosingMobile(null); }, 250);
+  }, [screen]);
   const handleMapReady = useCallback((map) => { setMapInstance(map); }, []);
   const handleLocate = useCallback(() => {
     if (!mapInstance) return;
@@ -1029,10 +1035,10 @@ function AppContent() {
   const isRaining = weather?.isRaining || false;
 
   if (showOnboarding) return <Onboarding lang={lang} onComplete={() => setShowOnboarding(false)} onToggleLang={toggleLang} />;
-  if (screen === "about" && !isDesktop) return <div style={{ animation: "screenSlideIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", position: "fixed", inset: 0, zIndex: 50, background: "var(--bg)" }}><AboutPage onBack={() => setScreen("main")} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} onShowOnboarding={() => { setScreen("main"); setShowOnboarding(true); }} /></div>;
-  if (screen === "heatmap") return <div style={{ animation: "screenSlideIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", position: "fixed", inset: 0, zIndex: 50, background: "var(--bg)" }}><HeatmapView onBack={() => setScreen("main")} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} /></div>;
-  if (screen === "profile" && !isDesktop) return <div style={{ animation: "screenSlideIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", position: "fixed", inset: 0, zIndex: 50, background: "var(--bg)" }}><ReporterProfile reports={reports} onBack={() => setScreen("main")} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} /></div>;
-  if (screen === "report") return <div style={{ animation: "screenSlideIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", position: "fixed", inset: 0, zIndex: 50, background: "var(--bg)" }}><ReportFlow zones={ZONES} reports={reports} initialZoneId={selectedZone} onSubmit={async (data) => {
+  if ((screen === "about" || closingMobile === "about") && !isDesktop) return <div style={{ animation: closingMobile === "about" ? "screenSlideOut 0.25s ease forwards" : "screenSlideIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", position: "fixed", inset: 0, zIndex: 50, background: "var(--bg)" }}><AboutPage onBack={closeMobileScreen} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} onShowOnboarding={() => { setScreen("main"); setShowOnboarding(true); }} /></div>;
+  if (screen === "heatmap" || closingMobile === "heatmap") return <div style={{ animation: closingMobile === "heatmap" ? "screenSlideOut 0.25s ease forwards" : "screenSlideIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", position: "fixed", inset: 0, zIndex: 50, background: "var(--bg)" }}><HeatmapView onBack={closeMobileScreen} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} /></div>;
+  if ((screen === "profile" || closingMobile === "profile") && !isDesktop) return <div style={{ animation: closingMobile === "profile" ? "screenSlideOut 0.25s ease forwards" : "screenSlideIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", position: "fixed", inset: 0, zIndex: 50, background: "var(--bg)" }}><ReporterProfile reports={reports} onBack={closeMobileScreen} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} /></div>;
+  if (screen === "report" || closingMobile === "report") return <div style={{ animation: closingMobile === "report" ? "screenSlideOut 0.25s ease forwards" : "screenSlideIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", position: "fixed", inset: 0, zIndex: 50, background: "var(--bg)" }}><ReportFlow zones={ZONES} reports={reports} initialZoneId={selectedZone} onSubmit={async (data) => {
     const prevCount = getReporterStats().reportCount;
     await handleReport(data);
     const newCount = getReporterStats().reportCount;
@@ -1046,7 +1052,7 @@ function AppContent() {
     const zone = ZONES.find(z => z.id === data.zoneId);
     setLastReport({ zoneId: data.zoneId, zoneName: zone?.name, zoneArea: zone?.area, severity: data.severity, text: data.text });
     setScreen("main");
-  }} onBack={() => setScreen("main")} onLogoClick={handleLogoClick} /></div>;
+  }} onBack={closeMobileScreen} onLogoClick={handleLogoClick} /></div>;
 
   const desktopTabs = [{ key: "map", Icon: MapIcon }, { key: "list", Icon: ListIcon }, { key: "live", Icon: LiveIcon }];
 

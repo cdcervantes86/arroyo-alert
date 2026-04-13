@@ -140,6 +140,10 @@ button:active { transform: scale(0.97); opacity: 0.85; }
   from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: translateY(0); }
 }
+@keyframes screenSlideOut {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(12px); }
+}
 @keyframes desktopPanelIn {
   from { transform: translateX(100%); }
   to { transform: translateX(0); }
