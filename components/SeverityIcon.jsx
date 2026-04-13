@@ -11,15 +11,12 @@ export function DangerIcon({ size = 20 }) {
   );
 }
 
-// Caution: wave with warning
+// Caution: water drop (rising water, not yet dangerous)
 export function CautionIcon({ size = 20 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-      <path d="M2 16C4 13 6 13 8 16C10 19 12 19 14 16C16 13 18 13 22 16" stroke="#eab308" strokeWidth="2" strokeLinecap="round" opacity="0.3" />
-      <path d="M2 12C4 9 6 9 8 12C10 15 12 15 14 12C16 9 18 9 22 12" stroke="#eab308" strokeWidth="2" strokeLinecap="round" />
-      <path d="M10.29 3.86L7 9.5" stroke="#eab308" strokeWidth="1.5" strokeLinecap="round" opacity="0.6" />
-      <path d="M13.71 3.86L17 9.5" stroke="#eab308" strokeWidth="1.5" strokeLinecap="round" opacity="0.6" />
-      <circle cx="12" cy="3" r="1.5" fill="#eab308" />
+      <path d="M12 2.5C12 2.5 5 11 5 15.5C5 19.37 8.13 22.5 12 22.5C15.87 22.5 19 19.37 19 15.5C19 11 12 2.5 12 2.5Z" fill="#eab30815" stroke="#eab308" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M9 16.5C9.5 14.5 11 13.5 12 13.5" stroke="#eab308" strokeWidth="1.5" strokeLinecap="round" opacity="0.5" />
     </svg>
   );
 }
