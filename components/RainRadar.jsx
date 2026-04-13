@@ -113,7 +113,7 @@ export function RainRadarButton({ enabled, onToggle }) {
             {es ? "Precipitación" : "Precipitation"}
           </div>
           <div style={{ display: "flex", alignItems: "center" }}>
-            <div style={{ width: 80, height: 8, borderRadius: 4, background: "linear-gradient(90deg, rgba(120,200,255,0.3), #60a5fa, #3b82f6, #facc15, #f97316, #ef4444)", border: "1px solid rgba(255,255,255,0.06)" }} />
+            <div style={{ width: 80, height: 8, borderRadius: 4, background: "linear-gradient(90deg, rgba(90,170,255,0.2), #5aaaff, #3b82f6, #2563eb, #16a34a, #facc15)", border: "1px solid rgba(255,255,255,0.06)" }} />
           </div>
           <div style={{ display: "flex", justifyContent: "space-between", marginTop: "3px" }}>
             <span style={{ fontSize: "8px", color: "var(--text-faint)" }}>{es ? "Leve" : "Light"}</span>
