@@ -6,10 +6,19 @@ import { getReporterStats } from "@/lib/deviceId";
 import { AlertTriangleIcon } from "@/components/Icons";
 import { SeverityIcon, SuccessRipple } from "@/components/SeverityIcon";
 
-export default function ReportFlow({ zones, reports, initialZoneId, onSubmit, onBack, onLogoClick }) {
+export default function ReportFlow({ zones, reports, initialZoneId, onSubmit, onBack, onLogoClick, userLocation }) {
   const { lang, t } = useLanguage();
   const [step, setStep] = useState(initialZoneId ? 1 : 0);
   const [zoneId, setZoneId] = useState(initialZoneId);
+
+  // Sort zones by distance if location available
+  const sortedZones = userLocation
+    ? [...zones].sort((a, b) => {
+        const dA = Math.sqrt(Math.pow(a.lat - userLocation[0], 2) + Math.pow(a.lng - userLocation[1], 2));
+        const dB = Math.sqrt(Math.pow(b.lat - userLocation[0], 2) + Math.pow(b.lng - userLocation[1], 2));
+        return dA - dB;
+      })
+    : zones;
   const [severity, setSeverity] = useState(null);
   const [text, setText] = useState("");
   const [photo, setPhoto] = useState(null);
@@ -48,7 +57,7 @@ export default function ReportFlow({ zones, reports, initialZoneId, onSubmit, on
         <div style={{ marginBottom: "20px" }}><SuccessRipple /></div>
         <h2 style={{ fontSize: "22px", fontWeight: 700, animation: "fadeIn 0.4s ease 0.2s both", textAlign: "center" }}>{t.reportSent}</h2>
         <p style={{ color: "var(--text-secondary)", fontSize: "14px", marginTop: "8px", animation: "fadeIn 0.4s ease 0.4s both" }}>{t.thankYou}</p>
-        {stats.verified && <div style={{ marginTop: "12px", animation: "fadeIn 0.4s ease 0.6s both" }}><span style={{ fontSize: "13px", color: "var(--accent)", fontWeight: 600 }}>{lang === "en" ? "✓ Verified Reporter" : "✓ Reportero Verificado"}</span></div>}
+        {stats.verified && <div style={{ marginTop: "12px", animation: "fadeIn 0.4s ease 0.6s both", display: "flex", alignItems: "center", gap: "6px", padding: "6px 14px", borderRadius: "20px", background: "var(--accent-glow)", border: "1px solid rgba(91,156,246,0.15)" }}><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span style={{ fontSize: "13px", color: "var(--accent)", fontWeight: 700 }}>{lang === "en" ? "Verified Reporter" : "Reportero Verificado"}</span></div>}
         <div style={{ marginTop: "28px", width: "100px", height: "3px", borderRadius: "2px", background: "rgba(255,255,255,0.04)", overflow: "hidden", animation: "fadeIn 0.4s ease 0.6s both" }}>
           <div style={{ height: "100%", background: "var(--safe)", animation: "progressBar 2.5s linear forwards" }} />
         </div>
@@ -63,7 +72,7 @@ export default function ReportFlow({ zones, reports, initialZoneId, onSubmit, on
         <button onClick={onLogoClick} style={{ display: "flex", alignItems: "center", gap: "8px", background: "none", border: "none", padding: 0, cursor: "pointer" }}>
           <svg width={22} height={22} viewBox="0 0 512 512" style={{ borderRadius: 5 }}><defs><linearGradient id="lBg2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor="#14261a" /><stop offset="100%" stopColor="#0a1210" /></linearGradient></defs><rect width="512" height="512" rx="112" fill="url(#lBg2)" /><path d="M60 210 Q130 160 200 210 Q270 260 340 210 Q410 160 460 210" fill="none" stroke="#D42A2A" strokeWidth="28" strokeLinecap="round" opacity="0.9" /><path d="M60 290 Q130 240 200 290 Q270 340 340 290 Q410 240 460 290" fill="none" stroke="#F5D033" strokeWidth="28" strokeLinecap="round" opacity="0.85" /><path d="M60 370 Q130 320 200 370 Q270 420 340 370 Q410 320 460 370" fill="none" stroke="#2d8a2d" strokeWidth="28" strokeLinecap="round" opacity="0.75" /></svg>
           <span style={{ fontSize: "14px", fontWeight: 700, color: "var(--text)" }}>Alerta<span style={{ color: "var(--baq-yellow)" }}>Arroyo</span></span>
-          <span style={{ fontSize: "8px", fontWeight: 700, letterSpacing: "0.8px", textTransform: "uppercase", color: "var(--accent)", background: "var(--accent-glow)", padding: "2px 5px", borderRadius: "3px", border: "1px solid rgba(91,156,246,0.1)", marginLeft: "-2px", marginTop: "-8px" }}>Beta</span>
+          <span style={{ fontSize: "7px", fontWeight: 700, color: "var(--accent)", marginLeft: "4px", opacity: 0.6, letterSpacing: "0.5px" }}>BETA</span>
         </button>
         <span style={{ flex: 1, textAlign: "center", fontSize: "12px", color: "var(--text-faint)", fontWeight: 600, letterSpacing: "0.5px" }}>
           {t.step} {step + 1} / 3
@@ -82,8 +91,10 @@ export default function ReportFlow({ zones, reports, initialZoneId, onSubmit, on
             <h2 style={{ fontSize: "20px", fontWeight: 700, margin: "0 0 4px", letterSpacing: "-0.3px" }}>{t.whereIsArroyo}</h2>
             <p style={{ color: "var(--text-dim)", fontSize: "13px", margin: "0 0 20px" }}>{t.selectZone}</p>
             <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-              {zones.map((z, i) => {
+              {sortedZones.map((z, i) => {
                 const sv = getZoneSeverity(z.id, reports);
+                const distKm = userLocation ? Math.sqrt(Math.pow(z.lat - userLocation[0], 2) + Math.pow(z.lng - userLocation[1], 2)) * 111 : null;
+                const isNearby = distKm !== null && distKm < 2;
                 return (
                   <button key={z.id} onClick={() => { setZoneId(z.id); setStep(1); }} className="card-interactive" style={{
                     background: sv ? `${SEVERITY[sv].color}04` : "rgba(255,255,255,0.02)",
@@ -98,7 +109,10 @@ export default function ReportFlow({ zones, reports, initialZoneId, onSubmit, on
                     </div>
                     <div style={{ flex: 1 }}>
                       <div style={{ color: "var(--text)", fontSize: "15px", fontWeight: 700, letterSpacing: "-0.2px" }}>{z.name}</div>
-                      <div style={{ color: "var(--text-dim)", fontSize: "12px", marginTop: 2 }}>{z.area}</div>
+                      <div style={{ color: "var(--text-dim)", fontSize: "12px", marginTop: 2, display: "flex", alignItems: "center", gap: "6px" }}>
+                        {z.area}
+                        {isNearby && <span style={{ fontSize: "9px", fontWeight: 700, color: "var(--safe)", background: "rgba(34,197,94,0.08)", padding: "1px 6px", borderRadius: "4px", border: "1px solid rgba(34,197,94,0.12)", letterSpacing: "0.3px" }}>{es ? "CERCA" : "NEAR"}</span>}
+                      </div>
                     </div>
                     <svg width="7" height="12" viewBox="0 0 7 12" fill="none" style={{ flexShrink: 0, opacity: 0.15 }}><path d="M1 1l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
                   </button>

@@ -25,6 +25,7 @@ import ReporterProfile from "@/components/ReporterProfile";
 import WeeklyDigest from "@/components/WeeklyDigest";
 import { useFavorites } from "@/lib/useFavorites";
 import { useUpdateChecker } from "@/lib/useUpdateChecker";
+import { APP_VERSION } from "@/lib/version";
 
 const MapView = lazy(() => import("@/components/MapView"));
 
@@ -367,11 +368,28 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
               </div>
             )}
             {prediction && prediction.score >= 20 && !severity && (
-              <div style={{ fontSize: "12px", fontWeight: 600, color: prediction.score >= 70 ? "var(--danger)" : prediction.score >= 40 ? "var(--caution)" : "var(--accent)" }}>
-                {prediction.score}% {es ? "probabilidad" : "probability"}
+              <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", color: prediction.score >= 70 ? "var(--danger)" : prediction.score >= 40 ? "var(--caution)" : "var(--accent)", fontWeight: 600 }}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 17.58A5 5 0 0018 8h-1.26A8 8 0 104 16.25"/><line x1="8" y1="16" x2="8" y2="20"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="16" y1="16" x2="16" y2="20"/></svg>
+                {prediction.score}%
               </div>
             )}
           </div>
+
+          {/* Prediction card */}
+          {prediction && prediction.score >= 30 && !severity && (
+            <div style={{ marginBottom: "14px", padding: "12px 14px", borderRadius: "var(--radius-lg)", background: prediction.score >= 70 ? "rgba(239,68,68,0.04)" : prediction.score >= 40 ? "rgba(234,179,8,0.04)" : "rgba(91,156,246,0.04)", border: `1px solid ${prediction.score >= 70 ? "rgba(239,68,68,0.1)" : prediction.score >= 40 ? "rgba(234,179,8,0.08)" : "rgba(91,156,246,0.08)"}` }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px" }}>
+                <span style={{ fontSize: "11px", color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "1px", fontWeight: 600 }}>{es ? "Predicción de arroyo" : "Arroyo prediction"}</span>
+                <span style={{ fontSize: "14px", fontWeight: 800, color: prediction.score >= 70 ? "var(--danger)" : prediction.score >= 40 ? "var(--caution)" : "var(--accent)" }}>{prediction.score}%</span>
+              </div>
+              <div style={{ height: 4, borderRadius: 2, background: "rgba(255,255,255,0.04)", overflow: "hidden", marginBottom: "8px" }}>
+                <div style={{ width: `${prediction.score}%`, height: "100%", borderRadius: 2, background: prediction.score >= 70 ? "var(--danger)" : prediction.score >= 40 ? "var(--caution)" : "var(--accent)", transition: "width 0.5s ease" }} />
+              </div>
+              <div style={{ fontSize: "11px", color: "var(--text-dim)", lineHeight: 1.4 }}>
+                {prediction.score >= 70 ? (es ? "Alto riesgo de inundación. Evita esta zona." : "High flood risk. Avoid this zone.") : prediction.score >= 40 ? (es ? "Riesgo moderado. Mantente alerta." : "Moderate risk. Stay alert.") : (es ? "Riesgo bajo. Condiciones normales." : "Low risk. Normal conditions.")}
+              </div>
+            </div>
+          )}
 
           <button onClick={onReport} style={{ width: "100%", padding: "13px", marginBottom: "12px", background: "linear-gradient(135deg, #D42A2A, #b91c1c)", color: "#fff", border: "none", borderRadius: "var(--radius-lg)", fontSize: "14px", fontWeight: 700, boxShadow: "0 6px 20px rgba(212,42,42,0.25)" }}>{t.reportThisZone}</button>
 
@@ -382,6 +400,16 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
                 {subscribed ? (es ? "Suscrito" : "Subscribed") : (es ? "Notificarme" : "Notify me")}
               </button>
             )}
+            <button onClick={() => {
+              const sevLabel = severity ? getSevLabel(severity, lang) : (es ? "Despejado" : "Clear");
+              const text = es
+                ? `${zone.name} (${zone.area}) — ${sevLabel}\nhttps://arroyo-alert.vercel.app?zone=${zone.id}`
+                : `${zone.name} (${zone.area}) — ${sevLabel}\nhttps://arroyo-alert.vercel.app?zone=${zone.id}`;
+              if (navigator.share) { try { navigator.share({ title: zone.name, text, url: `https://arroyo-alert.vercel.app?zone=${zone.id}` }); } catch(e) {} }
+              else { try { navigator.clipboard.writeText(text); } catch(e) {} }
+            }} className="tap-target" style={{ padding: "10px 14px", borderRadius: "var(--radius-md)", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", color: "var(--text-dim)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+            </button>
           </div>
 
           {/* Alt routes */}
@@ -390,7 +418,7 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
               <div style={{ fontSize: "10px", color: "var(--safe)", textTransform: "uppercase", letterSpacing: "1.5px", fontWeight: 700, marginBottom: "8px" }}>{es ? "Rutas alternas" : "Alternate routes"}</div>
               {altRoutes.slice(0, 3).map((r, i) => (
                 <div key={r.id} style={{ padding: "6px 0", borderTop: i > 0 ? "1px solid rgba(34,197,94,0.08)" : "none", fontSize: "13px", color: "var(--text-secondary)", lineHeight: 1.5 }}>
-                  <span style={{ color: "var(--safe)", fontWeight: 700, marginRight: "6px" }}>↗</span>{r.alt_route}
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--safe)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginRight: "4px" }}><circle cx="6" cy="19" r="3"/><circle cx="18" cy="5" r="3"/><path d="M12 19h4.5a3.5 3.5 0 000-7h-8a3.5 3.5 0 010-7H12"/></svg>{r.alt_route}
                 </div>
               ))}
             </div>
@@ -417,7 +445,7 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
           {reports.map((r, i) => {
             const cfg = SEVERITY[r.severity];
             return (
-              <div key={r.id} className="card-interactive" style={{ background: `${cfg.color}04`, border: `1px solid ${cfg.color}12`, borderRadius: "var(--radius-lg)", padding: "14px 16px", marginBottom: "8px", position: "relative", overflow: "hidden", animation: `fadeIn 0.2s ease ${i * 0.04}s both` }}>
+              <div key={r.id} className="card-interactive" style={{ background: `${cfg.color}04`, border: `1px solid ${cfg.color}12`, borderRadius: "var(--radius-lg)", padding: "14px 16px", marginBottom: "8px", position: "relative", overflow: "hidden", animation: `fadeIn 0.2s ease ${i * 0.04}s both`, opacity: Math.max(0.45, Math.min(1, (new Date(r.created_at).getTime() + 4 * 3600000 - Date.now()) / (4 * 3600000))) }}>
                 <div style={{ position: "absolute", left: 0, top: "10%", bottom: "10%", width: 3, borderRadius: "0 2px 2px 0", background: cfg.color, opacity: 0.5 }} />
                 <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: 8 }}>
                   <div style={{ width: 28, height: 28, borderRadius: "var(--radius-sm)", background: `${cfg.color}0a`, border: `1px solid ${cfg.color}18`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
@@ -696,13 +724,30 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
                 </div>
               )}
               {prediction && prediction.score >= 20 && !severity && (
-                <div style={{ fontSize: "12px", fontWeight: 600, color: prediction.score >= 70 ? "var(--danger)" : prediction.score >= 40 ? "var(--caution)" : "var(--accent)" }}>
-                  {prediction.score}% {es ? "probabilidad" : "probability"}
+                <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", color: prediction.score >= 70 ? "var(--danger)" : prediction.score >= 40 ? "var(--caution)" : "var(--accent)", fontWeight: 600 }}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 17.58A5 5 0 0018 8h-1.26A8 8 0 104 16.25"/><line x1="8" y1="16" x2="8" y2="20"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="16" y1="16" x2="16" y2="20"/></svg>
+                  {prediction.score}%
                 </div>
               )}
             </div>
 
-            {/* Subscribe + actions */}
+            {/* Prediction card */}
+            {prediction && prediction.score >= 30 && !severity && (
+              <div style={{ marginBottom: "14px", padding: "12px 14px", borderRadius: "var(--radius-lg)", background: prediction.score >= 70 ? "rgba(239,68,68,0.04)" : prediction.score >= 40 ? "rgba(234,179,8,0.04)" : "rgba(91,156,246,0.04)", border: `1px solid ${prediction.score >= 70 ? "rgba(239,68,68,0.1)" : prediction.score >= 40 ? "rgba(234,179,8,0.08)" : "rgba(91,156,246,0.08)"}` }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px" }}>
+                  <span style={{ fontSize: "11px", color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "1px", fontWeight: 600 }}>{es ? "Predicción de arroyo" : "Arroyo prediction"}</span>
+                  <span style={{ fontSize: "14px", fontWeight: 800, color: prediction.score >= 70 ? "var(--danger)" : prediction.score >= 40 ? "var(--caution)" : "var(--accent)" }}>{prediction.score}%</span>
+                </div>
+                <div style={{ height: 4, borderRadius: 2, background: "rgba(255,255,255,0.04)", overflow: "hidden", marginBottom: "8px" }}>
+                  <div style={{ width: `${prediction.score}%`, height: "100%", borderRadius: 2, background: prediction.score >= 70 ? "var(--danger)" : prediction.score >= 40 ? "var(--caution)" : "var(--accent)", transition: "width 0.5s ease" }} />
+                </div>
+                <div style={{ fontSize: "11px", color: "var(--text-dim)", lineHeight: 1.4 }}>
+                  {prediction.score >= 70 ? (es ? "Alto riesgo de inundación. Evita esta zona." : "High flood risk. Avoid this zone.") : prediction.score >= 40 ? (es ? "Riesgo moderado. Mantente alerta." : "Moderate risk. Stay alert.") : (es ? "Riesgo bajo. Condiciones normales." : "Low risk. Normal conditions.")}
+                </div>
+              </div>
+            )}
+
+            {/* Subscribe + Share */}
             <div style={{ display: "flex", gap: "8px", marginBottom: "20px" }}>
               {push.supported && (
                 <button onClick={() => { const ns = !subscribed; if (navigator.vibrate) navigator.vibrate(50); if (ns) push.subscribeToZone?.(zone.id); else push.unsubscribeFromZone?.(zone.id); }} className="tap-target" style={{ flex: 1, padding: "10px", borderRadius: "var(--radius-md)", background: subscribed ? "rgba(91,156,246,0.08)" : "rgba(255,255,255,0.02)", border: `1px solid ${subscribed ? "rgba(91,156,246,0.15)" : "rgba(255,255,255,0.06)"}`, color: subscribed ? "var(--accent)" : "var(--text-dim)", fontSize: "12px", fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
@@ -710,6 +755,16 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
                   {subscribed ? (es ? "Suscrito" : "Subscribed") : (es ? "Notificarme" : "Notify me")}
                 </button>
               )}
+              <button onClick={() => {
+                const sevLabel = severity ? getSevLabel(severity, lang) : (es ? "Despejado" : "Clear");
+                const text = es
+                  ? `${zone.name} (${zone.area}) — ${sevLabel}\nhttps://arroyo-alert.vercel.app?zone=${zone.id}`
+                  : `${zone.name} (${zone.area}) — ${sevLabel}\nhttps://arroyo-alert.vercel.app?zone=${zone.id}`;
+                if (navigator.share) { try { navigator.share({ title: zone.name, text, url: `https://arroyo-alert.vercel.app?zone=${zone.id}` }); } catch(e) {} }
+                else { try { navigator.clipboard.writeText(text); } catch(e) {} }
+              }} className="tap-target" style={{ padding: "10px 14px", borderRadius: "var(--radius-md)", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", color: "var(--text-dim)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+              </button>
             </div>
 
             {/* Alt routes */}
@@ -720,7 +775,7 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
                 </div>
                 {altRoutes.slice(0, 3).map((r, i) => (
                   <div key={r.id} style={{ padding: "6px 0", borderTop: i > 0 ? "1px solid rgba(34,197,94,0.08)" : "none", fontSize: "13px", color: "var(--text-secondary)", lineHeight: 1.5 }}>
-                    <span style={{ color: "var(--safe)", fontWeight: 700, marginRight: "6px" }}>↗</span>{r.alt_route}
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--safe)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginRight: "4px" }}><circle cx="6" cy="19" r="3"/><circle cx="18" cy="5" r="3"/><path d="M12 19h4.5a3.5 3.5 0 000-7h-8a3.5 3.5 0 010-7H12"/></svg>{r.alt_route}
                   </div>
                 ))}
               </div>
@@ -747,7 +802,7 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
             {reports.map((r, i) => {
               const cfg = SEVERITY[r.severity];
               return (
-                <div key={r.id} className="card-interactive" style={{ background: `${cfg.color}04`, border: `1px solid ${cfg.color}12`, borderRadius: "var(--radius-lg)", padding: "14px 16px", marginBottom: "8px", position: "relative", overflow: "hidden", animation: `fadeIn 0.2s ease ${i * 0.04}s both` }}>
+                <div key={r.id} className="card-interactive" style={{ background: `${cfg.color}04`, border: `1px solid ${cfg.color}12`, borderRadius: "var(--radius-lg)", padding: "14px 16px", marginBottom: "8px", position: "relative", overflow: "hidden", animation: `fadeIn 0.2s ease ${i * 0.04}s both`, opacity: Math.max(0.45, Math.min(1, (new Date(r.created_at).getTime() + 4 * 3600000 - Date.now()) / (4 * 3600000))) }}>
                   <div style={{ position: "absolute", left: 0, top: "10%", bottom: "10%", width: 3, borderRadius: "0 2px 2px 0", background: cfg.color, opacity: 0.5 }} />
                   <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: 8 }}>
                     <div style={{ width: 28, height: 28, borderRadius: "var(--radius-sm)", background: `${cfg.color}0a`, border: `1px solid ${cfg.color}18`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
@@ -811,6 +866,7 @@ function AppContent() {
   const [isDesktop, setIsDesktop] = useState(false);
   const [upvotedSet, setUpvotedSet] = useState(new Set());
   const [activeFilter, setActiveFilter] = useState(null);
+  const [zoneSearch, setZoneSearch] = useState("");
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showNotifPrompt, setShowNotifPrompt] = useState(false);
   const [installPrompt, setInstallPrompt] = useState(null);
@@ -866,6 +922,13 @@ function AppContent() {
   const [viewPhoto, setViewPhoto] = useState(null);
   const [rankUp, setRankUp] = useState(null);
   const [hintDismissed, setHintDismissed] = useState(false);
+
+  // Auto-dismiss hint after 8 seconds
+  useEffect(() => {
+    if (hintDismissed) return;
+    const timer = setTimeout(() => setHintDismissed(true), 8000);
+    return () => clearTimeout(timer);
+  }, [hintDismissed]);
   const radar = useRainRadar(mapInstance);
   const favs = useFavorites();
   const pwaUpdate = useUpdateChecker();
@@ -1036,9 +1099,9 @@ function AppContent() {
 
   if (showOnboarding) return <Onboarding lang={lang} onComplete={() => setShowOnboarding(false)} onToggleLang={toggleLang} />;
   if ((screen === "about" || closingMobile === "about") && !isDesktop) return <div style={{ animation: closingMobile === "about" ? "screenSlideOut 0.25s ease forwards" : "screenSlideIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", position: "fixed", inset: 0, zIndex: 50, background: "#0a0f1a" }}><AboutPage onBack={closeMobileScreen} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} onShowOnboarding={() => { setScreen("main"); setShowOnboarding(true); }} /></div>;
-  if (screen === "heatmap" || closingMobile === "heatmap") return <div style={{ animation: closingMobile === "heatmap" ? "screenSlideOut 0.25s ease forwards" : "screenSlideIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", position: "fixed", inset: 0, zIndex: 50, background: "#0a0f1a" }}><HeatmapView onBack={closeMobileScreen} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} /></div>;
+  if ((screen === "heatmap" || closingMobile === "heatmap") && !isDesktop) return <div style={{ animation: closingMobile === "heatmap" ? "screenSlideOut 0.25s ease forwards" : "screenSlideIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", position: "fixed", inset: 0, zIndex: 50, background: "#0a0f1a" }}><HeatmapView onBack={closeMobileScreen} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} /></div>;
   if ((screen === "profile" || closingMobile === "profile") && !isDesktop) return <div style={{ animation: closingMobile === "profile" ? "screenSlideOut 0.25s ease forwards" : "screenSlideIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", position: "fixed", inset: 0, zIndex: 50, background: "#0a0f1a" }}><ReporterProfile reports={reports} onBack={closeMobileScreen} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} /></div>;
-  if (screen === "report" || closingMobile === "report") return <div style={{ animation: closingMobile === "report" ? "screenSlideOut 0.25s ease forwards" : "screenSlideIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", position: "fixed", inset: 0, zIndex: 50, background: "#0a0f1a" }}><ReportFlow zones={ZONES} reports={reports} initialZoneId={selectedZone} onSubmit={async (data) => {
+  if ((screen === "report" || closingMobile === "report") && !isDesktop) return <div style={{ animation: closingMobile === "report" ? "screenSlideOut 0.25s ease forwards" : "screenSlideIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", position: "fixed", inset: 0, zIndex: 50, background: "#0a0f1a" }}><ReportFlow zones={ZONES} reports={reports} initialZoneId={selectedZone} userLocation={userLocation} onSubmit={async (data) => {
     const prevCount = getReporterStats().reportCount;
     await handleReport(data);
     const newCount = getReporterStats().reportCount;
@@ -1073,10 +1136,10 @@ function AppContent() {
         {!totalWatchers && lastUpdated && <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "10px", color: "var(--text-faint)", fontWeight: 500, opacity: 0.6 }}><span style={{ width: 4, height: 4, borderRadius: "50%", background: "var(--safe)" }} />{es ? "En línea" : "Live"}</div>}
         <WeatherIndicator />
         {isDesktop && <>
-          <button className="header-icon-btn" onClick={() => setScreen("profile")} style={{ width: 32, height: 32, borderRadius: "50%", background: "none", border: "none", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><ProfileIcon size={18} color="var(--text-dim)" /></button>
-          <button className="header-icon-btn" onClick={() => setShowDigest(true)} style={{ width: 32, height: 32, borderRadius: "50%", background: "none", border: "none", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><ChartIcon size={18} color="var(--text-dim)" /></button>
-          <button className="header-icon-btn" onClick={() => setScreen("heatmap")} style={{ width: 32, height: 32, borderRadius: "50%", background: "none", border: "none", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><FlameIcon size={18} color="var(--text-dim)" /></button>
-          <button className="header-icon-btn" onClick={() => setScreen("about")} style={{ width: 32, height: 32, borderRadius: "50%", background: "none", border: "none", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><InfoIcon size={18} color="var(--text-dim)" /></button>
+          <button className="header-icon-btn" onClick={() => setScreen("profile")} title={es ? "Mi perfil" : "My profile"} style={{ width: 32, height: 32, borderRadius: "50%", background: "none", border: "none", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><ProfileIcon size={18} color="var(--text-dim)" /></button>
+          <button className="header-icon-btn" onClick={() => setShowDigest(true)} title={es ? "Resumen semanal" : "Weekly digest"} style={{ width: 32, height: 32, borderRadius: "50%", background: "none", border: "none", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><ChartIcon size={18} color="var(--text-dim)" /></button>
+          <button className="header-icon-btn" onClick={() => setScreen("heatmap")} title={es ? "Historial" : "History"} style={{ width: 32, height: 32, borderRadius: "50%", background: "none", border: "none", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><FlameIcon size={18} color="var(--text-dim)" /></button>
+          <button className="header-icon-btn" onClick={() => setScreen("about")} title={es ? "Info y seguridad" : "Info & safety"} style={{ width: 32, height: 32, borderRadius: "50%", background: "none", border: "none", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><InfoIcon size={18} color="var(--text-dim)" /></button>
         </>}
         <button onClick={toggleLang} className="tap-target" aria-label={lang === "es" ? "Switch to English" : "Cambiar a Español"} style={{ padding: "5px 10px", borderRadius: "8px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.06)", color: "var(--text-dim)", fontSize: "11px", fontWeight: 700, letterSpacing: "0.3px", flexShrink: 0, transition: "all 0.15s ease" }}>{lang === "es" ? "EN" : "ES"}</button>
         {isDesktop && (
@@ -1217,6 +1280,20 @@ function AppContent() {
             <div key="list-view" style={{ animation: "viewFadeIn 0.25s ease", height: "100%", overflow: "hidden" }}>
             <PullToRefresh onRefresh={refetch}>
             <div style={{ padding: "12px 16px 20px" }}>
+              {/* Search */}
+              <div style={{ position: "relative", marginBottom: "12px" }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-faint)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input
+                  type="text"
+                  value={zoneSearch}
+                  onChange={(e) => setZoneSearch(e.target.value)}
+                  placeholder={es ? "Buscar zona..." : "Search zones..."}
+                  style={{ width: "100%", padding: "10px 12px 10px 36px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "var(--radius-lg)", color: "var(--text)", fontSize: "13px", outline: "none", fontFamily: "inherit" }}
+                  onFocus={(e) => { e.target.style.borderColor = "rgba(91,156,246,0.25)"; }}
+                  onBlur={(e) => { e.target.style.borderColor = "rgba(255,255,255,0.06)"; }}
+                />
+                {zoneSearch && <button onClick={() => setZoneSearch("")} style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", width: 20, height: 20, borderRadius: "50%", background: "rgba(255,255,255,0.08)", border: "none", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="8" height="8" viewBox="0 0 8 8" stroke="var(--text-faint)" strokeWidth="1.5" strokeLinecap="round"><line x1="1" y1="1" x2="7" y2="7"/><line x1="7" y1="1" x2="1" y2="7"/></svg></button>}
+              </div>
               {loading ? Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} i={i} />) : (
                 <>
                   {/* Community stats card */}
@@ -1236,7 +1313,14 @@ function AppContent() {
                   )}
                   {(() => {
                     // Sort zones: favorites first, then by distance if location available
-                    let sortedZones = favs.sortZones(ZONES.filter((z) => !activeFilter || getZoneSeverity(z.id, reports) === activeFilter));
+                    let sortedZones = favs.sortZones(ZONES.filter((z) => {
+                      if (activeFilter && getZoneSeverity(z.id, reports) !== activeFilter) return false;
+                      if (zoneSearch) {
+                        const q = zoneSearch.toLowerCase();
+                        return z.name.toLowerCase().includes(q) || z.area.toLowerCase().includes(q);
+                      }
+                      return true;
+                    }));
                     if (userLocation) {
                       const favIds = new Set(sortedZones.filter(z => favs.isFavorite(z.id)).map(z => z.id));
                       const favZones = sortedZones.filter(z => favIds.has(z.id));
@@ -1252,8 +1336,15 @@ function AppContent() {
                     const hasActivity = sv || (pred && pred.score >= 40);
                     const distKm = userLocation ? getDistanceKm(userLocation[0], userLocation[1], z.lat, z.lng) : null;
                     const isNearby = distKm !== null && distKm < 2;
+                    // Show "Near you" / "Other zones" section headers
+                    const prevDist = i > 0 && userLocation ? getDistanceKm(userLocation[0], userLocation[1], arr[i-1].lat, arr[i-1].lng) : null;
+                    const prevNearby = prevDist !== null && prevDist < 2;
+                    const showNearHeader = i === 0 && isNearby && !isFav && userLocation;
+                    const showOtherHeader = isNearby === false && (i === 0 || prevNearby) && !isFav && userLocation && !showDivider;
                     return (
                       <div key={z.id}>
+                        {showNearHeader && <div style={{ fontSize: "10px", color: "var(--safe)", textTransform: "uppercase", letterSpacing: "1.5px", fontWeight: 600, padding: "4px 4px 10px", display: "flex", alignItems: "center", gap: "6px" }}><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>{es ? "Cerca de ti" : "Near you"}</div>}
+                        {showOtherHeader && <div style={{ fontSize: "10px", color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "1.5px", fontWeight: 600, padding: "14px 4px 10px" }}>{es ? "Otras zonas" : "Other zones"}</div>}
                         {showDivider && <div style={{ height: 1, background: "rgba(255,255,255,0.06)", margin: "12px 0" }} />}
                         <button onClick={() => handleZoneClick(z.id, "list")} className="card-interactive" style={{
                           width: "100%", textAlign: "left", display: "flex", gap: "14px", alignItems: "center",
@@ -1293,6 +1384,7 @@ function AppContent() {
                           {/* Right side */}
                           <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
                             {zr.length > 0 && <span style={{ fontSize: "12px", color: c ? c.color : "var(--text-dim)", background: c ? `${c.color}0c` : "rgba(255,255,255,0.04)", padding: "4px 10px", borderRadius: "8px", fontWeight: 700, fontVariantNumeric: "tabular-nums", minWidth: 28, textAlign: "center" }}>{zr.length}</span>}
+                            {!zr.length && pred && pred.score >= 40 && <span style={{ fontSize: "10px", fontWeight: 700, color: pred.score >= 70 ? "var(--danger)" : "var(--caution)", background: pred.score >= 70 ? "rgba(239,68,68,0.08)" : "rgba(234,179,8,0.06)", padding: "3px 8px", borderRadius: "6px", border: `1px solid ${pred.score >= 70 ? "rgba(239,68,68,0.15)" : "rgba(234,179,8,0.1)"}`, fontVariantNumeric: "tabular-nums" }}>{pred.score}%</span>}
                             {lt?.photo_url && <img onClick={(e) => { e.stopPropagation(); setViewPhoto(lt.photo_url); }} src={lt.photo_url} alt="Latest report" style={{ width: 36, height: 36, borderRadius: "var(--radius-sm)", objectFit: "cover", flexShrink: 0, border: "1px solid rgba(255,255,255,0.06)", cursor: "zoom-in" }} loading="lazy" />}
                             <svg width="7" height="12" viewBox="0 0 7 12" fill="none" style={{ flexShrink: 0, opacity: 0.15 }}><path d="M1 1l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
                           </div>
@@ -1301,7 +1393,13 @@ function AppContent() {
                     );
                   });
                   })()}
-                  <div style={{ textAlign: "center", padding: "36px 0 16px", fontSize: "12px", color: "var(--text-faint)", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>{es ? "Hecho para Barranquilla" : "Made for Barranquilla"} <svg width="20" height="14" viewBox="0 0 30 20" style={{ borderRadius: "2px", verticalAlign: "middle", boxShadow: "0 0 0 0.5px rgba(255,255,255,0.1)" }}><rect width="30" height="20" fill="#D42A2A"/><rect x="3" y="3" width="24" height="14" fill="#F5D033"/><rect x="6" y="6" width="18" height="8" fill="#2D8A2D"/><polygon points="15,7.5 15.9,9.3 17.8,9.6 16.4,11 16.7,12.9 15,12 13.3,12.9 13.6,11 12.2,9.6 14.1,9.3" fill="rgba(255,255,255,0.9)"/></svg></div>
+                  <div style={{ textAlign: "center", padding: "32px 0 20px" }}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", fontSize: "12px", color: "var(--text-faint)", marginBottom: "6px" }}>
+                      {es ? "Hecho para Barranquilla" : "Made for Barranquilla"}
+                      <svg width="20" height="14" viewBox="0 0 30 20" style={{ borderRadius: "2px", boxShadow: "0 0 0 0.5px rgba(255,255,255,0.1)" }}><rect width="30" height="20" fill="#D42A2A"/><rect x="3" y="3" width="24" height="14" fill="#F5D033"/><rect x="6" y="6" width="18" height="8" fill="#2D8A2D"/><polygon points="15,7.5 15.9,9.3 17.8,9.6 16.4,11 16.7,12.9 15,12 13.3,12.9 13.6,11 12.2,9.6 14.1,9.3" fill="rgba(255,255,255,0.9)"/></svg>
+                    </div>
+                    <div style={{ fontSize: "10px", color: "var(--text-faint)", opacity: 0.4 }}>AlertaArroyo v{APP_VERSION}</div>
+                  </div>
                 </>
               )}
             </div>
@@ -1309,14 +1407,14 @@ function AppContent() {
             </div>
           ) : (
             <div key="live-view" style={{ animation: "viewFadeIn 0.25s ease", height: "100%", overflow: "hidden" }}>
-            <LiveFeed reports={reports} onZoneClick={(id) => handleZoneClick(id, "live")} onUpvote={upvoteReport} upvotedSet={upvotedSet} onUpvoteLocal={handleUpvoteLocal} activeFilter={activeFilter} onPhotoClick={setViewPhoto} />
+            <LiveFeed reports={reports} onZoneClick={(id) => handleZoneClick(id, "live")} onUpvote={upvoteReport} upvotedSet={upvotedSet} onUpvoteLocal={handleUpvoteLocal} activeFilter={activeFilter} onPhotoClick={setViewPhoto} onReport={() => setScreen("report")} />
             </div>
           )}
         </div>
         {isDesktop && (
           <div onTransitionEnd={() => { window.dispatchEvent(new Event("resize")); }} style={{ width: showPanel ? 380 : 0, minWidth: 0, flexShrink: 0, borderLeft: showPanel ? "1px solid rgba(255,255,255,0.06)" : "none", background: "#0e1628", display: "flex", flexDirection: "column", overflow: "hidden", transition: "width 0.3s cubic-bezier(0.4, 0, 0.2, 1)" }}>
             <div style={{ width: 380, height: "100%", opacity: showPanel ? 1 : 0, transition: "opacity 0.2s ease", overflow: "hidden" }}>
-              <LiveFeed reports={reports} onZoneClick={(id) => handleZoneClick(id, "live")} onUpvote={upvoteReport} upvotedSet={upvotedSet} onUpvoteLocal={handleUpvoteLocal} activeFilter={activeFilter} onPhotoClick={setViewPhoto} />
+              <LiveFeed reports={reports} onZoneClick={(id) => handleZoneClick(id, "live")} onUpvote={upvoteReport} upvotedSet={upvotedSet} onUpvoteLocal={handleUpvoteLocal} activeFilter={activeFilter} onPhotoClick={setViewPhoto} onReport={() => setScreen("report")} />
             </div>
           </div>
         )}
@@ -1375,6 +1473,38 @@ function AppContent() {
         </div>
       )}
 
+      {/* Desktop Heatmap modal */}
+      {isDesktop && (screen === "heatmap" || closingScreen === "heatmap") && (
+        <div onClick={closeScreenAnimated} style={{ position: "fixed", inset: 0, zIndex: 1200, background: "rgba(0,0,0,0.7)", display: "flex", alignItems: "center", justifyContent: "center", animation: closingScreen === "heatmap" ? "backdropOut 0.25s ease forwards" : "fadeIn 0.2s ease" }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 800, height: "85vh", background: "#0e1628", borderRadius: "var(--radius-xl)", border: "1px solid rgba(255,255,255,0.06)", boxShadow: "0 24px 80px rgba(0,0,0,0.6)", animation: closingScreen === "heatmap" ? "desktopModalOut 0.25s ease forwards" : "modalScaleIn 0.3s cubic-bezier(0.34, 1.4, 0.64, 1)", overflow: "hidden", position: "relative" }}>
+            <HeatmapView onBack={closeScreenAnimated} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} />
+          </div>
+        </div>
+      )}
+
+      {/* Desktop Report modal */}
+      {isDesktop && (screen === "report" || closingScreen === "report") && (
+        <div onClick={closeScreenAnimated} style={{ position: "fixed", inset: 0, zIndex: 1200, background: "rgba(0,0,0,0.7)", display: "flex", alignItems: "center", justifyContent: "center", animation: closingScreen === "report" ? "backdropOut 0.25s ease forwards" : "fadeIn 0.2s ease" }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 520, maxHeight: "85vh", background: "#0e1628", borderRadius: "var(--radius-xl)", border: "1px solid rgba(255,255,255,0.06)", boxShadow: "0 24px 80px rgba(0,0,0,0.6)", animation: closingScreen === "report" ? "desktopModalOut 0.25s ease forwards" : "modalScaleIn 0.3s cubic-bezier(0.34, 1.4, 0.64, 1)", overflow: "hidden", position: "relative" }}>
+            <ReportFlow zones={ZONES} reports={reports} initialZoneId={selectedZone} userLocation={userLocation} onSubmit={async (data) => {
+              const prevCount = getReporterStats().reportCount;
+              await handleReport(data);
+              const newCount = getReporterStats().reportCount;
+              const milestones = [1, 5, 20, 50];
+              const crossedMilestone = milestones.find(m => prevCount < m && newCount >= m);
+              if (crossedMilestone) {
+                const ranks = { 1: es ? "Reportero" : "Reporter", 5: es ? "Vigía Verificado" : "Verified Watcher", 20: es ? "Protector" : "Protector", 50: es ? "Guardián" : "Guardian" };
+                setRankUp(ranks[crossedMilestone]);
+                setTimeout(() => setRankUp(null), 4500);
+              }
+              const zone = ZONES.find(z => z.id === data.zoneId);
+              setLastReport({ zoneId: data.zoneId, zoneName: zone?.name, zoneArea: zone?.area, severity: data.severity, text: data.text });
+              setScreen("main");
+            }} onBack={closeScreenAnimated} onLogoClick={handleLogoClick} />
+          </div>
+        </div>
+      )}
+
       {/* Post-report WhatsApp share prompt */}
       {(lastReport || closingWhatsApp) && (
         <div style={{ position: "fixed", inset: 0, zIndex: 1100, background: "rgba(0,0,0,0.7)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px", animation: closingWhatsApp ? "backdropOut 0.25s ease forwards" : "fadeIn 0.2s ease" }}>
@@ -1385,6 +1515,12 @@ function AppContent() {
             <h3 style={{ fontSize: "20px", fontWeight: 800, marginBottom: "8px", letterSpacing: "-0.3px" }}>
               {es ? "¡Reporte enviado!" : "Report sent!"}
             </h3>
+            {communityStats && communityStats.reporters > 1 && (
+              <div style={{ display: "inline-flex", alignItems: "center", gap: "6px", padding: "6px 14px", borderRadius: "20px", background: "rgba(34,197,94,0.06)", border: "1px solid rgba(34,197,94,0.1)", marginBottom: "12px", fontSize: "12px", fontWeight: 600, color: "var(--safe)" }}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+                {es ? `Alertando a ${communityStats.reporters} reporteros` : `Alerting ${communityStats.reporters} reporters`}
+              </div>
+            )}
             <p style={{ fontSize: "14px", color: "var(--text-secondary)", lineHeight: 1.6, marginBottom: "24px" }}>
               {es
                 ? "Tu reporte protege a otros. Compártelo por WhatsApp para alertar a familiares y vecinos."
