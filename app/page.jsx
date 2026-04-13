@@ -1438,15 +1438,15 @@ function AppContent() {
                             </>
                           )}
                           {/* Severity accent bar */}
-                          {sv && <div style={{ position: "absolute", left: 0, top: "15%", bottom: "15%", width: 3, borderRadius: "0 2px 2px 0", background: c.color }} />}
+                          {sv && <div style={{ position: "absolute", left: 0, top: "15%", bottom: "15%", width: 3, borderRadius: "0 2px 2px 0", background: c.color, zIndex: 1 }} />}
 
                           {/* Icon */}
-                          <div style={{ width: 42, height: 42, borderRadius: "var(--radius-md)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: c ? `${c.color}0a` : "rgba(255,255,255,0.03)", border: `1px solid ${c ? c.color + "18" : "rgba(255,255,255,0.06)"}` }}>
+                          <div style={{ width: 42, height: 42, borderRadius: "var(--radius-md)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: c ? `${c.color}0a` : "rgba(255,255,255,0.03)", border: `1px solid ${c ? c.color + "18" : "rgba(255,255,255,0.06)"}`, position: "relative", zIndex: 1 }}>
                             <SeverityIcon severity={sv} size={22} />
                           </div>
 
                           {/* Content */}
-                          <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ flex: 1, minWidth: 0, position: "relative", zIndex: 1 }}>
                             <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                               <span style={{ fontSize: "15px", fontWeight: 700, color: "var(--text)", letterSpacing: "-0.2px" }}>{z.name}</span>
                               {sv === "danger" && <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--danger)", animation: "blink 1.5s ease-in-out infinite", flexShrink: 0 }} />}
@@ -1479,7 +1479,7 @@ function AppContent() {
                           </div>
 
                           {/* Right side */}
-                          <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0, position: "relative", zIndex: 1 }}>
                             {zr.length > 0 && <span style={{ fontSize: "12px", color: c ? c.color : "var(--text-dim)", background: c ? `${c.color}0c` : "rgba(255,255,255,0.04)", padding: "4px 10px", borderRadius: "8px", fontWeight: 700, fontVariantNumeric: "tabular-nums", minWidth: 28, textAlign: "center" }}>{zr.length}</span>}
                             {!zr.length && pred && pred.score >= 40 && <span style={{ fontSize: "10px", fontWeight: 700, color: pred.score >= 70 ? "var(--danger)" : "var(--caution)", background: pred.score >= 70 ? "rgba(239,68,68,0.08)" : "rgba(234,179,8,0.06)", padding: "3px 8px", borderRadius: "6px", border: `1px solid ${pred.score >= 70 ? "rgba(239,68,68,0.15)" : "rgba(234,179,8,0.1)"}`, fontVariantNumeric: "tabular-nums" }}>{pred.score}%</span>}
                             {lt?.photo_url && <img onClick={(e) => { e.stopPropagation(); setViewPhoto(lt.photo_url); }} src={lt.photo_url} alt="Latest report" style={{ width: 36, height: 36, borderRadius: "var(--radius-sm)", objectFit: "cover", flexShrink: 0, border: "1px solid rgba(255,255,255,0.06)", cursor: "zoom-in" }} loading="lazy" />}
