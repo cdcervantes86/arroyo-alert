@@ -241,44 +241,47 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
       const col = sev ? colors[sev] : (pred?.score >= 40 ? "rgba(96,165,250,0.5)" : "rgba(255,255,255,0.3)");
       const matchesFilter = !activeFilter || sev === activeFilter;
       const opacity = matchesFilter ? 1 : 0.12;
-      const dotSize = sev === "danger" ? 16 : sev === "caution" ? 14 : sev === "safe" ? 12 : 8;
 
       const el = document.createElement("div");
-      el.style.cssText = `width:40px;height:40px;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:${opacity};`;
+      el.style.cssText = `width:44px;height:44px;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:${opacity};`;
 
-      // Main dot with box-shadow glow (no child divs, no filter blur)
-      const dot = document.createElement("div");
-      const glowSpread = sev === "danger" ? 8 : sev ? 5 : 2;
-      const glowAlpha = sev === "danger" ? "0.35" : sev ? "0.25" : "0.15";
-      dot.style.cssText = `
-        width:${dotSize}px;height:${dotSize}px;border-radius:50%;
-        background:${col};
-        border:${sev ? "1.5px solid rgba(255,255,255,0.4)" : "1px solid rgba(255,255,255,0.15)"};
-        box-shadow:0 0 ${glowSpread}px rgba(${sev === "danger" ? "239,68,68" : sev === "caution" ? "234,179,8" : sev === "safe" ? "34,197,94" : "255,255,255"},${glowAlpha});
-      `;
-      el.appendChild(dot);
+      if (sev && count >= 1 && matchesFilter) {
+        // ACTIVE ZONE — single circle with count inside
+        const size = sev === "danger" ? 32 : sev === "caution" ? 28 : 24;
+        const glowSize = sev === "danger" ? 14 : 10;
+        const rgbVal = sev === "danger" ? "239,68,68" : sev === "caution" ? "234,179,8" : "34,197,94";
+        const marker = document.createElement("div");
+        marker.style.cssText = `
+          width:${size}px;height:${size}px;border-radius:50%;
+          background:${col};
+          border:2px solid rgba(255,255,255,0.5);
+          box-shadow:0 0 ${glowSize}px rgba(${rgbVal},0.4), 0 0 ${glowSize * 2.5}px rgba(${rgbVal},0.15);
+          display:flex;align-items:center;justify-content:center;
+          color:#fff;font-size:${count > 9 ? 10 : 11}px;font-weight:800;
+          font-family:'DM Sans',sans-serif;letter-spacing:-0.3px;
+          text-shadow:0 1px 2px rgba(0,0,0,0.3);
+        `;
+        marker.textContent = count;
+        el.appendChild(marker);
+      } else {
+        // INACTIVE / NO REPORTS — small dot
+        const dotSize = pred?.score >= 40 ? 10 : 8;
+        const dot = document.createElement("div");
+        const glowSpread = pred?.score >= 40 ? 4 : 2;
+        dot.style.cssText = `
+          width:${dotSize}px;height:${dotSize}px;border-radius:50%;
+          background:${col};
+          border:1px solid rgba(255,255,255,0.15);
+          box-shadow:0 0 ${glowSpread}px rgba(255,255,255,0.15);
+        `;
+        el.appendChild(dot);
+      }
 
-      // Prediction ring
+      // Prediction ring — only on inactive zones
       if (!sev && pred && pred.score >= 40 && matchesFilter) {
         const predRing = document.createElement("div");
         predRing.style.cssText = `position:absolute;width:22px;height:22px;border-radius:50%;border:1.5px dashed ${pred.score >= 70 ? "rgba(239,68,68,0.35)" : "rgba(234,179,8,0.25)"};`;
         el.appendChild(predRing);
-      }
-
-      // Count badge
-      if (count >= 1 && matchesFilter && sev) {
-        const badge = document.createElement("div");
-        badge.style.cssText = `
-          position:absolute;top:2px;right:2px;
-          min-width:16px;height:16px;border-radius:8px;
-          background:${col};color:#fff;font-size:9px;
-          font-weight:800;display:flex;align-items:center;
-          justify-content:center;padding:0 3px;
-          border:1.5px solid #0e1628;
-          font-family:'DM Sans',sans-serif;letter-spacing:-0.3px;
-        `;
-        badge.textContent = count;
-        el.appendChild(badge);
       }
 
       // Popup
