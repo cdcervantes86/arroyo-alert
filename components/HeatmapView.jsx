@@ -123,7 +123,11 @@ export default function HeatmapView({ onBack, onLogoClick, onToggleLang }) {
         layout: { "text-field": ["get", "count"], "text-font": ["DIN Pro Bold", "Arial Unicode MS Bold"], "text-size": 11, "text-offset": [0, -2], "text-allow-overlap": true },
         paint: { "text-color": "#ffffff", "text-halo-color": "rgba(0,0,0,0.7)", "text-halo-width": 1.5 },
       });
+    };
 
+    // Register click/hover handlers only once
+    if (!map._heatmapHandlersAdded) {
+      map._heatmapHandlersAdded = true;
       map.on("click", "heatmap-dot", (e) => {
         const props = e.features[0].properties;
         const coords = e.features[0].geometry.coordinates.slice();
@@ -135,6 +139,7 @@ export default function HeatmapView({ onBack, onLogoClick, onToggleLang }) {
       });
       map.on("mouseenter", "heatmap-dot", () => { map.getCanvas().style.cursor = "pointer"; });
       map.on("mouseleave", "heatmap-dot", () => { map.getCanvas().style.cursor = ""; });
+    }
     };
 
     if (map.isStyleLoaded()) updateLayers();

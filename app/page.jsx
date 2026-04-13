@@ -10,7 +10,6 @@ import { timeAgoLocalized } from "@/lib/translations";
 import { checkEmergencyMode, getFloodPredictions } from "@/lib/predictions";
 import { useLiveWatchers } from "@/lib/useLiveWatchers";
 import ReportFlow from "@/components/ReportFlow";
-import ZoneDetail from "@/components/ZoneDetail";
 import LiveFeed from "@/components/LiveFeed";
 import WeatherIndicator from "@/components/WeatherIndicator";
 import Onboarding from "@/components/Onboarding";
@@ -266,15 +265,20 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
     setTimeout(onClose, 380);
   }, [closing, onClose, mapInstance, isDesktop, mapRestoreRef]);
 
-  // Fetch zone history stats
+  // Fetch zone history stats (cached per zone)
   useEffect(() => {
     if (!zone) return;
+    const cacheKey = `zh_${zone.id}`;
+    const cached = typeof window !== "undefined" && window[cacheKey];
+    if (cached && Date.now() - cached._ts < 300000) { setZoneHistory(cached); return; } // 5 min cache
     const fetchHistory = async () => {
       try {
         const { count: total } = await supabase.from("reports").select("*", { count: "exact", head: true }).eq("zone_id", zone.id);
         const thirtyDaysAgo = new Date(Date.now() - 30 * 86400000).toISOString();
         const { count: recent } = await supabase.from("reports").select("*", { count: "exact", head: true }).eq("zone_id", zone.id).gte("created_at", thirtyDaysAgo);
-        setZoneHistory({ total: total || 0, recent: recent || 0 });
+        const result = { total: total || 0, recent: recent || 0, _ts: Date.now() };
+        if (typeof window !== "undefined") window[cacheKey] = result;
+        setZoneHistory(result);
       } catch(e) {}
     };
     fetchHistory();
@@ -775,16 +779,22 @@ function AppContent() {
   const [toasts, setToasts] = useState([]);
   const addToast = useCallback((msg, color) => {
     const id = Date.now();
-    setToasts(prev => [...prev, { id, msg, color }]);
+    setToasts(prev => [...prev.slice(-2), { id, msg, color }]); // Max 3 toasts visible
     setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 4000);
   }, []);
 
+  const lastToastRef = useRef(0);
   const handleRealtimeEvent = useCallback((type, report, oldReport) => {
     const deviceId = typeof window !== "undefined" ? getDeviceId() : null;
     const zone = ZONES.find(z => z.id === report.zone_id);
     if (type === "upvote" && report.device_id === deviceId) {
+      // Own report confirmed — always show
       addToast(lang === "es" ? `Alguien confirmó tu reporte en ${zone?.name || ""}` : `Someone confirmed your report at ${zone?.name || ""}`, "var(--accent)");
     } else if (type === "insert" && report.device_id !== deviceId) {
+      // New report from others — throttle to 1 per 30s
+      const now = Date.now();
+      if (now - lastToastRef.current < 30000) return;
+      lastToastRef.current = now;
       const sevLabel = report.severity === "danger" ? (lang === "es" ? "Peligro" : "Danger") : report.severity === "caution" ? (lang === "es" ? "Precaución" : "Caution") : (lang === "es" ? "Despejado" : "Clear");
       addToast(`${sevLabel} — ${zone?.name || ""} (${zone?.area || ""})`, report.severity === "danger" ? "var(--danger)" : report.severity === "caution" ? "var(--caution)" : "var(--safe)");
     }
@@ -825,7 +835,8 @@ function AppContent() {
     const fetchCommunityStats = async () => {
       try {
         const { count: totalReports } = await supabase.from("reports").select("*", { count: "exact", head: true });
-        const { data: reporters } = await supabase.from("reports").select("device_id").limit(2000);
+        // Get unique reporters count - fetch only device_id column
+        const { data: reporters } = await supabase.from("reports").select("device_id");
         const uniqueReporters = reporters ? new Set(reporters.map(r => r.device_id).filter(Boolean)).size : 0;
         setCommunityStats({ totalReports: totalReports || 0, reporters: uniqueReporters });
       } catch(e) {}
@@ -834,13 +845,14 @@ function AppContent() {
   }, []);
   const [mapInstance, setMapInstance] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
+  const manualLocateRef = useRef(false);
 
   // Silently request location on mount for proximity sorting (no map marker)
   useEffect(() => {
     if (!navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition(
-      (pos) => setUserLocation([pos.coords.latitude, pos.coords.longitude]),
-      () => {}, // Silently fail if denied
+      (pos) => { if (!manualLocateRef.current) setUserLocation([pos.coords.latitude, pos.coords.longitude]); },
+      () => {},
       { enableHighAccuracy: false, timeout: 5000 }
     );
   }, []);
@@ -959,6 +971,7 @@ function AppContent() {
     if (userLocation) {
       if (locationMarker) locationMarker.remove();
       setLocationMarker(null);
+      manualLocateRef.current = false;
       setUserLocation(null);
       mapInstance.flyTo({ center: [-74.805, 10.96], zoom: 12.5, duration: 800 });
       return;
@@ -979,31 +992,36 @@ function AppContent() {
         .setLngLat([longitude, latitude])
         .addTo(mapInstance);
       setLocationMarker(marker);
+      manualLocateRef.current = true;
       setUserLocation([latitude, longitude]);
       mapInstance.flyTo({ center: [longitude, latitude], zoom: 15, duration: 1000 });
     }, null, { enableHighAccuracy: true });
   }, [mapInstance, locationMarker, userLocation]);
 
   // Restore location marker when map remounts (e.g., switching back from list view)
+  const userLocationRef = useRef(userLocation);
+  userLocationRef.current = userLocation;
   useEffect(() => {
-    if (!mapInstance || !userLocation) return;
-    // Check if marker is already on this map
-    if (locationMarker) {
-      try { if (locationMarker.getElement()?.parentNode) return; } catch(e) {}
-    }
-    const mapboxgl = require("mapbox-gl");
-    const el = document.createElement("div");
-    el.innerHTML = `
-      <div style="position:relative;width:24px;height:24px;">
-        <div style="position:absolute;inset:-6px;border-radius:50%;background:rgba(66,133,244,0.15);border:1px solid rgba(66,133,244,0.3);"></div>
-        <div style="width:16px;height:16px;border-radius:50%;background:#4285F4;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.3);margin:4px;"></div>
-      </div>
-    `;
-    const marker = new mapboxgl.Marker({ element: el, anchor: "center" })
-      .setLngLat([userLocation[1], userLocation[0]])
-      .addTo(mapInstance);
-    setLocationMarker(marker);
-  }, [mapInstance]); // Only re-run when map instance changes
+    if (!mapInstance) return;
+    const loc = userLocationRef.current;
+    if (!loc) return;
+    // Small delay to let map initialize
+    const timer = setTimeout(() => {
+      const mapboxgl = require("mapbox-gl");
+      const el = document.createElement("div");
+      el.innerHTML = `
+        <div style="position:relative;width:24px;height:24px;">
+          <div style="position:absolute;inset:-6px;border-radius:50%;background:rgba(66,133,244,0.15);border:1px solid rgba(66,133,244,0.3);"></div>
+          <div style="width:16px;height:16px;border-radius:50%;background:#4285F4;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.3);margin:4px;"></div>
+        </div>
+      `;
+      const marker = new mapboxgl.Marker({ element: el, anchor: "center" })
+        .setLngLat([loc[1], loc[0]])
+        .addTo(mapInstance);
+      setLocationMarker(marker);
+    }, 200);
+    return () => clearTimeout(timer);
+  }, [mapInstance]);
 
   const currentMainView = isDesktop ? desktopView : mobileView;
   const panelVisible = isDesktop && showPanel;
