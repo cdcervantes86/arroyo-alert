@@ -191,7 +191,7 @@ function MoreMenu({ onSelect, lang, onClose }) {
 }
 
 /* ====== MULTI-SNAP BOTTOM SHEET — peek / half / full ====== */
-function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push, zoneWatchers, prediction, watchZone, unwatchZone, onLogoClick, isDesktop, desktopView, mapInstance, favs, initialSnap = "peek", mapRestoreRef, onPhotoClick }) {
+function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push, zoneWatchers, prediction, watchZone, unwatchZone, onLogoClick, isDesktop, desktopView, mapInstance, favs, initialSnap = "peek", mapRestoreRef, onPhotoClick, onDelete }) {
   const { lang, t } = useLanguage();
   const es = lang === "es";
   const sevColor = severity ? SEVERITY[severity].color : "rgba(255,255,255,0.06)";
@@ -456,11 +456,16 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
                   <span style={{ fontSize: "11px", color: "var(--text-faint)" }}>{timeAgoLocalized(r.created_at, lang)}</span>
                 </div>
                 {r.text && <p style={{ margin: "0 0 8px", fontSize: "14px", lineHeight: 1.55, color: "var(--text-secondary)" }}>{r.text}</p>}
-                {r.photo_url && <div onClick={(e) => { e.stopPropagation(); onPhotoClick?.(r.photo_url); }} style={{ marginBottom: "10px", borderRadius: "var(--radius-lg)", overflow: "hidden", border: "1px solid rgba(255,255,255,0.06)", cursor: "zoom-in", position: "relative" }}><img src={r.photo_url} alt="Report photo" alt="Report photo" style={{ width: "100%", maxHeight: 200, objectFit: "cover", display: "block", aspectRatio: "16/9", background: "rgba(255,255,255,0.02)" }} loading="lazy" /><div style={{ position: "absolute", bottom: 8, right: 8, width: 28, height: 28, borderRadius: "50%", background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></div></div>}
+                {r.photo_url && <div onClick={(e) => { e.stopPropagation(); onPhotoClick?.(r.photo_url); }} style={{ marginBottom: "10px", borderRadius: "var(--radius-lg)", overflow: "hidden", border: "1px solid rgba(255,255,255,0.06)", cursor: "zoom-in", position: "relative" }}><img src={r.photo_url} alt="Report photo" style={{ width: "100%", maxHeight: 200, objectFit: "cover", display: "block", aspectRatio: "16/9", background: "rgba(255,255,255,0.02)" }} loading="lazy" /><div style={{ position: "absolute", bottom: 8, right: 8, width: 28, height: 28, borderRadius: "50%", background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></div></div>}
                 {!r.text && !r.photo_url && <div style={{ marginBottom: "8px" }} />}
                 <div style={{ display: "flex", gap: "6px", alignItems: "center", flexWrap: "wrap" }}>
                   <button onClick={() => handleUpvote(r)} className="tap-target" style={{ background: upvoted.has(r.id) ? "var(--accent-glow)" : "rgba(255,255,255,0.02)", border: `1px solid ${upvoted.has(r.id) ? "rgba(91,156,246,0.15)" : "rgba(255,255,255,0.06)"}`, borderRadius: "var(--radius-sm)", padding: "6px 12px", color: upvoted.has(r.id) ? "var(--accent)" : "var(--text-dim)", fontSize: "12px", display: "inline-flex", alignItems: "center", gap: "6px", fontWeight: 500, flexShrink: 0 }}><svg width="13" height="13" viewBox="0 0 24 24" fill={upvoted.has(r.id) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14z"/><path d="M7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg>{upvoted.has(r.id) ? (es ? "Confirmado" : "Confirmed") : (es ? "Confirmar" : "Confirm")} · {r.upvotes + (upvoted.has(r.id) ? 1 : 0)}</button>
                   <CommentThread reportId={r.id} allDeviceCounts={deviceCounts} />
+                  {r.device_id === getDeviceId() && (
+                    <button onClick={() => { if (confirm(es ? "¿Eliminar este reporte?" : "Delete this report?")) onDelete?.(r.id); }} className="tap-target" style={{ marginLeft: "auto", padding: "6px", borderRadius: "var(--radius-sm)", background: "none", border: "1px solid rgba(255,255,255,0.04)", color: "var(--text-faint)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                    </button>
+                  )}
                 </div>
               </div>
             );
@@ -813,11 +818,16 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
                     <span style={{ fontSize: "11px", color: "var(--text-faint)" }}>{timeAgoLocalized(r.created_at, lang)}</span>
                   </div>
                   {r.text && <p style={{ margin: "0 0 8px", fontSize: "14px", lineHeight: 1.55, color: "var(--text-secondary)" }}>{r.text}</p>}
-                  {r.photo_url && <div onClick={(e) => { e.stopPropagation(); onPhotoClick?.(r.photo_url); }} style={{ marginBottom: "10px", borderRadius: "var(--radius-lg)", overflow: "hidden", border: "1px solid rgba(255,255,255,0.06)", cursor: "zoom-in", position: "relative" }}><img src={r.photo_url} alt="Report photo" alt="Report photo" style={{ width: "100%", maxHeight: 200, objectFit: "cover", display: "block", aspectRatio: "16/9", background: "rgba(255,255,255,0.02)" }} loading="lazy" /><div style={{ position: "absolute", bottom: 8, right: 8, width: 28, height: 28, borderRadius: "50%", background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></div></div>}
+                  {r.photo_url && <div onClick={(e) => { e.stopPropagation(); onPhotoClick?.(r.photo_url); }} style={{ marginBottom: "10px", borderRadius: "var(--radius-lg)", overflow: "hidden", border: "1px solid rgba(255,255,255,0.06)", cursor: "zoom-in", position: "relative" }}><img src={r.photo_url} alt="Report photo" style={{ width: "100%", maxHeight: 200, objectFit: "cover", display: "block", aspectRatio: "16/9", background: "rgba(255,255,255,0.02)" }} loading="lazy" /><div style={{ position: "absolute", bottom: 8, right: 8, width: 28, height: 28, borderRadius: "50%", background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></div></div>}
                   {!r.text && !r.photo_url && <div style={{ marginBottom: "8px" }} />}
                   <div style={{ display: "flex", gap: "6px", alignItems: "center", flexWrap: "wrap" }}>
                     <button onClick={() => handleUpvote(r)} className="tap-target" style={{ background: upvoted.has(r.id) ? "var(--accent-glow)" : "rgba(255,255,255,0.02)", border: `1px solid ${upvoted.has(r.id) ? "rgba(91,156,246,0.15)" : "rgba(255,255,255,0.06)"}`, borderRadius: "var(--radius-sm)", padding: "6px 12px", color: upvoted.has(r.id) ? "var(--accent)" : "var(--text-dim)", fontSize: "12px", display: "inline-flex", alignItems: "center", gap: "6px", fontWeight: 500, flexShrink: 0 }}><svg width="13" height="13" viewBox="0 0 24 24" fill={upvoted.has(r.id) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14z"/><path d="M7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg>{upvoted.has(r.id) ? (es ? "Confirmado" : "Confirmed") : (es ? "Confirmar" : "Confirm")} · {r.upvotes + (upvoted.has(r.id) ? 1 : 0)}</button>
                     <CommentThread reportId={r.id} allDeviceCounts={deviceCounts} />
+                    {r.device_id === getDeviceId() && (
+                      <button onClick={() => { if (confirm(es ? "¿Eliminar este reporte?" : "Delete this report?")) onDelete?.(r.id); }} className="tap-target" style={{ marginLeft: "auto", padding: "6px", borderRadius: "var(--radius-sm)", background: "none", border: "1px solid rgba(255,255,255,0.04)", color: "var(--text-faint)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                      </button>
+                    )}
                   </div>
                 </div>
               );
@@ -855,7 +865,7 @@ function AppContent() {
     }
   }, [addToast, lang]);
 
-  const { reports, loading, lastUpdated, submitReport, upvoteReport, refetch } = useReports(handleRealtimeEvent);
+  const { reports, loading, lastUpdated, submitReport, upvoteReport, deleteReport, refetch } = useReports(handleRealtimeEvent);
   const push = usePushNotifications();
   const { totalWatchers, zoneWatchers, watchZone, unwatchZone } = useLiveWatchers();
   const [screen, setScreen] = useState("main");
@@ -1448,6 +1458,7 @@ function AppContent() {
             initialSnap={zoneClickSource === "map" ? "peek" : "half"}
             mapRestoreRef={mapRestoreRef}
             onPhotoClick={setViewPhoto}
+            onDelete={deleteReport}
           />
         );
       })()}

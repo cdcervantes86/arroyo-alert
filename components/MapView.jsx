@@ -260,6 +260,7 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
           color:#fff;font-size:${count > 9 ? 10 : 11}px;font-weight:800;
           font-family:'DM Sans',sans-serif;letter-spacing:-0.3px;
           text-shadow:0 1px 2px rgba(0,0,0,0.3);
+          ${sev === "danger" ? "animation:markerPulse 2s ease-in-out infinite;" : ""}
         `;
         marker.textContent = count;
         el.appendChild(marker);

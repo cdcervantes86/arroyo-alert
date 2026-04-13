@@ -161,7 +161,36 @@ export default function ReportFlow({ zones, reports, initialZoneId, onSubmit, on
         {step === 2 && (
           <>
             <h2 style={{ fontSize: "20px", fontWeight: 700, margin: "0 0 4px", letterSpacing: "-0.3px" }}>{t.anythingElse}</h2>
-            <p style={{ color: "var(--text-dim)", fontSize: "13px", margin: "0 0 20px" }}>{t.optional}</p>
+            <p style={{ color: "var(--text-dim)", fontSize: "13px", margin: "0 0 14px" }}>{t.optional}</p>
+
+            {/* Quick suggestions */}
+            {!text && (
+              <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", marginBottom: "14px", animation: "fadeIn 0.2s ease" }}>
+                {(severity === "danger" ? [
+                  es ? "Arroyo activo, no cruzar" : "Active arroyo, do not cross",
+                  es ? "Calle completamente inundada" : "Street completely flooded",
+                  es ? "Nivel del agua subiendo rápido" : "Water level rising fast",
+                  es ? "Vehículos atrapados" : "Vehicles trapped",
+                ] : severity === "caution" ? [
+                  es ? "Agua empezando a acumularse" : "Water starting to accumulate",
+                  es ? "Lluvia fuerte, arroyo posible" : "Heavy rain, arroyo possible",
+                  es ? "Calle parcialmente inundada" : "Street partially flooded",
+                ] : [
+                  es ? "El agua ya bajó" : "Water has receded",
+                  es ? "Calle transitable de nuevo" : "Street passable again",
+                ]).map((suggestion, i) => (
+                  <button key={i} onClick={() => setText(suggestion)} className="tap-target" style={{
+                    padding: "7px 12px", borderRadius: "16px",
+                    background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)",
+                    color: "var(--text-secondary)", fontSize: "12px", fontWeight: 500,
+                    transition: "all 0.15s ease",
+                  }}>
+                    {suggestion}
+                  </button>
+                ))}
+              </div>
+            )}
+
             <textarea value={text} onChange={(e) => setText(e.target.value)} placeholder={t.textPlaceholder}
               style={{ width: "100%", minHeight: 100, background: "rgba(255,255,255,0.025)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "var(--radius-lg)", padding: "16px", color: "var(--text)", fontSize: "15px", resize: "vertical", outline: "none", fontFamily: "inherit", lineHeight: 1.5, transition: "border-color 0.2s ease" }} />
 
