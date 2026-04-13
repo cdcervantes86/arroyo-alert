@@ -4,7 +4,7 @@ import { useReports } from "@/lib/useReports";
 import { supabase } from "@/lib/supabase";
 import { usePushNotifications, notifyZone } from "@/lib/usePushNotifications";
 import { getReporterStats, getDeviceId } from "@/lib/deviceId";
-import { ZONES, SEVERITY, getZoneSeverity, getZoneReports, getSevLabel } from "@/lib/zones";
+import { ZONES, SEVERITY, getZoneSeverity, getZoneReports, getSevLabel, getZonePhoto } from "@/lib/zones";
 import { LanguageProvider, useLanguage } from "@/lib/LanguageContext";
 import { timeAgoLocalized } from "@/lib/translations";
 import { checkEmergencyMode, getFloodPredictions } from "@/lib/predictions";
@@ -360,7 +360,7 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
         {/* Photo hero */}
         {zone.photos && (
           <div style={{ position: "relative", height: 160, flexShrink: 0, overflow: "hidden" }}>
-            <img src={zone.photos[severity] || zone.photos.clear} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 40%" }} />
+            <img src={getZonePhoto(zone, severity)} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 40%" }} />
             <div style={{ position: "absolute", inset: 0, background: `linear-gradient(to top, #0e1628 0%, rgba(14,22,40,0.4) 50%, ${severity ? sevColor + "12" : "rgba(14,22,40,0.15)"} 100%)` }} />
             {severity && <div style={{ position: "absolute", bottom: 12, left: 24, display: "flex", alignItems: "center", gap: "8px" }}>
               <SeverityIcon severity={severity} size={18} />
@@ -734,7 +734,7 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
           {/* Photo hero */}
           {zone.photos && (
             <div style={{ position: "relative", height: 140, overflow: "hidden", marginBottom: -4 }}>
-              <img src={zone.photos[severity] || zone.photos.clear} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 40%" }} />
+              <img src={getZonePhoto(zone, severity)} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 40%" }} />
               <div style={{ position: "absolute", inset: 0, background: `linear-gradient(to top, #0e1628 0%, rgba(14,22,40,0.3) 50%, ${severity ? sevColor + "10" : "rgba(14,22,40,0.1)"} 100%)` }} />
               {severity && <div style={{ position: "absolute", bottom: 10, left: 20, display: "flex", alignItems: "center", gap: "6px" }}>
                 <SeverityIcon severity={severity} size={16} />
@@ -1433,7 +1433,7 @@ function AppContent() {
                           {/* Subtle photo background - peeks in from right */}
                           {z.photos && (
                             <>
-                              <img src={z.photos[sv] || z.photos.clear} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 40%", opacity: sv ? 0.25 : 0.15 }} loading="lazy" />
+                              <img src={getZonePhoto(z, sv)} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 40%", opacity: sv ? 0.25 : 0.15 }} loading="lazy" />
                               <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, #0a0f1a 0%, #0a0f1a 35%, rgba(10,15,26,0.6) 70%, rgba(10,15,26,0.3) 100%)" }} />
                             </>
                           )}
