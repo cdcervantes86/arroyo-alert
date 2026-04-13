@@ -357,6 +357,18 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
           </div>
         </div>
 
+        {/* Photo hero */}
+        {zone.photos && (
+          <div style={{ position: "relative", height: 160, flexShrink: 0, overflow: "hidden" }}>
+            <img src={zone.photos[severity] || zone.photos.clear} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 40%" }} />
+            <div style={{ position: "absolute", inset: 0, background: `linear-gradient(to top, #0e1628 0%, rgba(14,22,40,0.4) 50%, ${severity ? sevColor + "12" : "rgba(14,22,40,0.15)"} 100%)` }} />
+            {severity && <div style={{ position: "absolute", bottom: 12, left: 24, display: "flex", alignItems: "center", gap: "8px" }}>
+              <SeverityIcon severity={severity} size={18} />
+              <span style={{ fontSize: "13px", fontWeight: 700, color: sevColor, textShadow: "0 1px 4px rgba(0,0,0,0.6)" }}>{getSevLabel(severity, lang)}</span>
+            </div>}
+          </div>
+        )}
+
         {/* Scrollable body */}
         <div style={{ flex: 1, minHeight: 0, overflowY: "auto", WebkitOverflowScrolling: "touch", padding: "16px 24px 24px" }}>
           {zone.desc && <p style={{ color: "var(--text-dim)", fontSize: "13px", marginBottom: "14px", lineHeight: 1.5 }}>{es ? zone.desc : (zone.descEn || zone.desc)}</p>}
@@ -719,6 +731,17 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
           transition: isDragging ? "none" : `opacity 0.3s ease`,
           pointerEvents: contentOpacity < 0.1 ? "none" : "auto",
         }}>
+          {/* Photo hero */}
+          {zone.photos && (
+            <div style={{ position: "relative", height: 140, overflow: "hidden", marginBottom: -4 }}>
+              <img src={zone.photos[severity] || zone.photos.clear} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 40%" }} />
+              <div style={{ position: "absolute", inset: 0, background: `linear-gradient(to top, #0e1628 0%, rgba(14,22,40,0.3) 50%, ${severity ? sevColor + "10" : "rgba(14,22,40,0.1)"} 100%)` }} />
+              {severity && <div style={{ position: "absolute", bottom: 10, left: 20, display: "flex", alignItems: "center", gap: "6px" }}>
+                <SeverityIcon severity={severity} size={16} />
+                <span style={{ fontSize: "12px", fontWeight: 700, color: sevColor, textShadow: "0 1px 4px rgba(0,0,0,0.6)" }}>{getSevLabel(severity, lang)}</span>
+              </div>}
+            </div>
+          )}
           <div style={{ padding: "14px 20px calc(20px + env(safe-area-inset-bottom, 20px))" }}>
             {/* Description */}
             {zone.desc && <p style={{ color: "var(--text-dim)", fontSize: "12px", marginBottom: "14px", lineHeight: 1.5 }}>{es ? zone.desc : (zone.descEn || zone.desc)}</p>}
@@ -1400,55 +1423,20 @@ function AppContent() {
                         {showOtherHeader && <div style={{ fontSize: "10px", color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "1.5px", fontWeight: 600, padding: "14px 4px 10px" }}>{es ? "Otras zonas" : "Other zones"}</div>}
                         {showDivider && <div style={{ height: 1, background: "rgba(255,255,255,0.06)", margin: "12px 0" }} />}
                         <button onClick={() => handleZoneClick(z.id, "list")} className="card-interactive" style={{
-                          width: "100%", textAlign: "left",
-                          ...(z.photos ? {
-                            display: "block", position: "relative", overflow: "hidden",
-                            padding: 0, marginBottom: "8px", borderRadius: "var(--radius-lg)",
-                            border: `1px solid ${c ? c.color + "25" : "rgba(255,255,255,0.08)"}`,
-                            animation: `fadeIn 0.25s ease ${i * 0.03}s both`,
-                            height: 140,
-                          } : {
-                            display: "flex", gap: "14px", alignItems: "center",
-                            padding: "14px 16px", marginBottom: "6px", borderRadius: "var(--radius-lg)",
-                            background: hasActivity ? `${c ? c.color : "var(--accent)"}04` : "rgba(255,255,255,0.02)",
-                            border: `1px solid ${c ? c.color + "18" : "rgba(255,255,255,0.06)"}`,
-                            animation: `fadeIn 0.25s ease ${i * 0.03}s both`,
-                            position: "relative", overflow: "hidden",
-                          }),
+                          width: "100%", textAlign: "left", display: "flex", gap: "14px", alignItems: "center",
+                          padding: "14px 16px", marginBottom: "6px", borderRadius: "var(--radius-lg)",
+                          background: hasActivity ? `${c ? c.color : "var(--accent)"}04` : "rgba(255,255,255,0.02)",
+                          border: `1px solid ${c ? c.color + "18" : "rgba(255,255,255,0.06)"}`,
+                          animation: `fadeIn 0.25s ease ${i * 0.03}s both`,
+                          position: "relative", overflow: "hidden",
                         }}>
-                          {/* Photo background for zones with photos */}
+                          {/* Subtle photo background for zones with photos */}
                           {z.photos && (
                             <>
-                              <img src={z.photos[sv] || z.photos.clear} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 40%" }} loading="lazy" />
-                              <div style={{ position: "absolute", inset: 0, background: `linear-gradient(to top, rgba(10,15,26,0.95) 0%, rgba(10,15,26,0.75) 40%, ${c ? c.color + "15" : "rgba(10,15,26,0.2)"} 100%)` }} />
-                              {/* Photo card content */}
-                              <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "14px 16px", display: "flex", gap: "12px", alignItems: "flex-end" }}>
-                                <div style={{ flex: 1, minWidth: 0 }}>
-                                  <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "3px" }}>
-                                    <SeverityIcon severity={sv} size={18} />
-                                    <span style={{ fontSize: "16px", fontWeight: 700, color: "#fff", letterSpacing: "-0.2px", textShadow: "0 1px 3px rgba(0,0,0,0.5)" }}>{z.name}</span>
-                                    {sv === "danger" && <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--danger)", animation: "blink 1.5s ease-in-out infinite", flexShrink: 0 }} />}
-                                    {isFav && <StarIcon size={12} color="#facc15" filled />}
-                                  </div>
-                                  <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.6)", display: "flex", alignItems: "center", gap: "6px" }}>
-                                    {z.area}
-                                    {sv && <span style={{ fontSize: "10px", fontWeight: 600, color: c.color, background: `${c.color}15`, padding: "1px 7px", borderRadius: "4px", border: `1px solid ${c.color}25` }}>{getSevLabel(sv, lang)}</span>}
-                                    {isNearby && <span style={{ fontSize: "9px", fontWeight: 700, color: "var(--safe)", background: "rgba(34,197,94,0.15)", padding: "1px 6px", borderRadius: "4px", border: "1px solid rgba(34,197,94,0.2)" }}>{es ? "CERCA" : "NEAR"}</span>}
-                                    {distKm !== null && !isNearby && <span style={{ fontSize: "10px", color: "rgba(255,255,255,0.4)" }}>{distKm < 10 ? distKm.toFixed(1) : Math.round(distKm)} km</span>}
-                                  </div>
-                                  {lt && <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.5)", marginTop: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{lt.text ? `${lt.text} · ` : ""}{timeAgoLocalized(lt.created_at, lang)}</div>}
-                                  {!lt && !sv && <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.35)", marginTop: 3 }}>{es ? z.desc : (z.descEn || z.desc)}</div>}
-                                </div>
-                                <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
-                                  {zr.length > 0 && <span style={{ fontSize: "12px", color: c ? c.color : "#fff", background: "rgba(0,0,0,0.4)", padding: "4px 10px", borderRadius: "8px", fontWeight: 700, fontVariantNumeric: "tabular-nums", minWidth: 28, textAlign: "center", border: `1px solid ${c ? c.color + "30" : "rgba(255,255,255,0.1)"}` }}>{zr.length}</span>}
-                                  <svg width="7" height="12" viewBox="0 0 7 12" fill="none" style={{ flexShrink: 0, opacity: 0.3 }}><path d="M1 1l5 5-5 5" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
-                                </div>
-                              </div>
+                              <img src={z.photos[sv] || z.photos.clear} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 40%", opacity: sv ? 0.12 : 0.06, filter: "saturate(0.4)" }} loading="lazy" />
+                              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, rgba(10,15,26,0.7) 0%, rgba(10,15,26,0.3) 100%)" }} />
                             </>
                           )}
-
-                          {/* Standard card content for zones without photos */}
-                          {!z.photos && (<>
                           {/* Severity accent bar */}
                           {sv && <div style={{ position: "absolute", left: 0, top: "15%", bottom: "15%", width: 3, borderRadius: "0 2px 2px 0", background: c.color }} />}
 
@@ -1497,7 +1485,6 @@ function AppContent() {
                             {lt?.photo_url && <img onClick={(e) => { e.stopPropagation(); setViewPhoto(lt.photo_url); }} src={lt.photo_url} alt="Latest report" style={{ width: 36, height: 36, borderRadius: "var(--radius-sm)", objectFit: "cover", flexShrink: 0, border: "1px solid rgba(255,255,255,0.06)", cursor: "zoom-in" }} loading="lazy" />}
                             <svg width="7" height="12" viewBox="0 0 7 12" fill="none" style={{ flexShrink: 0, opacity: 0.15 }}><path d="M1 1l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
                           </div>
-                          </>)}
                         </button>
                       </div>
                     );
