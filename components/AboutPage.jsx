@@ -138,7 +138,7 @@ export default function AboutPage({ onBack, onLogoClick, onToggleLang, lang: lan
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             </div>
             <div style={{ flex: 1 }}>
-              <div style={{ fontSize: "15px", fontWeight: 700, color: "var(--text)", marginBottom: "6px" }}>Carlos Cervantes</div>
+              <div style={{ fontSize: "15px", fontWeight: 700, color: "var(--text)", marginBottom: "6px" }}>Carlos D. Cervantes</div>
               <p style={{ fontSize: "13px", color: "var(--text-secondary)", lineHeight: 1.65, margin: 0 }}>
                 {es
                   ? "Me mudé a Barranquilla hace poco más de un año. La primera vez que vi un arroyo, no podía creer lo peligroso que era — y lo poco que la gente sabía sobre cuáles calles estaban activas en ese momento. Construí AlertaArroyo para que la comunidad pueda protegerse entre sí en tiempo real. No soy una empresa — soy un vecino que quiere que todos lleguen a casa seguros."
