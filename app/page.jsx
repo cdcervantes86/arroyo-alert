@@ -936,15 +936,7 @@ function AppContent() {
   const [userLocation, setUserLocation] = useState(null);
   const manualLocateRef = useRef(false);
 
-  // Silently request location on mount for proximity sorting (no map marker)
-  useEffect(() => {
-    if (!navigator.geolocation) return;
-    navigator.geolocation.getCurrentPosition(
-      (pos) => { if (!manualLocateRef.current) setUserLocation([pos.coords.latitude, pos.coords.longitude]); },
-      () => {},
-      { enableHighAccuracy: false, timeout: 5000 }
-    );
-  }, []);
+  // Location is only requested when user taps the locate button
   const [locationMarker, setLocationMarker] = useState(null);
   const [showDigest, setShowDigest] = useState(false);
   const [closingScreen, setClosingScreen] = useState(null);
