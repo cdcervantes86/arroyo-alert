@@ -194,7 +194,7 @@ export default function ZoneDetail({ zone, severity, reports, onBack, onReport, 
 
   // Otherwise, render with its own full-screen container
   return (
-    <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, overflowY: "auto", WebkitOverflowScrolling: "touch", background: "var(--bg)" }}>
+    <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, overflowY: "auto", WebkitOverflowScrolling: "touch", background: "#0a0f1a" }}>
       {content}
     </div>
   );

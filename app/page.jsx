@@ -101,7 +101,7 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, lang }) {
     { key: "more", Icon: MoreIcon, label: lang === "es" ? "Más" : "More" },
   ];
   return (
-    <div className="bottom-nav" style={{
+    <div className="bottom-nav" role="navigation" aria-label={lang === "es" ? "Navegación principal" : "Main navigation"} style={{
       display: "flex", alignItems: "center", justifyContent: "space-around",
       background: "#0a0f1a", flexShrink: 0,
       paddingTop: "6px", paddingBottom: "calc(10px + env(safe-area-inset-bottom, 0px))",
@@ -110,7 +110,7 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, lang }) {
       {tabs.map((tab) => {
         const isActive = activeTab === tab.key;
         if (tab.isReport) return (
-          <button key={tab.key} onClick={onReport} style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "4px", background: "none", border: "none", padding: "0 16px", position: "relative" }}>
+          <button key={tab.key} onClick={onReport} aria-label={tab.label} style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "4px", background: "none", border: "none", padding: "0 16px", position: "relative" }}>
             <div style={{ width: 44, height: 44, borderRadius: "50%", background: "linear-gradient(135deg, #D42A2A, #a11a1a)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 18px rgba(212,42,42,0.4)", marginTop: "-18px", border: "2px solid rgba(255,255,255,0.1)" }}>
               <AlertTriangleIcon size={18} color="#fff" />
             </div>
@@ -118,7 +118,7 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, lang }) {
           </button>
         );
         return (
-          <button key={tab.key} onClick={() => onTab(tab.key)} style={{
+          <button key={tab.key} onClick={() => onTab(tab.key)} aria-label={tab.label} aria-current={isActive ? "page" : undefined} style={{
             display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
             gap: "3px", background: "none", border: "none", padding: "6px 18px", position: "relative",
             borderRadius: "14px", transition: "all 0.25s cubic-bezier(0.34, 1.4, 0.64, 1)",
@@ -428,7 +428,7 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
                   <span style={{ fontSize: "11px", color: "var(--text-faint)" }}>{timeAgoLocalized(r.created_at, lang)}</span>
                 </div>
                 {r.text && <p style={{ margin: "0 0 8px", fontSize: "14px", lineHeight: 1.55, color: "var(--text-secondary)" }}>{r.text}</p>}
-                {r.photo_url && <div onClick={(e) => { e.stopPropagation(); onPhotoClick?.(r.photo_url); }} style={{ marginBottom: "10px", borderRadius: "var(--radius-lg)", overflow: "hidden", border: "1px solid rgba(255,255,255,0.06)", cursor: "zoom-in", position: "relative" }}><img src={r.photo_url} alt="" style={{ width: "100%", maxHeight: 200, objectFit: "cover", display: "block" }} loading="lazy" /><div style={{ position: "absolute", bottom: 8, right: 8, width: 28, height: 28, borderRadius: "50%", background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></div></div>}
+                {r.photo_url && <div onClick={(e) => { e.stopPropagation(); onPhotoClick?.(r.photo_url); }} style={{ marginBottom: "10px", borderRadius: "var(--radius-lg)", overflow: "hidden", border: "1px solid rgba(255,255,255,0.06)", cursor: "zoom-in", position: "relative" }}><img src={r.photo_url} alt="Report photo" alt="Report photo" style={{ width: "100%", maxHeight: 200, objectFit: "cover", display: "block", aspectRatio: "16/9", background: "rgba(255,255,255,0.02)" }} loading="lazy" /><div style={{ position: "absolute", bottom: 8, right: 8, width: 28, height: 28, borderRadius: "50%", background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></div></div>}
                 {!r.text && !r.photo_url && <div style={{ marginBottom: "8px" }} />}
                 <div style={{ display: "flex", gap: "6px", alignItems: "center", flexWrap: "wrap" }}>
                   <button onClick={() => handleUpvote(r)} className="tap-target" style={{ background: upvoted.has(r.id) ? "var(--accent-glow)" : "rgba(255,255,255,0.02)", border: `1px solid ${upvoted.has(r.id) ? "rgba(91,156,246,0.15)" : "rgba(255,255,255,0.06)"}`, borderRadius: "var(--radius-sm)", padding: "6px 12px", color: upvoted.has(r.id) ? "var(--accent)" : "var(--text-dim)", fontSize: "12px", display: "inline-flex", alignItems: "center", gap: "6px", fontWeight: 500, flexShrink: 0 }}><svg width="13" height="13" viewBox="0 0 24 24" fill={upvoted.has(r.id) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14z"/><path d="M7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg>{upvoted.has(r.id) ? (es ? "Confirmado" : "Confirmed") : (es ? "Confirmar" : "Confirm")} · {r.upvotes + (upvoted.has(r.id) ? 1 : 0)}</button>
@@ -758,7 +758,7 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
                     <span style={{ fontSize: "11px", color: "var(--text-faint)" }}>{timeAgoLocalized(r.created_at, lang)}</span>
                   </div>
                   {r.text && <p style={{ margin: "0 0 8px", fontSize: "14px", lineHeight: 1.55, color: "var(--text-secondary)" }}>{r.text}</p>}
-                  {r.photo_url && <div onClick={(e) => { e.stopPropagation(); onPhotoClick?.(r.photo_url); }} style={{ marginBottom: "10px", borderRadius: "var(--radius-lg)", overflow: "hidden", border: "1px solid rgba(255,255,255,0.06)", cursor: "zoom-in", position: "relative" }}><img src={r.photo_url} alt="" style={{ width: "100%", maxHeight: 200, objectFit: "cover", display: "block" }} loading="lazy" /><div style={{ position: "absolute", bottom: 8, right: 8, width: 28, height: 28, borderRadius: "50%", background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></div></div>}
+                  {r.photo_url && <div onClick={(e) => { e.stopPropagation(); onPhotoClick?.(r.photo_url); }} style={{ marginBottom: "10px", borderRadius: "var(--radius-lg)", overflow: "hidden", border: "1px solid rgba(255,255,255,0.06)", cursor: "zoom-in", position: "relative" }}><img src={r.photo_url} alt="Report photo" alt="Report photo" style={{ width: "100%", maxHeight: 200, objectFit: "cover", display: "block", aspectRatio: "16/9", background: "rgba(255,255,255,0.02)" }} loading="lazy" /><div style={{ position: "absolute", bottom: 8, right: 8, width: 28, height: 28, borderRadius: "50%", background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></div></div>}
                   {!r.text && !r.photo_url && <div style={{ marginBottom: "8px" }} />}
                   <div style={{ display: "flex", gap: "6px", alignItems: "center", flexWrap: "wrap" }}>
                     <button onClick={() => handleUpvote(r)} className="tap-target" style={{ background: upvoted.has(r.id) ? "var(--accent-glow)" : "rgba(255,255,255,0.02)", border: `1px solid ${upvoted.has(r.id) ? "rgba(91,156,246,0.15)" : "rgba(255,255,255,0.06)"}`, borderRadius: "var(--radius-sm)", padding: "6px 12px", color: upvoted.has(r.id) ? "var(--accent)" : "var(--text-dim)", fontSize: "12px", display: "inline-flex", alignItems: "center", gap: "6px", fontWeight: 500, flexShrink: 0 }}><svg width="13" height="13" viewBox="0 0 24 24" fill={upvoted.has(r.id) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14z"/><path d="M7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg>{upvoted.has(r.id) ? (es ? "Confirmado" : "Confirmed") : (es ? "Confirmar" : "Confirm")} · {r.upvotes + (upvoted.has(r.id) ? 1 : 0)}</button>
@@ -1035,10 +1035,10 @@ function AppContent() {
   const isRaining = weather?.isRaining || false;
 
   if (showOnboarding) return <Onboarding lang={lang} onComplete={() => setShowOnboarding(false)} onToggleLang={toggleLang} />;
-  if ((screen === "about" || closingMobile === "about") && !isDesktop) return <div style={{ animation: closingMobile === "about" ? "screenSlideOut 0.25s ease forwards" : "screenSlideIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", position: "fixed", inset: 0, zIndex: 50, background: "var(--bg)" }}><AboutPage onBack={closeMobileScreen} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} onShowOnboarding={() => { setScreen("main"); setShowOnboarding(true); }} /></div>;
-  if (screen === "heatmap" || closingMobile === "heatmap") return <div style={{ animation: closingMobile === "heatmap" ? "screenSlideOut 0.25s ease forwards" : "screenSlideIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", position: "fixed", inset: 0, zIndex: 50, background: "var(--bg)" }}><HeatmapView onBack={closeMobileScreen} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} /></div>;
-  if ((screen === "profile" || closingMobile === "profile") && !isDesktop) return <div style={{ animation: closingMobile === "profile" ? "screenSlideOut 0.25s ease forwards" : "screenSlideIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", position: "fixed", inset: 0, zIndex: 50, background: "var(--bg)" }}><ReporterProfile reports={reports} onBack={closeMobileScreen} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} /></div>;
-  if (screen === "report" || closingMobile === "report") return <div style={{ animation: closingMobile === "report" ? "screenSlideOut 0.25s ease forwards" : "screenSlideIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", position: "fixed", inset: 0, zIndex: 50, background: "var(--bg)" }}><ReportFlow zones={ZONES} reports={reports} initialZoneId={selectedZone} onSubmit={async (data) => {
+  if ((screen === "about" || closingMobile === "about") && !isDesktop) return <div style={{ animation: closingMobile === "about" ? "screenSlideOut 0.25s ease forwards" : "screenSlideIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", position: "fixed", inset: 0, zIndex: 50, background: "#0a0f1a" }}><AboutPage onBack={closeMobileScreen} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} onShowOnboarding={() => { setScreen("main"); setShowOnboarding(true); }} /></div>;
+  if (screen === "heatmap" || closingMobile === "heatmap") return <div style={{ animation: closingMobile === "heatmap" ? "screenSlideOut 0.25s ease forwards" : "screenSlideIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", position: "fixed", inset: 0, zIndex: 50, background: "#0a0f1a" }}><HeatmapView onBack={closeMobileScreen} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} /></div>;
+  if ((screen === "profile" || closingMobile === "profile") && !isDesktop) return <div style={{ animation: closingMobile === "profile" ? "screenSlideOut 0.25s ease forwards" : "screenSlideIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", position: "fixed", inset: 0, zIndex: 50, background: "#0a0f1a" }}><ReporterProfile reports={reports} onBack={closeMobileScreen} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} /></div>;
+  if (screen === "report" || closingMobile === "report") return <div style={{ animation: closingMobile === "report" ? "screenSlideOut 0.25s ease forwards" : "screenSlideIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", position: "fixed", inset: 0, zIndex: 50, background: "#0a0f1a" }}><ReportFlow zones={ZONES} reports={reports} initialZoneId={selectedZone} onSubmit={async (data) => {
     const prevCount = getReporterStats().reportCount;
     await handleReport(data);
     const newCount = getReporterStats().reportCount;
@@ -1057,7 +1057,7 @@ function AppContent() {
   const desktopTabs = [{ key: "map", Icon: MapIcon }, { key: "list", Icon: ListIcon }, { key: "live", Icon: LiveIcon }];
 
   return (
-    <div style={{ position: "fixed", inset: 0, display: "flex", flexDirection: "column", background: "var(--bg)", overflow: "hidden" }}>
+    <div style={{ position: "fixed", inset: 0, display: "flex", flexDirection: "column", background: "#0a0f1a", overflow: "hidden" }}>
       {/* HEADER */}
       <div style={{ padding: "10px 16px", display: "flex", alignItems: "center", gap: "10px", background: "#0a0f1a", borderBottom: "1px solid rgba(255,255,255,0.04)", boxShadow: "0 1px 0 rgba(255,255,255,0.02), 0 4px 20px rgba(0,0,0,0.2)", flexShrink: 0, position: "relative", zIndex: 900 }}>
         <div className={headerGlow} style={{ position: "absolute", top: -30, left: "10%", right: "10%", height: 80, borderRadius: "50%", filter: "blur(40px)", pointerEvents: "none", animation: "glowPulse 4s ease-in-out infinite" }} />
@@ -1078,7 +1078,7 @@ function AppContent() {
           <button className="header-icon-btn" onClick={() => setScreen("heatmap")} style={{ width: 32, height: 32, borderRadius: "50%", background: "none", border: "none", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><FlameIcon size={18} color="var(--text-dim)" /></button>
           <button className="header-icon-btn" onClick={() => setScreen("about")} style={{ width: 32, height: 32, borderRadius: "50%", background: "none", border: "none", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><InfoIcon size={18} color="var(--text-dim)" /></button>
         </>}
-        <button onClick={toggleLang} className="tap-target" style={{ padding: "5px 10px", borderRadius: "8px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.06)", color: "var(--text-dim)", fontSize: "11px", fontWeight: 700, letterSpacing: "0.3px", flexShrink: 0, transition: "all 0.15s ease" }}>{lang === "es" ? "EN" : "ES"}</button>
+        <button onClick={toggleLang} className="tap-target" aria-label={lang === "es" ? "Switch to English" : "Cambiar a Español"} style={{ padding: "5px 10px", borderRadius: "8px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.06)", color: "var(--text-dim)", fontSize: "11px", fontWeight: 700, letterSpacing: "0.3px", flexShrink: 0, transition: "all 0.15s ease" }}>{lang === "es" ? "EN" : "ES"}</button>
         {isDesktop && (
           <div style={{ display: "flex", background: "rgba(255,255,255,0.03)", borderRadius: "10px", overflow: "hidden", border: "1px solid rgba(255,255,255,0.06)", padding: "2px" }}>
             {desktopTabs.map((tab) => { const isActive = tab.key === "live" ? showPanel : desktopView === tab.key; return <button key={tab.key} onClick={() => handleDesktopTab(tab.key)} style={{ padding: "7px 14px", fontSize: "12px", border: "none", borderRadius: "8px", background: isActive ? "rgba(91,156,246,0.1)" : "transparent", color: isActive ? "var(--accent)" : "var(--text-faint)", fontWeight: isActive ? 700 : 500, position: "relative", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s ease" }}><tab.Icon size={15} color={isActive ? "var(--accent)" : "var(--text-faint)"} active={isActive} />{tab.key === "live" && liveCount > 0 && !isActive && <span style={{ position: "absolute", top: 3, right: 5, width: 5, height: 5, borderRadius: "50%", background: "var(--danger)", animation: "blink 1.5s ease-in-out infinite" }} />}</button>; })}
@@ -1198,7 +1198,7 @@ function AppContent() {
             {/* Floating map controls */}
             <div style={{ position: "absolute", top: 12, right: 12, zIndex: 800, display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "8px" }}>
               <RainRadarButton enabled={radar.enabled} onToggle={radar.toggle} />
-              <button onClick={handleLocate} className="tap-target" style={{
+              <button onClick={handleLocate} aria-label={es ? "Mi ubicación" : "My location"} className="tap-target" style={{
                 width: 40, height: 40, borderRadius: "50%",
                 background: userLocation ? "rgba(66,133,244,0.15)" : "rgba(10,15,26,0.9)",
                 border: `1px solid ${userLocation ? "rgba(66,133,244,0.3)" : "rgba(255,255,255,0.08)"}`,
@@ -1293,7 +1293,7 @@ function AppContent() {
                           {/* Right side */}
                           <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
                             {zr.length > 0 && <span style={{ fontSize: "12px", color: c ? c.color : "var(--text-dim)", background: c ? `${c.color}0c` : "rgba(255,255,255,0.04)", padding: "4px 10px", borderRadius: "8px", fontWeight: 700, fontVariantNumeric: "tabular-nums", minWidth: 28, textAlign: "center" }}>{zr.length}</span>}
-                            {lt?.photo_url && <img onClick={(e) => { e.stopPropagation(); setViewPhoto(lt.photo_url); }} src={lt.photo_url} alt="" style={{ width: 36, height: 36, borderRadius: "var(--radius-sm)", objectFit: "cover", flexShrink: 0, border: "1px solid rgba(255,255,255,0.06)", cursor: "zoom-in" }} loading="lazy" />}
+                            {lt?.photo_url && <img onClick={(e) => { e.stopPropagation(); setViewPhoto(lt.photo_url); }} src={lt.photo_url} alt="Latest report" style={{ width: 36, height: 36, borderRadius: "var(--radius-sm)", objectFit: "cover", flexShrink: 0, border: "1px solid rgba(255,255,255,0.06)", cursor: "zoom-in" }} loading="lazy" />}
                             <svg width="7" height="12" viewBox="0 0 7 12" fill="none" style={{ flexShrink: 0, opacity: 0.15 }}><path d="M1 1l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
                           </div>
                         </button>
@@ -1540,7 +1540,7 @@ function AppContent() {
 
       {/* Full-screen photo viewer */}
       {viewPhoto && (
-        <div onClick={() => setViewPhoto(null)} style={{
+        <div role="dialog" aria-label="Photo viewer" onClick={() => setViewPhoto(null)} style={{
           position: "fixed", inset: 0, zIndex: 2000,
           background: "rgba(0,0,0,0.92)",
           display: "flex", alignItems: "center", justifyContent: "center",
@@ -1557,7 +1557,7 @@ function AppContent() {
           </button>
           <img
             src={viewPhoto}
-            alt=""
+            alt="Report photo full view"
             onClick={(e) => e.stopPropagation()}
             style={{
               maxWidth: "100%", maxHeight: "85vh",

@@ -57,7 +57,7 @@ export default function ReportFlow({ zones, reports, initialZoneId, onSubmit, on
   }
 
   return (
-    <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "var(--bg)", overflow: "auto" }}>
+    <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "#0a0f1a", overflow: "auto" }}>
       {/* Header */}
       <div style={{ padding: "12px 16px", display: "flex", alignItems: "center", gap: "10px", borderBottom: "1px solid rgba(255,255,255,0.04)", flexShrink: 0, background: "#0a0f1a", boxShadow: "0 1px 0 rgba(255,255,255,0.02), 0 4px 20px rgba(0,0,0,0.2)" }}>
         <button onClick={onLogoClick} style={{ display: "flex", alignItems: "center", gap: "8px", background: "none", border: "none", padding: 0, cursor: "pointer" }}>

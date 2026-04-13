@@ -150,7 +150,7 @@ export default function HeatmapView({ onBack, onLogoClick, onToggleLang }) {
   const filtered = getFilteredData();
 
   return (
-    <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "var(--bg)", overflow: "hidden" }}>
+    <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "#0a0f1a", overflow: "hidden" }}>
       {/* Header */}
       <div style={{ padding: "12px 16px", display: "flex", alignItems: "center", gap: "10px", background: "#0a0f1a", borderBottom: "1px solid rgba(255,255,255,0.04)", boxShadow: "0 1px 0 rgba(255,255,255,0.02), 0 4px 20px rgba(0,0,0,0.2)", zIndex: 10, flexShrink: 0 }}>
         <button onClick={onBack} className="tap-target" style={{ background: "none", border: "none", display: "flex", alignItems: "center", justifyContent: "center", padding: "4px" }}>
