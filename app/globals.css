@@ -141,8 +141,8 @@ button:active { transform: scale(0.97); opacity: 0.85; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes viewFadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes screenSlideIn {
-  from { opacity: 0; transform: translateY(12px); }
-  to { opacity: 1; transform: none; }
+  from { transform: translateY(12px); }
+  to { transform: none; }
 }
 @keyframes screenSlideOut {
   from { opacity: 1; transform: translateY(0); }
