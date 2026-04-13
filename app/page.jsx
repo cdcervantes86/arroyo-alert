@@ -72,6 +72,24 @@ function SkeletonCard({ i }) {
   return <div style={{ display: "flex", gap: "14px", alignItems: "center", padding: "14px 16px", marginBottom: "6px", borderRadius: "var(--radius-lg)", border: "1px solid rgba(255,255,255,0.04)", background: "rgba(255,255,255,0.01)", animation: `fadeIn 0.3s ease ${i * 0.05}s both` }}><div className="skeleton" style={{ width: 42, height: 42, borderRadius: "var(--radius-md)", flexShrink: 0 }} /><div style={{ flex: 1 }}><div className="skeleton" style={{ width: "45%", height: 14, marginBottom: 8, borderRadius: 4 }} /><div className="skeleton" style={{ width: "30%", height: 10, borderRadius: 3 }} /></div></div>;
 }
 
+function AnimatedScreen({ closing, children }) {
+  const [settled, setSettled] = useState(false);
+  useEffect(() => { if (!closing) { const t = setTimeout(() => setSettled(true), 400); return () => clearTimeout(t); } }, [closing]);
+  return (
+    <div style={{
+      position: "fixed", inset: 0, zIndex: 50, background: "#0a0f1a",
+      ...(closing
+        ? { animation: "screenSlideOut 0.25s ease forwards" }
+        : settled
+          ? {}
+          : { animation: "screenSlideIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)" }
+      ),
+    }}>
+      {children}
+    </div>
+  );
+}
+
 function OfflineBanner({ lang }) {
   const [offline, setOffline] = useState(false);
   useEffect(() => { const off = () => setOffline(true); const on = () => setOffline(false); window.addEventListener("offline", off); window.addEventListener("online", on); setOffline(!navigator.onLine); return () => { window.removeEventListener("offline", off); window.removeEventListener("online", on); }; }, []);
@@ -1113,10 +1131,10 @@ function AppContent() {
   const isRaining = weather?.isRaining || false;
 
   if (showOnboarding) return <Onboarding lang={lang} onComplete={() => setShowOnboarding(false)} onToggleLang={toggleLang} />;
-  if ((screen === "about" || closingMobile === "about") && !isDesktop) return <div style={{ animation: closingMobile === "about" ? "screenSlideOut 0.25s ease forwards" : "screenSlideIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", position: "fixed", inset: 0, zIndex: 50, background: "#0a0f1a", backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden" }}><AboutPage onBack={closeMobileScreen} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} onShowOnboarding={() => { setScreen("main"); setShowOnboarding(true); }} communityStats={{ reporters: communityStats?.reporters || 0, reports: communityStats?.totalReports || 0, zones: ZONES.length }} /></div>;
-  if ((screen === "heatmap" || closingMobile === "heatmap") && !isDesktop) return <div style={{ animation: closingMobile === "heatmap" ? "screenSlideOut 0.25s ease forwards" : "screenSlideIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", position: "fixed", inset: 0, zIndex: 50, background: "#0a0f1a", backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden" }}><HeatmapView onBack={closeMobileScreen} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} /></div>;
-  if ((screen === "profile" || closingMobile === "profile") && !isDesktop) return <div style={{ animation: closingMobile === "profile" ? "screenSlideOut 0.25s ease forwards" : "screenSlideIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", position: "fixed", inset: 0, zIndex: 50, background: "#0a0f1a", backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden" }}><ReporterProfile reports={reports} onBack={closeMobileScreen} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} /></div>;
-  if ((screen === "report" || closingMobile === "report") && !isDesktop) return <div style={{ animation: closingMobile === "report" ? "screenSlideOut 0.25s ease forwards" : "screenSlideIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)", position: "fixed", inset: 0, zIndex: 50, background: "#0a0f1a", backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden" }}><ReportFlow zones={ZONES} reports={reports} initialZoneId={selectedZone} userLocation={userLocation} onSubmit={async (data) => {
+  if ((screen === "about" || closingMobile === "about") && !isDesktop) return <AnimatedScreen closing={closingMobile === "about"}><AboutPage onBack={closeMobileScreen} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} onShowOnboarding={() => { setScreen("main"); setShowOnboarding(true); }} communityStats={{ reporters: communityStats?.reporters || 0, reports: communityStats?.totalReports || 0, zones: ZONES.length }} /></AnimatedScreen>;
+  if ((screen === "heatmap" || closingMobile === "heatmap") && !isDesktop) return <AnimatedScreen closing={closingMobile === "heatmap"}><HeatmapView onBack={closeMobileScreen} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} /></AnimatedScreen>;
+  if ((screen === "profile" || closingMobile === "profile") && !isDesktop) return <AnimatedScreen closing={closingMobile === "profile"}><ReporterProfile reports={reports} onBack={closeMobileScreen} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} /></AnimatedScreen>;
+  if ((screen === "report" || closingMobile === "report") && !isDesktop) return <AnimatedScreen closing={closingMobile === "report"}><ReportFlow zones={ZONES} reports={reports} initialZoneId={selectedZone} userLocation={userLocation} onSubmit={async (data) => {
     const prevCount = getReporterStats().reportCount;
     await handleReport(data);
     const newCount = getReporterStats().reportCount;
@@ -1130,7 +1148,7 @@ function AppContent() {
     const zone = ZONES.find(z => z.id === data.zoneId);
     setLastReport({ zoneId: data.zoneId, zoneName: zone?.name, zoneArea: zone?.area, severity: data.severity, text: data.text });
     setScreen("main");
-  }} onBack={closeMobileScreen} onLogoClick={handleLogoClick} /></div>;
+  }} onBack={closeMobileScreen} onLogoClick={handleLogoClick} /></AnimatedScreen>;
 
   const desktopTabs = [{ key: "map", Icon: MapIcon }, { key: "list", Icon: ListIcon }, { key: "live", Icon: LiveIcon }];
 
