@@ -140,7 +140,6 @@ export default function HeatmapView({ onBack, onLogoClick, onToggleLang }) {
       map.on("mouseenter", "heatmap-dot", () => { map.getCanvas().style.cursor = "pointer"; });
       map.on("mouseleave", "heatmap-dot", () => { map.getCanvas().style.cursor = ""; });
     }
-    };
 
     if (map.isStyleLoaded()) updateLayers();
     else map.on("load", updateLayers);
