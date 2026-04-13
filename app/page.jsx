@@ -555,7 +555,7 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
   const progress = heightPx / vh;
   const backdropOpacity = closing ? 0 : Math.max(0.15, Math.min(0.55, progress * 0.7));
   const backdropBlur = 0; // removed to prevent Safari flicker
-  const canScroll = snap === "full" && !isDragging;
+  const canScroll = (snap === "full" || snap === "half") && !isDragging;
   const contentOpacity = snap === "peek" && !isDragging ? 0 : Math.min(1, (heightPx - snapPx("peek")) / (snapPx("half") - snapPx("peek")));
 
   const subscribed = push.isSubscribed?.(zone.id);
@@ -652,7 +652,7 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
 
         {/* HALF + FULL CONTENT — visible above peek */}
         <div ref={contentRef} style={{
-          flex: 1, overflowY: canScroll ? "auto" : "hidden",
+          flex: 1, minHeight: 0, overflowY: canScroll ? "auto" : "hidden",
           WebkitOverflowScrolling: "touch", overscrollBehavior: "contain",
           opacity: contentOpacity,
           transition: isDragging ? "none" : `opacity 0.3s ease`,
@@ -982,6 +982,27 @@ function AppContent() {
       mapInstance.flyTo({ center: [longitude, latitude], zoom: 15, duration: 1000 });
     }, null, { enableHighAccuracy: true });
   }, [mapInstance, locationMarker, userLocation]);
+
+  // Restore location marker when map remounts (e.g., switching back from list view)
+  useEffect(() => {
+    if (!mapInstance || !userLocation) return;
+    // Check if marker is already on this map
+    if (locationMarker) {
+      try { if (locationMarker.getElement()?.parentNode) return; } catch(e) {}
+    }
+    const mapboxgl = require("mapbox-gl");
+    const el = document.createElement("div");
+    el.innerHTML = `
+      <div style="position:relative;width:24px;height:24px;">
+        <div style="position:absolute;inset:-6px;border-radius:50%;background:rgba(66,133,244,0.15);border:1px solid rgba(66,133,244,0.3);"></div>
+        <div style="width:16px;height:16px;border-radius:50%;background:#4285F4;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.3);margin:4px;"></div>
+      </div>
+    `;
+    const marker = new mapboxgl.Marker({ element: el, anchor: "center" })
+      .setLngLat([userLocation[1], userLocation[0]])
+      .addTo(mapInstance);
+    setLocationMarker(marker);
+  }, [mapInstance]); // Only re-run when map instance changes
 
   const currentMainView = isDesktop ? desktopView : mobileView;
   const panelVisible = isDesktop && showPanel;
