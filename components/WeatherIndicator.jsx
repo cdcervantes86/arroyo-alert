@@ -153,13 +153,12 @@ export default function WeatherIndicator() {
           display: "inline-block",
         }}>{icon}</span>
         {temp}°C
-        <span style={{
-          fontSize: "8px", color: "var(--text-faint)",
+        <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="var(--text-faint)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{
           transition: "transform 0.25s ease, opacity 0.25s ease",
           transform: expanded ? "rotate(180deg)" : "rotate(0deg)",
           opacity: 0.5,
           marginLeft: "1px",
-        }}>▾</span>
+        }}><polyline points="6 9 12 15 18 9"/></svg>
       </button>
 
       {/* Expanded card */}

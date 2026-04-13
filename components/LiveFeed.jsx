@@ -29,7 +29,7 @@ function VerifiedBadge({ lang }) {
   return <span style={{ display: "inline-flex", alignItems: "center", gap: "3px", fontSize: "9px", fontWeight: 700, color: "var(--accent)", background: "var(--accent-glow)", padding: "2px 6px", borderRadius: "4px", border: "1px solid rgba(91,156,246,0.12)", letterSpacing: "0.3px" }}><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>{lang === "en" ? "Verified" : "Verificado"}</span>;
 }
 
-function EmptyState({ lang }) {
+function EmptyState({ lang, onReport }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", padding: "40px 24px", textAlign: "center" }}>
       <div style={{ width: 72, height: 72, borderRadius: "var(--radius-xl)", background: "rgba(91,156,246,0.04)", border: "1px solid rgba(91,156,246,0.08)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "20px" }}>
@@ -40,14 +40,26 @@ function EmptyState({ lang }) {
       <div style={{ fontSize: "16px", fontWeight: 700, color: "var(--text)", marginBottom: "8px", letterSpacing: "-0.2px" }}>
         {lang === "es" ? "Sin actividad reciente" : "No recent activity"}
       </div>
-      <div style={{ fontSize: "13px", color: "var(--text-dim)", maxWidth: 240, lineHeight: 1.6 }}>
+      <div style={{ fontSize: "13px", color: "var(--text-dim)", maxWidth: 240, lineHeight: 1.6, marginBottom: "20px" }}>
         {lang === "es" ? "Los reportes aparecerán aquí en tiempo real cuando alguien reporte un arroyo" : "Reports will appear here in real time when someone reports an arroyo"}
       </div>
+      {onReport && (
+        <button onClick={onReport} className="tap-target" style={{
+          padding: "12px 28px", borderRadius: "var(--radius-lg)",
+          background: "linear-gradient(135deg, #D42A2A, #b91c1c)", border: "none",
+          color: "#fff", fontSize: "14px", fontWeight: 700,
+          boxShadow: "0 6px 20px rgba(212,42,42,0.25)",
+          display: "flex", alignItems: "center", gap: "8px",
+        }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          {lang === "es" ? "Sé el primero en reportar" : "Be the first to report"}
+        </button>
+      )}
     </div>
   );
 }
 
-export default function LiveFeed({ reports, onZoneClick, onUpvote, upvotedSet, onUpvoteLocal, activeFilter, onPhotoClick }) {
+export default function LiveFeed({ reports, onZoneClick, onUpvote, upvotedSet, onUpvoteLocal, activeFilter, onPhotoClick, onReport }) {
   const { lang, t } = useLanguage();
   const [, forceUpdate] = useState(0);
   const [shareData, setShareData] = useState(null);
@@ -63,7 +75,7 @@ export default function LiveFeed({ reports, onZoneClick, onUpvote, upvotedSet, o
   const deviceCounts = {};
   reports.forEach((r) => { if (r.device_id) deviceCounts[r.device_id] = (deviceCounts[r.device_id] || 0) + 1; });
 
-  if (!recentReports.length) return <EmptyState lang={lang} />;
+  if (!recentReports.length) return <EmptyState lang={lang} onReport={onReport} />;
 
   return (
     <>
@@ -97,6 +109,7 @@ export default function LiveFeed({ reports, onZoneClick, onUpvote, upvotedSet, o
                 padding: "16px 16px 16px 18px",
                 animation: `fadeIn 0.25s ease ${i * 0.04}s both`, cursor: "pointer",
                 position: "relative", overflow: "hidden",
+                opacity: Math.max(0.45, Math.min(1, (new Date(r.created_at).getTime() + 4 * 3600000 - Date.now()) / (4 * 3600000))),
               }} onClick={() => onZoneClick?.(zone.id)}>
                 {/* Accent bar */}
                 <div style={{ position: "absolute", left: 0, top: "12%", bottom: "12%", width: 3, borderRadius: "0 2px 2px 0", background: cfg.color }} />

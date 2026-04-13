@@ -131,7 +131,7 @@ export default function ZoneDetail({ zone, severity, reports, onBack, onReport, 
             {altRoutes.map((r, i) => (
               <div key={r.id} style={{ padding: "8px 0", borderTop: i > 0 ? "1px solid rgba(34,197,94,0.08)" : "none", fontSize: "14px", color: "var(--text-secondary)", lineHeight: 1.55 }}>
                 <div style={{ display: "flex", alignItems: "flex-start", gap: "8px" }}>
-                  <span style={{ color: "var(--safe)", fontWeight: 700, fontSize: "16px", lineHeight: "20px", flexShrink: 0 }}>↗</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--safe)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><circle cx="6" cy="19" r="3"/><circle cx="18" cy="5" r="3"/><path d="M12 19h4.5a3.5 3.5 0 000-7h-8a3.5 3.5 0 010-7H12"/></svg>
                   <div style={{ flex: 1 }}>
                     <span>{r.alt_route}</span>
                     <span style={{ fontSize: "11px", color: "var(--text-faint)", marginLeft: "8px" }}>{timeAgoLocalized(r.created_at, lang)}</span>

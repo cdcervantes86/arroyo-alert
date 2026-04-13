@@ -282,14 +282,26 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
       }
 
       // Popup
-      const label = sev ? SEVERITY[sev].label : "Sin reportes";
-      const predLabel = pred && pred.score >= 20 ?
-        `<br/><span style="color:${pred.score >= 70 ? '#ef4444' : pred.score >= 40 ? '#eab308' : '#60a5fa'}">${pred.score}% probabilidad</span>` : '';
+      const es = lang === "es";
+      const label = sev ? (es ? SEVERITY[sev].label : { danger: "Danger", caution: "Caution", safe: "Clear" }[sev] || sev) : "";
+      const predLabel = pred && pred.score >= 20 && !sev ?
+        `<div style="margin-top:4px;font-size:11px;color:${pred.score >= 70 ? '#ef4444' : pred.score >= 40 ? '#eab308' : '#60a5fa'};font-weight:600">${pred.score}% ${es ? 'probabilidad' : 'probability'}</div>` : '';
+      const latestReport = getZoneReports(zone.id, reports)[0];
+      const timeAgo = latestReport ? (() => {
+        const m = Math.round((Date.now() - new Date(latestReport.created_at).getTime()) / 60000);
+        if (m < 1) return es ? "ahora" : "now";
+        if (m < 60) return `${m}m`;
+        return `${Math.floor(m / 60)}h ${m % 60}m`;
+      })() : '';
       const popupHtml = `
-        <div style="font-family:'DM Sans',sans-serif;font-size:12px;color:#fff;line-height:1.4;">
-          <b>${zone.name}</b><br/>
-          <span style="opacity:0.5">${zone.area}</span><br/>
-          <span style="color:${col}">${label}</span>${count > 0 ? ` · ${count}` : ''}${predLabel}
+        <div style="font-family:'DM Sans',sans-serif;font-size:12px;color:#fff;line-height:1.5;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px;">
+            ${sev ? `<span style="width:6px;height:6px;border-radius:50%;background:${col};flex-shrink:0"></span>` : ''}
+            <b style="font-size:13px;font-weight:700">${zone.name}</b>
+          </div>
+          <span style="opacity:0.45;font-size:11px">${zone.area}</span>
+          ${sev ? `<div style="margin-top:4px;display:flex;align-items:center;gap:6px"><span style="color:${col};font-weight:600;font-size:11px">${label}</span><span style="opacity:0.3">·</span><span style="opacity:0.5;font-size:11px">${timeAgo}</span></div>` : ''}
+          ${predLabel}
         </div>
       `;
 

@@ -148,7 +148,7 @@ export default function AboutPage({ onBack, onLogoClick, onToggleLang, lang: lan
             <div style={{ fontSize: "14px", fontWeight: 600, color: "var(--text)" }}>AlertaArroyo v{APP_VERSION}</div>
             <div style={{ fontSize: "12px", color: "var(--text-dim)", marginTop: "2px" }}>{CHANGELOG[0]?.title?.[lang] || CHANGELOG[0]?.title?.es}</div>
           </div>
-          <span style={{ color: "var(--text-faint)", fontSize: "14px", transform: showChangelog ? "rotate(90deg)" : "none", transition: "transform 0.2s ease" }}>›</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--text-faint)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transform: showChangelog ? "rotate(90deg)" : "none", transition: "transform 0.2s ease", flexShrink: 0 }}><polyline points="9 18 15 12 9 6"/></svg>
         </button>
         {showChangelog && CHANGELOG[0] && (
           <div style={{ padding: "0 0 6px", animation: "fadeIn 0.2s ease" }}>
@@ -169,7 +169,7 @@ export default function AboutPage({ onBack, onLogoClick, onToggleLang, lang: lan
                   <span style={{ fontSize: "12px", color: "var(--text-dim)", fontWeight: 600, flex: 1, textAlign: "left" }}>
                     {es ? `${(CHANGELOG[0].bugfixes[lang] || CHANGELOG[0].bugfixes.es).length} correcciones` : `${(CHANGELOG[0].bugfixes[lang] || CHANGELOG[0].bugfixes.es).length} bug fixes`}
                   </span>
-                  <span style={{ fontSize: "11px", color: "var(--text-faint)", transform: showBugfixes ? "rotate(180deg)" : "none", transition: "transform 0.2s ease" }}>▾</span>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--text-faint)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transform: showBugfixes ? "rotate(180deg)" : "none", transition: "transform 0.2s ease", flexShrink: 0 }}><polyline points="6 9 12 15 18 9"/></svg>
                 </button>
                 {showBugfixes && (CHANGELOG[0].bugfixes[lang] || CHANGELOG[0].bugfixes.es).map((fix, i) => (
                   <div key={i} style={{ padding: "6px 14px", fontSize: "12px", color: "var(--text-dim)", display: "flex", gap: "8px", alignItems: "flex-start" }}>

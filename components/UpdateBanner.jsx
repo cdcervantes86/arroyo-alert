@@ -81,7 +81,7 @@ export default function UpdateBanner() {
                 <span style={{ fontSize: "13px", color: "var(--text-dim)", fontWeight: 600, flex: 1, textAlign: "left" }}>
                   {es ? `${bugfixes.length} correcciones` : `${bugfixes.length} bug fixes`}
                 </span>
-                <span style={{ fontSize: "12px", color: "var(--text-faint)", transform: showBugfixes ? "rotate(180deg)" : "none", transition: "transform 0.2s ease" }}>▾</span>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--text-faint)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transform: showBugfixes ? "rotate(180deg)" : "none", transition: "transform 0.2s ease", flexShrink: 0 }}><polyline points="6 9 12 15 18 9"/></svg>
               </button>
               {showBugfixes && (
                 <div style={{ display: "flex", flexDirection: "column", gap: "4px", marginBottom: "20px", animation: "fadeIn 0.2s ease" }}>
