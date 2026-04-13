@@ -1430,11 +1430,11 @@ function AppContent() {
                           animation: `fadeIn 0.25s ease ${i * 0.03}s both`,
                           position: "relative", overflow: "hidden",
                         }}>
-                          {/* Subtle photo background for zones with photos */}
+                          {/* Subtle photo background - peeks in from right */}
                           {z.photos && (
                             <>
-                              <img src={z.photos[sv] || z.photos.clear} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 40%", opacity: sv ? 0.12 : 0.06, filter: "saturate(0.4)" }} loading="lazy" />
-                              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, rgba(10,15,26,0.7) 0%, rgba(10,15,26,0.3) 100%)" }} />
+                              <img src={z.photos[sv] || z.photos.clear} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 40%", opacity: sv ? 0.25 : 0.15 }} loading="lazy" />
+                              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, #0a0f1a 0%, #0a0f1a 35%, rgba(10,15,26,0.6) 70%, rgba(10,15,26,0.3) 100%)" }} />
                             </>
                           )}
                           {/* Severity accent bar */}
