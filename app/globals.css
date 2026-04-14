@@ -43,8 +43,9 @@ button:active { transform: scale(0.97); opacity: 0.85; }
 .header-icon-btn:hover svg { opacity: 1; }
 
 /* More menu item hover */
-.more-menu-item { transition: background 0.12s ease; }
-.more-menu-item:hover { background: rgba(255,255,255,0.04) !important; }
+.more-menu-item { transition: all 0.12s ease; }
+.more-menu-item:hover { background: rgba(255,255,255,0.06) !important; }
+.more-menu-item:active { background: rgba(255,255,255,0.08) !important; transform: scale(0.98); }
 
 .card-accent-danger { border-left: 3px solid var(--danger) !important; }
 .card-accent-caution { border-left: 3px solid var(--caution) !important; }
