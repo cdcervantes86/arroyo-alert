@@ -120,45 +120,47 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang })
     { key: "more", Icon: MoreIcon, label: lang === "es" ? "Más" : "More" },
   ];
   return (
-    <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, padding: "0 12px", paddingBottom: "calc(8px + env(safe-area-inset-bottom, 0px))", zIndex: 100, pointerEvents: "none" }}>
+    <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, padding: "0 14px", paddingBottom: "calc(10px + env(safe-area-inset-bottom, 0px))", zIndex: 100, pointerEvents: "none" }}>
       <div className="bottom-nav" role="navigation" aria-label={lang === "es" ? "Navegación principal" : "Main navigation"} style={{
-        display: "flex", alignItems: "center", justifyContent: "space-around",
-        background: "rgba(14,22,40,0.85)",
-        backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)",
-        borderRadius: "22px",
-        border: "1px solid rgba(255,255,255,0.08)",
-        boxShadow: "0 8px 32px rgba(0,0,0,0.4), 0 2px 8px rgba(0,0,0,0.2)",
-        padding: "6px 4px",
+        display: "flex", alignItems: "stretch",
+        background: "rgba(12,18,32,0.7)",
+        backdropFilter: "blur(24px) saturate(1.4)", WebkitBackdropFilter: "blur(24px) saturate(1.4)",
+        borderRadius: "20px",
+        border: "1px solid rgba(255,255,255,0.1)",
+        boxShadow: "0 8px 40px rgba(0,0,0,0.5), inset 0 0.5px 0 rgba(255,255,255,0.06)",
+        padding: "5px 2px",
         pointerEvents: "auto",
       }}>
         {tabs.map((tab) => {
           const isActive = activeTab === tab.key;
           if (tab.isReport) return (
-            <button key={tab.key} onClick={onReport} aria-label={tab.label} style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "2px", background: "none", border: "none", padding: "4px 14px", position: "relative" }}>
-              <div style={{ width: 40, height: 40, borderRadius: "50%", background: "linear-gradient(135deg, #D42A2A, #a11a1a)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 16px rgba(212,42,42,0.35)", border: "1.5px solid rgba(255,255,255,0.1)" }}>
+            <button key={tab.key} onClick={onReport} aria-label={tab.label} style={{
+              flex: 1, display: "flex", alignItems: "center", justifyContent: "center",
+              background: "none", border: "none", padding: "4px 0",
+            }}>
+              <div style={{ width: 42, height: 42, borderRadius: "50%", background: "linear-gradient(135deg, #D42A2A, #a11a1a)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 16px rgba(212,42,42,0.4)", border: "1.5px solid rgba(255,255,255,0.12)" }}>
                 <AlertTriangleIcon size={17} color="#fff" />
               </div>
             </button>
           );
           return (
             <button key={tab.key} onClick={() => onTab(tab.key)} aria-label={tab.label} aria-current={isActive ? "page" : undefined} style={{
-              display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-              gap: "2px", background: "none", border: "none", padding: "6px 16px", position: "relative",
-              borderRadius: "16px", transition: "all 0.25s cubic-bezier(0.34, 1.4, 0.64, 1)",
+              flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+              gap: "3px", background: "none", border: "none", padding: "8px 0", position: "relative",
+              borderRadius: "14px",
             }}>
               {isActive && <div style={{
-                position: "absolute", inset: "2px 4px", borderRadius: "14px",
-                background: "rgba(91,156,246,0.1)", border: "1px solid rgba(91,156,246,0.12)",
-                transition: "all 0.3s cubic-bezier(0.34, 1.4, 0.64, 1)",
+                position: "absolute", inset: "2px 6px", borderRadius: "12px",
+                background: "rgba(91,156,246,0.12)", border: "1px solid rgba(91,156,246,0.15)",
               }} />}
               <div style={{ position: "relative", zIndex: 1 }}>
-                <tab.Icon size={20} color={isActive ? "var(--accent)" : "rgba(255,255,255,0.35)"} active={isActive} />
+                <tab.Icon size={21} color={isActive ? "var(--accent)" : "rgba(255,255,255,0.4)"} active={isActive} />
                 {tab.badge > 0 && !isActive && (tab.key === "map"
-                  ? <span style={{ position: "absolute", top: -5, right: -8, minWidth: 16, height: 16, borderRadius: "8px", background: "var(--danger)", border: "1.5px solid rgba(14,22,40,0.85)", fontSize: "9px", fontWeight: 800, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", padding: "0 3px", animation: "blink 1.5s ease-in-out infinite" }}>{tab.badge}</span>
-                  : <span style={{ position: "absolute", top: -2, right: -4, width: 7, height: 7, borderRadius: "50%", background: "var(--danger)", border: "1.5px solid rgba(14,22,40,0.85)", animation: "blink 1.5s ease-in-out infinite" }} />
+                  ? <span style={{ position: "absolute", top: -5, right: -8, minWidth: 16, height: 16, borderRadius: "8px", background: "var(--danger)", border: "1.5px solid rgba(12,18,32,0.7)", fontSize: "9px", fontWeight: 800, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", padding: "0 3px", animation: "blink 1.5s ease-in-out infinite" }}>{tab.badge}</span>
+                  : <span style={{ position: "absolute", top: -2, right: -4, width: 7, height: 7, borderRadius: "50%", background: "var(--danger)", border: "1.5px solid rgba(12,18,32,0.7)", animation: "blink 1.5s ease-in-out infinite" }} />
                 )}
               </div>
-              <span style={{ position: "relative", zIndex: 1, fontSize: "9px", fontWeight: isActive ? 700 : 500, color: isActive ? "var(--accent)" : "rgba(255,255,255,0.35)", letterSpacing: "0.2px", transition: "all 0.2s ease" }}>{tab.label}</span>
+              <span style={{ position: "relative", zIndex: 1, fontSize: "10px", fontWeight: isActive ? 700 : 500, color: isActive ? "var(--accent)" : "rgba(255,255,255,0.4)", letterSpacing: "0.2px" }}>{tab.label}</span>
             </button>
           );
         })}
@@ -1494,7 +1496,7 @@ function AppContent() {
                     );
                   });
                   })()}
-                  <div style={{ textAlign: "center", padding: "32px 0 20px" }}>
+                  <div style={{ textAlign: "center", padding: "32px 0 80px" }}>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", fontSize: "12px", color: "var(--text-faint)", marginBottom: "10px" }}>
                       {es ? "Hecho para Barranquilla" : "Made for Barranquilla"}
                       <svg width="20" height="14" viewBox="0 0 30 20" style={{ borderRadius: "2px", boxShadow: "0 0 0 0.5px rgba(255,255,255,0.1)" }}><rect width="30" height="20" fill="#D42A2A"/><rect x="3" y="3" width="24" height="14" fill="#F5D033"/><rect x="6" y="6" width="18" height="8" fill="#2D8A2D"/><polygon points="15,7.5 15.9,9.3 17.8,9.6 16.4,11 16.7,12.9 15,12 13.3,12.9 13.6,11 12.2,9.6 14.1,9.3" fill="rgba(255,255,255,0.9)"/></svg>
@@ -1525,11 +1527,8 @@ function AppContent() {
         )}
       </div>
 
-      {/* BOTTOM NAV — mobile only */}
-      {!isDesktop && <>
-        <div style={{ height: "calc(64px + env(safe-area-inset-bottom, 0px))", flexShrink: 0 }} />
-        <BottomNav activeTab={mobileView} onTab={handleMobileTab} onReport={() => setScreen("report")} liveCount={liveCount} dangerCount={dangerCount} lang={lang} />
-      </>}
+      {/* BOTTOM NAV — mobile only, fixed floating pill */}
+      {!isDesktop && <BottomNav activeTab={mobileView} onTab={handleMobileTab} onReport={() => setScreen("report")} liveCount={liveCount} dangerCount={dangerCount} lang={lang} />}
       {showMoreMenu && <MoreMenu lang={lang} onSelect={(key) => { if (key === "digest") setShowDigest(true); else setScreen(key); }} onClose={() => setShowMoreMenu(false)} />}
 
       {/* ZONE DETAIL — Bottom Sheet overlay (map stays visible behind) */}
