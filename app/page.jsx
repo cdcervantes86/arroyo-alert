@@ -122,12 +122,12 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang })
   return (
     <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, padding: "0 16px", paddingBottom: "calc(12px + env(safe-area-inset-bottom, 0px))", zIndex: 100, pointerEvents: "none" }}>
       <div className="bottom-nav" role="navigation" aria-label={lang === "es" ? "Navegación principal" : "Main navigation"} style={{
-        display: "flex", alignItems: "center",
-        background: "rgba(10,15,26,0.35)",
-        backdropFilter: "blur(16px) saturate(1.6)", WebkitBackdropFilter: "blur(16px) saturate(1.6)",
+        display: "flex", alignItems: "stretch",
+        background: "rgba(10,15,26,0.2)",
+        backdropFilter: "blur(16px) saturate(1.8)", WebkitBackdropFilter: "blur(16px) saturate(1.8)",
         borderRadius: "99px",
-        border: "1px solid rgba(255,255,255,0.15)",
-        boxShadow: "0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.12)",
+        border: "1px solid rgba(255,255,255,0.18)",
+        boxShadow: "0 8px 32px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.15)",
         padding: "6px 8px",
         pointerEvents: "auto",
       }}>
@@ -136,7 +136,7 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang })
           if (tab.isReport) return (
             <button key={tab.key} onClick={onReport} aria-label={lang === "es" ? "Reportar" : "Report"} style={{
               flex: 1, display: "flex", alignItems: "center", justifyContent: "center",
-              background: "none", border: "none", padding: "0",
+              background: "none", border: "none", padding: "4px 0", minHeight: 46,
             }}>
               <div style={{ width: 44, height: 44, borderRadius: "50%", background: "linear-gradient(135deg, #D42A2A, #991b1b)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 6px 20px rgba(212,42,42,0.45)", border: "1.5px solid rgba(255,255,255,0.15)" }}>
                 <AlertTriangleIcon size={17} color="#fff" />
