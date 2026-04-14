@@ -120,7 +120,7 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang })
     { key: "more", Icon: MoreIcon, label: lang === "es" ? "Más" : "More" },
   ];
   return (
-    <div style={{ padding: "0 12px", paddingBottom: "calc(8px + env(safe-area-inset-bottom, 0px))", flexShrink: 0 }}>
+    <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, padding: "0 12px", paddingBottom: "calc(8px + env(safe-area-inset-bottom, 0px))", zIndex: 100, pointerEvents: "none" }}>
       <div className="bottom-nav" role="navigation" aria-label={lang === "es" ? "Navegación principal" : "Main navigation"} style={{
         display: "flex", alignItems: "center", justifyContent: "space-around",
         background: "rgba(14,22,40,0.85)",
@@ -129,6 +129,7 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang })
         border: "1px solid rgba(255,255,255,0.08)",
         boxShadow: "0 8px 32px rgba(0,0,0,0.4), 0 2px 8px rgba(0,0,0,0.2)",
         padding: "6px 4px",
+        pointerEvents: "auto",
       }}>
         {tabs.map((tab) => {
           const isActive = activeTab === tab.key;
@@ -1525,7 +1526,10 @@ function AppContent() {
       </div>
 
       {/* BOTTOM NAV — mobile only */}
-      {!isDesktop && <BottomNav activeTab={mobileView} onTab={handleMobileTab} onReport={() => setScreen("report")} liveCount={liveCount} dangerCount={dangerCount} lang={lang} />}
+      {!isDesktop && <>
+        <div style={{ height: "calc(64px + env(safe-area-inset-bottom, 0px))", flexShrink: 0 }} />
+        <BottomNav activeTab={mobileView} onTab={handleMobileTab} onReport={() => setScreen("report")} liveCount={liveCount} dangerCount={dangerCount} lang={lang} />
+      </>}
       {showMoreMenu && <MoreMenu lang={lang} onSelect={(key) => { if (key === "digest") setShowDigest(true); else setScreen(key); }} onClose={() => setShowMoreMenu(false)} />}
 
       {/* ZONE DETAIL — Bottom Sheet overlay (map stays visible behind) */}
