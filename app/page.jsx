@@ -375,9 +375,10 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
     const panelContent = (
       <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0 }}>
         {/* Header */}
-        <div style={{ padding: "20px 24px 16px", borderBottom: `2px solid ${sevColor}30`, flexShrink: 0 }}>
+        <div style={{ padding: "20px 24px 16px", borderBottom: `1px solid ${sevColor}20`, flexShrink: 0, position: "relative" }}>
+          <div style={{ position: "absolute", bottom: 0, left: "10%", right: "10%", height: "1px", background: `linear-gradient(90deg, transparent, ${sevColor}30, transparent)` }} />
           <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
-            <div style={{ width: 44, height: 44, borderRadius: "var(--radius-sm)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: severity ? `${sevColor}10` : "rgba(255,255,255,0.03)", border: `1px solid ${severity ? sevColor + "20" : "rgba(255,255,255,0.06)"}` }}>
+            <div style={{ width: 44, height: 44, borderRadius: "14px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: severity ? `${sevColor}10` : "rgba(255,255,255,0.04)", border: `1px solid ${severity ? sevColor + "20" : "rgba(255,255,255,0.08)"}`, boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)" }}>
               <SeverityIcon severity={severity} size={26} />
             </div>
             <div style={{ flex: 1 }}>
@@ -385,10 +386,10 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
               <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "3px" }}>
                 <span style={{ fontSize: "13px", color: "var(--text-dim)" }}>{zone.area}</span>
                 {userLocation && (() => { const d = getDistanceKm(userLocation[0], userLocation[1], zone.lat, zone.lng); return <span style={{ fontSize: "11px", color: "var(--text-faint)", display: "inline-flex", alignItems: "center", gap: "3px" }}><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>{d < 1 ? `${Math.round(d * 1000)}m` : `${d.toFixed(1)}km`}</span>; })()}
-                {severity && <span style={{ fontSize: "11px", fontWeight: 600, color: sevColor, background: `${sevColor}0a`, padding: "2px 8px", borderRadius: "6px" }}>{getSevLabel(severity, lang)}</span>}
+                {severity && <span style={{ fontSize: "11px", fontWeight: 600, color: sevColor, background: `${sevColor}0c`, padding: "2px 8px", borderRadius: "99px", border: `1px solid ${sevColor}18` }}>{getSevLabel(severity, lang)}</span>}
               </div>
             </div>
-            <button onClick={handleDesktopClose} className="tap-target" style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(255,255,255,0.06)", border: "none", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <button onClick={handleDesktopClose} className="tap-target" style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)" }}>
               <svg width="10" height="10" viewBox="0 0 10 10" stroke="var(--text-dim)" strokeWidth="1.5" strokeLinecap="round"><line x1="2" y1="2" x2="8" y2="8"/><line x1="8" y1="2" x2="2" y2="8"/></svg>
             </button>
           </div>
@@ -550,9 +551,10 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
       return (
         <div style={{
           position: "fixed", top: 0, right: 0, bottom: 0, width: 400, zIndex: 1001,
-          background: "#0e1628",
-          borderLeft: "1px solid rgba(255,255,255,0.06)",
-          boxShadow: "-12px 0 48px rgba(0,0,0,0.4)",
+          background: "rgba(12,18,32,0.78)",
+          backdropFilter: "blur(24px) saturate(1.4)", WebkitBackdropFilter: "blur(24px) saturate(1.4)",
+          borderLeft: "1px solid rgba(255,255,255,0.1)",
+          boxShadow: "-8px 0 32px rgba(0,0,0,0.35), inset 1px 0 0 rgba(255,255,255,0.06)",
           animation: closing ? "desktopPanelOut 0.25s ease forwards" : "desktopPanelIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)",
           display: "flex", flexDirection: "column",
         }}>
@@ -572,9 +574,10 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
       }}>
         <div onClick={(e) => e.stopPropagation()} style={{
           width: "100%", maxWidth: 480, maxHeight: "80vh",
-          background: "#0e1628",
-          borderRadius: "var(--radius-xl)", border: "1px solid rgba(255,255,255,0.06)",
-          boxShadow: "0 24px 80px rgba(0,0,0,0.6)",
+          background: "rgba(12,18,32,0.78)",
+          backdropFilter: "blur(24px) saturate(1.4)", WebkitBackdropFilter: "blur(24px) saturate(1.4)",
+          borderRadius: "20px", border: "1px solid rgba(255,255,255,0.1)",
+          boxShadow: "0 24px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08)",
           animation: closing ? "desktopModalOut 0.25s ease forwards" : "modalScaleIn 0.3s cubic-bezier(0.34, 1.4, 0.64, 1)",
           display: "flex", flexDirection: "column", overflow: "hidden",
         }}>
@@ -699,9 +702,12 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
           position: "fixed", left: sheetMargin, right: sheetMargin, bottom: 0, zIndex: 1001,
           height: `${heightPx}px`,
           maxHeight: "92vh",
-          background: "#0e1628",
+          background: "rgba(12,18,32,0.82)",
+          backdropFilter: "blur(24px) saturate(1.4)", WebkitBackdropFilter: "blur(24px) saturate(1.4)",
           borderRadius: `${sheetRadius}px ${sheetRadius}px 0 0`,
-          boxShadow: `0 -20px 80px rgba(0,0,0,0.7), 0 -4px 20px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.06), inset 0 1px 0 rgba(255,255,255,0.04)`,
+          boxShadow: `0 -12px 48px rgba(0,0,0,0.5), 0 -2px 12px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1)`,
+          border: "1px solid rgba(255,255,255,0.1)",
+          borderBottom: "none",
           display: "flex", flexDirection: "column",
           transition: isDragging ? "none" : `height ${DURATION} ${SPRING}, left ${DURATION} ${SPRING}, right ${DURATION} ${SPRING}, border-radius ${DURATION} ${SPRING}`,
           overflow: "hidden",
@@ -709,14 +715,14 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
         }}>
 
         {/* Handle */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "12px 0 6px", flexShrink: 0, cursor: "grab" }}>
-          <div style={{ width: 40, height: 5, borderRadius: 3, background: "rgba(255,255,255,0.2)" }} />
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "10px 0 4px", flexShrink: 0, cursor: "grab" }}>
+          <div style={{ width: 36, height: 4, borderRadius: 3, background: "rgba(255,255,255,0.25)", boxShadow: "inset 0 0.5px 0 rgba(255,255,255,0.1)" }} />
         </div>
 
         {/* PEEK CONTENT — always visible */}
         <div style={{ padding: "6px 20px 12px", flexShrink: 0, borderBottom: snap !== "peek" ? `1px solid ${sevColor}25` : "none" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
-            <div style={{ width: 44, height: 44, borderRadius: "var(--radius-md)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: severity ? `${sevColor}12` : "rgba(255,255,255,0.04)", border: `1px solid ${severity ? sevColor + "25" : "rgba(255,255,255,0.06)"}` }}>
+            <div style={{ width: 44, height: 44, borderRadius: "14px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: severity ? `${sevColor}10` : "rgba(255,255,255,0.04)", border: `1px solid ${severity ? sevColor + "20" : "rgba(255,255,255,0.08)"}`, boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)" }}>
               <SeverityIcon severity={severity} size={26} />
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
@@ -724,14 +730,14 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
               <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "3px", flexWrap: "wrap" }}>
                 <span style={{ fontSize: "13px", color: "var(--text-dim)" }}>{zone.area}</span>
                 {userLocation && (() => { const d = getDistanceKm(userLocation[0], userLocation[1], zone.lat, zone.lng); return <span style={{ fontSize: "11px", color: "var(--text-faint)", display: "inline-flex", alignItems: "center", gap: "3px" }}><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>{d < 1 ? `${Math.round(d * 1000)}m` : `${d.toFixed(1)}km`}</span>; })()}
-                {severity && <span style={{ fontSize: "11px", fontWeight: 600, color: sevColor, background: `${sevColor}0a`, padding: "2px 8px", borderRadius: "6px" }}>{getSevLabel(severity, lang)}</span>}
+                {severity && <span style={{ fontSize: "11px", fontWeight: 600, color: sevColor, background: `${sevColor}0c`, padding: "2px 8px", borderRadius: "99px", border: `1px solid ${sevColor}18` }}>{getSevLabel(severity, lang)}</span>}
                 {reports.length > 0 && <span style={{ fontSize: "11px", color: "var(--text-faint)", fontVariantNumeric: "tabular-nums" }}>{reports.length} {reports.length === 1 ? "report" : es ? "reportes" : "reports"}</span>}
               </div>
             </div>
-            <button onClick={(e) => { e.stopPropagation(); favs.toggle(zone.id); if (navigator.vibrate) navigator.vibrate(30); }} style={{ width: 32, height: 32, borderRadius: "50%", background: favs.isFavorite(zone.id) ? "rgba(250,204,21,0.1)" : "rgba(255,255,255,0.06)", border: favs.isFavorite(zone.id) ? "1px solid rgba(250,204,21,0.2)" : "none", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all 0.2s ease" }}>
+            <button onClick={(e) => { e.stopPropagation(); favs.toggle(zone.id); if (navigator.vibrate) navigator.vibrate(30); }} style={{ width: 32, height: 32, borderRadius: "50%", background: favs.isFavorite(zone.id) ? "rgba(250,204,21,0.1)" : "rgba(255,255,255,0.06)", border: `1px solid ${favs.isFavorite(zone.id) ? "rgba(250,204,21,0.2)" : "rgba(255,255,255,0.08)"}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all 0.2s ease", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)" }}>
               <StarIcon size={14} color={favs.isFavorite(zone.id) ? "#facc15" : "rgba(255,255,255,0.35)"} filled={favs.isFavorite(zone.id)} />
             </button>
-            <button onClick={animateClose} style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(255,255,255,0.08)", border: "none", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "background 0.15s ease" }}>
+            <button onClick={animateClose} style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all 0.15s ease", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)" }}>
               <svg width="11" height="11" viewBox="0 0 10 10" stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" strokeLinecap="round"><line x1="2" y1="2" x2="8" y2="8"/><line x1="8" y1="2" x2="2" y2="8"/></svg>
             </button>
           </div>
@@ -740,7 +746,7 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
 
         {/* REPORT BUTTON — always visible, gets clipped at peek to tease swiping up */}
         <div style={{ padding: "12px 20px 14px", flexShrink: 0 }}>
-          <button onClick={onReport} style={{ width: "100%", padding: "15px", background: "linear-gradient(135deg, #D42A2A, #b91c1c)", color: "#fff", border: "none", borderRadius: "var(--radius-lg)", fontSize: "15px", fontWeight: 700, boxShadow: "0 6px 20px rgba(212,42,42,0.25)", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
+          <button onClick={onReport} style={{ width: "100%", padding: "15px", background: "linear-gradient(145deg, #e53e3e, #b91c1c)", color: "#fff", border: "none", borderRadius: "16px", fontSize: "15px", fontWeight: 700, boxShadow: "0 2px 8px rgba(212,42,42,0.3), 0 8px 24px rgba(212,42,42,0.15), inset 0 1px 0 rgba(255,255,255,0.15)", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
             <AlertTriangleIcon size={16} color="#fff" />
             {t.reportThisZone}
           </button>
@@ -749,7 +755,7 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
         {/* Bottom fade — visible at peek to hint "swipe up", fades away when expanded */}
         <div style={{
           position: "absolute", bottom: 0, left: 0, right: 0, height: 60,
-          background: "linear-gradient(to top, #0e1628 0%, rgba(14,22,40,0.9) 40%, transparent 100%)",
+          background: "linear-gradient(to top, rgba(12,18,32,0.95) 0%, rgba(12,18,32,0.6) 40%, transparent 100%)",
           pointerEvents: "none", zIndex: 5,
           opacity: Math.max(0, 1 - expansion * 3),
           transition: isDragging ? "none" : "opacity 0.3s ease",
