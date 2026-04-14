@@ -386,11 +386,17 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
         .mapboxgl-ctrl-attrib a {
           color: rgba(255,255,255,0.4) !important;
         }
+        .mapboxgl-ctrl-bottom-right {
+          right: ${panelOpen ? 392 : 12}px !important;
+          transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
         .mapboxgl-ctrl-group {
-          background: #0e1628 !important;
-          border: 1px solid rgba(255,255,255,0.06) !important;
-          border-radius: 10px !important;
-          box-shadow: 0 4px 16px rgba(0,0,0,0.4) !important;
+          background: rgba(10,15,26,0.2) !important;
+          backdrop-filter: blur(16px) saturate(1.6) !important;
+          -webkit-backdrop-filter: blur(16px) saturate(1.6) !important;
+          border: 1px solid rgba(255,255,255,0.13) !important;
+          border-radius: 12px !important;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.2), 0 8px 24px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.1) !important;
           overflow: hidden !important;
         }
         .mapboxgl-ctrl-group button {

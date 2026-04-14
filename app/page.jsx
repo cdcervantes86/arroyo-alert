@@ -1364,20 +1364,8 @@ function AppContent() {
             </Suspense>
             </MapErrorBoundary>
             {isRaining && <div className="rain-overlay" />}
-            {/* First-time hint — shows when no reports are active */}
-            {!loading && !hintDismissed && reports.filter(r => new Date(r.created_at).getTime() > Date.now() - 4 * 3600000).length === 0 && (
-              <div style={{ position: "absolute", bottom: 90, left: 16, right: 16, zIndex: 6, display: "flex", justifyContent: "center", animation: "fadeIn 0.5s ease 1s both" }}>
-                <div style={{ background: "rgba(14,22,40,0.92)", borderRadius: "99px", padding: "10px 12px 10px 14px", border: "1px solid rgba(255,255,255,0.12)", display: "inline-flex", alignItems: "center", gap: "8px", boxShadow: "0 4px 16px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08)" }}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                  <span style={{ fontSize: "12px", color: "var(--text-secondary)", fontWeight: 500 }}>{es ? "Toca una zona o usa Reportar" : "Tap a zone or use Report"}</span>
-                  <button onClick={() => setHintDismissed(true)} style={{ width: 22, height: 22, borderRadius: "50%", background: "rgba(255,255,255,0.08)", border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0 }}>
-                    <svg width="8" height="8" viewBox="0 0 8 8" stroke="var(--text-faint)" strokeWidth="1.5" strokeLinecap="round"><line x1="1" y1="1" x2="7" y2="7"/><line x1="7" y1="1" x2="1" y2="7"/></svg>
-                  </button>
-                </div>
-              </div>
-            )}
             {/* Floating map controls */}
-            <div style={{ position: "absolute", top: 12, right: 12, zIndex: 800, display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "8px" }}>
+            <div style={{ position: "absolute", top: 12, right: panelVisible ? 392 : 12, zIndex: 800, display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "8px", transition: "right 0.3s cubic-bezier(0.4, 0, 0.2, 1)" }}>
               <RainRadarButton enabled={radar.enabled} onToggle={radar.toggle} />
               <button onClick={handleLocate} aria-label={es ? "Mi ubicación" : "My location"} className="tap-target" style={{
                 width: 40, height: 40, borderRadius: "50%",
@@ -1583,6 +1571,19 @@ function AppContent() {
           </div>
         )}
       </div>
+
+      {/* HINT BUBBLE — fixed, floats above nav pill */}
+      {currentMainView === "map" && !loading && !hintDismissed && reports.filter(r => new Date(r.created_at).getTime() > Date.now() - 4 * 3600000).length === 0 && (
+        <div style={{ position: "fixed", bottom: "calc(80px + env(safe-area-inset-bottom, 0px))", left: 16, right: 16, zIndex: 99, display: "flex", justifyContent: "center", animation: "fadeIn 0.5s ease 1s both", pointerEvents: "none" }}>
+          <div style={{ background: "rgba(10,15,26,0.2)", backdropFilter: "blur(16px) saturate(1.8)", WebkitBackdropFilter: "blur(16px) saturate(1.8)", borderRadius: "99px", padding: "10px 12px 10px 14px", border: "1px solid rgba(255,255,255,0.15)", display: "inline-flex", alignItems: "center", gap: "8px", boxShadow: "0 4px 16px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.12)", pointerEvents: "auto" }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <span style={{ fontSize: "12px", color: "var(--text-secondary)", fontWeight: 500 }}>{es ? "Toca una zona o usa Reportar" : "Tap a zone or use Report"}</span>
+            <button onClick={() => setHintDismissed(true)} style={{ width: 22, height: 22, borderRadius: "50%", background: "rgba(255,255,255,0.08)", border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0 }}>
+              <svg width="8" height="8" viewBox="0 0 8 8" stroke="var(--text-faint)" strokeWidth="1.5" strokeLinecap="round"><line x1="1" y1="1" x2="7" y2="7"/><line x1="7" y1="1" x2="1" y2="7"/></svg>
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* BOTTOM NAV — mobile only, fixed floating pill */}
       {!isDesktop && <BottomNav activeTab={mobileView} onTab={handleMobileTab} onReport={() => setScreen("report")} liveCount={liveCount} dangerCount={dangerCount} lang={lang} />}
