@@ -123,11 +123,11 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang })
     <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, padding: "0 16px", paddingBottom: "calc(12px + env(safe-area-inset-bottom, 0px))", zIndex: 100, pointerEvents: "none" }}>
       <div className="bottom-nav" role="navigation" aria-label={lang === "es" ? "Navegación principal" : "Main navigation"} style={{
         display: "flex", alignItems: "center",
-        background: "rgba(6,10,20,0.45)",
-        backdropFilter: "blur(50px) saturate(2.0)", WebkitBackdropFilter: "blur(50px) saturate(2.0)",
+        background: "rgba(10,15,26,0.35)",
+        backdropFilter: "blur(16px) saturate(1.6)", WebkitBackdropFilter: "blur(16px) saturate(1.6)",
         borderRadius: "99px",
-        border: "1px solid rgba(255,255,255,0.14)",
-        boxShadow: "0 12px 48px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)",
+        border: "1px solid rgba(255,255,255,0.15)",
+        boxShadow: "0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.12)",
         padding: "6px 8px",
         pointerEvents: "auto",
       }}>
