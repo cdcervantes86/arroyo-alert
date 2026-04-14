@@ -1652,7 +1652,7 @@ function AppContent() {
       {/* Desktop Report modal */}
       {isDesktop && (screen === "report" || closingScreen === "report") && (
         <div onClick={closeScreenAnimated} style={{ position: "fixed", inset: 0, zIndex: 1200, background: "rgba(0,0,0,0.7)", display: "flex", alignItems: "center", justifyContent: "center", animation: closingScreen === "report" ? "backdropOut 0.25s ease forwards" : "fadeIn 0.2s ease" }}>
-          <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 520, maxHeight: "85vh", background: "#0e1628", borderRadius: "var(--radius-xl)", border: "1px solid rgba(255,255,255,0.06)", boxShadow: "0 24px 80px rgba(0,0,0,0.6)", animation: closingScreen === "report" ? "desktopModalOut 0.25s ease forwards" : "modalScaleIn 0.3s cubic-bezier(0.34, 1.4, 0.64, 1)", overflow: "hidden", position: "relative" }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 520, maxHeight: "85vh", background: "#0e1628", borderRadius: "var(--radius-xl)", border: "1px solid rgba(255,255,255,0.06)", boxShadow: "0 24px 80px rgba(0,0,0,0.6)", animation: closingScreen === "report" ? "desktopModalOut 0.25s ease forwards" : "modalScaleIn 0.3s cubic-bezier(0.34, 1.4, 0.64, 1)", overflow: "auto", position: "relative" }}>
             <ReportFlow zones={ZONES} reports={reports} initialZoneId={selectedZone} userLocation={userLocation} onSubmit={async (data) => {
               const prevCount = getReporterStats().reportCount;
               await handleReport(data);
