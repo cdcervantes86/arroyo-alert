@@ -1207,7 +1207,7 @@ function AppContent() {
   return (
     <div style={{ position: "fixed", inset: 0, display: "flex", flexDirection: "column", background: "#0a0f1a", overflow: "hidden" }}>
       {/* HEADER */}
-      <div style={{ padding: "10px 16px", display: "flex", alignItems: "center", gap: "10px", background: "#0a0f1a", borderBottom: "1px solid rgba(255,255,255,0.04)", boxShadow: "0 1px 0 rgba(255,255,255,0.02), 0 4px 20px rgba(0,0,0,0.2)", flexShrink: 0, position: "relative", zIndex: 900 }}>
+      <div style={{ padding: "10px 16px", display: "flex", alignItems: "center", gap: "10px", background: "linear-gradient(180deg, rgba(10,15,26,0.75) 0%, rgba(10,15,26,0.6) 100%)", backdropFilter: "blur(16px) saturate(1.6)", WebkitBackdropFilter: "blur(16px) saturate(1.6)", borderBottom: "1px solid rgba(255,255,255,0.08)", boxShadow: "0 4px 20px rgba(0,0,0,0.25), inset 0 -0.5px 0 rgba(0,0,0,0.1)", flexShrink: 0, position: "relative", zIndex: 900 }}>
         <div className={headerGlow} style={{ position: "absolute", top: -30, left: "10%", right: "10%", height: 80, borderRadius: "50%", filter: "blur(40px)", pointerEvents: "none", animation: "glowPulse 4s ease-in-out infinite" }} />
         <button onClick={handleLogoClick} style={{ display: "flex", alignItems: "center", gap: "8px", background: "none", border: "none", padding: 0, cursor: "pointer", flexShrink: 0 }}>
           <Logo size={26} />
@@ -1226,16 +1226,16 @@ function AppContent() {
           <button className="header-icon-btn" onClick={() => setScreen("heatmap")} title={es ? "Historial" : "History"} style={{ width: 32, height: 32, borderRadius: "50%", background: "none", border: "none", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><FlameIcon size={18} color="var(--text-dim)" /></button>
           <button className="header-icon-btn" onClick={() => setScreen("about")} title={es ? "Info y seguridad" : "Info & safety"} style={{ width: 32, height: 32, borderRadius: "50%", background: "none", border: "none", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><InfoIcon size={18} color="var(--text-dim)" /></button>
         </>}
-        <button onClick={toggleLang} className="tap-target" aria-label={lang === "es" ? "Switch to English" : "Cambiar a Español"} style={{ padding: "5px 10px", borderRadius: "8px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.06)", color: "var(--text-dim)", fontSize: "11px", fontWeight: 700, letterSpacing: "0.3px", flexShrink: 0, transition: "all 0.15s ease" }}>{lang === "es" ? "EN" : "ES"}</button>
+        <button onClick={toggleLang} className="tap-target" aria-label={lang === "es" ? "Switch to English" : "Cambiar a Español"} style={{ padding: "5px 10px", borderRadius: "99px", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "var(--text-dim)", fontSize: "11px", fontWeight: 700, letterSpacing: "0.3px", flexShrink: 0, transition: "all 0.15s ease", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)" }}>{lang === "es" ? "EN" : "ES"}</button>
         {isDesktop && (
-          <button onClick={() => setScreen("report")} style={{ padding: "7px 16px", borderRadius: "var(--radius-lg)", background: "linear-gradient(135deg, #D42A2A, #a11a1a)", border: "none", color: "#fff", fontSize: "12px", fontWeight: 700, display: "flex", alignItems: "center", gap: "6px", boxShadow: "0 4px 12px rgba(212,42,42,0.3)", flexShrink: 0, letterSpacing: "0.2px" }}>
+          <button onClick={() => setScreen("report")} style={{ padding: "7px 16px", borderRadius: "99px", background: "linear-gradient(145deg, #e53e3e, #b91c1c)", border: "none", color: "#fff", fontSize: "12px", fontWeight: 700, display: "flex", alignItems: "center", gap: "6px", boxShadow: "0 2px 8px rgba(212,42,42,0.3), 0 6px 16px rgba(212,42,42,0.15), inset 0 1px 0 rgba(255,255,255,0.2)", flexShrink: 0, letterSpacing: "0.2px" }}>
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
             {es ? "Reportar" : "Report"}
           </button>
         )}
         {isDesktop && (
-          <div style={{ display: "flex", background: "rgba(255,255,255,0.03)", borderRadius: "10px", overflow: "hidden", border: "1px solid rgba(255,255,255,0.06)", padding: "2px" }}>
-            {desktopTabs.map((tab) => { const isActive = tab.key === "live" ? showPanel : desktopView === tab.key; return <button key={tab.key} onClick={() => handleDesktopTab(tab.key)} style={{ padding: "7px 14px", fontSize: "12px", border: "none", borderRadius: "8px", background: isActive ? "rgba(91,156,246,0.1)" : "transparent", color: isActive ? "var(--accent)" : "var(--text-faint)", fontWeight: isActive ? 700 : 500, position: "relative", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s ease" }}><tab.Icon size={15} color={isActive ? "var(--accent)" : "var(--text-faint)"} active={isActive} />{tab.key === "live" && liveCount > 0 && !isActive && <span style={{ position: "absolute", top: 3, right: 5, width: 5, height: 5, borderRadius: "50%", background: "var(--danger)", animation: "blink 1.5s ease-in-out infinite" }} />}</button>; })}
+          <div style={{ display: "flex", background: "rgba(255,255,255,0.04)", borderRadius: "99px", overflow: "hidden", border: "1px solid rgba(255,255,255,0.08)", padding: "2px", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)" }}>
+            {desktopTabs.map((tab) => { const isActive = tab.key === "live" ? showPanel : desktopView === tab.key; return <button key={tab.key} onClick={() => handleDesktopTab(tab.key)} style={{ padding: "7px 14px", fontSize: "12px", border: "none", borderRadius: "99px", background: isActive ? "rgba(91,156,246,0.12)" : "transparent", color: isActive ? "#6ba6ff" : "var(--text-faint)", fontWeight: isActive ? 700 : 500, position: "relative", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s ease", boxShadow: isActive ? "inset 0 1px 0 rgba(91,156,246,0.1)" : "none" }}><tab.Icon size={15} color={isActive ? "#6ba6ff" : "var(--text-faint)"} active={isActive} />{tab.key === "live" && liveCount > 0 && !isActive && <span style={{ position: "absolute", top: 3, right: 5, width: 5, height: 5, borderRadius: "50%", background: "var(--danger)", animation: "blink 1.5s ease-in-out infinite" }} />}</button>; })}
           </div>
         )}
       </div>
@@ -1307,12 +1307,12 @@ function AppContent() {
       <UpdateBanner />
 
       {/* STATUS BAR */}
-      <div style={{ padding: "8px 16px", display: "flex", gap: "8px", alignItems: "center", flexShrink: 0, borderBottom: "1px solid rgba(255,255,255,0.04)", background: "#0a0f1a" }}>
-        {dangerCount > 0 && <button onClick={() => handleFilterClick("danger")} className="tap-target" style={{ display: "flex", alignItems: "center", gap: "7px", background: activeFilter === "danger" ? "rgba(239,68,68,0.15)" : "var(--danger-bg)", padding: "6px 14px", borderRadius: "20px", border: activeFilter === "danger" ? "1.5px solid var(--danger)" : "1px solid var(--danger-border)", cursor: "pointer", transition: "all 0.2s ease" }}><span style={{ width: 6, height: 6, background: "var(--danger)", borderRadius: "50%", animation: "blink 1.5s ease-in-out infinite", flexShrink: 0 }} /><span style={{ fontSize: "12px", color: "#fca5a5", fontWeight: 600, fontVariantNumeric: "tabular-nums" }}>{dangerCount} {t.danger}</span></button>}
-        {cautionCount > 0 && <button onClick={() => handleFilterClick("caution")} className="tap-target" style={{ display: "flex", alignItems: "center", gap: "7px", background: activeFilter === "caution" ? "rgba(234,179,8,0.15)" : "var(--caution-bg)", padding: "6px 14px", borderRadius: "20px", border: activeFilter === "caution" ? "1.5px solid var(--caution)" : "1px solid var(--caution-border)", cursor: "pointer", transition: "all 0.2s ease" }}><span style={{ width: 6, height: 6, background: "var(--caution)", borderRadius: "50%", flexShrink: 0 }} /><span style={{ fontSize: "12px", color: "#fde047", fontWeight: 600, fontVariantNumeric: "tabular-nums" }}>{cautionCount} {t.caution}</span></button>}
+      <div style={{ padding: "8px 16px", display: "flex", gap: "8px", alignItems: "center", flexShrink: 0, borderBottom: "1px solid rgba(255,255,255,0.04)", background: "rgba(10,15,26,0.5)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)" }}>
+        {dangerCount > 0 && <button onClick={() => handleFilterClick("danger")} className="tap-target" style={{ display: "flex", alignItems: "center", gap: "7px", background: activeFilter === "danger" ? "rgba(239,68,68,0.18)" : "rgba(239,68,68,0.06)", padding: "6px 14px", borderRadius: "99px", border: `1px solid ${activeFilter === "danger" ? "rgba(239,68,68,0.35)" : "rgba(239,68,68,0.15)"}`, cursor: "pointer", transition: "all 0.2s ease", boxShadow: activeFilter === "danger" ? "0 0 12px rgba(239,68,68,0.15), inset 0 1px 0 rgba(255,255,255,0.05)" : "inset 0 1px 0 rgba(255,255,255,0.03)" }}><span style={{ width: 6, height: 6, background: "var(--danger)", borderRadius: "50%", animation: "blink 1.5s ease-in-out infinite", flexShrink: 0 }} /><span style={{ fontSize: "12px", color: "#fca5a5", fontWeight: 600, fontVariantNumeric: "tabular-nums" }}>{dangerCount} {t.danger}</span></button>}
+        {cautionCount > 0 && <button onClick={() => handleFilterClick("caution")} className="tap-target" style={{ display: "flex", alignItems: "center", gap: "7px", background: activeFilter === "caution" ? "rgba(234,179,8,0.18)" : "rgba(234,179,8,0.06)", padding: "6px 14px", borderRadius: "99px", border: `1px solid ${activeFilter === "caution" ? "rgba(234,179,8,0.35)" : "rgba(234,179,8,0.15)"}`, cursor: "pointer", transition: "all 0.2s ease", boxShadow: activeFilter === "caution" ? "0 0 12px rgba(234,179,8,0.12), inset 0 1px 0 rgba(255,255,255,0.05)" : "inset 0 1px 0 rgba(255,255,255,0.03)" }}><span style={{ width: 6, height: 6, background: "var(--caution)", borderRadius: "50%", flexShrink: 0 }} /><span style={{ fontSize: "12px", color: "#fde047", fontWeight: 600, fontVariantNumeric: "tabular-nums" }}>{cautionCount} {t.caution}</span></button>}
         {dangerCount === 0 && cautionCount === 0 && (
           <div style={{ display: "flex", alignItems: "center", gap: "7px", flex: 1 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "7px", background: "var(--safe-bg)", padding: "6px 14px", borderRadius: "20px", border: "1px solid var(--safe-border)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "7px", background: "rgba(34,197,94,0.06)", padding: "6px 14px", borderRadius: "99px", border: "1px solid rgba(34,197,94,0.15)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.03)" }}>
               <span style={{ width: 6, height: 6, background: "var(--safe)", borderRadius: "50%", flexShrink: 0 }} />
               <span style={{ fontSize: "12px", color: "#86efac", fontWeight: 600 }}>{t.noActiveAlerts}</span>
             </div>
@@ -1324,7 +1324,7 @@ function AppContent() {
             )}
           </div>
         )}
-        {activeFilter && <button onClick={() => setActiveFilter(null)} className="tap-target" style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 28, height: 28, background: "rgba(255,255,255,0.045)", borderRadius: "50%", border: "1px solid rgba(255,255,255,0.06)", cursor: "pointer", transition: "all 0.15s ease" }}><svg width="10" height="10" viewBox="0 0 10 10" stroke="var(--text-dim)" strokeWidth="1.5" strokeLinecap="round"><line x1="2" y1="2" x2="8" y2="8"/><line x1="8" y1="2" x2="2" y2="8"/></svg></button>}
+        {activeFilter && <button onClick={() => setActiveFilter(null)} className="tap-target" style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 28, height: 28, background: "rgba(255,255,255,0.06)", borderRadius: "50%", border: "1px solid rgba(255,255,255,0.1)", cursor: "pointer", transition: "all 0.15s ease", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)" }}><svg width="10" height="10" viewBox="0 0 10 10" stroke="var(--text-dim)" strokeWidth="1.5" strokeLinecap="round"><line x1="2" y1="2" x2="8" y2="8"/><line x1="8" y1="2" x2="2" y2="8"/></svg></button>}
       </div>
 
       {/* CONTENT */}
@@ -1341,7 +1341,7 @@ function AppContent() {
             {/* First-time hint — shows when no reports are active */}
             {!loading && !hintDismissed && reports.filter(r => new Date(r.created_at).getTime() > Date.now() - 4 * 3600000).length === 0 && (
               <div style={{ position: "absolute", bottom: 90, left: 16, right: 16, zIndex: 6, display: "flex", justifyContent: "center", animation: "fadeIn 0.5s ease 1s both" }}>
-                <div style={{ background: "#0e1628", borderRadius: "20px", padding: "10px 12px 10px 14px", border: "1px solid rgba(255,255,255,0.06)", display: "inline-flex", alignItems: "center", gap: "8px", boxShadow: "0 4px 16px rgba(0,0,0,0.4)" }}>
+                <div style={{ background: "rgba(10,15,26,0.25)", backdropFilter: "blur(16px) saturate(1.6)", WebkitBackdropFilter: "blur(16px) saturate(1.6)", borderRadius: "99px", padding: "10px 12px 10px 14px", border: "1px solid rgba(255,255,255,0.13)", display: "inline-flex", alignItems: "center", gap: "8px", boxShadow: "0 4px 16px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1)" }}>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
                   <span style={{ fontSize: "12px", color: "var(--text-secondary)", fontWeight: 500 }}>{es ? "Toca una zona o usa Reportar" : "Tap a zone or use Report"}</span>
                   <button onClick={() => setHintDismissed(true)} style={{ width: 22, height: 22, borderRadius: "50%", background: "rgba(255,255,255,0.08)", border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0 }}>
@@ -1355,11 +1355,11 @@ function AppContent() {
               <RainRadarButton enabled={radar.enabled} onToggle={radar.toggle} />
               <button onClick={handleLocate} aria-label={es ? "Mi ubicación" : "My location"} className="tap-target" style={{
                 width: 40, height: 40, borderRadius: "50%",
-                background: userLocation ? "rgba(66,133,244,0.15)" : "rgba(10,15,26,0.9)",
-                border: `1px solid ${userLocation ? "rgba(66,133,244,0.3)" : "rgba(255,255,255,0.08)"}`,
+                background: userLocation ? "rgba(66,133,244,0.12)" : "rgba(10,15,26,0.2)",
+                border: `1px solid ${userLocation ? "rgba(66,133,244,0.25)" : "rgba(255,255,255,0.13)"}`,
                 display: "flex", alignItems: "center", justifyContent: "center",
-                boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
-                backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.2), 0 8px 24px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.1)",
+                backdropFilter: "blur(16px) saturate(1.6)", WebkitBackdropFilter: "blur(16px) saturate(1.6)",
                 transition: "all 0.2s ease",
               }}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={userLocation ? "#4285F4" : "rgba(255,255,255,0.45)"} strokeWidth="1.75" strokeLinecap="round">
@@ -1380,7 +1380,7 @@ function AppContent() {
                   value={zoneSearch}
                   onChange={(e) => setZoneSearch(e.target.value)}
                   placeholder={es ? "Buscar zona..." : "Search zones..."}
-                  style={{ width: "100%", padding: "10px 12px 10px 36px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "var(--radius-lg)", color: "var(--text)", fontSize: "13px", outline: "none", fontFamily: "inherit" }}
+                  style={{ width: "100%", padding: "10px 12px 10px 36px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "99px", color: "var(--text)", fontSize: "13px", outline: "none", fontFamily: "inherit", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.03)" }}
                   onFocus={(e) => { e.target.style.borderColor = "rgba(91,156,246,0.25)"; }}
                   onBlur={(e) => { e.target.style.borderColor = "rgba(255,255,255,0.06)"; }}
                 />

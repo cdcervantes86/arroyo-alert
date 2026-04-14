@@ -83,12 +83,13 @@ export function RainRadarButton({ enabled, onToggle }) {
     <div style={{ position: "relative" }}>
       <button onClick={onToggle} style={{
         width: 40, height: 40, borderRadius: "50%",
-        background: enabled ? "rgba(96,165,250,0.15)" : "rgba(10,15,26,0.9)",
-        border: `1px solid ${enabled ? "rgba(96,165,250,0.3)" : "rgba(255,255,255,0.06)"}`,
+        background: enabled ? "rgba(96,165,250,0.12)" : "rgba(10,15,26,0.2)",
+        border: `1px solid ${enabled ? "rgba(96,165,250,0.25)" : "rgba(255,255,255,0.13)"}`,
         display: "flex", alignItems: "center", justifyContent: "center",
-        cursor: "pointer", boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+        cursor: "pointer",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.2), 0 8px 24px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.1)",
         transition: "all 0.2s ease",
-        backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)",
+        backdropFilter: "blur(16px) saturate(1.6)", WebkitBackdropFilter: "blur(16px) saturate(1.6)",
       }}>
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
           stroke={enabled ? "#60a5fa" : "rgba(255,255,255,0.45)"}
@@ -102,9 +103,9 @@ export function RainRadarButton({ enabled, onToggle }) {
       {showLegend && (
         <div style={{
           position: "absolute", top: 0, right: "calc(100% + 8px)",
-          background: "rgba(10,15,26,0.92)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)",
-          padding: "8px 10px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.08)",
-          boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
+          background: "rgba(10,15,26,0.25)", backdropFilter: "blur(16px) saturate(1.6)", WebkitBackdropFilter: "blur(16px) saturate(1.6)",
+          padding: "8px 10px", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.13)",
+          boxShadow: "0 4px 16px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1)",
           transformOrigin: "right center",
           animation: legendClosing ? "radarLegendOut 0.2s ease forwards" : "radarLegendIn 0.25s cubic-bezier(0.32, 0.72, 0, 1) forwards",
           whiteSpace: "nowrap",

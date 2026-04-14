@@ -138,12 +138,13 @@ export default function WeatherIndicator() {
         onMouseLeave={() => setHovered(false)}
         style={{
           display: "flex", alignItems: "center", gap: "5px",
-          padding: "4px 10px", borderRadius: "16px",
+          padding: "4px 10px", borderRadius: "99px",
           background: expanded ? "rgba(255,255,255,0.08)" : hovered ? "rgba(255,255,255,0.06)" : pillBg,
-          border: `1px solid ${expanded ? "rgba(255,255,255,0.12)" : isAlert ? pillColor + "30" : hovered ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.06)"}`,
+          border: `1px solid ${expanded ? "rgba(255,255,255,0.15)" : isAlert ? pillColor + "30" : hovered ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.08)"}`,
           fontSize: "11px", fontWeight: 600, color: pillColor,
           transition: "all 0.25s cubic-bezier(0.32, 0.72, 0, 1)",
           transform: hovered && !expanded ? "scale(1.05)" : "scale(1)",
+          boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)",
         }}
       >
         <span style={{
@@ -165,9 +166,10 @@ export default function WeatherIndicator() {
       {expanded && (
         <div className={animClass} style={{
           position: "absolute", top: "calc(100% + 8px)", right: 0,
-          width: 230, background: "#0e1628",
-          borderRadius: "var(--radius-lg)", border: "1px solid rgba(255,255,255,0.06)",
-          boxShadow: "0 16px 48px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.03)",
+          width: 230, background: "rgba(10,15,26,0.6)",
+          backdropFilter: "blur(20px) saturate(1.6)", WebkitBackdropFilter: "blur(20px) saturate(1.6)",
+          borderRadius: "16px", border: "1px solid rgba(255,255,255,0.13)",
+          boxShadow: "0 16px 48px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)",
           overflow: "hidden",
           transformOrigin: "top right",
         }}>

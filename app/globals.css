@@ -37,8 +37,9 @@ button:active { transform: scale(0.97); opacity: 0.85; }
 .card-interactive:active { transform: scale(0.985); }
 
 /* Desktop header icon hover */
-.header-icon-btn { transition: background 0.15s ease, opacity 0.15s ease; }
-.header-icon-btn:hover { background: rgba(255,255,255,0.06) !important; }
+.header-icon-btn { transition: all 0.15s ease; border-radius: 50% !important; }
+.header-icon-btn:hover { background: rgba(255,255,255,0.08) !important; }
+.header-icon-btn:active { transform: scale(0.9); background: rgba(255,255,255,0.1) !important; }
 .header-icon-btn:hover svg { opacity: 1; }
 
 /* More menu item hover */
@@ -60,6 +61,25 @@ button:active { transform: scale(0.97); opacity: 0.85; }
 .mapboxgl-popup-close-button { color: rgba(255,255,255,0.3) !important; font-size: 16px !important; padding: 4px 8px !important; }
 .mapboxgl-ctrl-bottom-right { bottom: 80px !important; }
 .mapboxgl-ctrl-bottom-left { bottom: 80px !important; }
+.mapboxgl-ctrl-group {
+  background: rgba(10,15,26,0.2) !important;
+  backdrop-filter: blur(16px) saturate(1.6);
+  -webkit-backdrop-filter: blur(16px) saturate(1.6);
+  border: 1px solid rgba(255,255,255,0.13) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2), 0 8px 24px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.1) !important;
+  overflow: hidden;
+}
+.mapboxgl-ctrl-group button {
+  background: transparent !important;
+  border-color: rgba(255,255,255,0.06) !important;
+}
+.mapboxgl-ctrl-group button:active {
+  background: rgba(255,255,255,0.08) !important;
+}
+.mapboxgl-ctrl-group button .mapboxgl-ctrl-icon {
+  filter: invert(1) brightness(0.6);
+}
 
 /* Bottom sheet */
 .sheet-backdrop {
