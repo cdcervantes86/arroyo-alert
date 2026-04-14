@@ -42,11 +42,14 @@ export default function WeatherIndicator() {
   const [hovered, setHovered] = useState(false);
   const cardRef = useRef(null);
 
+  const dropdownRef = useRef(null);
+
   // Close on outside click
   useEffect(() => {
     if (!expanded) return;
     const handler = (e) => {
-      if (cardRef.current && !cardRef.current.contains(e.target)) {
+      if (cardRef.current && !cardRef.current.contains(e.target) && 
+          (!dropdownRef.current || !dropdownRef.current.contains(e.target))) {
         handleClose();
       }
     };
@@ -129,10 +132,21 @@ export default function WeatherIndicator() {
 
   const animClass = closing ? "weather-card-exit" : "weather-card-enter";
 
+  // Get button position for fixed dropdown
+  const btnRef = useRef(null);
+  const [dropdownPos, setDropdownPos] = useState({ top: 0, right: 0 });
+  useEffect(() => {
+    if (expanded && btnRef.current) {
+      const rect = btnRef.current.getBoundingClientRect();
+      setDropdownPos({ top: rect.bottom + 8, right: window.innerWidth - rect.right });
+    }
+  }, [expanded]);
+
   return (
     <div ref={cardRef} style={{ position: "relative", zIndex: 1000 }}>
       {/* Pill — tappable with hover effect */}
       <button
+        ref={btnRef}
         onClick={handleToggle}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
@@ -164,13 +178,14 @@ export default function WeatherIndicator() {
 
       {/* Expanded card */}
       {expanded && (
-        <div className={animClass} style={{
-          position: "absolute", top: "calc(100% + 8px)", right: 0,
-          width: 230, background: "#0e1628",
-          borderRadius: "16px", border: "1px solid rgba(255,255,255,0.1)",
-          boxShadow: "0 16px 48px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06)",
+        <div ref={dropdownRef} className={animClass} style={{ position: "fixed", top: dropdownPos.top, right: dropdownPos.right,
+          width: 230, background: "rgba(12,18,32,0.35)",
+          backdropFilter: "blur(20px) saturate(1.6)", WebkitBackdropFilter: "blur(20px) saturate(1.6)",
+          borderRadius: "16px", border: "1px solid rgba(255,255,255,0.13)",
+          boxShadow: "0 16px 48px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)",
           overflow: "hidden",
           transformOrigin: "top right",
+          zIndex: 1001,
         }}>
           {/* Main weather */}
           <div style={{ padding: "22px 18px 16px", textAlign: "center" }}>
