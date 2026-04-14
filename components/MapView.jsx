@@ -220,11 +220,27 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
         });
       });
 
-      // Inner glow (shared, match-based — no gradient needed)
+      // Trimmed corridor source — excludes first/last 12% of points
+      // so inner glow + animated dashes don't show at the faded endpoints
+      const trimmedFeatures = ARROYO_CORRIDORS.features.map(f => {
+        const c = f.geometry.coordinates;
+        const skip = Math.max(1, Math.round(c.length * 0.12));
+        return {
+          ...f,
+          properties: { ...f.properties, status: "inactive" },
+          geometry: { type: "LineString", coordinates: c.slice(skip, c.length - skip) },
+        };
+      });
+      map.addSource("arroyo-corridors-trimmed", {
+        type: "geojson",
+        data: { type: "FeatureCollection", features: trimmedFeatures },
+      });
+
+      // Inner glow — uses trimmed source so it stops where the fade begins
       map.addLayer({
         id: "arroyo-corridors-inner",
         type: "line",
-        source: "arroyo-corridors",
+        source: "arroyo-corridors-trimmed",
         paint: {
           "line-color": [
             "match", ["get", "status"],
@@ -243,13 +259,14 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
             0.08,
           ],
         },
+        layout: { "line-cap": "round", "line-join": "round" },
       });
 
-      // Animated flow — only for danger/caution
+      // Animated flow — uses trimmed source, only for danger/caution
       map.addLayer({
         id: "arroyo-corridors-flow",
         type: "line",
-        source: "arroyo-corridors",
+        source: "arroyo-corridors-trimmed",
         paint: {
           "line-color": [
             "match", ["get", "status"],
@@ -454,18 +471,30 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
     const map = mapRef.current;
     if (!map) return;
     const src = map.getSource("arroyo-corridors");
+    const trimSrc = map.getSource("arroyo-corridors-trimmed");
     if (!src) return;
 
-    src.setData({
-      ...ARROYO_CORRIDORS,
-      features: ARROYO_CORRIDORS.features.map(f => ({
-        ...f,
-        properties: {
-          ...f.properties,
-          status: getZoneSeverity(f.properties.id, reports) || "inactive",
-        },
-      })),
-    });
+    const features = ARROYO_CORRIDORS.features.map(f => ({
+      ...f,
+      properties: {
+        ...f.properties,
+        status: getZoneSeverity(f.properties.id, reports) || "inactive",
+      },
+    }));
+    src.setData({ ...ARROYO_CORRIDORS, features });
+
+    // Also update trimmed source (inner glow + flow dashes)
+    if (trimSrc) {
+      const trimmed = features.map(f => {
+        const c = f.geometry.coordinates;
+        const skip = Math.max(1, Math.round(c.length * 0.12));
+        return {
+          ...f,
+          geometry: { type: "LineString", coordinates: c.slice(skip, c.length - skip) },
+        };
+      });
+      trimSrc.setData({ type: "FeatureCollection", features: trimmed });
+    }
   }, [reports]);
 
   if (mapError) {
