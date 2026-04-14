@@ -123,12 +123,12 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang })
     <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, padding: "0 16px", paddingBottom: "calc(12px + env(safe-area-inset-bottom, 0px))", zIndex: 100, pointerEvents: "none" }}>
       <div className="bottom-nav" role="navigation" aria-label={lang === "es" ? "Navegación principal" : "Main navigation"} style={{
         display: "flex", alignItems: "center",
-        background: "rgba(8,12,24,0.55)",
-        backdropFilter: "blur(40px) saturate(1.8)", WebkitBackdropFilter: "blur(40px) saturate(1.8)",
-        borderRadius: "28px",
-        border: "1px solid rgba(255,255,255,0.12)",
-        boxShadow: "0 12px 48px rgba(0,0,0,0.5), inset 0 0.5px 0 rgba(255,255,255,0.1)",
-        padding: "8px 6px",
+        background: "rgba(6,10,20,0.45)",
+        backdropFilter: "blur(50px) saturate(2.0)", WebkitBackdropFilter: "blur(50px) saturate(2.0)",
+        borderRadius: "99px",
+        border: "1px solid rgba(255,255,255,0.14)",
+        boxShadow: "0 12px 48px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)",
+        padding: "6px 8px",
         pointerEvents: "auto",
       }}>
         {tabs.map((tab) => {
@@ -138,26 +138,26 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang })
               flex: 1, display: "flex", alignItems: "center", justifyContent: "center",
               background: "none", border: "none", padding: "0",
             }}>
-              <div style={{ width: 46, height: 46, borderRadius: "50%", background: "linear-gradient(135deg, #D42A2A, #991b1b)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 6px 20px rgba(212,42,42,0.45)", border: "1.5px solid rgba(255,255,255,0.15)" }}>
-                <AlertTriangleIcon size={18} color="#fff" />
+              <div style={{ width: 44, height: 44, borderRadius: "50%", background: "linear-gradient(135deg, #D42A2A, #991b1b)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 6px 20px rgba(212,42,42,0.45)", border: "1.5px solid rgba(255,255,255,0.15)" }}>
+                <AlertTriangleIcon size={17} color="#fff" />
               </div>
             </button>
           );
           return (
             <button key={tab.key} onClick={() => onTab(tab.key)} aria-label={tab.label} aria-current={isActive ? "page" : undefined} style={{
               flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-              gap: "4px", background: "none", border: "none", padding: "10px 0", position: "relative",
-              minHeight: 48,
+              gap: "3px", background: "none", border: "none", padding: "8px 0", position: "relative",
+              minHeight: 46,
             }}>
               {isActive && <div style={{
-                position: "absolute", inset: "3px 8px", borderRadius: "18px",
-                background: "rgba(91,156,246,0.12)", border: "1px solid rgba(91,156,246,0.18)",
+                position: "absolute", inset: "2px 6px", borderRadius: "99px",
+                background: "rgba(91,156,246,0.14)", border: "1px solid rgba(91,156,246,0.2)",
               }} />}
               <div style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <tab.Icon size={22} color={isActive ? "var(--accent)" : "rgba(255,255,255,0.4)"} active={isActive} />
+                <tab.Icon size={20} color={isActive ? "var(--accent)" : "rgba(255,255,255,0.4)"} active={isActive} />
                 {tab.badge > 0 && !isActive && (tab.key === "map"
-                  ? <span style={{ position: "absolute", top: -5, right: -10, minWidth: 16, height: 16, borderRadius: "8px", background: "var(--danger)", border: "1.5px solid rgba(8,12,24,0.55)", fontSize: "9px", fontWeight: 800, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", padding: "0 3px", animation: "blink 1.5s ease-in-out infinite" }}>{tab.badge}</span>
-                  : <span style={{ position: "absolute", top: -2, right: -4, width: 7, height: 7, borderRadius: "50%", background: "var(--danger)", border: "1.5px solid rgba(8,12,24,0.55)", animation: "blink 1.5s ease-in-out infinite" }} />
+                  ? <span style={{ position: "absolute", top: -5, right: -10, minWidth: 16, height: 16, borderRadius: "8px", background: "var(--danger)", border: "1.5px solid rgba(6,10,20,0.45)", fontSize: "9px", fontWeight: 800, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", padding: "0 3px", animation: "blink 1.5s ease-in-out infinite" }}>{tab.badge}</span>
+                  : <span style={{ position: "absolute", top: -2, right: -4, width: 7, height: 7, borderRadius: "50%", background: "var(--danger)", border: "1.5px solid rgba(6,10,20,0.45)", animation: "blink 1.5s ease-in-out infinite" }} />
                 )}
               </div>
               <span style={{ position: "relative", zIndex: 1, fontSize: "10px", fontWeight: isActive ? 700 : 500, color: isActive ? "var(--accent)" : "rgba(255,255,255,0.4)" }}>{tab.label}</span>
@@ -1309,7 +1309,7 @@ function AppContent() {
             {isRaining && <div className="rain-overlay" />}
             {/* First-time hint — shows when no reports are active */}
             {!loading && !hintDismissed && reports.filter(r => new Date(r.created_at).getTime() > Date.now() - 4 * 3600000).length === 0 && (
-              <div style={{ position: "absolute", bottom: 24, left: 16, right: 16, zIndex: 6, display: "flex", justifyContent: "center", animation: "fadeIn 0.5s ease 1s both" }}>
+              <div style={{ position: "absolute", bottom: 90, left: 16, right: 16, zIndex: 6, display: "flex", justifyContent: "center", animation: "fadeIn 0.5s ease 1s both" }}>
                 <div style={{ background: "#0e1628", borderRadius: "20px", padding: "10px 12px 10px 14px", border: "1px solid rgba(255,255,255,0.06)", display: "inline-flex", alignItems: "center", gap: "8px", boxShadow: "0 4px 16px rgba(0,0,0,0.4)" }}>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
                   <span style={{ fontSize: "12px", color: "var(--text-secondary)", fontWeight: 500 }}>{es ? "Toca una zona o usa Reportar" : "Tap a zone or use Report"}</span>
