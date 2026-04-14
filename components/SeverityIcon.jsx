@@ -31,12 +31,12 @@ export function SafeIcon({ size = 20 }) {
   );
 }
 
-// Inactive: empty circle
+// Inactive: calm shield — no reports = safe
 export function InactiveIcon({ size = 20 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-      <circle cx="12" cy="12" r="8" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" strokeDasharray="3 3" />
-      <path d="M8 14C9.5 11.5 14.5 11.5 16 14" stroke="rgba(255,255,255,0.1)" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M12 3L4 7v5c0 5.25 3.4 10.15 8 11.25 4.6-1.1 8-6 8-11.25V7l-8-4z" fill="rgba(34,197,94,0.04)" stroke="rgba(255,255,255,0.12)" strokeWidth="1.25" strokeLinejoin="round" />
+      <path d="M9 12.5l2 2 4-4.5" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
