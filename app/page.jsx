@@ -1225,7 +1225,7 @@ function AppContent() {
   const desktopTabs = [{ key: "map", Icon: MapIcon }, { key: "list", Icon: ListIcon }, { key: "live", Icon: LiveIcon }];
 
   return (
-    <div style={{ position: "fixed", inset: 0, display: "flex", flexDirection: "column", background: "#0a0f1a", overflow: "hidden" }}>
+    <div style={{ position: "fixed", inset: 0, display: "flex", flexDirection: "column", background: "#070b14", overflow: "hidden" }}>
       {/* HEADER */}
       <div style={{ padding: "10px 16px", display: "flex", alignItems: "center", gap: "10px", background: "linear-gradient(180deg, rgba(10,15,26,0.75) 0%, rgba(10,15,26,0.6) 100%)", backdropFilter: "blur(16px) saturate(1.6)", WebkitBackdropFilter: "blur(16px) saturate(1.6)", borderBottom: "1px solid rgba(255,255,255,0.08)", boxShadow: "0 4px 20px rgba(0,0,0,0.25), inset 0 -0.5px 0 rgba(0,0,0,0.1)", flexShrink: 0, position: "relative", zIndex: 900 }}>
         <div className={headerGlow} style={{ position: "absolute", top: -30, left: "10%", right: "10%", height: 80, borderRadius: "50%", filter: "blur(40px)", pointerEvents: "none", animation: "glowPulse 4s ease-in-out infinite" }} />

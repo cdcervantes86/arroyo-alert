@@ -179,11 +179,10 @@ export default function WeatherIndicator() {
       {/* Expanded card */}
       {expanded && (
         <div ref={dropdownRef} className={animClass} style={{ position: "fixed", top: dropdownPos.top, right: dropdownPos.right,
-          width: 230, background: "rgba(12,18,32,0.35)",
-          backdropFilter: "blur(20px) saturate(1.6)", WebkitBackdropFilter: "blur(20px) saturate(1.6)",
-          borderRadius: "16px", border: "1px solid rgba(255,255,255,0.13)",
-          boxShadow: "0 16px 48px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)",
-          overflow: "hidden",
+          width: 230, background: "rgba(10,15,26,0.2)",
+          backdropFilter: "blur(16px) saturate(1.8)", WebkitBackdropFilter: "blur(16px) saturate(1.8)",
+          borderRadius: "16px", border: "1px solid rgba(255,255,255,0.15)",
+          boxShadow: "0 12px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.12)",
           transformOrigin: "top right",
           zIndex: 1001,
         }}>
