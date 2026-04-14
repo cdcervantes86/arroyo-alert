@@ -39,6 +39,7 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
       }
 
       mapboxgl.accessToken = MAPBOX_TOKEN;
+      let flowInterval = null;
 
       const map = new mapboxgl.Map({
         container: mapContainerRef.current,
@@ -133,7 +134,7 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
         data: ARROYO_CORRIDORS,
       });
 
-      // Outer glow — very subtle
+      // Layer 1: Wide atmospheric glow — "water channel" on the dark map
       map.addLayer({
         id: "arroyo-corridors-glow",
         type: "line",
@@ -141,29 +142,63 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
         paint: {
           "line-color": [
             "match", ["get", "risk"],
-            "high", "rgba(96,165,250,0.06)",
-            "medium", "rgba(96,165,250,0.04)",
-            "rgba(96,165,250,0.02)",
+            "high", "#3b82f6",
+            "medium", "#60a5fa",
+            "#93c5fd",
           ],
-          "line-width": 12,
-          "line-blur": 8,
+          "line-width": ["interpolate", ["linear"], ["zoom"], 10, 14, 14, 22, 17, 30],
+          "line-blur": ["interpolate", ["linear"], ["zoom"], 10, 10, 14, 16, 17, 22],
+          "line-opacity": [
+            "match", ["get", "risk"],
+            "high", 0.12,
+            "medium", 0.08,
+            0.05,
+          ],
         },
       });
 
-      // Main line — thinner, less contrast
+      // Layer 2: Inner glow — adds depth/brightness
       map.addLayer({
-        id: "arroyo-corridors-line",
+        id: "arroyo-corridors-inner",
         type: "line",
         source: "arroyo-corridors",
         paint: {
           "line-color": [
             "match", ["get", "risk"],
-            "high", "rgba(96,165,250,0.15)",
-            "medium", "rgba(96,165,250,0.1)",
-            "rgba(96,165,250,0.06)",
+            "high", "#60a5fa",
+            "medium", "#93c5fd",
+            "#93c5fd",
           ],
-          "line-width": 2,
-          "line-dasharray": [5, 4],
+          "line-width": ["interpolate", ["linear"], ["zoom"], 10, 4, 14, 7, 17, 10],
+          "line-blur": ["interpolate", ["linear"], ["zoom"], 10, 3, 14, 5, 17, 7],
+          "line-opacity": [
+            "match", ["get", "risk"],
+            "high", 0.2,
+            "medium", 0.14,
+            0.08,
+          ],
+        },
+      });
+
+      // Layer 3: Core stream — the visible bright line
+      map.addLayer({
+        id: "arroyo-corridors-core",
+        type: "line",
+        source: "arroyo-corridors",
+        paint: {
+          "line-color": [
+            "match", ["get", "risk"],
+            "high", "#93c5fd",
+            "medium", "#93c5fd",
+            "#bfdbfe",
+          ],
+          "line-width": ["interpolate", ["linear"], ["zoom"], 10, 1.5, 14, 2.5, 17, 3.5],
+          "line-opacity": [
+            "match", ["get", "risk"],
+            "high", 0.55,
+            "medium", 0.4,
+            0.25,
+          ],
         },
         layout: {
           "line-cap": "round",
@@ -171,19 +206,48 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
         },
       });
 
-      // Animated flow dots (using line pattern)
+      // Layer 4: Animated flow — dashes that move like water current
       map.addLayer({
         id: "arroyo-corridors-flow",
         type: "line",
         source: "arroyo-corridors",
         paint: {
-          "line-color": "rgba(96,165,250,0.06)",
-          "line-width": 1,
+          "line-color": [
+            "match", ["get", "risk"],
+            "high", "#bfdbfe",
+            "medium", "#93c5fd",
+            "#93c5fd",
+          ],
+          "line-width": ["interpolate", ["linear"], ["zoom"], 10, 1, 14, 1.5, 17, 2],
+          "line-dasharray": [0, 4, 3],
+          "line-opacity": [
+            "match", ["get", "risk"],
+            "high", 0.6,
+            "medium", 0.4,
+            0.25,
+          ],
         },
         layout: {
           "line-cap": "round",
+          "line-join": "round",
         },
       });
+
+      // Animate the flow layer — water current effect
+      const dashSteps = [
+        [0, 4, 3], [0.5, 4, 2.5], [1, 4, 2], [1.5, 4, 1.5],
+        [2, 4, 1], [2.5, 4, 0.5], [3, 4, 0], [0, 0.5, 3, 3.5],
+        [0, 1, 3, 3], [0, 1.5, 3, 2.5], [0, 2, 3, 2],
+        [0, 2.5, 3, 1.5], [0, 3, 3, 1], [0, 3.5, 3, 0.5],
+      ];
+      let flowStep = 0;
+      flowInterval = setInterval(() => {
+        if (!mapRef.current) return;
+        try {
+          flowStep = (flowStep + 1) % dashSteps.length;
+          mapRef.current.setPaintProperty("arroyo-corridors-flow", "line-dasharray", dashSteps[flowStep]);
+        } catch(e) {}
+      }, 80);
       } catch(styleErr) { console.warn("Map style customization failed:", styleErr); }
     });
 
@@ -201,6 +265,7 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
 
     return () => {
       clearTimeout(loadTimeout);
+      clearInterval(flowInterval);
       markersRef.current.forEach(m => m.remove());
       markersRef.current = [];
       map.remove();
