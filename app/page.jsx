@@ -150,7 +150,7 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang })
               minHeight: 46,
             }}>
               {isActive && <div style={{
-                position: "absolute", inset: "2px 6px", borderRadius: "99px",
+                position: "absolute", inset: "3px 6px 2px", borderRadius: "99px",
                 background: "rgba(91,156,246,0.14)", border: "1px solid rgba(91,156,246,0.2)",
               }} />}
               <div style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
