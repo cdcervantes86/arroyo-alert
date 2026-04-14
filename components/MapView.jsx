@@ -128,8 +128,7 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
         } catch(e) {}
       });
 
-      // Add arroyo corridor lines — status-reactive
-      // status property updated by reports useEffect: "inactive" | "safe" | "caution" | "danger"
+      // Add arroyo corridor lines — status-reactive with line-gradient fading
       const corridorData = {
         ...ARROYO_CORRIDORS,
         features: ARROYO_CORRIDORS.features.map(f => ({
@@ -140,57 +139,118 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
       map.addSource("arroyo-corridors", {
         type: "geojson",
         data: corridorData,
+        lineMetrics: true,
       });
 
-      // Build endpoint features — source (gathering) + mouth (dispersing into river)
-      const endpointFeatures = [];
-      ARROYO_CORRIDORS.features.forEach(f => {
-        const c = f.geometry.coordinates;
-        if (c.length < 2) return;
-        endpointFeatures.push({
-          type: "Feature",
-          properties: { ...f.properties, ep: "source", status: "inactive" },
-          geometry: { type: "Point", coordinates: c[0] },
-        });
-        endpointFeatures.push({
-          type: "Feature",
-          properties: { ...f.properties, ep: "mouth", status: "inactive" },
-          geometry: { type: "Point", coordinates: c[c.length - 1] },
-        });
-      });
-      map.addSource("arroyo-endpoints", {
-        type: "geojson",
-        data: { type: "FeatureCollection", features: endpointFeatures },
-      });
+      // --- GLOW LAYERS (per-status, using line-gradient for fade at endpoints) ---
 
-      // --- CORRIDOR LINE LAYERS ---
+      const glowWidth = ["interpolate", ["linear"], ["zoom"], 10, 14, 14, 22, 17, 30];
+      const glowBlur = ["interpolate", ["linear"], ["zoom"], 10, 10, 14, 16, 17, 22];
+      const mkGradient = (r, g, b, peakA) => [
+        "interpolate", ["linear"], ["line-progress"],
+        0, `rgba(${r},${g},${b},0)`,
+        0.06, `rgba(${r},${g},${b},${peakA})`,
+        0.88, `rgba(${r},${g},${b},${peakA})`,
+        1, `rgba(${r},${g},${b},0)`,
+      ];
 
-      // Layer 1: Wide atmospheric glow
+      // Inactive glow — soft blue, subtle
       map.addLayer({
-        id: "arroyo-corridors-glow",
+        id: "corridors-glow-inactive",
         type: "line",
         source: "arroyo-corridors",
+        filter: ["any", ["==", ["get", "status"], "inactive"], ["==", ["get", "status"], "safe"]],
         paint: {
-          "line-color": [
-            "match", ["get", "status"],
-            "danger", "#ef4444",
-            "caution", "#eab308",
-            "safe", "#22c55e",
-            "#60a5fa",
-          ],
-          "line-width": ["interpolate", ["linear"], ["zoom"], 10, 14, 14, 22, 17, 30],
-          "line-blur": ["interpolate", ["linear"], ["zoom"], 10, 10, 14, 16, 17, 22],
-          "line-opacity": [
-            "match", ["get", "status"],
-            "danger", 0.2,
-            "caution", 0.16,
-            "safe", 0.08,
-            0.07,
-          ],
+          "line-gradient": mkGradient(96, 165, 250, 0.08),
+          "line-width": glowWidth,
+          "line-blur": glowBlur,
         },
+        layout: { "line-cap": "round", "line-join": "round" },
       });
 
-      // Layer 2: Inner glow
+      // Caution glow — amber
+      map.addLayer({
+        id: "corridors-glow-caution",
+        type: "line",
+        source: "arroyo-corridors",
+        filter: ["==", ["get", "status"], "caution"],
+        paint: {
+          "line-gradient": mkGradient(234, 179, 8, 0.18),
+          "line-width": glowWidth,
+          "line-blur": glowBlur,
+        },
+        layout: { "line-cap": "round", "line-join": "round" },
+      });
+
+      // Danger glow — red
+      map.addLayer({
+        id: "corridors-glow-danger",
+        type: "line",
+        source: "arroyo-corridors",
+        filter: ["==", ["get", "status"], "danger"],
+        paint: {
+          "line-gradient": mkGradient(239, 68, 68, 0.22),
+          "line-width": glowWidth,
+          "line-blur": glowBlur,
+        },
+        layout: { "line-cap": "round", "line-join": "round" },
+      });
+
+      // --- MOUTH DISPERSAL — wider bloom that only appears near the end ---
+
+      const dispersalWidth = ["interpolate", ["linear"], ["zoom"], 10, 20, 14, 40, 17, 65];
+      const dispersalBlur = ["interpolate", ["linear"], ["zoom"], 10, 14, 14, 24, 17, 40];
+      const mkDispersal = (r, g, b, peakA) => [
+        "interpolate", ["linear"], ["line-progress"],
+        0, `rgba(${r},${g},${b},0)`,
+        0.7, `rgba(${r},${g},${b},0)`,
+        0.85, `rgba(${r},${g},${b},${peakA})`,
+        0.96, `rgba(${r},${g},${b},${peakA * 0.4})`,
+        1, `rgba(${r},${g},${b},0)`,
+      ];
+
+      map.addLayer({
+        id: "corridors-dispersal-inactive",
+        type: "line",
+        source: "arroyo-corridors",
+        filter: ["any", ["==", ["get", "status"], "inactive"], ["==", ["get", "status"], "safe"]],
+        paint: {
+          "line-gradient": mkDispersal(96, 165, 250, 0.04),
+          "line-width": dispersalWidth,
+          "line-blur": dispersalBlur,
+        },
+        layout: { "line-cap": "round", "line-join": "round" },
+      });
+
+      map.addLayer({
+        id: "corridors-dispersal-caution",
+        type: "line",
+        source: "arroyo-corridors",
+        filter: ["==", ["get", "status"], "caution"],
+        paint: {
+          "line-gradient": mkDispersal(234, 179, 8, 0.12),
+          "line-width": dispersalWidth,
+          "line-blur": dispersalBlur,
+        },
+        layout: { "line-cap": "round", "line-join": "round" },
+      });
+
+      map.addLayer({
+        id: "corridors-dispersal-danger",
+        type: "line",
+        source: "arroyo-corridors",
+        filter: ["==", ["get", "status"], "danger"],
+        paint: {
+          "line-gradient": mkDispersal(239, 68, 68, 0.15),
+          "line-width": dispersalWidth,
+          "line-blur": dispersalBlur,
+        },
+        layout: { "line-cap": "round", "line-join": "round" },
+      });
+
+      // --- INNER GLOW + CORE + FLOW (shared layers with match) ---
+
+      // Inner glow
       map.addLayer({
         id: "arroyo-corridors-inner",
         type: "line",
@@ -215,7 +275,7 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
         },
       });
 
-      // Layer 3: Core stream — main visible line
+      // Core stream
       map.addLayer({
         id: "arroyo-corridors-core",
         type: "line",
@@ -237,13 +297,10 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
             0.22,
           ],
         },
-        layout: {
-          "line-cap": "round",
-          "line-join": "round",
-        },
+        layout: { "line-cap": "round", "line-join": "round" },
       });
 
-      // Layer 4: Animated flow — only visible for danger/caution
+      // Animated flow — only for danger/caution
       map.addLayer({
         id: "arroyo-corridors-flow",
         type: "line",
@@ -264,67 +321,10 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
             0,
           ],
         },
-        layout: {
-          "line-cap": "round",
-          "line-join": "round",
-        },
+        layout: { "line-cap": "round", "line-join": "round" },
       });
 
-      // --- ENDPOINT EFFECTS ---
-
-      // Source circles — gathering effect (where arroyo forms)
-      map.addLayer({
-        id: "arroyo-source-glow",
-        type: "circle",
-        source: "arroyo-endpoints",
-        filter: ["==", ["get", "ep"], "source"],
-        paint: {
-          "circle-color": [
-            "match", ["get", "status"],
-            "danger", "#ef4444",
-            "caution", "#eab308",
-            "safe", "#22c55e",
-            "#60a5fa",
-          ],
-          "circle-radius": ["interpolate", ["linear"], ["zoom"], 10, 5, 14, 12, 17, 20],
-          "circle-blur": 1,
-          "circle-opacity": [
-            "match", ["get", "status"],
-            "danger", 0.35,
-            "caution", 0.25,
-            "safe", 0.1,
-            0.06,
-          ],
-        },
-      });
-
-      // Mouth circles — dispersing into river (larger, more diffuse)
-      map.addLayer({
-        id: "arroyo-mouth-glow",
-        type: "circle",
-        source: "arroyo-endpoints",
-        filter: ["==", ["get", "ep"], "mouth"],
-        paint: {
-          "circle-color": [
-            "match", ["get", "status"],
-            "danger", "#ef4444",
-            "caution", "#eab308",
-            "safe", "#22c55e",
-            "#60a5fa",
-          ],
-          "circle-radius": ["interpolate", ["linear"], ["zoom"], 10, 10, 14, 28, 17, 50],
-          "circle-blur": 1.4,
-          "circle-opacity": [
-            "match", ["get", "status"],
-            "danger", 0.25,
-            "caution", 0.18,
-            "safe", 0.06,
-            0.04,
-          ],
-        },
-      });
-
-      // Animate the flow layer — water current effect
+      // Animate flow
       const dashSteps = [
         [0, 4, 3], [0.5, 4, 2.5], [1, 4, 2], [1.5, 4, 1.5],
         [2, 4, 1], [2.5, 4, 0.5], [3, 4, 0], [0, 0.5, 3, 3.5],
@@ -504,42 +504,23 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
     return () => { map.off("click", clearPinned); };
   }, [reports, onZoneClick, activeFilter, predictions]);
 
-  // Update corridor + endpoint status based on active reports
+  // Update corridor status based on active reports
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
-    const corridorSrc = map.getSource("arroyo-corridors");
-    const endpointSrc = map.getSource("arroyo-endpoints");
-    if (!corridorSrc) return;
+    const src = map.getSource("arroyo-corridors");
+    if (!src) return;
 
-    const features = ARROYO_CORRIDORS.features.map(f => ({
-      ...f,
-      properties: {
-        ...f.properties,
-        status: getZoneSeverity(f.properties.id, reports) || "inactive",
-      },
-    }));
-    corridorSrc.setData({ ...ARROYO_CORRIDORS, features });
-
-    // Sync endpoints
-    if (endpointSrc) {
-      const epFeatures = [];
-      features.forEach(f => {
-        const c = f.geometry.coordinates;
-        if (c.length < 2) return;
-        epFeatures.push({
-          type: "Feature",
-          properties: { ...f.properties, ep: "source" },
-          geometry: { type: "Point", coordinates: c[0] },
-        });
-        epFeatures.push({
-          type: "Feature",
-          properties: { ...f.properties, ep: "mouth" },
-          geometry: { type: "Point", coordinates: c[c.length - 1] },
-        });
-      });
-      endpointSrc.setData({ type: "FeatureCollection", features: epFeatures });
-    }
+    src.setData({
+      ...ARROYO_CORRIDORS,
+      features: ARROYO_CORRIDORS.features.map(f => ({
+        ...f,
+        properties: {
+          ...f.properties,
+          status: getZoneSeverity(f.properties.id, reports) || "inactive",
+        },
+      })),
+    });
   }, [reports]);
 
   if (mapError) {
