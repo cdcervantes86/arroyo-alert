@@ -1354,7 +1354,7 @@ function AppContent() {
       </div>
 
       {/* CONTENT */}
-      <div style={{ flex: 1, minHeight: 0, display: "flex", overflow: "hidden" }}>
+      <div style={{ flex: 1, minHeight: 0, display: "flex", overflow: "hidden", position: "relative" }}>
         <div style={{ flex: 1, minHeight: 0, position: "relative", overflow: "hidden" }}>
           {currentMainView === "map" ? (
             <>
@@ -1367,7 +1367,7 @@ function AppContent() {
             {/* First-time hint — shows when no reports are active */}
             {!loading && !hintDismissed && reports.filter(r => new Date(r.created_at).getTime() > Date.now() - 4 * 3600000).length === 0 && (
               <div style={{ position: "absolute", bottom: 90, left: 16, right: 16, zIndex: 6, display: "flex", justifyContent: "center", animation: "fadeIn 0.5s ease 1s both" }}>
-                <div style={{ background: "rgba(10,15,26,0.25)", backdropFilter: "blur(16px) saturate(1.6)", WebkitBackdropFilter: "blur(16px) saturate(1.6)", borderRadius: "99px", padding: "10px 12px 10px 14px", border: "1px solid rgba(255,255,255,0.13)", display: "inline-flex", alignItems: "center", gap: "8px", boxShadow: "0 4px 16px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1)" }}>
+                <div style={{ background: "rgba(10,15,26,0.35)", backdropFilter: "blur(16px) saturate(1.8)", WebkitBackdropFilter: "blur(16px) saturate(1.8)", borderRadius: "99px", padding: "10px 12px 10px 14px", border: "1px solid rgba(255,255,255,0.15)", display: "inline-flex", alignItems: "center", gap: "8px", boxShadow: "0 4px 16px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.12)" }}>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
                   <span style={{ fontSize: "12px", color: "var(--text-secondary)", fontWeight: 500 }}>{es ? "Toca una zona o usa Reportar" : "Tap a zone or use Report"}</span>
                   <button onClick={() => setHintDismissed(true)} style={{ width: 22, height: 22, borderRadius: "50%", background: "rgba(255,255,255,0.08)", border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0 }}>
@@ -1576,7 +1576,7 @@ function AppContent() {
           )}
         </div>
         {isDesktop && (
-          <div onTransitionEnd={() => { window.dispatchEvent(new Event("resize")); }} style={{ width: showPanel ? 380 : 0, minWidth: 0, flexShrink: 0, borderLeft: showPanel ? "1px solid rgba(255,255,255,0.1)" : "none", background: "rgba(12,18,32,0.6)", backdropFilter: "blur(20px) saturate(1.4)", WebkitBackdropFilter: "blur(20px) saturate(1.4)", display: "flex", flexDirection: "column", overflow: "hidden", transition: "width 0.3s cubic-bezier(0.4, 0, 0.2, 1)", boxShadow: showPanel ? "inset 1px 0 0 rgba(255,255,255,0.04), -8px 0 32px rgba(0,0,0,0.2)" : "none" }}>
+          <div onTransitionEnd={() => { window.dispatchEvent(new Event("resize")); }} style={{ position: "absolute", top: 0, right: 0, bottom: 0, width: showPanel ? 380 : 0, flexShrink: 0, background: "rgba(12,18,32,0.55)", backdropFilter: "blur(20px) saturate(1.5)", WebkitBackdropFilter: "blur(20px) saturate(1.5)", borderLeft: showPanel ? "1px solid rgba(255,255,255,0.1)" : "none", display: "flex", flexDirection: "column", overflow: "hidden", transition: "width 0.3s cubic-bezier(0.4, 0, 0.2, 1)", boxShadow: showPanel ? "inset 1px 0 0 rgba(255,255,255,0.05), -8px 0 32px rgba(0,0,0,0.3)" : "none", zIndex: 10 }}>
             <div style={{ width: 380, height: "100%", opacity: showPanel ? 1 : 0, transition: "opacity 0.2s ease", overflow: "hidden" }}>
               <LiveFeed reports={reports} onZoneClick={(id) => handleZoneClick(id, "live")} onUpvote={upvoteReport} upvotedSet={upvotedSet} onUpvoteLocal={handleUpvoteLocal} activeFilter={activeFilter} onPhotoClick={setViewPhoto} onReport={() => setScreen("report")} />
             </div>
