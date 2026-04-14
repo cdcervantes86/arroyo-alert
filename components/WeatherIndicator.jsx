@@ -111,6 +111,16 @@ export default function WeatherIndicator() {
     return () => clearInterval(interval);
   }, [es]);
 
+  // Get button position for fixed dropdown
+  const btnRef = useRef(null);
+  const [dropdownPos, setDropdownPos] = useState({ top: 0, right: 0 });
+  useEffect(() => {
+    if (expanded && btnRef.current) {
+      const rect = btnRef.current.getBoundingClientRect();
+      setDropdownPos({ top: rect.bottom + 8, right: window.innerWidth - rect.right });
+    }
+  }, [expanded]);
+
   if (!weather) return null;
 
   const { temp, isRaining, isStormy, maxProb, icon, lastRainHoursAgo } = weather;
@@ -131,16 +141,6 @@ export default function WeatherIndicator() {
   }
 
   const animClass = closing ? "weather-card-exit" : "weather-card-enter";
-
-  // Get button position for fixed dropdown
-  const btnRef = useRef(null);
-  const [dropdownPos, setDropdownPos] = useState({ top: 0, right: 0 });
-  useEffect(() => {
-    if (expanded && btnRef.current) {
-      const rect = btnRef.current.getBoundingClientRect();
-      setDropdownPos({ top: rect.bottom + 8, right: window.innerWidth - rect.right });
-    }
-  }, [expanded]);
 
   return (
     <div ref={cardRef} style={{ position: "relative", zIndex: 1000 }}>
