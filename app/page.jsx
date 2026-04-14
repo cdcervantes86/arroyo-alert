@@ -257,6 +257,19 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
   // ALL state and refs declared first — before any useEffect
   const SNAPS = { peek: 19, half: 50, full: 88 };
   const [snap, setSnap] = useState(initialSnap);
+  const prevZoneRef = useRef(zone?.id);
+  // When switching zones (e.g. tapping another card in list), reset to initialSnap
+  useEffect(() => {
+    if (zone && zone.id !== prevZoneRef.current) {
+      prevZoneRef.current = zone.id;
+      setSnap(initialSnap);
+      setClosing(false);
+      setEntered(false);
+      setUpvoted(new Set());
+      setZoneHistory(null);
+      requestAnimationFrame(() => requestAnimationFrame(() => setEntered(true)));
+    }
+  }, [zone?.id, initialSnap]);
   const [dragOffset, setDragOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [closing, setClosing] = useState(false);
@@ -1375,7 +1388,7 @@ function AppContent() {
             </div>
             </>
           ) : currentMainView === "list" ? (
-            <div key="list-view" style={{ animation: "viewFadeIn 0.25s ease", height: "100%", overflow: "hidden" }}>
+            <div key="list-view" onClick={(e) => { if (screen === "detail" && selectedZone && !e.target.closest("button, a, input")) closeSheet(); }} style={{ animation: "viewFadeIn 0.25s ease", height: "100%", overflow: "hidden" }}>
             <PullToRefresh onRefresh={refetch}>
             <div style={{ padding: "12px 16px 20px" }}>
               {/* Search */}
@@ -1465,7 +1478,7 @@ function AppContent() {
                         {showNearHeader && <div style={{ fontSize: "10px", color: "var(--safe)", textTransform: "uppercase", letterSpacing: "1.5px", fontWeight: 600, padding: "4px 4px 10px", display: "flex", alignItems: "center", gap: "6px" }}><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>{es ? "Cerca de ti" : "Near you"}</div>}
                         {showOtherHeader && <div style={{ fontSize: "10px", color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "1.5px", fontWeight: 600, padding: "14px 4px 10px" }}>{es ? "Otras zonas" : "Other zones"}</div>}
                         {showDivider && <div style={{ height: 1, background: "rgba(255,255,255,0.06)", margin: "12px 0" }} />}
-                        <button onClick={() => handleZoneClick(z.id, "list")} className="card-interactive" style={{
+                        <button onClick={(e) => { e.stopPropagation(); handleZoneClick(z.id, "list"); }} className="card-interactive" style={{
                           width: "100%", textAlign: "left", display: "flex", gap: "14px", alignItems: "center",
                           padding: "14px 16px", marginBottom: "6px", borderRadius: "var(--radius-lg)",
                           background: hasActivity ? `${c ? c.color : "var(--accent)"}04` : "rgba(255,255,255,0.02)",
@@ -1550,7 +1563,7 @@ function AppContent() {
             </PullToRefresh>
             </div>
           ) : (
-            <div key="live-view" style={{ animation: "viewFadeIn 0.25s ease", height: "100%", overflow: "hidden" }}>
+            <div key="live-view" onClick={(e) => { if (screen === "detail" && selectedZone && !e.target.closest("button, a, input")) closeSheet(); }} style={{ animation: "viewFadeIn 0.25s ease", height: "100%", overflow: "hidden" }}>
             <LiveFeed reports={reports} onZoneClick={(id) => handleZoneClick(id, "live")} onUpvote={upvoteReport} upvotedSet={upvotedSet} onUpvoteLocal={handleUpvoteLocal} activeFilter={activeFilter} onPhotoClick={setViewPhoto} onReport={() => setScreen("report")} />
             </div>
           )}

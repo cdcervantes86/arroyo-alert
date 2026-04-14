@@ -113,7 +113,7 @@ export default function LiveFeed({ reports, onZoneClick, onUpvote, upvotedSet, o
                 animation: `fadeIn 0.25s ease ${i * 0.04}s both`, cursor: "pointer",
                 position: "relative", overflow: "hidden",
                 opacity: Math.max(0.45, Math.min(1, (new Date(r.created_at).getTime() + 4 * 3600000 - Date.now()) / (4 * 3600000))),
-              }} onClick={() => onZoneClick?.(zone.id)}>
+              }} onClick={(e) => { e.stopPropagation(); onZoneClick?.(zone.id); }}>
                 {/* Accent bar */}
                 <div style={{ position: "absolute", left: 0, top: "12%", bottom: "12%", width: 3, borderRadius: "0 2px 2px 0", background: cfg.color }} />
 
