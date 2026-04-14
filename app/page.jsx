@@ -78,7 +78,7 @@ function AnimatedScreen({ closing, children }) {
   useEffect(() => { if (!closing) { const t = setTimeout(() => setSettled(true), 400); return () => clearTimeout(t); } }, [closing]);
   return (
     <div style={{
-      position: "fixed", inset: 0, zIndex: 50, background: "#0a0f1a",
+      position: "fixed", inset: 0, zIndex: 50, background: "#070b14",
       ...(closing
         ? { animation: "screenSlideOut 0.25s ease forwards" }
         : settled
@@ -419,7 +419,7 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
         {zone.photos && (
           <div style={{ position: "relative", height: 160, flexShrink: 0, overflow: "hidden" }}>
             <img src={getZonePhoto(zone, severity)} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 40%" }} />
-            <div style={{ position: "absolute", inset: 0, background: `linear-gradient(to top, #0e1628 0%, rgba(14,22,40,0.4) 50%, ${severity ? sevColor + "12" : "rgba(14,22,40,0.15)"} 100%)` }} />
+            <div style={{ position: "absolute", inset: 0, background: `linear-gradient(to top, rgba(12,18,32,0.95) 0%, rgba(12,18,32,0.4) 50%, ${severity ? sevColor + "12" : "rgba(12,18,32,0.15)"} 100%)` }} />
             {severity && <div style={{ position: "absolute", bottom: 12, left: 24, display: "flex", alignItems: "center", gap: "8px" }}>
               <SeverityIcon severity={severity} size={18} />
               <span style={{ fontSize: "13px", fontWeight: 700, color: sevColor, textShadow: "0 1px 4px rgba(0,0,0,0.6)" }}>{getSevLabel(severity, lang)}</span>
@@ -798,7 +798,7 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
           {zone.photos && (
             <div style={{ position: "relative", height: 140, overflow: "hidden", marginBottom: -4 }}>
               <img src={getZonePhoto(zone, severity)} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 40%" }} />
-              <div style={{ position: "absolute", inset: 0, background: `linear-gradient(to top, #0e1628 0%, rgba(14,22,40,0.3) 50%, ${severity ? sevColor + "10" : "rgba(14,22,40,0.1)"} 100%)` }} />
+              <div style={{ position: "absolute", inset: 0, background: `linear-gradient(to top, rgba(12,18,32,0.95) 0%, rgba(12,18,32,0.3) 50%, ${severity ? sevColor + "10" : "rgba(12,18,32,0.1)"} 100%)` }} />
               {severity && <div style={{ position: "absolute", bottom: 10, left: 20, display: "flex", alignItems: "center", gap: "6px" }}>
                 <SeverityIcon severity={severity} size={16} />
                 <span style={{ fontSize: "12px", fontWeight: 700, color: sevColor, textShadow: "0 1px 4px rgba(0,0,0,0.6)" }}>{getSevLabel(severity, lang)}</span>
@@ -1486,7 +1486,7 @@ function AppContent() {
                           {z.photos && (
                             <>
                               <img src={getZonePhoto(z, sv)} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 40%", opacity: sv ? 0.25 : 0.15 }} loading="lazy" />
-                              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, #0a0f1a 0%, #0a0f1a 35%, rgba(10,15,26,0.6) 70%, rgba(10,15,26,0.3) 100%)" }} />
+                              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, #070b14 0%, #070b14 35%, rgba(7,11,20,0.6) 70%, rgba(7,11,20,0.3) 100%)" }} />
                             </>
                           )}
                           {/* Severity accent bar */}
@@ -1628,7 +1628,7 @@ function AppContent() {
       {/* Desktop About modal — single container to prevent layer flicker */}
       {isDesktop && (screen === "about" || closingScreen === "about") && (
         <div onClick={closeScreenAnimated} style={{ position: "fixed", inset: 0, zIndex: 1200, background: "rgba(0,0,0,0.7)", display: "flex", alignItems: "center", justifyContent: "center", animation: closingScreen === "about" ? "backdropOut 0.25s ease forwards" : "fadeIn 0.2s ease" }}>
-          <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 560, height: "85vh", background: "#0e1628", borderRadius: "var(--radius-xl)", border: "1px solid rgba(255,255,255,0.06)", boxShadow: "0 24px 80px rgba(0,0,0,0.6)", animation: closingScreen === "about" ? "desktopModalOut 0.25s ease forwards" : "modalScaleIn 0.3s cubic-bezier(0.34, 1.4, 0.64, 1)", overflow: "hidden", position: "relative" }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 560, height: "85vh", background: "rgba(12,18,32,0.92)", borderRadius: "20px", border: "1px solid rgba(255,255,255,0.1)", boxShadow: "0 24px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06)", animation: closingScreen === "about" ? "desktopModalOut 0.25s ease forwards" : "modalScaleIn 0.3s cubic-bezier(0.34, 1.4, 0.64, 1)", overflow: "hidden", position: "relative" }}>
             <AboutPage onBack={closeScreenAnimated} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} onShowOnboarding={() => { setClosingScreen("about"); setTimeout(() => { setScreen("main"); setClosingScreen(null); setShowOnboarding(true); }, 250); }} communityStats={{ reporters: communityStats?.reporters || 0, reports: communityStats?.totalReports || 0, zones: ZONES.length }} />
           </div>
         </div>
@@ -1637,7 +1637,7 @@ function AppContent() {
       {/* Desktop Profile modal — single container to prevent layer flicker */}
       {isDesktop && (screen === "profile" || closingScreen === "profile") && (
         <div onClick={closeScreenAnimated} style={{ position: "fixed", inset: 0, zIndex: 1200, background: "rgba(0,0,0,0.7)", display: "flex", alignItems: "center", justifyContent: "center", animation: closingScreen === "profile" ? "backdropOut 0.25s ease forwards" : "fadeIn 0.2s ease" }}>
-          <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 480, height: "80vh", background: "#0e1628", borderRadius: "var(--radius-xl)", border: "1px solid rgba(255,255,255,0.06)", boxShadow: "0 24px 80px rgba(0,0,0,0.6)", animation: closingScreen === "profile" ? "desktopModalOut 0.25s ease forwards" : "modalScaleIn 0.3s cubic-bezier(0.34, 1.4, 0.64, 1)", overflow: "hidden", position: "relative" }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 480, height: "80vh", background: "rgba(12,18,32,0.92)", borderRadius: "20px", border: "1px solid rgba(255,255,255,0.1)", boxShadow: "0 24px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06)", animation: closingScreen === "profile" ? "desktopModalOut 0.25s ease forwards" : "modalScaleIn 0.3s cubic-bezier(0.34, 1.4, 0.64, 1)", overflow: "hidden", position: "relative" }}>
             <ReporterProfile reports={reports} onBack={closeScreenAnimated} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} />
           </div>
         </div>
@@ -1646,7 +1646,7 @@ function AppContent() {
       {/* Desktop Heatmap modal */}
       {isDesktop && (screen === "heatmap" || closingScreen === "heatmap") && (
         <div onClick={closeScreenAnimated} style={{ position: "fixed", inset: 0, zIndex: 1200, background: "rgba(0,0,0,0.7)", display: "flex", alignItems: "center", justifyContent: "center", animation: closingScreen === "heatmap" ? "backdropOut 0.25s ease forwards" : "fadeIn 0.2s ease" }}>
-          <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 800, height: "85vh", background: "#0e1628", borderRadius: "var(--radius-xl)", border: "1px solid rgba(255,255,255,0.06)", boxShadow: "0 24px 80px rgba(0,0,0,0.6)", animation: closingScreen === "heatmap" ? "desktopModalOut 0.25s ease forwards" : "modalScaleIn 0.3s cubic-bezier(0.34, 1.4, 0.64, 1)", overflow: "hidden", position: "relative" }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 800, height: "85vh", background: "rgba(12,18,32,0.92)", borderRadius: "20px", border: "1px solid rgba(255,255,255,0.1)", boxShadow: "0 24px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06)", animation: closingScreen === "heatmap" ? "desktopModalOut 0.25s ease forwards" : "modalScaleIn 0.3s cubic-bezier(0.34, 1.4, 0.64, 1)", overflow: "hidden", position: "relative" }}>
             <HeatmapView onBack={closeScreenAnimated} onLogoClick={handleLogoClick} onToggleLang={toggleLang} lang={lang} />
           </div>
         </div>
@@ -1655,7 +1655,7 @@ function AppContent() {
       {/* Desktop Report modal */}
       {isDesktop && (screen === "report" || closingScreen === "report") && (
         <div onClick={closeScreenAnimated} style={{ position: "fixed", inset: 0, zIndex: 1200, background: "rgba(0,0,0,0.7)", display: "flex", alignItems: "center", justifyContent: "center", animation: closingScreen === "report" ? "backdropOut 0.25s ease forwards" : "fadeIn 0.2s ease" }}>
-          <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 520, maxHeight: "85vh", background: "#0e1628", borderRadius: "var(--radius-xl)", border: "1px solid rgba(255,255,255,0.06)", boxShadow: "0 24px 80px rgba(0,0,0,0.6)", animation: closingScreen === "report" ? "desktopModalOut 0.25s ease forwards" : "modalScaleIn 0.3s cubic-bezier(0.34, 1.4, 0.64, 1)", overflow: "auto", position: "relative" }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 520, maxHeight: "85vh", background: "rgba(12,18,32,0.92)", borderRadius: "20px", border: "1px solid rgba(255,255,255,0.1)", boxShadow: "0 24px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06)", animation: closingScreen === "report" ? "desktopModalOut 0.25s ease forwards" : "modalScaleIn 0.3s cubic-bezier(0.34, 1.4, 0.64, 1)", overflow: "auto", position: "relative" }}>
             <ReportFlow zones={ZONES} reports={reports} initialZoneId={selectedZone} userLocation={userLocation} onSubmit={async (data) => {
               const prevCount = getReporterStats().reportCount;
               await handleReport(data);
@@ -1678,7 +1678,7 @@ function AppContent() {
       {/* Post-report WhatsApp share prompt */}
       {(lastReport || closingWhatsApp) && (
         <div style={{ position: "fixed", inset: 0, zIndex: 1100, background: "rgba(0,0,0,0.7)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px", animation: closingWhatsApp ? "backdropOut 0.25s ease forwards" : "fadeIn 0.2s ease" }}>
-          <div style={{ width: "100%", maxWidth: 340, background: "#0e1628", borderRadius: "var(--radius-xl)", border: "1px solid rgba(255,255,255,0.06)", boxShadow: "0 24px 80px rgba(0,0,0,0.6)", padding: "32px 24px 24px", textAlign: "center", animation: closingWhatsApp ? "desktopModalOut 0.25s ease forwards" : "modalScaleIn 0.35s cubic-bezier(0.34, 1.4, 0.64, 1)" }}>
+          <div style={{ width: "100%", maxWidth: 340, background: "rgba(12,18,32,0.92)", borderRadius: "20px", border: "1px solid rgba(255,255,255,0.1)", boxShadow: "0 24px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06)", padding: "32px 24px 24px", textAlign: "center", animation: closingWhatsApp ? "desktopModalOut 0.25s ease forwards" : "modalScaleIn 0.35s cubic-bezier(0.34, 1.4, 0.64, 1)" }}>
             <div style={{ width: 56, height: 56, borderRadius: "50%", background: "rgba(34,197,94,0.1)", border: "2px solid rgba(34,197,94,0.25)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px", animation: "successPulse 0.5s ease" }}>
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
             </div>
@@ -1743,7 +1743,7 @@ function AppContent() {
       {/* PWA install prompt */}
       {showInstallBanner && (
         <div onClick={() => setShowInstallBanner(false)} style={{ position: "fixed", inset: 0, zIndex: 1100, background: "rgba(0,0,0,0.7)", display: "flex", alignItems: "flex-end", justifyContent: "center", padding: "20px", animation: "fadeIn 0.2s ease" }}>
-          <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 380, background: "#0e1628", borderRadius: "var(--radius-xl)", border: "1px solid rgba(255,255,255,0.06)", boxShadow: "0 -12px 48px rgba(0,0,0,0.5)", padding: "28px 24px 24px", animation: "slideUp 0.3s cubic-bezier(0.34, 1.4, 0.64, 1)" }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 380, background: "rgba(12,18,32,0.92)", borderRadius: "20px", border: "1px solid rgba(255,255,255,0.1)", boxShadow: "0 -12px 48px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)", padding: "28px 24px 24px", animation: "slideUp 0.3s cubic-bezier(0.34, 1.4, 0.64, 1)" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "14px", marginBottom: "16px" }}>
               <Logo size={44} />
               <div>
@@ -1788,7 +1788,7 @@ function AppContent() {
       {/* Notification permission prompt */}
       {showNotifPrompt && (
         <div onClick={() => setShowNotifPrompt(false)} style={{ position: "fixed", inset: 0, zIndex: 1100, background: "rgba(0,0,0,0.7)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px", animation: "fadeIn 0.2s ease" }}>
-          <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 340, background: "#0e1628", borderRadius: "var(--radius-xl)", border: "1px solid rgba(255,255,255,0.06)", boxShadow: "0 24px 80px rgba(0,0,0,0.6)", padding: "32px 24px 24px", textAlign: "center", animation: "modalScaleIn 0.35s cubic-bezier(0.34, 1.4, 0.64, 1)" }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 340, background: "rgba(12,18,32,0.92)", borderRadius: "20px", border: "1px solid rgba(255,255,255,0.1)", boxShadow: "0 24px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06)", padding: "32px 24px 24px", textAlign: "center", animation: "modalScaleIn 0.35s cubic-bezier(0.34, 1.4, 0.64, 1)" }}>
             <div style={{ width: 56, height: 56, borderRadius: "50%", background: "rgba(91,156,246,0.08)", border: "2px solid rgba(91,156,246,0.15)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>
               <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
             </div>
@@ -1830,10 +1830,10 @@ function AppContent() {
         <div style={{ position: "fixed", top: "max(16px, env(safe-area-inset-top, 16px))", left: "50%", transform: "translateX(-50%)", zIndex: 1900, display: "flex", flexDirection: "column", gap: "8px", alignItems: "center", pointerEvents: "none", width: "90%", maxWidth: 360 }}>
           {toasts.map(t => (
             <div key={t.id} style={{
-              background: "#0e1628", border: `1px solid ${t.color}25`,
-              borderRadius: "var(--radius-lg)", padding: "12px 16px",
+              background: "rgba(12,18,32,0.88)", border: `1px solid ${t.color}30`,
+              borderRadius: "16px", padding: "12px 16px",
               display: "flex", alignItems: "center", gap: "10px",
-              boxShadow: `0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04)`,
+              boxShadow: `0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)`,
               animation: "slideDown 0.3s cubic-bezier(0.34, 1.4, 0.64, 1)",
               pointerEvents: "auto", width: "100%",
             }}>

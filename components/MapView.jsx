@@ -409,6 +409,9 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
         .mapboxgl-ctrl-group button .mapboxgl-ctrl-icon {
           filter: invert(1) brightness(0.6) !important;
         }
+        .mapboxgl-ctrl-group button:active {
+          background: rgba(255,255,255,0.08) !important;
+        }
         .mapboxgl-ctrl-group button:hover .mapboxgl-ctrl-icon {
           filter: invert(1) brightness(0.9) !important;
         }
