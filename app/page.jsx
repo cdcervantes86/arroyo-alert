@@ -120,45 +120,48 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang })
     { key: "more", Icon: MoreIcon, label: lang === "es" ? "Más" : "More" },
   ];
   return (
-    <div className="bottom-nav" role="navigation" aria-label={lang === "es" ? "Navegación principal" : "Main navigation"} style={{
-      display: "flex", alignItems: "center", justifyContent: "space-around",
-      background: "#0a0f1a", flexShrink: 0,
-      paddingTop: "6px", paddingBottom: "calc(10px + env(safe-area-inset-bottom, 0px))",
-      borderTop: "1px solid rgba(255,255,255,0.05)",
-    }}>
-      {tabs.map((tab) => {
-        const isActive = activeTab === tab.key;
-        if (tab.isReport) return (
-          <button key={tab.key} onClick={onReport} aria-label={tab.label} style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "4px", background: "none", border: "none", padding: "0 16px", position: "relative" }}>
-            <div style={{ width: 44, height: 44, borderRadius: "50%", background: "linear-gradient(135deg, #D42A2A, #a11a1a)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 18px rgba(212,42,42,0.4)", marginTop: "-18px", border: "2px solid rgba(255,255,255,0.1)" }}>
-              <AlertTriangleIcon size={18} color="#fff" />
-            </div>
-            <span style={{ fontSize: "9px", fontWeight: 700, color: "#ef4444", letterSpacing: "0.3px" }}>{tab.label}</span>
-          </button>
-        );
-        return (
-          <button key={tab.key} onClick={() => onTab(tab.key)} aria-label={tab.label} aria-current={isActive ? "page" : undefined} style={{
-            display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-            gap: "3px", background: "none", border: "none", padding: "6px 18px", position: "relative",
-            borderRadius: "14px", transition: "all 0.25s cubic-bezier(0.34, 1.4, 0.64, 1)",
-          }}>
-            {/* Active pill background */}
-            {isActive && <div style={{
-              position: "absolute", inset: "2px 6px", borderRadius: "12px",
-              background: "rgba(91,156,246,0.08)", border: "1px solid rgba(91,156,246,0.1)",
-              transition: "all 0.3s cubic-bezier(0.34, 1.4, 0.64, 1)",
-            }} />}
-            <div style={{ position: "relative", zIndex: 1 }}>
-              <tab.Icon size={21} color={isActive ? "var(--accent)" : "rgba(255,255,255,0.3)"} active={isActive} />
-              {tab.badge > 0 && !isActive && (tab.key === "map"
-                ? <span style={{ position: "absolute", top: -5, right: -8, minWidth: 16, height: 16, borderRadius: "8px", background: "var(--danger)", border: "1.5px solid #0a0f1a", fontSize: "9px", fontWeight: 800, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", padding: "0 3px", animation: "blink 1.5s ease-in-out infinite" }}>{tab.badge}</span>
-                : <span style={{ position: "absolute", top: -2, right: -4, width: 7, height: 7, borderRadius: "50%", background: "var(--danger)", border: "1.5px solid #0a0f1a", animation: "blink 1.5s ease-in-out infinite" }} />
-              )}
-            </div>
-            <span style={{ position: "relative", zIndex: 1, fontSize: "10px", fontWeight: isActive ? 700 : 500, color: isActive ? "var(--accent)" : "rgba(255,255,255,0.3)", letterSpacing: isActive ? "0.2px" : "0", transition: "all 0.2s ease" }}>{tab.label}</span>
-          </button>
-        );
-      })}
+    <div style={{ padding: "0 12px", paddingBottom: "calc(8px + env(safe-area-inset-bottom, 0px))", flexShrink: 0 }}>
+      <div className="bottom-nav" role="navigation" aria-label={lang === "es" ? "Navegación principal" : "Main navigation"} style={{
+        display: "flex", alignItems: "center", justifyContent: "space-around",
+        background: "rgba(14,22,40,0.85)",
+        backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)",
+        borderRadius: "22px",
+        border: "1px solid rgba(255,255,255,0.08)",
+        boxShadow: "0 8px 32px rgba(0,0,0,0.4), 0 2px 8px rgba(0,0,0,0.2)",
+        padding: "6px 4px",
+      }}>
+        {tabs.map((tab) => {
+          const isActive = activeTab === tab.key;
+          if (tab.isReport) return (
+            <button key={tab.key} onClick={onReport} aria-label={tab.label} style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "2px", background: "none", border: "none", padding: "4px 14px", position: "relative" }}>
+              <div style={{ width: 40, height: 40, borderRadius: "50%", background: "linear-gradient(135deg, #D42A2A, #a11a1a)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 16px rgba(212,42,42,0.35)", border: "1.5px solid rgba(255,255,255,0.1)" }}>
+                <AlertTriangleIcon size={17} color="#fff" />
+              </div>
+            </button>
+          );
+          return (
+            <button key={tab.key} onClick={() => onTab(tab.key)} aria-label={tab.label} aria-current={isActive ? "page" : undefined} style={{
+              display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+              gap: "2px", background: "none", border: "none", padding: "6px 16px", position: "relative",
+              borderRadius: "16px", transition: "all 0.25s cubic-bezier(0.34, 1.4, 0.64, 1)",
+            }}>
+              {isActive && <div style={{
+                position: "absolute", inset: "2px 4px", borderRadius: "14px",
+                background: "rgba(91,156,246,0.1)", border: "1px solid rgba(91,156,246,0.12)",
+                transition: "all 0.3s cubic-bezier(0.34, 1.4, 0.64, 1)",
+              }} />}
+              <div style={{ position: "relative", zIndex: 1 }}>
+                <tab.Icon size={20} color={isActive ? "var(--accent)" : "rgba(255,255,255,0.35)"} active={isActive} />
+                {tab.badge > 0 && !isActive && (tab.key === "map"
+                  ? <span style={{ position: "absolute", top: -5, right: -8, minWidth: 16, height: 16, borderRadius: "8px", background: "var(--danger)", border: "1.5px solid rgba(14,22,40,0.85)", fontSize: "9px", fontWeight: 800, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", padding: "0 3px", animation: "blink 1.5s ease-in-out infinite" }}>{tab.badge}</span>
+                  : <span style={{ position: "absolute", top: -2, right: -4, width: 7, height: 7, borderRadius: "50%", background: "var(--danger)", border: "1.5px solid rgba(14,22,40,0.85)", animation: "blink 1.5s ease-in-out infinite" }} />
+                )}
+              </div>
+              <span style={{ position: "relative", zIndex: 1, fontSize: "9px", fontWeight: isActive ? 700 : 500, color: isActive ? "var(--accent)" : "rgba(255,255,255,0.35)", letterSpacing: "0.2px", transition: "all 0.2s ease" }}>{tab.label}</span>
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }
