@@ -166,10 +166,9 @@ export default function WeatherIndicator() {
       {expanded && (
         <div className={animClass} style={{
           position: "absolute", top: "calc(100% + 8px)", right: 0,
-          width: 230, background: "rgba(12,18,32,0.72)",
-          backdropFilter: "blur(20px) saturate(1.5)", WebkitBackdropFilter: "blur(20px) saturate(1.5)",
-          borderRadius: "16px", border: "1px solid rgba(255,255,255,0.13)",
-          boxShadow: "0 16px 48px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08)",
+          width: 230, background: "#0e1628",
+          borderRadius: "16px", border: "1px solid rgba(255,255,255,0.1)",
+          boxShadow: "0 16px 48px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06)",
           overflow: "hidden",
           transformOrigin: "top right",
         }}>
