@@ -142,6 +142,29 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
         data: corridorData,
       });
 
+      // Build endpoint features — source (gathering) + mouth (dispersing into river)
+      const endpointFeatures = [];
+      ARROYO_CORRIDORS.features.forEach(f => {
+        const c = f.geometry.coordinates;
+        if (c.length < 2) return;
+        endpointFeatures.push({
+          type: "Feature",
+          properties: { ...f.properties, ep: "source", status: "inactive" },
+          geometry: { type: "Point", coordinates: c[0] },
+        });
+        endpointFeatures.push({
+          type: "Feature",
+          properties: { ...f.properties, ep: "mouth", status: "inactive" },
+          geometry: { type: "Point", coordinates: c[c.length - 1] },
+        });
+      });
+      map.addSource("arroyo-endpoints", {
+        type: "geojson",
+        data: { type: "FeatureCollection", features: endpointFeatures },
+      });
+
+      // --- CORRIDOR LINE LAYERS ---
+
       // Layer 1: Wide atmospheric glow
       map.addLayer({
         id: "arroyo-corridors-glow",
@@ -153,16 +176,16 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
             "danger", "#ef4444",
             "caution", "#eab308",
             "safe", "#22c55e",
-            "#334155",
+            "#60a5fa",
           ],
           "line-width": ["interpolate", ["linear"], ["zoom"], 10, 14, 14, 22, 17, 30],
           "line-blur": ["interpolate", ["linear"], ["zoom"], 10, 10, 14, 16, 17, 22],
           "line-opacity": [
             "match", ["get", "status"],
-            "danger", 0.18,
-            "caution", 0.14,
-            "safe", 0.06,
-            0.04,
+            "danger", 0.2,
+            "caution", 0.16,
+            "safe", 0.08,
+            0.07,
           ],
         },
       });
@@ -178,16 +201,16 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
             "danger", "#f87171",
             "caution", "#fbbf24",
             "safe", "#4ade80",
-            "#475569",
+            "#93c5fd",
           ],
           "line-width": ["interpolate", ["linear"], ["zoom"], 10, 4, 14, 7, 17, 10],
           "line-blur": ["interpolate", ["linear"], ["zoom"], 10, 3, 14, 5, 17, 7],
           "line-opacity": [
             "match", ["get", "status"],
-            "danger", 0.28,
-            "caution", 0.2,
-            "safe", 0.08,
-            0.04,
+            "danger", 0.3,
+            "caution", 0.22,
+            "safe", 0.1,
+            0.08,
           ],
         },
       });
@@ -203,15 +226,15 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
             "danger", "#fca5a5",
             "caution", "#fde68a",
             "safe", "#86efac",
-            "#475569",
+            "#93c5fd",
           ],
           "line-width": ["interpolate", ["linear"], ["zoom"], 10, 1.5, 14, 2.5, 17, 3.5],
           "line-opacity": [
             "match", ["get", "status"],
             "danger", 0.7,
-            "caution", 0.5,
-            "safe", 0.25,
-            0.12,
+            "caution", 0.55,
+            "safe", 0.3,
+            0.22,
           ],
         },
         layout: {
@@ -244,6 +267,60 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
         layout: {
           "line-cap": "round",
           "line-join": "round",
+        },
+      });
+
+      // --- ENDPOINT EFFECTS ---
+
+      // Source circles — gathering effect (where arroyo forms)
+      map.addLayer({
+        id: "arroyo-source-glow",
+        type: "circle",
+        source: "arroyo-endpoints",
+        filter: ["==", ["get", "ep"], "source"],
+        paint: {
+          "circle-color": [
+            "match", ["get", "status"],
+            "danger", "#ef4444",
+            "caution", "#eab308",
+            "safe", "#22c55e",
+            "#60a5fa",
+          ],
+          "circle-radius": ["interpolate", ["linear"], ["zoom"], 10, 5, 14, 12, 17, 20],
+          "circle-blur": 1,
+          "circle-opacity": [
+            "match", ["get", "status"],
+            "danger", 0.35,
+            "caution", 0.25,
+            "safe", 0.1,
+            0.06,
+          ],
+        },
+      });
+
+      // Mouth circles — dispersing into river (larger, more diffuse)
+      map.addLayer({
+        id: "arroyo-mouth-glow",
+        type: "circle",
+        source: "arroyo-endpoints",
+        filter: ["==", ["get", "ep"], "mouth"],
+        paint: {
+          "circle-color": [
+            "match", ["get", "status"],
+            "danger", "#ef4444",
+            "caution", "#eab308",
+            "safe", "#22c55e",
+            "#60a5fa",
+          ],
+          "circle-radius": ["interpolate", ["linear"], ["zoom"], 10, 10, 14, 28, 17, 50],
+          "circle-blur": 1.4,
+          "circle-opacity": [
+            "match", ["get", "status"],
+            "danger", 0.25,
+            "caution", 0.18,
+            "safe", 0.06,
+            0.04,
+          ],
         },
       });
 
@@ -427,24 +504,42 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
     return () => { map.off("click", clearPinned); };
   }, [reports, onZoneClick, activeFilter, predictions]);
 
-  // Update corridor status based on active reports
+  // Update corridor + endpoint status based on active reports
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
-    const src = map.getSource("arroyo-corridors");
-    if (!src) return;
+    const corridorSrc = map.getSource("arroyo-corridors");
+    const endpointSrc = map.getSource("arroyo-endpoints");
+    if (!corridorSrc) return;
 
-    const updatedData = {
-      ...ARROYO_CORRIDORS,
-      features: ARROYO_CORRIDORS.features.map(f => ({
-        ...f,
-        properties: {
-          ...f.properties,
-          status: getZoneSeverity(f.properties.id, reports) || "inactive",
-        },
-      })),
-    };
-    src.setData(updatedData);
+    const features = ARROYO_CORRIDORS.features.map(f => ({
+      ...f,
+      properties: {
+        ...f.properties,
+        status: getZoneSeverity(f.properties.id, reports) || "inactive",
+      },
+    }));
+    corridorSrc.setData({ ...ARROYO_CORRIDORS, features });
+
+    // Sync endpoints
+    if (endpointSrc) {
+      const epFeatures = [];
+      features.forEach(f => {
+        const c = f.geometry.coordinates;
+        if (c.length < 2) return;
+        epFeatures.push({
+          type: "Feature",
+          properties: { ...f.properties, ep: "source" },
+          geometry: { type: "Point", coordinates: c[0] },
+        });
+        epFeatures.push({
+          type: "Feature",
+          properties: { ...f.properties, ep: "mouth" },
+          geometry: { type: "Point", coordinates: c[c.length - 1] },
+        });
+      });
+      endpointSrc.setData({ type: "FeatureCollection", features: epFeatures });
+    }
   }, [reports]);
 
   if (mapError) {
