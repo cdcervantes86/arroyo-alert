@@ -123,23 +123,39 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang })
     <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, padding: "0 16px", paddingBottom: "calc(12px + env(safe-area-inset-bottom, 0px))", zIndex: 100, pointerEvents: "none" }}>
       <div className="bottom-nav" role="navigation" aria-label={lang === "es" ? "Navegación principal" : "Main navigation"} style={{
         display: "flex", alignItems: "stretch",
-        background: "rgba(10,15,26,0.2)",
+        background: "linear-gradient(180deg, rgba(14,18,30,0.18) 0%, rgba(8,12,22,0.22) 100%)",
         backdropFilter: "blur(16px) saturate(1.8)", WebkitBackdropFilter: "blur(16px) saturate(1.8)",
         borderRadius: "99px",
-        border: "1px solid rgba(255,255,255,0.18)",
-        boxShadow: "0 8px 32px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.15)",
-        padding: "6px 8px",
+        border: "1px solid rgba(255,255,255,0.13)",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.15), 0 12px 40px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.12), inset 0 -0.5px 0 rgba(0,0,0,0.1)",
+        padding: "5px 6px",
         pointerEvents: "auto",
+        position: "relative",
       }}>
+        {/* Top edge highlight — simulates light catching glass rim */}
+        <div style={{ position: "absolute", top: 0, left: "15%", right: "15%", height: "1px", background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.15), rgba(255,255,255,0.25), rgba(255,255,255,0.15), transparent)", borderRadius: "1px", pointerEvents: "none" }} />
         {tabs.map((tab) => {
           const isActive = activeTab === tab.key;
           if (tab.isReport) return (
-            <button key={tab.key} onClick={onReport} aria-label={lang === "es" ? "Reportar" : "Report"} style={{
+            <button key={tab.key} onClick={onReport} aria-label={lang === "es" ? "Reportar" : "Report"} className="nav-report-btn" style={{
               flex: 1, display: "flex", alignItems: "center", justifyContent: "center",
               background: "none", border: "none", padding: "4px 0", minHeight: 46,
+              WebkitTapHighlightColor: "transparent",
             }}>
-              <div style={{ width: 44, height: 44, borderRadius: "50%", background: "linear-gradient(135deg, #D42A2A, #991b1b)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 6px 20px rgba(212,42,42,0.45)", border: "1.5px solid rgba(255,255,255,0.15)" }}>
-                <AlertTriangleIcon size={17} color="#fff" />
+              <div style={{ position: "relative" }}>
+                {/* Ambient glow behind report button */}
+                <div style={{ position: "absolute", inset: -4, borderRadius: "50%", background: "radial-gradient(circle, rgba(212,42,42,0.2) 0%, transparent 70%)", animation: "reportGlow 3s ease-in-out infinite" }} />
+                <div style={{
+                  width: 44, height: 44, borderRadius: "50%",
+                  background: "linear-gradient(145deg, #e53e3e, #b91c1c)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  boxShadow: "0 2px 8px rgba(212,42,42,0.3), 0 6px 20px rgba(212,42,42,0.2), inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.15)",
+                  border: "none",
+                  position: "relative",
+                  transition: "transform 0.2s cubic-bezier(0.34, 1.4, 0.64, 1), box-shadow 0.2s ease",
+                }}>
+                  <AlertTriangleIcon size={17} color="#fff" />
+                </div>
               </div>
             </button>
           );
@@ -148,19 +164,34 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang })
               flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
               gap: "3px", background: "none", border: "none", padding: "8px 0", position: "relative",
               minHeight: 46,
+              WebkitTapHighlightColor: "transparent",
+              transition: "transform 0.15s ease",
             }}>
-              {isActive && <div style={{
-                position: "absolute", inset: "3px 6px 2px", borderRadius: "99px",
-                background: "rgba(91,156,246,0.14)", border: "1px solid rgba(91,156,246,0.2)",
-              }} />}
-              <div style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <tab.Icon size={20} color={isActive ? "var(--accent)" : "rgba(255,255,255,0.4)"} active={isActive} />
+              {/* Active state — soft frosted pill with glow */}
+              {isActive && (
+                <div style={{
+                  position: "absolute", inset: "3px 6px 2px", borderRadius: "99px",
+                  background: "linear-gradient(180deg, rgba(91,156,246,0.14) 0%, rgba(91,156,246,0.08) 100%)",
+                  border: "1px solid rgba(91,156,246,0.18)",
+                  boxShadow: "inset 0 1px 0 rgba(91,156,246,0.1), 0 0 12px rgba(91,156,246,0.06)",
+                }} />
+              )}
+              <div style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", justifyContent: "center", transition: "transform 0.2s cubic-bezier(0.34, 1.4, 0.64, 1)", transform: isActive ? "scale(1.05)" : "scale(1)" }}>
+                <tab.Icon size={20} color={isActive ? "#6ba6ff" : "rgba(255,255,255,0.35)"} active={isActive} />
                 {tab.badge > 0 && !isActive && (tab.key === "map"
-                  ? <span style={{ position: "absolute", top: -5, right: -10, minWidth: 16, height: 16, borderRadius: "8px", background: "var(--danger)", border: "1.5px solid rgba(6,10,20,0.45)", fontSize: "9px", fontWeight: 800, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", padding: "0 3px", animation: "blink 1.5s ease-in-out infinite" }}>{tab.badge}</span>
-                  : <span style={{ position: "absolute", top: -2, right: -4, width: 7, height: 7, borderRadius: "50%", background: "var(--danger)", border: "1.5px solid rgba(6,10,20,0.45)", animation: "blink 1.5s ease-in-out infinite" }} />
+                  ? <span style={{ position: "absolute", top: -5, right: -10, minWidth: 16, height: 16, borderRadius: "8px", background: "var(--danger)", border: "1.5px solid rgba(10,15,26,0.5)", fontSize: "9px", fontWeight: 800, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", padding: "0 3px", animation: "blink 1.5s ease-in-out infinite" }}>{tab.badge}</span>
+                  : <span style={{ position: "absolute", top: -2, right: -4, width: 7, height: 7, borderRadius: "50%", background: "var(--danger)", border: "1.5px solid rgba(10,15,26,0.5)", animation: "blink 1.5s ease-in-out infinite" }} />
                 )}
               </div>
-              <span style={{ position: "relative", zIndex: 1, fontSize: "10px", fontWeight: isActive ? 700 : 500, color: isActive ? "var(--accent)" : "rgba(255,255,255,0.4)" }}>{tab.label}</span>
+              <span style={{
+                position: "relative", zIndex: 1,
+                fontSize: "10px", fontWeight: isActive ? 700 : 400,
+                color: isActive ? "#6ba6ff" : "rgba(255,255,255,0.35)",
+                letterSpacing: isActive ? "0.1px" : "0.2px",
+                transition: "color 0.2s ease, font-weight 0.2s ease",
+              }}>{tab.label}</span>
+              {/* Active dot indicator */}
+              {isActive && <div style={{ position: "absolute", bottom: 1, width: 3, height: 3, borderRadius: "50%", background: "#6ba6ff", boxShadow: "0 0 6px rgba(107,166,255,0.5)", zIndex: 1 }} />}
             </button>
           );
         })}
