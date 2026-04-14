@@ -128,76 +128,90 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
         } catch(e) {}
       });
 
-      // Add arroyo corridor lines
+      // Add arroyo corridor lines — status-reactive
+      // status property updated by reports useEffect: "inactive" | "safe" | "caution" | "danger"
+      const corridorData = {
+        ...ARROYO_CORRIDORS,
+        features: ARROYO_CORRIDORS.features.map(f => ({
+          ...f,
+          properties: { ...f.properties, status: "inactive" },
+        })),
+      };
       map.addSource("arroyo-corridors", {
         type: "geojson",
-        data: ARROYO_CORRIDORS,
+        data: corridorData,
       });
 
-      // Layer 1: Wide atmospheric glow — "water channel" on the dark map
+      // Layer 1: Wide atmospheric glow
       map.addLayer({
         id: "arroyo-corridors-glow",
         type: "line",
         source: "arroyo-corridors",
         paint: {
           "line-color": [
-            "match", ["get", "risk"],
-            "high", "#3b82f6",
-            "medium", "#60a5fa",
-            "#93c5fd",
+            "match", ["get", "status"],
+            "danger", "#ef4444",
+            "caution", "#eab308",
+            "safe", "#22c55e",
+            "#334155",
           ],
           "line-width": ["interpolate", ["linear"], ["zoom"], 10, 14, 14, 22, 17, 30],
           "line-blur": ["interpolate", ["linear"], ["zoom"], 10, 10, 14, 16, 17, 22],
           "line-opacity": [
-            "match", ["get", "risk"],
-            "high", 0.12,
-            "medium", 0.08,
-            0.05,
+            "match", ["get", "status"],
+            "danger", 0.18,
+            "caution", 0.14,
+            "safe", 0.06,
+            0.04,
           ],
         },
       });
 
-      // Layer 2: Inner glow — adds depth/brightness
+      // Layer 2: Inner glow
       map.addLayer({
         id: "arroyo-corridors-inner",
         type: "line",
         source: "arroyo-corridors",
         paint: {
           "line-color": [
-            "match", ["get", "risk"],
-            "high", "#60a5fa",
-            "medium", "#93c5fd",
-            "#93c5fd",
+            "match", ["get", "status"],
+            "danger", "#f87171",
+            "caution", "#fbbf24",
+            "safe", "#4ade80",
+            "#475569",
           ],
           "line-width": ["interpolate", ["linear"], ["zoom"], 10, 4, 14, 7, 17, 10],
           "line-blur": ["interpolate", ["linear"], ["zoom"], 10, 3, 14, 5, 17, 7],
           "line-opacity": [
-            "match", ["get", "risk"],
-            "high", 0.2,
-            "medium", 0.14,
-            0.08,
+            "match", ["get", "status"],
+            "danger", 0.28,
+            "caution", 0.2,
+            "safe", 0.08,
+            0.04,
           ],
         },
       });
 
-      // Layer 3: Core stream — the visible bright line
+      // Layer 3: Core stream — main visible line
       map.addLayer({
         id: "arroyo-corridors-core",
         type: "line",
         source: "arroyo-corridors",
         paint: {
           "line-color": [
-            "match", ["get", "risk"],
-            "high", "#93c5fd",
-            "medium", "#93c5fd",
-            "#bfdbfe",
+            "match", ["get", "status"],
+            "danger", "#fca5a5",
+            "caution", "#fde68a",
+            "safe", "#86efac",
+            "#475569",
           ],
           "line-width": ["interpolate", ["linear"], ["zoom"], 10, 1.5, 14, 2.5, 17, 3.5],
           "line-opacity": [
-            "match", ["get", "risk"],
-            "high", 0.55,
-            "medium", 0.4,
-            0.25,
+            "match", ["get", "status"],
+            "danger", 0.7,
+            "caution", 0.5,
+            "safe", 0.25,
+            0.12,
           ],
         },
         layout: {
@@ -206,25 +220,25 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
         },
       });
 
-      // Layer 4: Animated flow — dashes that move like water current
+      // Layer 4: Animated flow — only visible for danger/caution
       map.addLayer({
         id: "arroyo-corridors-flow",
         type: "line",
         source: "arroyo-corridors",
         paint: {
           "line-color": [
-            "match", ["get", "risk"],
-            "high", "#bfdbfe",
-            "medium", "#93c5fd",
-            "#93c5fd",
+            "match", ["get", "status"],
+            "danger", "#fecaca",
+            "caution", "#fef08a",
+            "rgba(0,0,0,0)",
           ],
           "line-width": ["interpolate", ["linear"], ["zoom"], 10, 1, 14, 1.5, 17, 2],
           "line-dasharray": [0, 4, 3],
           "line-opacity": [
-            "match", ["get", "risk"],
-            "high", 0.6,
-            "medium", 0.4,
-            0.25,
+            "match", ["get", "status"],
+            "danger", 0.7,
+            "caution", 0.5,
+            0,
           ],
         },
         layout: {
@@ -412,6 +426,26 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
     map.on("click", clearPinned);
     return () => { map.off("click", clearPinned); };
   }, [reports, onZoneClick, activeFilter, predictions]);
+
+  // Update corridor status based on active reports
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    const src = map.getSource("arroyo-corridors");
+    if (!src) return;
+
+    const updatedData = {
+      ...ARROYO_CORRIDORS,
+      features: ARROYO_CORRIDORS.features.map(f => ({
+        ...f,
+        properties: {
+          ...f.properties,
+          status: getZoneSeverity(f.properties.id, reports) || "inactive",
+        },
+      })),
+    };
+    src.setData(updatedData);
+  }, [reports]);
 
   if (mapError) {
     return (
