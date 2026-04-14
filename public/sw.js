@@ -1,6 +1,6 @@
 // AlertaArroyo Service Worker
 // Version — bump this with each deploy to trigger update
-const SW_VERSION = "0.10.1";
+const SW_VERSION = "0.11.0";
 const CACHE_NAME = "arroyo-v" + SW_VERSION;
 
 // Install — take over immediately

@@ -257,7 +257,18 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
   // ALL state and refs declared first — before any useEffect
   const SNAPS = { peek: 19, half: 50, full: 88 };
   const [snap, setSnap] = useState(initialSnap);
+  const [dragOffset, setDragOffset] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const [closing, setClosing] = useState(false);
+  const [entered, setEntered] = useState(false);
+  const [upvoted, setUpvoted] = useState(new Set());
+  const [zoneHistory, setZoneHistory] = useState(null);
+  const touchRef = useRef({ startY: 0, startSnap: 0, lastY: 0, lastTime: 0, velocity: 0 });
+  const contentRef = useRef(null);
+  const sheetRef = useRef(null);
+  const desktopRestoreRef = useRef(null);
   const prevZoneRef = useRef(zone?.id);
+
   // When switching zones (e.g. tapping another card in list), reset to initialSnap
   useEffect(() => {
     if (zone && zone.id !== prevZoneRef.current) {
@@ -270,16 +281,6 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
       requestAnimationFrame(() => requestAnimationFrame(() => setEntered(true)));
     }
   }, [zone?.id, initialSnap]);
-  const [dragOffset, setDragOffset] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
-  const [closing, setClosing] = useState(false);
-  const [entered, setEntered] = useState(false);
-  const [upvoted, setUpvoted] = useState(new Set());
-  const [zoneHistory, setZoneHistory] = useState(null);
-  const touchRef = useRef({ startY: 0, startSnap: 0, lastY: 0, lastTime: 0, velocity: 0 });
-  const contentRef = useRef(null);
-  const sheetRef = useRef(null);
-  const desktopRestoreRef = useRef(null);
 
   const deviceCounts = {};
   reports.forEach((r) => { if (r.device_id) deviceCounts[r.device_id] = (deviceCounts[r.device_id] || 0) + 1; });
