@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { useLanguage } from "@/lib/LanguageContext";
 
 const WMO_ICONS = {
@@ -176,15 +177,15 @@ export default function WeatherIndicator() {
         }}><polyline points="6 9 12 15 18 9"/></svg>
       </button>
 
-      {/* Expanded card */}
-      {expanded && (
+      {/* Expanded card — portaled to body to escape header's backdrop-filter context */}
+      {expanded && typeof document !== "undefined" && createPortal(
         <div ref={dropdownRef} className={animClass} style={{ position: "fixed", top: dropdownPos.top, right: dropdownPos.right,
           width: 230, background: "rgba(10,15,26,0.2)",
           backdropFilter: "blur(16px) saturate(1.8)", WebkitBackdropFilter: "blur(16px) saturate(1.8)",
           borderRadius: "16px", border: "1px solid rgba(255,255,255,0.15)",
           boxShadow: "0 12px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.12)",
           transformOrigin: "top right",
-          zIndex: 1001,
+          zIndex: 10000,
         }}>
           {/* Main weather */}
           <div style={{ padding: "22px 18px 16px", textAlign: "center" }}>
@@ -238,7 +239,8 @@ export default function WeatherIndicator() {
             <span style={{ fontSize: "10px", color: "var(--text-faint)", fontWeight: 500 }}>Barranquilla</span>
             <span style={{ fontSize: "9px", color: "var(--text-faint)", opacity: 0.4 }}>Open-Meteo</span>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       <style>{`
