@@ -249,7 +249,7 @@ function MoreMenu({ onSelect, lang, onClose }) {
 }
 
 /* ====== MULTI-SNAP BOTTOM SHEET — peek / half / full ====== */
-function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push, zoneWatchers, prediction, watchZone, unwatchZone, onLogoClick, isDesktop, desktopView, mapInstance, favs, initialSnap = "peek", mapRestoreRef, onPhotoClick, onDelete, userLocation }) {
+function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push, zoneWatchers, prediction, watchZone, unwatchZone, onLogoClick, isDesktop, desktopView, mapInstance, favs, initialSnap = "peek", mapRestoreRef, onPhotoClick, onDelete, userLocation, closeRef }) {
   const { lang, t } = useLanguage();
   const es = lang === "es";
   const sevColor = severity ? SEVERITY[severity].color : "rgba(255,255,255,0.06)";
@@ -337,6 +337,11 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
     }
     setTimeout(onClose, 380);
   }, [closing, onClose, mapInstance, isDesktop, mapRestoreRef]);
+
+  // Expose animateClose to parent via ref
+  useEffect(() => {
+    if (closeRef) closeRef.current = animateClose;
+  }, [closeRef, animateClose]);
 
   // Fetch zone history stats (cached per zone)
   useEffect(() => {
@@ -1117,6 +1122,7 @@ function AppContent() {
   const handleFilterClick = (filter) => { setActiveFilter((prev) => prev === filter ? null : filter); };
   const handleMobileTab = (key) => { if (navigator.vibrate) navigator.vibrate(10); if (key === "more") { setShowMoreMenu(true); return; } setMobileView(key); };
   const handleDesktopTab = (key) => { if (key === "live") setShowPanel((p) => !p); else setDesktopView(key); };
+  const sheetCloseRef = useRef(null);
   const closeSheet = () => {
     mapRestoreRef.current = null;
     setScreen("main"); setSelectedZone(null);
@@ -1389,7 +1395,7 @@ function AppContent() {
             </div>
             </>
           ) : currentMainView === "list" ? (
-            <div key="list-view" onClick={(e) => { if (screen === "detail" && selectedZone && !e.target.closest("button, a, input")) closeSheet(); }} style={{ animation: "viewFadeIn 0.25s ease", height: "100%", overflow: "hidden" }}>
+            <div key="list-view" onClick={(e) => { if (screen === "detail" && selectedZone && !e.target.closest("button, a, input")) { sheetCloseRef.current ? sheetCloseRef.current() : closeSheet(); } }} style={{ animation: "viewFadeIn 0.25s ease", height: "100%", overflow: "hidden" }}>
             <PullToRefresh onRefresh={refetch}>
             <div style={{ padding: "12px 16px 20px" }}>
               {/* Search */}
@@ -1564,7 +1570,7 @@ function AppContent() {
             </PullToRefresh>
             </div>
           ) : (
-            <div key="live-view" onClick={(e) => { if (screen === "detail" && selectedZone && !e.target.closest("button, a, input")) closeSheet(); }} style={{ animation: "viewFadeIn 0.25s ease", height: "100%", overflow: "hidden" }}>
+            <div key="live-view" onClick={(e) => { if (screen === "detail" && selectedZone && !e.target.closest("button, a, input")) { sheetCloseRef.current ? sheetCloseRef.current() : closeSheet(); } }} style={{ animation: "viewFadeIn 0.25s ease", height: "100%", overflow: "hidden" }}>
             <LiveFeed reports={reports} onZoneClick={(id) => handleZoneClick(id, "live")} onUpvote={upvoteReport} upvotedSet={upvotedSet} onUpvoteLocal={handleUpvoteLocal} activeFilter={activeFilter} onPhotoClick={setViewPhoto} onReport={() => setScreen("report")} />
             </div>
           )}
@@ -1608,6 +1614,7 @@ function AppContent() {
             onPhotoClick={setViewPhoto}
             onDelete={deleteReport}
             userLocation={userLocation}
+            closeRef={sheetCloseRef}
           />
         );
       })()}
