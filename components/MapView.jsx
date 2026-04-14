@@ -142,115 +142,85 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
         lineMetrics: true,
       });
 
-      // --- GLOW LAYERS (per-status, using line-gradient for fade at endpoints) ---
-
-      const glowWidth = ["interpolate", ["linear"], ["zoom"], 10, 14, 14, 22, 17, 30];
-      const glowBlur = ["interpolate", ["linear"], ["zoom"], 10, 10, 14, 16, 17, 22];
-      const mkGradient = (r, g, b, peakA) => [
+      // Helper: gradient that fades at both ends of the line
+      const mkFade = (r, g, b, peakA) => [
         "interpolate", ["linear"], ["line-progress"],
         0, `rgba(${r},${g},${b},0)`,
-        0.06, `rgba(${r},${g},${b},${peakA})`,
-        0.88, `rgba(${r},${g},${b},${peakA})`,
+        0.12, `rgba(${r},${g},${b},${peakA})`,
+        0.78, `rgba(${r},${g},${b},${peakA})`,
         1, `rgba(${r},${g},${b},0)`,
       ];
 
-      // Inactive glow — soft blue, subtle
-      map.addLayer({
-        id: "corridors-glow-inactive",
-        type: "line",
-        source: "arroyo-corridors",
-        filter: ["any", ["==", ["get", "status"], "inactive"], ["==", ["get", "status"], "safe"]],
-        paint: {
-          "line-gradient": mkGradient(96, 165, 250, 0.08),
-          "line-width": glowWidth,
-          "line-blur": glowBlur,
-        },
-        layout: { "line-cap": "round", "line-join": "round" },
-      });
-
-      // Caution glow — amber
-      map.addLayer({
-        id: "corridors-glow-caution",
-        type: "line",
-        source: "arroyo-corridors",
-        filter: ["==", ["get", "status"], "caution"],
-        paint: {
-          "line-gradient": mkGradient(234, 179, 8, 0.18),
-          "line-width": glowWidth,
-          "line-blur": glowBlur,
-        },
-        layout: { "line-cap": "round", "line-join": "round" },
-      });
-
-      // Danger glow — red
-      map.addLayer({
-        id: "corridors-glow-danger",
-        type: "line",
-        source: "arroyo-corridors",
-        filter: ["==", ["get", "status"], "danger"],
-        paint: {
-          "line-gradient": mkGradient(239, 68, 68, 0.22),
-          "line-width": glowWidth,
-          "line-blur": glowBlur,
-        },
-        layout: { "line-cap": "round", "line-join": "round" },
-      });
-
-      // --- MOUTH DISPERSAL — wider bloom that only appears near the end ---
-
-      const dispersalWidth = ["interpolate", ["linear"], ["zoom"], 10, 20, 14, 40, 17, 65];
-      const dispersalBlur = ["interpolate", ["linear"], ["zoom"], 10, 14, 14, 24, 17, 40];
-      const mkDispersal = (r, g, b, peakA) => [
+      // Helper: bloom visible only near the mouth (last 25%)
+      const mkMouth = (r, g, b, peakA) => [
         "interpolate", ["linear"], ["line-progress"],
         0, `rgba(${r},${g},${b},0)`,
-        0.7, `rgba(${r},${g},${b},0)`,
-        0.85, `rgba(${r},${g},${b},${peakA})`,
-        0.96, `rgba(${r},${g},${b},${peakA * 0.4})`,
+        0.65, `rgba(${r},${g},${b},0)`,
+        0.82, `rgba(${r},${g},${b},${peakA})`,
+        0.94, `rgba(${r},${g},${b},${peakA * 0.5})`,
         1, `rgba(${r},${g},${b},0)`,
       ];
 
-      map.addLayer({
-        id: "corridors-dispersal-inactive",
-        type: "line",
-        source: "arroyo-corridors",
-        filter: ["any", ["==", ["get", "status"], "inactive"], ["==", ["get", "status"], "safe"]],
-        paint: {
-          "line-gradient": mkDispersal(96, 165, 250, 0.04),
-          "line-width": dispersalWidth,
-          "line-blur": dispersalBlur,
-        },
-        layout: { "line-cap": "round", "line-join": "round" },
+      // Status configs: [r, g, b, glowA, coreA, dispersalA]
+      const statuses = {
+        inactive: { rgb: [96, 165, 250], glow: 0.08, core: 0.22, mouth: 0.06, filter: ["any", ["==", ["get", "status"], "inactive"], ["==", ["get", "status"], "safe"]] },
+        caution:  { rgb: [234, 179, 8],  glow: 0.2,  core: 0.55, mouth: 0.18, filter: ["==", ["get", "status"], "caution"] },
+        danger:   { rgb: [239, 68, 68],  glow: 0.25, core: 0.7,  mouth: 0.22, filter: ["==", ["get", "status"], "danger"] },
+      };
+
+      const glowW = ["interpolate", ["linear"], ["zoom"], 10, 14, 14, 22, 17, 30];
+      const glowB = ["interpolate", ["linear"], ["zoom"], 10, 10, 14, 16, 17, 22];
+      const coreW = ["interpolate", ["linear"], ["zoom"], 10, 1.5, 14, 2.5, 17, 3.5];
+      const mouthW = ["interpolate", ["linear"], ["zoom"], 10, 24, 14, 50, 17, 80];
+      const mouthB = ["interpolate", ["linear"], ["zoom"], 10, 16, 14, 30, 17, 50];
+
+      // Create per-status layers: glow + core + mouth dispersal
+      Object.entries(statuses).forEach(([key, s]) => {
+        const [r, g, b] = s.rgb;
+
+        // Outer glow — wide atmospheric halo with fade
+        map.addLayer({
+          id: `corridors-glow-${key}`,
+          type: "line",
+          source: "arroyo-corridors",
+          filter: s.filter,
+          paint: {
+            "line-gradient": mkFade(r, g, b, s.glow),
+            "line-width": glowW,
+            "line-blur": glowB,
+          },
+          layout: { "line-cap": "round", "line-join": "round" },
+        });
+
+        // Core stream — the main visible line with fade
+        map.addLayer({
+          id: `corridors-core-${key}`,
+          type: "line",
+          source: "arroyo-corridors",
+          filter: s.filter,
+          paint: {
+            "line-gradient": mkFade(r, g, b, s.core),
+            "line-width": coreW,
+          },
+          layout: { "line-cap": "round", "line-join": "round" },
+        });
+
+        // Mouth dispersal — very wide, heavily blurred, only near the end
+        map.addLayer({
+          id: `corridors-mouth-${key}`,
+          type: "line",
+          source: "arroyo-corridors",
+          filter: s.filter,
+          paint: {
+            "line-gradient": mkMouth(r, g, b, s.mouth),
+            "line-width": mouthW,
+            "line-blur": mouthB,
+          },
+          layout: { "line-cap": "round", "line-join": "round" },
+        });
       });
 
-      map.addLayer({
-        id: "corridors-dispersal-caution",
-        type: "line",
-        source: "arroyo-corridors",
-        filter: ["==", ["get", "status"], "caution"],
-        paint: {
-          "line-gradient": mkDispersal(234, 179, 8, 0.12),
-          "line-width": dispersalWidth,
-          "line-blur": dispersalBlur,
-        },
-        layout: { "line-cap": "round", "line-join": "round" },
-      });
-
-      map.addLayer({
-        id: "corridors-dispersal-danger",
-        type: "line",
-        source: "arroyo-corridors",
-        filter: ["==", ["get", "status"], "danger"],
-        paint: {
-          "line-gradient": mkDispersal(239, 68, 68, 0.15),
-          "line-width": dispersalWidth,
-          "line-blur": dispersalBlur,
-        },
-        layout: { "line-cap": "round", "line-join": "round" },
-      });
-
-      // --- INNER GLOW + CORE + FLOW (shared layers with match) ---
-
-      // Inner glow
+      // Inner glow (shared, match-based — no gradient needed)
       map.addLayer({
         id: "arroyo-corridors-inner",
         type: "line",
@@ -273,31 +243,6 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
             0.08,
           ],
         },
-      });
-
-      // Core stream
-      map.addLayer({
-        id: "arroyo-corridors-core",
-        type: "line",
-        source: "arroyo-corridors",
-        paint: {
-          "line-color": [
-            "match", ["get", "status"],
-            "danger", "#fca5a5",
-            "caution", "#fde68a",
-            "safe", "#86efac",
-            "#93c5fd",
-          ],
-          "line-width": ["interpolate", ["linear"], ["zoom"], 10, 1.5, 14, 2.5, 17, 3.5],
-          "line-opacity": [
-            "match", ["get", "status"],
-            "danger", 0.7,
-            "caution", 0.55,
-            "safe", 0.3,
-            0.22,
-          ],
-        },
-        layout: { "line-cap": "round", "line-join": "round" },
       });
 
       // Animated flow — only for danger/caution
