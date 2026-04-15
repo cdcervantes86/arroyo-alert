@@ -38,6 +38,8 @@ export default function CoordEditor() {
   const mapInstanceRef = useRef(null);
   const markersRef = useRef([]);
   const lineMarkersRef = useRef([]);
+  const corridorClickHandlersRef = useRef([]);
+  const corridorClickedRef = useRef(false);
   const initRef = useRef(false);
 
   const [mode, setMode] = useState("zones");
@@ -161,6 +163,7 @@ export default function CoordEditor() {
     if (!map) return;
 
     const handler = (e) => {
+      if (corridorClickedRef.current) return;
       const { lng, lat } = e.lngLat;
       if (mode === "zones" && editingZone !== null) {
         setZones(prev => prev.map(z =>
@@ -223,6 +226,18 @@ export default function CoordEditor() {
     lineMarkersRef.current.forEach(m => m.remove());
     lineMarkersRef.current = [];
 
+    // Clean up old corridor click handlers
+    corridorClickHandlersRef.current.forEach(({ layerId, handler, enterHandler, leaveHandler }) => {
+      if (map.getLayer(layerId)) {
+        map.off("click", layerId, handler);
+        map.off("mouseenter", layerId, enterHandler);
+        map.off("mouseleave", layerId, leaveHandler);
+      }
+      if (map.getLayer(layerId)) map.removeLayer(layerId);
+      if (map.getSource(`${layerId}-src`)) map.removeSource(`${layerId}-src`);
+    });
+    corridorClickHandlersRef.current = [];
+
     corridors.forEach((c) => {
       if (map.getLayer(`corridor-${c.id}`)) map.removeLayer(`corridor-${c.id}`);
       if (map.getSource(`corridor-src-${c.id}`)) map.removeSource(`corridor-src-${c.id}`);
@@ -254,6 +269,46 @@ export default function CoordEditor() {
               layout: { "line-cap": "round" },
             });
           } catch (e) {}
+
+          // Clickable hitbox for non-editing corridors
+          if (!isEditing && coords.length >= 2) {
+            const hitId = `corridor-hit-${c.id}`;
+            try {
+              map.addSource(`${hitId}-src`, {
+                type: "geojson",
+                data: { type: "Feature", geometry: { type: "LineString", coordinates: coords } },
+              });
+              map.addLayer({
+                id: hitId,
+                type: "line",
+                source: `${hitId}-src`,
+                paint: { "line-color": "transparent", "line-width": 14 },
+              });
+
+              const handler = () => {
+                corridorClickedRef.current = true;
+                setTimeout(() => { corridorClickedRef.current = false; }, 100);
+                // Save current editing corridor, then select this one
+                if (editingCorridor !== null && corridorPoints.length >= 2) {
+                  setCorridors(prev => prev.map(x =>
+                    x.id === editingCorridor ? { ...x, coords: corridorPoints } : x
+                  ));
+                }
+                setEditingCorridor(c.id);
+                setCorridorPoints([...c.coords]);
+                setUndoStack([]);
+                setHighlightedPoint(null);
+              };
+              const enterHandler = () => { map.getCanvas().style.cursor = "pointer"; };
+              const leaveHandler = () => { map.getCanvas().style.cursor = ""; };
+
+              map.on("click", hitId, handler);
+              map.on("mouseenter", hitId, enterHandler);
+              map.on("mouseleave", hitId, leaveHandler);
+
+              corridorClickHandlersRef.current.push({ layerId: hitId, handler, enterHandler, leaveHandler });
+            } catch (e) {}
+          }
 
           if (isEditing) {
             coords.forEach((coord, i) => {
