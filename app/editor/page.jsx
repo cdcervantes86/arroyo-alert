@@ -87,6 +87,7 @@ export default function CoordEditor() {
   const [mapStyle, setMapStyle] = useState("satellite");
   const [styleRevision, setStyleRevision] = useState(0);
   const [highlightedPoint, setHighlightedPoint] = useState(null);
+  const [newZoneForm, setNewZoneForm] = useState(null); // { name, area, desc }
 
   // Shorthand for active branch points
   const points = branches[activeBranch] || [];
@@ -374,18 +375,47 @@ export default function CoordEditor() {
 
   const reverseBranch = () => setPoints(prev => [...prev].reverse());
 
+  // ====== ADD / DELETE ZONES + CORRIDORS ======
+  const nextId = () => {
+    const zoneIds = zones.map(z => z.id);
+    const corrIds = corridors.map(c => c.id);
+    return Math.max(...zoneIds, ...corrIds, 0) + 1;
+  };
+
+  const addZone = (name, area, desc) => {
+    const id = nextId();
+    const newZone = { id, name, area, lat: 10.96, lng: -74.805, desc: desc || "", descEn: "" };
+    setZones(prev => [...prev, newZone]);
+    // Auto-create matching corridor
+    setCorridors(prev => [...prev, { id, name, area, risk: "medium", branches: [[]] }]);
+    setNewZoneForm(null);
+    // Enter placement mode
+    setEditingZone(id);
+  };
+
+  const deleteZone = (id) => {
+    if (!confirm(`Delete zone and corridor "${zones.find(z => z.id === id)?.name}"?`)) return;
+    setZones(prev => prev.filter(z => z.id !== id));
+    setCorridors(prev => prev.filter(c => c.id !== id));
+    if (editingZone === id) setEditingZone(null);
+    if (editingCorridor === id) { setEditingCorridor(null); setBranches([]); }
+  };
+
   const resetAll = () => {
     if (!confirm("Reset all edits to original data?")) return;
     setZones(ZONES.map(z => ({ ...z })));
     setCorridors(ARROYO_CORRIDORS.features.map(f => ({ id: f.properties.id, name: f.properties.name, area: f.properties.area, risk: f.properties.risk, branches: featureToBranches(f) })));
-    setEditingCorridor(null); setEditingZone(null); setBranches([]); setActiveBranch(0);
+    setEditingCorridor(null); setEditingZone(null); setBranches([]); setActiveBranch(0); setNewZoneForm(null);
     try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
   };
 
   // ====== GENERATE OUTPUT ======
   const generateOutput = () => {
     if (mode === "zones") {
-      const code = zones.map(z => `  { id: ${z.id}, name: "${z.name}", area: "${z.area}", lat: ${z.lat}, lng: ${z.lng}, desc: "${z.desc}" },`).join("\n");
+      const code = zones.map(z => {
+        const descEn = z.descEn ? `, descEn: "${z.descEn}"` : "";
+        return `  { id: ${z.id}, name: "${z.name}", area: "${z.area}", lat: ${z.lat}, lng: ${z.lng}, desc: "${z.desc}"${descEn} },`;
+      }).join("\n");
       setOutput(`export const ZONES = [\n${code}\n];`);
     } else {
       const features = corridors.map(c => {
@@ -428,16 +458,65 @@ export default function CoordEditor() {
               <>
                 <div style={{ fontSize: "10px", color: "#666", textTransform: "uppercase", letterSpacing: "1px", padding: "8px 8px 4px", fontWeight: 600 }}>Click a zone, then click the map to reposition</div>
                 {zones.map(z => (
-                  <button key={z.id} onClick={() => setEditingZone(editingZone === z.id ? null : z.id)} style={{
-                    width: "100%", padding: "10px 12px", marginBottom: "4px", borderRadius: "8px", border: "none",
-                    background: editingZone === z.id ? "rgba(239,68,68,0.15)" : "#111", textAlign: "left", cursor: "pointer", color: "#fff",
-                    outline: editingZone === z.id ? "2px solid #ef4444" : "1px solid #222",
-                  }}>
-                    <div style={{ fontSize: "13px", fontWeight: 600 }}>{z.name}</div>
-                    <div style={{ fontSize: "11px", color: "#888" }}>{z.area}</div>
-                    <div style={{ fontSize: "10px", color: "#555", marginTop: "2px", fontFamily: "monospace" }}>{z.lat}, {z.lng}</div>
-                  </button>
+                  <div key={z.id} style={{ position: "relative", marginBottom: "4px" }}>
+                    <button onClick={() => setEditingZone(editingZone === z.id ? null : z.id)} style={{
+                      width: "100%", padding: "10px 12px", paddingRight: "32px", borderRadius: "8px", border: "none",
+                      background: editingZone === z.id ? "rgba(239,68,68,0.15)" : "#111", textAlign: "left", cursor: "pointer", color: "#fff",
+                      outline: editingZone === z.id ? "2px solid #ef4444" : "1px solid #222",
+                    }}>
+                      <div style={{ fontSize: "13px", fontWeight: 600 }}>{z.name}</div>
+                      <div style={{ fontSize: "11px", color: "#888" }}>{z.area}</div>
+                      <div style={{ fontSize: "10px", color: "#555", marginTop: "2px", fontFamily: "monospace" }}>{z.lat}, {z.lng}</div>
+                    </button>
+                    <button onClick={(e) => { e.stopPropagation(); deleteZone(z.id); }} style={{
+                      position: "absolute", top: "8px", right: "8px", background: "none", border: "none",
+                      color: "#444", fontSize: "12px", cursor: "pointer", padding: "4px", borderRadius: "4px",
+                    }} title="Delete zone and corridor">✕</button>
+                  </div>
                 ))}
+
+                {/* New Zone form */}
+                {newZoneForm ? (
+                  <div style={{ padding: "10px", borderRadius: "8px", border: "1px solid #333", background: "#111", marginTop: "8px" }}>
+                    <div style={{ fontSize: "11px", fontWeight: 700, color: "#4ade80", marginBottom: "8px" }}>New Zone</div>
+                    <input
+                      placeholder="Name (e.g. Rebolo)"
+                      value={newZoneForm.name}
+                      onChange={(e) => setNewZoneForm(f => ({ ...f, name: e.target.value }))}
+                      style={{ width: "100%", padding: "8px 10px", borderRadius: "6px", border: "1px solid #333", background: "#1a1a1a", color: "#fff", fontSize: "12px", marginBottom: "6px", outline: "none" }}
+                      autoFocus
+                    />
+                    <input
+                      placeholder="Area (e.g. Centro)"
+                      value={newZoneForm.area}
+                      onChange={(e) => setNewZoneForm(f => ({ ...f, area: e.target.value }))}
+                      style={{ width: "100%", padding: "8px 10px", borderRadius: "6px", border: "1px solid #333", background: "#1a1a1a", color: "#fff", fontSize: "12px", marginBottom: "6px", outline: "none" }}
+                    />
+                    <input
+                      placeholder="Description (e.g. 2.5 km — Zona inundable)"
+                      value={newZoneForm.desc}
+                      onChange={(e) => setNewZoneForm(f => ({ ...f, desc: e.target.value }))}
+                      style={{ width: "100%", padding: "8px 10px", borderRadius: "6px", border: "1px solid #333", background: "#1a1a1a", color: "#fff", fontSize: "12px", marginBottom: "8px", outline: "none" }}
+                    />
+                    <div style={{ display: "flex", gap: "6px" }}>
+                      <button
+                        onClick={() => { if (newZoneForm.name && newZoneForm.area) addZone(newZoneForm.name, newZoneForm.area, newZoneForm.desc); }}
+                        disabled={!newZoneForm.name || !newZoneForm.area}
+                        style={{ flex: 1, padding: "8px", borderRadius: "6px", background: newZoneForm.name && newZoneForm.area ? "#22c55e" : "#333", border: "none", color: "#fff", fontSize: "12px", fontWeight: 700, cursor: "pointer", opacity: newZoneForm.name && newZoneForm.area ? 1 : 0.4 }}
+                      >Add → Click map to place</button>
+                      <button onClick={() => setNewZoneForm(null)} style={{ padding: "8px 12px", borderRadius: "6px", background: "#333", border: "none", color: "#888", fontSize: "12px" }}>Cancel</button>
+                    </div>
+                  </div>
+                ) : (
+                  <button onClick={() => setNewZoneForm({ name: "", area: "", desc: "" })} style={{
+                    width: "100%", padding: "10px", marginTop: "8px", borderRadius: "8px",
+                    background: "#1a3a1a", border: "1px dashed #2d5a2d",
+                    color: "#4ade80", fontSize: "12px", fontWeight: 700, cursor: "pointer",
+                    display: "flex", alignItems: "center", justifyContent: "center", gap: "6px",
+                  }}>
+                    + New Zone
+                  </button>
+                )}
               </>
             ) : (
               <>
