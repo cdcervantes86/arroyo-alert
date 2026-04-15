@@ -38,7 +38,7 @@ function simplifyGeometry(geom, tol) {
   return { type: "LineString", coordinates: dpSimplify(geom.coordinates, tol) };
 }
 
-const GLOW_SIMPLIFY_TOL = 0.0001;
+const GLOW_SIMPLIFY_TOL = 0.0002;
 const DARK_STYLE = "mapbox://styles/mapbox/dark-v11";
 
 export default function MapView({ reports, onZoneClick, panelOpen, activeFilter, predictions, onMapReady }) {
@@ -217,8 +217,8 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
         danger:   { rgb: [239, 68, 68],  glow: 0.25, core: 0.7,  mouth: 0.22, filter: ["==", ["get", "status"], "danger"] },
       };
 
-      const glowW = ["interpolate", ["linear"], ["zoom"], 10, 14, 14, 22, 17, 30];
-      const glowB = ["interpolate", ["linear"], ["zoom"], 10, 10, 14, 16, 17, 22];
+      const glowW = ["interpolate", ["linear"], ["zoom"], 10, 8, 14, 14, 17, 20];
+      const glowB = ["interpolate", ["linear"], ["zoom"], 10, 6, 14, 10, 17, 14];
       const coreW = ["interpolate", ["linear"], ["zoom"], 10, 1.5, 14, 2.5, 17, 3.5];
       const mouthW = ["interpolate", ["linear"], ["zoom"], 10, 24, 14, 50, 17, 80];
       const mouthB = ["interpolate", ["linear"], ["zoom"], 10, 16, 14, 30, 17, 50];
