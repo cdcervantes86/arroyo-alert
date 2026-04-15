@@ -17,42 +17,44 @@ function Countdown({ createdAt }) {
   const pct = remaining / (4 * 3600000);
   const color = pct > 0.5 ? "var(--text-faint)" : pct > 0.2 ? "var(--caution)" : "var(--danger)";
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "3px" }}>
-      <span style={{ fontSize: "10px", color, fontWeight: 500, fontVariantNumeric: "tabular-nums", display: "inline-flex", alignItems: "center", gap: "3px" }}><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>{h}h {m}m</span>
-      <div style={{ width: 40, height: 3, borderRadius: 2, background: "rgba(255,255,255,0.04)", overflow: "hidden" }}>
-        <div style={{ width: `${pct * 100}%`, height: "100%", borderRadius: 2, background: color, transition: "width 1s ease" }} />
-      </div>
-    </div>
+    <span style={{ fontSize: "10px", color, fontWeight: 500, fontVariantNumeric: "tabular-nums" }}>
+      {h}h {m}m
+    </span>
   );
 }
 
 function VerifiedBadge({ lang }) {
-  return <span style={{ display: "inline-flex", alignItems: "center", gap: "3px", fontSize: "9px", fontWeight: 700, color: "var(--accent)", background: "var(--accent-glow)", padding: "2px 6px", borderRadius: "4px", border: "1px solid rgba(91,156,246,0.12)", letterSpacing: "0.3px" }}><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>{lang === "en" ? "Verified" : "Verificado"}</span>;
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: "3px", fontSize: "9px", fontWeight: 600, color: "var(--accent)", opacity: 0.7 }}>
+      <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+      {lang === "en" ? "Verified" : "Verificado"}
+    </span>
+  );
 }
 
 function EmptyState({ lang, onReport }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", padding: "40px 24px", textAlign: "center" }}>
-      <div style={{ width: 72, height: 72, borderRadius: "var(--radius-xl)", background: "rgba(91,156,246,0.04)", border: "1px solid rgba(91,156,246,0.08)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "20px" }}>
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.4 }}>
+      <div style={{ width: 64, height: 64, borderRadius: "50%", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "20px" }}>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text-faint)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
           <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
         </svg>
       </div>
-      <div style={{ fontSize: "16px", fontWeight: 700, color: "var(--text)", marginBottom: "8px", letterSpacing: "-0.2px" }}>
+      <div style={{ fontSize: "15px", fontWeight: 600, color: "var(--text)", marginBottom: "6px" }}>
         {lang === "es" ? "Sin actividad reciente" : "No recent activity"}
       </div>
-      <div style={{ fontSize: "13px", color: "var(--text-dim)", maxWidth: 240, lineHeight: 1.6, marginBottom: "20px" }}>
-        {lang === "es" ? "Los reportes aparecerán aquí en tiempo real cuando alguien reporte un arroyo" : "Reports will appear here in real time when someone reports an arroyo"}
+      <div style={{ fontSize: "13px", color: "var(--text-dim)", maxWidth: 220, lineHeight: 1.5, marginBottom: "20px" }}>
+        {lang === "es" ? "Los reportes aparecerán aquí en tiempo real" : "Reports will appear here in real time"}
       </div>
       {onReport && (
         <button onClick={onReport} className="tap-target" style={{
-          padding: "12px 28px", borderRadius: "var(--radius-lg)",
+          padding: "10px 24px", borderRadius: "var(--radius-lg)",
           background: "linear-gradient(135deg, #D42A2A, #b91c1c)", border: "none",
-          color: "#fff", fontSize: "14px", fontWeight: 700,
-          boxShadow: "0 6px 20px rgba(212,42,42,0.25)",
-          display: "flex", alignItems: "center", gap: "8px",
+          color: "#fff", fontSize: "13px", fontWeight: 700,
+          boxShadow: "0 4px 16px rgba(212,42,42,0.2)",
+          display: "flex", alignItems: "center", gap: "6px",
         }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
           {lang === "es" ? "Sé el primero en reportar" : "Be the first to report"}
         </button>
       )}
@@ -82,120 +84,114 @@ export default function LiveFeed({ reports, onZoneClick, onUpvote, upvotedSet, o
   return (
     <>
       {shareData && <ShareCard {...shareData} lang={lang} onClose={() => setShareData(null)} />}
-      <div style={{ overflowY: "auto", height: "100%", padding: "14px 14px 80px" }}>
+      <div style={{ overflowY: "auto", height: "100%", padding: "14px 0 80px" }}>
         {/* Feed header */}
-        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px", padding: "0 2px" }}>
-          <span style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--danger)", animation: "blink 1.5s ease-in-out infinite", flexShrink: 0 }} />
+        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px", padding: "0 16px 10px" }}>
+          <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--danger)", animation: "blink 1.5s ease-in-out infinite", flexShrink: 0 }} />
           <span style={{ fontSize: "11px", fontWeight: 700, color: "var(--text-dim)", textTransform: "uppercase", letterSpacing: "1.2px" }}>
             {lang === "es" ? "En vivo" : "Live"}
           </span>
-          <span style={{ fontSize: "11px", fontWeight: 600, color: "var(--text-faint)" }}>·</span>
-          <span style={{ fontSize: "11px", fontWeight: 600, color: "var(--text-faint)" }}>
+          <span style={{ fontSize: "11px", color: "var(--text-faint)" }}>·</span>
+          <span style={{ fontSize: "11px", color: "var(--text-faint)" }}>
             {recentReports.length} {lang === "es" ? "reportes" : "reports"}
           </span>
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-          {recentReports.map((r, i) => {
-            const zone = ZONES.find((z) => z.id === r.zone_id);
-            if (!zone) return null;
-            const cfg = SEVERITY[r.severity];
-            const isUpvoted = upvotedSet?.has(r.id);
-            const isVerified = r.device_id && (deviceCounts[r.device_id] || 0) >= 5;
-            const isOwn = r.device_id && r.device_id === myDeviceId;
-            const accentClass = `card-accent-${r.severity}`;
+        {recentReports.map((r, i) => {
+          const zone = ZONES.find((z) => z.id === r.zone_id);
+          if (!zone) return null;
+          const cfg = SEVERITY[r.severity];
+          const isUpvoted = upvotedSet?.has(r.id);
+          const isVerified = r.device_id && (deviceCounts[r.device_id] || 0) >= 5;
+          const isOwn = r.device_id && r.device_id === myDeviceId;
 
-            return (
-              <div key={r.id} className="card-interactive" style={{
-                background: `linear-gradient(145deg, ${cfg.color}08 0%, rgba(14,18,30,0.88) 50%, rgba(10,14,26,0.94) 100%)`,
-                backdropFilter: "blur(20px) saturate(1.3)",
-                WebkitBackdropFilter: "blur(20px) saturate(1.3)",
-                border: `1px solid ${cfg.color}1a`,
-                borderBottom: `1px solid rgba(0,0,0,0.3)`,
-                borderRadius: "var(--radius-lg)",
-                padding: "16px 16px 16px 20px",
-                animation: `fadeIn 0.25s ease ${i * 0.04}s both`, cursor: "pointer",
-                position: "relative", overflow: "hidden",
-                boxShadow: `0 6px 24px ${cfg.color}0c, 0 2px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05)`,
-                opacity: Math.max(0.45, Math.min(1, (new Date(r.created_at).getTime() + 4 * 3600000 - Date.now()) / (4 * 3600000))),
-                transform: "translateZ(0)",
-                transition: "box-shadow 0.2s ease, border-color 0.2s ease",
-              }} onClick={(e) => { e.stopPropagation(); onZoneClick?.(zone.id); }}>
-                {/* Accent bar */}
-                <div style={{ position: "absolute", left: 0, top: "10%", bottom: "10%", width: 3, borderRadius: "0 3px 3px 0", background: `linear-gradient(180deg, ${cfg.color}66, ${cfg.color}, ${cfg.color}66)`, boxShadow: `3px 0 10px ${cfg.color}25` }} />
-                {/* Top edge highlight */}
-                <div style={{ position: "absolute", top: 0, left: "5%", right: "5%", height: 1, background: `linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)` }} />
-                {/* Ambient light — subtle corner tint */}
-                <div style={{ position: "absolute", top: -30, left: -30, width: 70, height: 70, borderRadius: "50%", background: `radial-gradient(circle, ${cfg.color}0a 0%, transparent 70%)`, pointerEvents: "none" }} />
+          return (
+            <div key={r.id}
+              onClick={(e) => { e.stopPropagation(); onZoneClick?.(zone.id); }}
+              style={{
+                padding: "14px 16px",
+                borderTop: "1px solid rgba(255,255,255,0.06)",
+                cursor: "pointer",
+                animation: `fadeIn 0.2s ease ${i * 0.03}s both`,
+                transition: "background 0.15s ease",
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.02)"}
+              onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+            >
+              <div style={{ display: "flex", alignItems: "flex-start", gap: "10px" }}>
+                {/* Severity icon — small, no background box */}
+                <div style={{ marginTop: "2px", flexShrink: 0 }}>
+                  <SeverityIcon severity={r.severity} size={18} />
+                </div>
 
-                {/* Header row */}
-                <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
-                  <div style={{ width: 38, height: 38, borderRadius: "var(--radius-sm)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: `${cfg.color}10`, border: `1px solid ${cfg.color}20`, boxShadow: `0 0 12px ${cfg.color}10` }}>
-                    <SeverityIcon severity={r.severity} size={20} />
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: "15px", fontWeight: 700, color: "var(--text)", letterSpacing: "-0.2px", display: "flex", alignItems: "center", gap: "6px" }}>
-                      {zone.name}
-                      {isOwn && <span style={{ fontSize: "9px", fontWeight: 700, color: "var(--accent)", background: "var(--accent-glow)", padding: "1px 6px", borderRadius: "4px", border: "1px solid rgba(91,156,246,0.12)", letterSpacing: "0.3px" }}>{lang === "es" ? "Tú" : "You"}</span>}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  {/* Row 1: Name + time */}
+                  <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: "8px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px", minWidth: 0 }}>
+                      <span style={{ fontSize: "14px", fontWeight: 600, color: "var(--text)", letterSpacing: "-0.2px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{zone.name}</span>
+                      {isOwn && <span style={{ fontSize: "9px", fontWeight: 700, color: "var(--accent)", background: "var(--accent-glow)", padding: "1px 5px", borderRadius: "3px", flexShrink: 0 }}>{lang === "es" ? "Tú" : "You"}</span>}
                     </div>
-                    <div style={{ fontSize: "12px", color: "var(--text-dim)", marginTop: 1 }}>{zone.area}</div>
-                  </div>
-                  <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "3px" }}>
-                    <span style={{ fontSize: "11px", color: "var(--text-faint)", fontWeight: 500, display: "flex", alignItems: "center", gap: "4px" }}>
-                      {(r.severity === "danger" || r.severity === "caution") && <span style={{ width: 5, height: 5, borderRadius: "50%", background: cfg.color, animation: "blink 2s ease infinite" }} />}
+                    <span style={{ fontSize: "11px", color: "var(--text-faint)", whiteSpace: "nowrap", flexShrink: 0 }}>
                       {timeAgoLocalized(r.created_at, lang)}
                     </span>
+                  </div>
+
+                  {/* Row 2: Area + severity + verified */}
+                  <div style={{ display: "flex", alignItems: "center", gap: "6px", marginTop: "2px" }}>
+                    <span style={{ fontSize: "12px", color: "var(--text-dim)" }}>{zone.area}</span>
+                    <span style={{ fontSize: "11px", color: "var(--text-faint)" }}>·</span>
+                    <span style={{ fontSize: "11px", color: cfg.color, fontWeight: 500 }}>{getSevLabel(r.severity, lang)}</span>
+                    {isVerified && <VerifiedBadge lang={lang} />}
+                  </div>
+
+                  {/* Report text */}
+                  {r.text && r.text !== "Sin comentario" && (
+                    <p style={{ margin: "8px 0 0", fontSize: "13px", lineHeight: 1.5, color: "var(--text-secondary)" }}>{r.text}</p>
+                  )}
+
+                  {/* Photo */}
+                  {r.photo_url && (
+                    <div onClick={(e) => { e.stopPropagation(); onPhotoClick?.(r.photo_url); }} style={{ marginTop: "10px", borderRadius: "var(--radius-md)", overflow: "hidden", border: "1px solid rgba(255,255,255,0.06)", position: "relative", cursor: "zoom-in" }}>
+                      <img src={r.photo_url} alt="" style={{ width: "100%", maxHeight: 180, objectFit: "cover", display: "block", aspectRatio: "16/9", background: "rgba(255,255,255,0.02)" }} loading="lazy" />
+                      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 30, background: "linear-gradient(transparent, rgba(0,0,0,0.3))" }} />
+                    </div>
+                  )}
+
+                  {/* Actions row — minimal icon-only */}
+                  <div style={{ display: "flex", alignItems: "center", gap: "14px", marginTop: "10px" }}>
+                    {/* Confirm */}
+                    <button onClick={(e) => { e.stopPropagation(); if (!isUpvoted) { onUpvote?.(r.id, r.upvotes); onUpvoteLocal?.(r.id); if (navigator.vibrate) navigator.vibrate(50); } }} style={{
+                      background: "none", border: "none", padding: "2px 0",
+                      color: isUpvoted ? "var(--accent)" : "var(--text-faint)",
+                      fontSize: "11px", display: "flex", alignItems: "center", gap: "4px", cursor: "pointer",
+                      transition: "color 0.15s ease",
+                    }}>
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill={isUpvoted ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14z"/><path d="M7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg>
+                      <span style={{ fontVariantNumeric: "tabular-nums" }}>{r.upvotes + (isUpvoted ? 1 : 0)}</span>
+                    </button>
+
+                    {/* Comment */}
+                    <CommentThread reportId={r.id} allDeviceCounts={deviceCounts} />
+
+                    {/* Share */}
+                    <button onClick={(e) => { e.stopPropagation(); setShareData({ zoneName: zone.name, zoneArea: zone.area, severity: r.severity, reportText: r.text, photoUrl: r.photo_url, zoneId: zone.id }); }} style={{
+                      background: "none", border: "none", padding: "2px 0",
+                      color: "var(--text-faint)", fontSize: "11px", display: "flex", alignItems: "center", cursor: "pointer",
+                      transition: "color 0.15s ease",
+                    }}>
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+                    </button>
+
+                    <div style={{ flex: 1 }} />
+
+                    {/* Countdown */}
                     <Countdown createdAt={r.created_at} />
                   </div>
                 </div>
-
-                {/* Severity + verified */}
-                <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: r.text || r.photo_url ? "10px" : "10px" }}>
-                  <span style={{
-                    display: "inline-block", padding: "3px 10px", borderRadius: "10px",
-                    background: `${cfg.color}12`, color: cfg.color,
-                    fontSize: "11px", fontWeight: 600, letterSpacing: "0.2px",
-                    boxShadow: `0 0 8px ${cfg.color}10`,
-                  }}>
-                    {getSevLabel(r.severity, lang)}
-                  </span>
-                  {isVerified && <VerifiedBadge lang={lang} />}
-                </div>
-
-                {/* Content */}
-                {r.text && <p style={{ margin: "0 0 10px", fontSize: "14px", lineHeight: 1.55, color: "var(--text-secondary)" }}>{r.text}</p>}
-                {r.photo_url && (
-                  <div onClick={(e) => { e.stopPropagation(); onPhotoClick?.(r.photo_url); }} style={{ marginBottom: "12px", borderRadius: "var(--radius-lg)", overflow: "hidden", border: "1px solid rgba(255,255,255,0.06)", position: "relative", cursor: "zoom-in" }}>
-                    <img src={r.photo_url} alt="Report photo" style={{ width: "100%", maxHeight: 200, objectFit: "cover", display: "block", aspectRatio: "16/9", background: "rgba(255,255,255,0.02)" }} loading="lazy" />
-                    <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 40, background: "linear-gradient(transparent, rgba(0,0,0,0.4))" }} />
-                    <div style={{ position: "absolute", bottom: 8, right: 8, width: 28, height: 28, borderRadius: "50%", background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></div>
-                  </div>
-                )}
-
-                {/* Actions */}
-                <div style={{ display: "flex", gap: "6px", alignItems: "center", flexWrap: "wrap" }}>
-                  <button onClick={(e) => { e.stopPropagation(); if (!isUpvoted) { onUpvote?.(r.id, r.upvotes); onUpvoteLocal?.(r.id); if (navigator.vibrate) navigator.vibrate(50); } }} style={{
-                    background: isUpvoted ? "var(--accent-glow)" : "rgba(255,255,255,0.02)",
-                    border: `1px solid ${isUpvoted ? "rgba(91,156,246,0.15)" : "rgba(255,255,255,0.06)"}`,
-                    borderRadius: "var(--radius-sm)", padding: "6px 11px",
-                    color: isUpvoted ? "var(--accent)" : "var(--text-dim)",
-                    fontSize: "11px", display: "flex", alignItems: "center", gap: "5px", fontWeight: 500, cursor: "pointer",
-                  }}>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill={isUpvoted ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14z"/><path d="M7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg> {isUpvoted ? t.confirmed : t.confirm} · <span style={{ display: "inline-block", animation: isUpvoted ? "countUp 0.3s ease" : "none", fontVariantNumeric: "tabular-nums" }}>{r.upvotes + (isUpvoted ? 1 : 0)}</span>
-                  </button>
-                  <button onClick={(e) => { e.stopPropagation(); setShareData({ zoneName: zone.name, zoneArea: zone.area, severity: r.severity, reportText: r.text, photoUrl: r.photo_url, zoneId: zone.id }); }} style={{
-                    background: "rgba(37,211,102,0.05)", border: "1px solid rgba(37,211,102,0.1)",
-                    borderRadius: "var(--radius-sm)", padding: "6px 11px",
-                    color: "#25D366", fontSize: "11px", fontWeight: 600, display: "flex", alignItems: "center", gap: "4px", cursor: "pointer",
-                  }}>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
-                  </button>
-                  <CommentThread reportId={r.id} allDeviceCounts={deviceCounts} />
-                </div>
               </div>
-            );
-          })}
-        </div>
+            </div>
+          );
+        })}
       </div>
     </>
   );
