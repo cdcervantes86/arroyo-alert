@@ -107,19 +107,30 @@ export default function LiveFeed({ reports, onZoneClick, onUpvote, upvotedSet, o
 
             return (
               <div key={r.id} className="card-interactive" style={{
-                background: `${cfg.color}04`,
-                border: `1px solid ${cfg.color}15`, borderRadius: "var(--radius-lg)",
-                padding: "16px 16px 16px 18px",
+                background: `linear-gradient(145deg, ${cfg.color}14 0%, rgba(15,20,35,0.85) 40%, rgba(10,14,28,0.92) 100%)`,
+                backdropFilter: "blur(20px) saturate(1.4)",
+                WebkitBackdropFilter: "blur(20px) saturate(1.4)",
+                border: `1px solid ${cfg.color}30`,
+                borderBottom: `1px solid rgba(0,0,0,0.4)`,
+                borderRadius: "var(--radius-lg)",
+                padding: "16px 16px 16px 20px",
                 animation: `fadeIn 0.25s ease ${i * 0.04}s both`, cursor: "pointer",
                 position: "relative", overflow: "hidden",
+                boxShadow: `0 8px 32px ${cfg.color}18, 0 4px 12px rgba(0,0,0,0.5), 0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.07), inset 0 0 20px ${cfg.color}06`,
                 opacity: Math.max(0.45, Math.min(1, (new Date(r.created_at).getTime() + 4 * 3600000 - Date.now()) / (4 * 3600000))),
+                transform: "translateZ(0)",
+                transition: "box-shadow 0.2s ease, border-color 0.2s ease",
               }} onClick={(e) => { e.stopPropagation(); onZoneClick?.(zone.id); }}>
-                {/* Accent bar */}
-                <div style={{ position: "absolute", left: 0, top: "12%", bottom: "12%", width: 3, borderRadius: "0 2px 2px 0", background: cfg.color }} />
+                {/* Accent bar with stronger glow */}
+                <div style={{ position: "absolute", left: 0, top: "8%", bottom: "8%", width: 3.5, borderRadius: "0 4px 4px 0", background: `linear-gradient(180deg, ${cfg.color}88, ${cfg.color}, ${cfg.color}88)`, boxShadow: `4px 0 16px ${cfg.color}40, 8px 0 32px ${cfg.color}18` }} />
+                {/* Top edge highlight — glass reflection */}
+                <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: `linear-gradient(90deg, transparent 5%, rgba(255,255,255,0.1) 30%, rgba(255,255,255,0.06) 70%, transparent 95%)` }} />
+                {/* Severity ambient light — top left corner */}
+                <div style={{ position: "absolute", top: -20, left: -20, width: 80, height: 80, borderRadius: "50%", background: `radial-gradient(circle, ${cfg.color}15 0%, transparent 70%)`, pointerEvents: "none" }} />
 
                 {/* Header row */}
                 <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
-                  <div style={{ width: 36, height: 36, borderRadius: "var(--radius-sm)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: `${cfg.color}0a`, border: `1px solid ${cfg.color}18` }}>
+                  <div style={{ width: 38, height: 38, borderRadius: "var(--radius-sm)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: `${cfg.color}10`, border: `1px solid ${cfg.color}20`, boxShadow: `0 0 12px ${cfg.color}10` }}>
                     <SeverityIcon severity={r.severity} size={20} />
                   </div>
                   <div style={{ flex: 1 }}>
@@ -142,8 +153,9 @@ export default function LiveFeed({ reports, onZoneClick, onUpvote, upvotedSet, o
                 <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: r.text || r.photo_url ? "10px" : "10px" }}>
                   <span style={{
                     display: "inline-block", padding: "3px 10px", borderRadius: "10px",
-                    background: `${cfg.color}0a`, color: cfg.color,
+                    background: `${cfg.color}12`, color: cfg.color,
                     fontSize: "11px", fontWeight: 600, letterSpacing: "0.2px",
+                    boxShadow: `0 0 8px ${cfg.color}10`,
                   }}>
                     {getSevLabel(r.severity, lang)}
                   </span>

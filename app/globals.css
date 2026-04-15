@@ -31,10 +31,10 @@ button { font-family: inherit; cursor: pointer; transition: all 0.18s ease; }
 button:active { transform: scale(0.97); opacity: 0.85; }
 
 .card-interactive {
-  transition: background 0.18s ease, transform 0.18s ease, border-color 0.18s ease;
+  transition: background 0.18s ease, transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
 }
-.card-interactive:hover { background: var(--bg-card-hover) !important; border-color: var(--border-light) !important; }
-.card-interactive:active { transform: scale(0.985); }
+.card-interactive:hover { border-color: rgba(255,255,255,0.15) !important; box-shadow: 0 12px 40px rgba(0,0,0,0.5), 0 4px 16px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1) !important; transform: translateY(-1px); }
+.card-interactive:active { transform: scale(0.985) translateY(0); }
 
 /* Desktop header icon hover */
 .header-icon-btn { transition: all 0.15s ease; border-radius: 50% !important; }
