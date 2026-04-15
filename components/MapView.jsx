@@ -5,6 +5,40 @@ import { ARROYO_CORRIDORS } from "@/lib/arroyoCorridors";
 import { useLanguage } from "@/lib/LanguageContext";
 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
+
+// Douglas-Peucker line simplification for glow layers
+function dpSimplify(coords, tolerance) {
+  if (coords.length <= 2) return coords;
+  let maxDist = 0, maxIdx = 0;
+  const [x1, y1] = coords[0], [x2, y2] = coords[coords.length - 1];
+  const dx = x2 - x1, dy = y2 - y1;
+  const lenSq = dx * dx + dy * dy;
+  for (let i = 1; i < coords.length - 1; i++) {
+    const [px, py] = coords[i];
+    let dist;
+    if (lenSq === 0) { dist = Math.sqrt((px-x1)**2 + (py-y1)**2); }
+    else {
+      const t = Math.max(0, Math.min(1, ((px-x1)*dx + (py-y1)*dy) / lenSq));
+      dist = Math.sqrt((px - (x1 + t*dx))**2 + (py - (y1 + t*dy))**2);
+    }
+    if (dist > maxDist) { maxDist = dist; maxIdx = i; }
+  }
+  if (maxDist > tolerance) {
+    const left = dpSimplify(coords.slice(0, maxIdx + 1), tolerance);
+    const right = dpSimplify(coords.slice(maxIdx), tolerance);
+    return left.slice(0, -1).concat(right);
+  }
+  return [coords[0], coords[coords.length - 1]];
+}
+
+function simplifyGeometry(geom, tol) {
+  if (geom.type === "MultiLineString") {
+    return { type: "MultiLineString", coordinates: geom.coordinates.map(c => dpSimplify(c, tol)) };
+  }
+  return { type: "LineString", coordinates: dpSimplify(geom.coordinates, tol) };
+}
+
+const GLOW_SIMPLIFY_TOL = 0.0004;
 const DARK_STYLE = "mapbox://styles/mapbox/dark-v11";
 
 export default function MapView({ reports, onZoneClick, panelOpen, activeFilter, predictions, onMapReady }) {
@@ -128,7 +162,7 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
         } catch(e) {}
       });
 
-      // Add arroyo corridor lines — status-reactive with line-gradient fading
+      // Main source — full detail for core lines
       const corridorData = {
         ...ARROYO_CORRIDORS,
         features: ARROYO_CORRIDORS.features.map(f => ({
@@ -140,7 +174,21 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
         type: "geojson",
         data: corridorData,
         lineMetrics: true,
-        tolerance: 4,
+      });
+
+      // Simplified source — for glow + mouth layers (prevents blur overlap artifacts)
+      const glowData = {
+        ...ARROYO_CORRIDORS,
+        features: ARROYO_CORRIDORS.features.map(f => ({
+          ...f,
+          properties: { ...f.properties, status: "inactive" },
+          geometry: simplifyGeometry(f.geometry, GLOW_SIMPLIFY_TOL),
+        })),
+      };
+      map.addSource("arroyo-corridors-glow", {
+        type: "geojson",
+        data: glowData,
+        lineMetrics: true,
       });
 
       // Helper: gradient that fades at both ends of the line
@@ -169,8 +217,8 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
         danger:   { rgb: [239, 68, 68],  glow: 0.25, core: 0.7,  mouth: 0.22, filter: ["==", ["get", "status"], "danger"] },
       };
 
-      const glowW = ["interpolate", ["linear"], ["zoom"], 10, 12, 14, 18, 17, 24];
-      const glowB = ["interpolate", ["linear"], ["zoom"], 10, 8, 14, 12, 17, 16];
+      const glowW = ["interpolate", ["linear"], ["zoom"], 10, 14, 14, 22, 17, 30];
+      const glowB = ["interpolate", ["linear"], ["zoom"], 10, 10, 14, 16, 17, 22];
       const coreW = ["interpolate", ["linear"], ["zoom"], 10, 1.5, 14, 2.5, 17, 3.5];
       const mouthW = ["interpolate", ["linear"], ["zoom"], 10, 24, 14, 50, 17, 80];
       const mouthB = ["interpolate", ["linear"], ["zoom"], 10, 16, 14, 30, 17, 50];
@@ -183,7 +231,7 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
         map.addLayer({
           id: `corridors-glow-${key}`,
           type: "line",
-          source: "arroyo-corridors",
+          source: "arroyo-corridors-glow",
           filter: s.filter,
           paint: {
             "line-gradient": mkFade(r, g, b, s.glow),
@@ -210,7 +258,7 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
         map.addLayer({
           id: `corridors-mouth-${key}`,
           type: "line",
-          source: "arroyo-corridors",
+          source: "arroyo-corridors-glow",
           filter: s.filter,
           paint: {
             "line-gradient": mkMouth(r, g, b, s.mouth),
@@ -479,6 +527,7 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
     const map = mapRef.current;
     if (!map) return;
     const src = map.getSource("arroyo-corridors");
+    const glowSrc = map.getSource("arroyo-corridors-glow");
     const trimSrc = map.getSource("arroyo-corridors-trimmed");
     if (!src) return;
 
@@ -490,6 +539,15 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
       },
     }));
     src.setData({ ...ARROYO_CORRIDORS, features });
+
+    // Update simplified glow source
+    if (glowSrc) {
+      const glowFeatures = features.map(f => ({
+        ...f,
+        geometry: simplifyGeometry(f.geometry, GLOW_SIMPLIFY_TOL),
+      }));
+      glowSrc.setData({ type: "FeatureCollection", features: glowFeatures });
+    }
 
     // Also update trimmed source (inner glow + flow dashes)
     if (trimSrc) {
