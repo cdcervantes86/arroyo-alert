@@ -119,14 +119,15 @@ button:active { transform: scale(0.97); opacity: 0.85; }
   to { opacity: 0; }
 }
 
-/* Desktop: sheet becomes side panel */
+/* Desktop: sheet becomes floating side panel */
 @media (min-width: 900px) {
   .sheet-container {
-    left: auto; right: 0; top: 0; bottom: 0;
-    max-height: 100vh; width: 420px;
-    border-radius: 0;
+    left: auto; right: 10px; top: 10px; bottom: 10px;
+    max-height: calc(100vh - 20px); width: 400px;
+    border-radius: 16px;
     animation: sheetSlideIn 0.3s cubic-bezier(0.32, 0.72, 0, 1);
-    border-left: 1px solid var(--border);
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 8px 40px rgba(0,0,0,0.4), 0 0 0 0.5px rgba(255,255,255,0.06);
   }
   .sheet-handle-area { display: none; }
   @keyframes sheetSlideIn {

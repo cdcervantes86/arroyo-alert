@@ -570,11 +570,12 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
     if (isSidePanel) {
       return (
         <div style={{
-          position: "fixed", top: 0, right: 0, bottom: 0, width: 400, zIndex: 1001,
-          background: "rgba(12,18,32,0.78)",
-          backdropFilter: "blur(24px) saturate(1.4)", WebkitBackdropFilter: "blur(24px) saturate(1.4)",
-          borderLeft: "1px solid rgba(255,255,255,0.1)",
-          boxShadow: "-8px 0 32px rgba(0,0,0,0.35), inset 1px 0 0 rgba(255,255,255,0.06)",
+          position: "fixed", top: 10, right: 10, bottom: 10, width: 390, zIndex: 1001,
+          background: "rgba(12,18,32,0.72)",
+          backdropFilter: "blur(24px) saturate(1.6)", WebkitBackdropFilter: "blur(24px) saturate(1.6)",
+          border: "1px solid rgba(255,255,255,0.1)",
+          borderRadius: "16px",
+          boxShadow: "0 8px 40px rgba(0,0,0,0.4), 0 0 0 0.5px rgba(255,255,255,0.06)",
           animation: closing ? "desktopPanelOut 0.25s ease forwards" : "desktopPanelIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)",
           display: "flex", flexDirection: "column",
         }}>
@@ -1366,7 +1367,7 @@ function AppContent() {
             </MapErrorBoundary>
             {isRaining && <div className="rain-overlay" />}
             {/* Floating map controls */}
-            <div style={{ position: "absolute", top: 12, right: panelVisible ? 392 : 12, zIndex: 800, display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "8px", transition: "right 0.3s cubic-bezier(0.4, 0, 0.2, 1)" }}>
+            <div style={{ position: "absolute", top: 12, right: panelVisible ? 396 : 12, zIndex: 800, display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "8px", transition: "right 0.3s cubic-bezier(0.4, 0, 0.2, 1)" }}>
               <RainRadarButton enabled={radar.enabled} onToggle={radar.toggle} />
               <button onClick={handleLocate} aria-label={es ? "Mi ubicación" : "My location"} className="tap-target" style={{
                 width: 40, height: 40, borderRadius: "50%",
@@ -1573,8 +1574,8 @@ function AppContent() {
           )}
         </div>
         {isDesktop && (
-          <div onTransitionEnd={() => { window.dispatchEvent(new Event("resize")); }} style={{ position: "absolute", top: 0, right: 0, bottom: 0, width: showPanel ? 380 : 0, flexShrink: 0, background: "rgba(12,18,32,0.55)", backdropFilter: "blur(20px) saturate(1.5)", WebkitBackdropFilter: "blur(20px) saturate(1.5)", borderLeft: showPanel ? "1px solid rgba(255,255,255,0.1)" : "none", display: "flex", flexDirection: "column", overflow: "hidden", transition: "width 0.3s cubic-bezier(0.4, 0, 0.2, 1)", boxShadow: showPanel ? "inset 1px 0 0 rgba(255,255,255,0.05), -8px 0 32px rgba(0,0,0,0.3)" : "none", zIndex: 10 }}>
-            <div style={{ width: 380, height: "100%", opacity: showPanel ? 1 : 0, transition: "opacity 0.2s ease", overflow: "hidden" }}>
+          <div onTransitionEnd={() => { window.dispatchEvent(new Event("resize")); }} style={{ position: "absolute", top: 10, right: 10, bottom: 10, width: showPanel ? 370 : 0, flexShrink: 0, background: "rgba(12,18,32,0.65)", backdropFilter: "blur(24px) saturate(1.6)", WebkitBackdropFilter: "blur(24px) saturate(1.6)", border: showPanel ? "1px solid rgba(255,255,255,0.1)" : "none", borderRadius: "16px", display: "flex", flexDirection: "column", overflow: "hidden", transition: "width 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease", boxShadow: showPanel ? "0 8px 40px rgba(0,0,0,0.4), 0 0 0 0.5px rgba(255,255,255,0.06)" : "none", zIndex: 10, opacity: showPanel ? 1 : 0 }}>
+            <div style={{ width: 370, height: "100%", opacity: showPanel ? 1 : 0, transition: "opacity 0.2s ease", overflow: "hidden" }}>
               <LiveFeed reports={reports} onZoneClick={(id) => handleZoneClick(id, "live")} onUpvote={upvoteReport} upvotedSet={upvotedSet} onUpvoteLocal={handleUpvoteLocal} activeFilter={activeFilter} onPhotoClick={setViewPhoto} onReport={() => setScreen("report")} />
             </div>
           </div>
