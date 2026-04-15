@@ -146,44 +146,41 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang })
         borderRadius: "99px",
         border: "1px solid rgba(255,255,255,0.13)",
         boxShadow: "0 2px 8px rgba(0,0,0,0.15), 0 12px 40px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.12), inset 0 -0.5px 0 rgba(0,0,0,0.1)",
-        padding: "5px 6px",
+        padding: 0,
         pointerEvents: "auto",
         position: "relative",
         maxWidth: 320,
         margin: "0 auto",
+        height: 52,
+        overflow: "hidden",
       }}>
-        <div style={{ position: "absolute", top: 0, left: "15%", right: "15%", height: "1px", background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.15), rgba(255,255,255,0.25), rgba(255,255,255,0.15), transparent)", borderRadius: "1px", pointerEvents: "none" }} />
         {tabs.map((tab) => {
           const isActive = activeTab === tab.key;
           return (
             <button key={tab.key} onClick={() => onTab(tab.key)} aria-label={tab.label} aria-current={isActive ? "page" : undefined} style={{
-              flex: 1, background: "none", border: "none", padding: 0, position: "relative",
-              height: 48, cursor: "pointer",
-              WebkitTapHighlightColor: "transparent",
+              flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+              gap: "2px", background: "none", border: "none", margin: 0, padding: 0, position: "relative",
+              cursor: "pointer", WebkitTapHighlightColor: "transparent", WebkitAppearance: "none",
             }}>
               {isActive && (
                 <div style={{
-                  position: "absolute", inset: "3px 6px", borderRadius: "99px",
+                  position: "absolute", top: 4, bottom: 4, left: 4, right: 4, borderRadius: "99px",
                   background: "linear-gradient(180deg, rgba(91,156,246,0.14) 0%, rgba(91,156,246,0.08) 100%)",
                   border: "1px solid rgba(91,156,246,0.18)",
                   boxShadow: "inset 0 1px 0 rgba(91,156,246,0.1), 0 0 12px rgba(91,156,246,0.06)",
                 }} />
               )}
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", gap: "2px", position: "relative", zIndex: 1 }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", transition: "transform 0.2s cubic-bezier(0.34, 1.4, 0.64, 1)", transform: isActive ? "scale(1.05)" : "scale(1)" }}>
-                <tab.Icon size={20} color={isActive ? "#6ba6ff" : "rgba(255,255,255,0.35)"} active={isActive} />
-                {tab.badge > 0 && !isActive && (tab.key === "map"
-                  ? <span style={{ position: "absolute", top: -5, right: -10, minWidth: 16, height: 16, borderRadius: "8px", background: "var(--danger)", border: "1.5px solid rgba(10,15,26,0.5)", fontSize: "9px", fontWeight: 800, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", padding: "0 3px", animation: "blink 1.5s ease-in-out infinite" }}>{tab.badge}</span>
-                  : <span style={{ position: "absolute", top: -2, right: -4, width: 7, height: 7, borderRadius: "50%", background: "var(--danger)", border: "1.5px solid rgba(10,15,26,0.5)", animation: "blink 1.5s ease-in-out infinite" }} />
-                )}
-              </div>
+              <tab.Icon size={20} color={isActive ? "#6ba6ff" : "rgba(255,255,255,0.35)"} active={isActive} style={{ position: "relative", zIndex: 1 }} />
               <span style={{
                 fontSize: "10px", fontWeight: isActive ? 700 : 400,
                 color: isActive ? "#6ba6ff" : "rgba(255,255,255,0.35)",
                 letterSpacing: isActive ? "0.1px" : "0.2px",
-                lineHeight: 1,
+                lineHeight: 1, position: "relative", zIndex: 1,
               }}>{tab.label}</span>
-              </div>
+              {tab.badge > 0 && !isActive && (tab.key === "map"
+                ? <span style={{ position: "absolute", top: 4, right: "50%", marginRight: -18, minWidth: 16, height: 16, borderRadius: "8px", background: "var(--danger)", border: "1.5px solid rgba(10,15,26,0.5)", fontSize: "9px", fontWeight: 800, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", padding: "0 3px", animation: "blink 1.5s ease-in-out infinite", zIndex: 2 }}>{tab.badge}</span>
+                : <span style={{ position: "absolute", top: 6, right: "50%", marginRight: -14, width: 7, height: 7, borderRadius: "50%", background: "var(--danger)", border: "1.5px solid rgba(10,15,26,0.5)", animation: "blink 1.5s ease-in-out infinite", zIndex: 2 }} />
+              )}
             </button>
           );
         })}
