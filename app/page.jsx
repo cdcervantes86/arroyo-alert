@@ -574,7 +574,7 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
           background: "rgba(12,18,32,0.72)",
           backdropFilter: "blur(24px) saturate(1.6)", WebkitBackdropFilter: "blur(24px) saturate(1.6)",
           border: "1px solid rgba(255,255,255,0.1)",
-          borderRadius: "16px",
+          borderRadius: "24px",
           boxShadow: "0 8px 40px rgba(0,0,0,0.4), 0 0 0 0.5px rgba(255,255,255,0.06)",
           animation: closing ? "desktopPanelOut 0.25s ease forwards" : "desktopPanelIn 0.3s cubic-bezier(0.32, 0.72, 0, 1)",
           display: "flex", flexDirection: "column",
@@ -767,7 +767,7 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
 
         {/* REPORT BUTTON — always visible, gets clipped at peek to tease swiping up */}
         <div style={{ padding: "12px 20px 14px", flexShrink: 0 }}>
-          <button onClick={onReport} style={{ width: "100%", padding: "15px", background: "linear-gradient(145deg, #e53e3e, #b91c1c)", color: "#fff", border: "none", borderRadius: "16px", fontSize: "15px", fontWeight: 700, boxShadow: "0 2px 8px rgba(212,42,42,0.3), 0 8px 24px rgba(212,42,42,0.15), inset 0 1px 0 rgba(255,255,255,0.15)", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
+          <button onClick={onReport} style={{ width: "100%", padding: "15px", background: "linear-gradient(145deg, #e53e3e, #b91c1c)", color: "#fff", border: "none", borderRadius: "24px", fontSize: "15px", fontWeight: 700, boxShadow: "0 2px 8px rgba(212,42,42,0.3), 0 8px 24px rgba(212,42,42,0.15), inset 0 1px 0 rgba(255,255,255,0.15)", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
             <AlertTriangleIcon size={16} color="#fff" />
             {t.reportThisZone}
           </button>
@@ -1574,7 +1574,7 @@ function AppContent() {
           )}
         </div>
         {isDesktop && (
-          <div onTransitionEnd={() => { window.dispatchEvent(new Event("resize")); }} style={{ position: "absolute", top: 10, right: 10, bottom: 10, width: showPanel ? 370 : 0, flexShrink: 0, background: "rgba(12,18,32,0.65)", backdropFilter: "blur(24px) saturate(1.6)", WebkitBackdropFilter: "blur(24px) saturate(1.6)", border: showPanel ? "1px solid rgba(255,255,255,0.1)" : "none", borderRadius: "16px", display: "flex", flexDirection: "column", overflow: "hidden", transition: "width 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease", boxShadow: showPanel ? "0 8px 40px rgba(0,0,0,0.4), 0 0 0 0.5px rgba(255,255,255,0.06)" : "none", zIndex: 10, opacity: showPanel ? 1 : 0 }}>
+          <div onTransitionEnd={() => { window.dispatchEvent(new Event("resize")); }} style={{ position: "absolute", top: 10, right: 10, bottom: 10, width: showPanel ? 370 : 0, flexShrink: 0, background: "rgba(12,18,32,0.65)", backdropFilter: "blur(24px) saturate(1.6)", WebkitBackdropFilter: "blur(24px) saturate(1.6)", border: showPanel ? "1px solid rgba(255,255,255,0.1)" : "none", borderRadius: "24px", display: "flex", flexDirection: "column", overflow: "hidden", transition: "width 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease", boxShadow: showPanel ? "0 8px 40px rgba(0,0,0,0.4), 0 0 0 0.5px rgba(255,255,255,0.06)" : "none", zIndex: 10, opacity: showPanel ? 1 : 0 }}>
             <div style={{ width: 370, height: "100%", opacity: showPanel ? 1 : 0, transition: "opacity 0.2s ease", overflow: "hidden" }}>
               <LiveFeed reports={reports} onZoneClick={(id) => handleZoneClick(id, "live")} onUpvote={upvoteReport} upvotedSet={upvotedSet} onUpvoteLocal={handleUpvoteLocal} activeFilter={activeFilter} onPhotoClick={setViewPhoto} onReport={() => setScreen("report")} />
             </div>
@@ -1840,7 +1840,7 @@ function AppContent() {
           {toasts.map(t => (
             <div key={t.id} style={{
               background: "rgba(12,18,32,0.88)", border: `1px solid ${t.color}30`,
-              borderRadius: "16px", padding: "12px 16px",
+              borderRadius: "24px", padding: "12px 16px",
               display: "flex", alignItems: "center", gap: "10px",
               boxShadow: `0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)`,
               animation: "slideDown 0.3s cubic-bezier(0.34, 1.4, 0.64, 1)",
