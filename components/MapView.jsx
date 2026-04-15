@@ -242,7 +242,6 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
       map.addSource("arroyo-corridors-trimmed", {
         type: "geojson",
         data: { type: "FeatureCollection", features: trimmedFeatures },
-        tolerance: 4,
       });
 
       // Inner glow — uses trimmed source so it stops where the fade begins
