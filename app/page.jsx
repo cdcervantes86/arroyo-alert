@@ -115,12 +115,30 @@ function EmergencyBanner({ emergency, lang }) {
 function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang }) {
   const tabs = [
     { key: "map", Icon: MapIcon, label: lang === "es" ? "Mapa" : "Map", badge: dangerCount },
-    { key: "report", isReport: true },
     { key: "live", Icon: LiveIcon, label: lang === "es" ? "En vivo" : "Live", badge: liveCount },
     { key: "more", Icon: MoreIcon, label: lang === "es" ? "Más" : "More" },
   ];
   return (
     <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, padding: "0 16px", paddingBottom: "calc(12px + env(safe-area-inset-bottom, 0px))", zIndex: 100, pointerEvents: "none" }}>
+      {/* Floating Report FAB — centered above the nav */}
+      <div style={{ display: "flex", justifyContent: "center", marginBottom: "10px", pointerEvents: "none" }}>
+        <button onClick={onReport} aria-label={lang === "es" ? "Reportar" : "Report"} className="nav-report-btn tap-target" style={{
+          display: "flex", alignItems: "center", gap: "8px",
+          padding: "12px 24px", borderRadius: "99px",
+          background: "linear-gradient(145deg, #e53e3e, #b91c1c)",
+          border: "none", color: "#fff",
+          fontSize: "13px", fontWeight: 700, letterSpacing: "0.2px",
+          boxShadow: "0 4px 16px rgba(212,42,42,0.35), 0 8px 32px rgba(212,42,42,0.2), inset 0 1px 0 rgba(255,255,255,0.2)",
+          pointerEvents: "auto",
+          position: "relative",
+        }}>
+          <div style={{ position: "absolute", inset: -3, borderRadius: "99px", background: "radial-gradient(ellipse, rgba(212,42,42,0.15) 0%, transparent 70%)", animation: "reportGlow 3s ease-in-out infinite", pointerEvents: "none" }} />
+          <AlertTriangleIcon size={15} color="#fff" />
+          <span style={{ position: "relative" }}>{lang === "es" ? "Reportar" : "Report"}</span>
+        </button>
+      </div>
+
+      {/* Navigation pill — 3 items */}
       <div className="bottom-nav" role="navigation" aria-label={lang === "es" ? "Navegación principal" : "Main navigation"} style={{
         display: "flex", alignItems: "stretch",
         background: "linear-gradient(180deg, rgba(14,18,30,0.18) 0%, rgba(8,12,22,0.22) 100%)",
@@ -131,34 +149,12 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang })
         padding: "5px 6px",
         pointerEvents: "auto",
         position: "relative",
+        maxWidth: 280,
+        margin: "0 auto",
       }}>
-        {/* Top edge highlight — simulates light catching glass rim */}
         <div style={{ position: "absolute", top: 0, left: "15%", right: "15%", height: "1px", background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.15), rgba(255,255,255,0.25), rgba(255,255,255,0.15), transparent)", borderRadius: "1px", pointerEvents: "none" }} />
         {tabs.map((tab) => {
           const isActive = activeTab === tab.key;
-          if (tab.isReport) return (
-            <button key={tab.key} onClick={onReport} aria-label={lang === "es" ? "Reportar" : "Report"} className="nav-report-btn" style={{
-              flex: 1, display: "flex", alignItems: "center", justifyContent: "center",
-              background: "none", border: "none", padding: "4px 0", minHeight: 46,
-              WebkitTapHighlightColor: "transparent",
-            }}>
-              <div style={{ position: "relative" }}>
-                {/* Ambient glow behind report button */}
-                <div style={{ position: "absolute", inset: -4, borderRadius: "50%", background: "radial-gradient(circle, rgba(212,42,42,0.2) 0%, transparent 70%)", animation: "reportGlow 3s ease-in-out infinite" }} />
-                <div style={{
-                  width: 44, height: 44, borderRadius: "50%",
-                  background: "linear-gradient(145deg, #e53e3e, #b91c1c)",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  boxShadow: "0 2px 8px rgba(212,42,42,0.3), 0 6px 20px rgba(212,42,42,0.2), inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.15)",
-                  border: "none",
-                  position: "relative",
-                  transition: "transform 0.2s cubic-bezier(0.34, 1.4, 0.64, 1), box-shadow 0.2s ease",
-                }}>
-                  <AlertTriangleIcon size={17} color="#fff" />
-                </div>
-              </div>
-            </button>
-          );
           return (
             <button key={tab.key} onClick={() => onTab(tab.key)} aria-label={tab.label} aria-current={isActive ? "page" : undefined} style={{
               flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
@@ -167,7 +163,6 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang })
               WebkitTapHighlightColor: "transparent",
               transition: "transform 0.15s ease",
             }}>
-              {/* Active state — soft frosted pill with glow */}
               {isActive && (
                 <div style={{
                   position: "absolute", inset: "3px 6px 2px", borderRadius: "99px",
@@ -190,7 +185,6 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang })
                 letterSpacing: isActive ? "0.1px" : "0.2px",
                 transition: "color 0.2s ease, font-weight 0.2s ease",
               }}>{tab.label}</span>
-              {/* Active dot indicator */}
               {isActive && <div style={{ position: "absolute", bottom: 1, width: 3, height: 3, borderRadius: "50%", background: "#6ba6ff", boxShadow: "0 0 6px rgba(107,166,255,0.5)", zIndex: 1 }} />}
             </button>
           );
