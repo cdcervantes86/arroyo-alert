@@ -295,17 +295,19 @@ export default function CoordEditor() {
                 midEl.style.cssText = `
                   width: 10px; height: 10px; border-radius: 50%;
                   background: rgba(59,130,246,0.4); border: 2px solid rgba(255,255,255,0.5);
-                  cursor: pointer; transition: all 0.15s ease;
+                  cursor: pointer; transition: width 0.15s, height 0.15s, background 0.15s, border-color 0.15s;
                 `;
                 midEl.title = "Drag to insert a point";
                 midEl.addEventListener("mouseenter", () => {
                   midEl.style.background = "#3B82F6";
-                  midEl.style.transform = "scale(1.4)";
+                  midEl.style.width = "14px";
+                  midEl.style.height = "14px";
                   midEl.style.borderColor = "#fff";
                 });
                 midEl.addEventListener("mouseleave", () => {
                   midEl.style.background = "rgba(59,130,246,0.4)";
-                  midEl.style.transform = "scale(1)";
+                  midEl.style.width = "10px";
+                  midEl.style.height = "10px";
                   midEl.style.borderColor = "rgba(255,255,255,0.5)";
                 });
 
