@@ -158,14 +158,14 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang })
           return (
             <button key={tab.key} onClick={() => onTab(tab.key)} aria-label={tab.label} aria-current={isActive ? "page" : undefined} style={{
               flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-              gap: "3px", background: "none", border: "none", padding: "8px 0", position: "relative",
+              gap: "2px", background: "none", border: "none", padding: "7px 0 9px", position: "relative",
               minHeight: 46,
               WebkitTapHighlightColor: "transparent",
               transition: "transform 0.15s ease",
             }}>
               {isActive && (
                 <div style={{
-                  position: "absolute", inset: "3px 6px 2px", borderRadius: "99px",
+                  position: "absolute", inset: "2px 6px", borderRadius: "99px",
                   background: "linear-gradient(180deg, rgba(91,156,246,0.14) 0%, rgba(91,156,246,0.08) 100%)",
                   border: "1px solid rgba(91,156,246,0.18)",
                   boxShadow: "inset 0 1px 0 rgba(91,156,246,0.1), 0 0 12px rgba(91,156,246,0.06)",
@@ -185,7 +185,6 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang })
                 letterSpacing: isActive ? "0.1px" : "0.2px",
                 transition: "color 0.2s ease, font-weight 0.2s ease",
               }}>{tab.label}</span>
-              {isActive && <div style={{ position: "absolute", bottom: 1, width: 3, height: 3, borderRadius: "50%", background: "#6ba6ff", boxShadow: "0 0 6px rgba(107,166,255,0.5)", zIndex: 1 }} />}
             </button>
           );
         })}
