@@ -98,7 +98,7 @@ export default function CoordEditor() {
     mapInstanceRef.current = map;
 
     map.on("mousemove", (e) => {
-      setMouseCoord({ lat: e.lngLat.lat.toFixed(4), lng: e.lngLat.lng.toFixed(4) });
+      setMouseCoord({ lat: e.lngLat.lat.toFixed(5), lng: e.lngLat.lng.toFixed(5) });
     });
     map.on("mouseout", () => setMouseCoord(null));
 
@@ -167,12 +167,12 @@ export default function CoordEditor() {
       const { lng, lat } = e.lngLat;
       if (mode === "zones" && editingZone !== null) {
         setZones(prev => prev.map(z =>
-          z.id === editingZone ? { ...z, lat: Math.round(lat * 10000) / 10000, lng: Math.round(lng * 10000) / 10000 } : z
+          z.id === editingZone ? { ...z, lat: Math.round(lat * 100000) / 100000, lng: Math.round(lng * 100000) / 100000 } : z
         ));
         setEditingZone(null);
       } else if (mode === "corridors" && editingCorridor !== null) {
         setUndoStack([]);
-        setCorridorPoints(prev => [...prev, [Math.round(lng * 10000) / 10000, Math.round(lat * 10000) / 10000]]);
+        setCorridorPoints(prev => [...prev, [Math.round(lng * 100000) / 100000, Math.round(lat * 100000) / 100000]]);
       }
     };
 
@@ -331,7 +331,7 @@ export default function CoordEditor() {
 
               m.on("dragend", () => {
                 const lngLat = m.getLngLat();
-                const newCoord = [Math.round(lngLat.lng * 10000) / 10000, Math.round(lngLat.lat * 10000) / 10000];
+                const newCoord = [Math.round(lngLat.lng * 100000) / 100000, Math.round(lngLat.lat * 100000) / 100000];
                 setCorridorPoints(prev => prev.map((p, idx) => idx === i ? newCoord : p));
               });
 
@@ -372,7 +372,7 @@ export default function CoordEditor() {
 
                 midM.on("dragend", () => {
                   const lngLat = midM.getLngLat();
-                  const newCoord = [Math.round(lngLat.lng * 10000) / 10000, Math.round(lngLat.lat * 10000) / 10000];
+                  const newCoord = [Math.round(lngLat.lng * 100000) / 100000, Math.round(lngLat.lat * 100000) / 100000];
                   setCorridorPoints(prev => {
                     const updated = [...prev];
                     updated.splice(i + 1, 0, newCoord);
