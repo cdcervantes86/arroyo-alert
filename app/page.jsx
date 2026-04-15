@@ -115,7 +115,6 @@ function EmergencyBanner({ emergency, lang }) {
 function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang }) {
   const tabs = [
     { key: "map", Icon: MapIcon, label: lang === "es" ? "Mapa" : "Map", badge: dangerCount },
-    { key: "list", Icon: ListIcon, label: lang === "es" ? "Zonas" : "Zones" },
     { key: "report", isReport: true },
     { key: "live", Icon: LiveIcon, label: lang === "es" ? "En vivo" : "Live", badge: liveCount },
     { key: "more", Icon: MoreIcon, label: lang === "es" ? "Más" : "More" },
@@ -987,6 +986,9 @@ function AppContent() {
   const [upvotedSet, setUpvotedSet] = useState(new Set());
   const [activeFilter, setActiveFilter] = useState(null);
   const [zoneSearch, setZoneSearch] = useState("");
+  const [mapSearchOpen, setMapSearchOpen] = useState(false);
+  const [mapSearchQuery, setMapSearchQuery] = useState("");
+  const mapSearchRef = useRef(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showNotifPrompt, setShowNotifPrompt] = useState(false);
   const [installPrompt, setInstallPrompt] = useState(null);
@@ -1230,7 +1232,7 @@ function AppContent() {
     setScreen("main");
   }} onBack={closeMobileScreen} onLogoClick={handleLogoClick} /></AnimatedScreen>;
 
-  const desktopTabs = [{ key: "map", Icon: MapIcon }, { key: "list", Icon: ListIcon }, { key: "live", Icon: LiveIcon }];
+  const desktopTabs = [{ key: "map", Icon: MapIcon }, { key: "live", Icon: LiveIcon }];
 
   return (
     <div style={{ position: "fixed", inset: 0, display: "flex", flexDirection: "column", background: "#070b14", overflow: "hidden" }}>
@@ -1387,197 +1389,107 @@ function AppContent() {
             </>
           )}
 
-          {/* Zone list — floating glass panel on desktop, full-screen on mobile */}
-          {currentMainView === "list" && (
-            <div key="list-view" onClick={(e) => { if (screen === "detail" && selectedZone && !e.target.closest("button, a, input")) { sheetCloseRef.current ? sheetCloseRef.current() : closeSheet(); } }} style={isDesktop ? {
-              position: "absolute", top: 10, left: 10, bottom: 10, width: 380, zIndex: 10,
-              background: "rgba(12,18,32,0.65)", backdropFilter: "blur(24px) saturate(1.6)", WebkitBackdropFilter: "blur(24px) saturate(1.6)",
-              border: "1px solid rgba(255,255,255,0.1)", borderRadius: "24px",
-              boxShadow: "0 8px 40px rgba(0,0,0,0.4), 0 0 0 0.5px rgba(255,255,255,0.06)",
-              overflow: "hidden", animation: "viewFadeIn 0.25s ease",
-            } : {
-              animation: "viewFadeIn 0.25s ease", height: "100%", overflow: "hidden",
-            }}>
-            <PullToRefresh onRefresh={refetch}>
-            <div style={{ padding: "12px 16px 20px" }}>
-              {/* Search */}
-              <div style={{ position: "relative", marginBottom: "12px" }}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-faint)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          {/* Floating zone search — overlays the map */}
+          {(isDesktop || currentMainView === "map") && (
+            <div style={{ position: "absolute", top: 12, left: 12, zIndex: 800, width: isDesktop ? 340 : "calc(100% - 24px)" }}>
+              <div style={{ position: "relative" }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-faint)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", pointerEvents: "none", zIndex: 2 }}><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                 <input
+                  ref={mapSearchRef}
                   type="text"
-                  value={zoneSearch}
-                  onChange={(e) => setZoneSearch(e.target.value)}
+                  value={mapSearchQuery}
+                  onChange={(e) => { setMapSearchQuery(e.target.value); setMapSearchOpen(true); }}
+                  onFocus={() => setMapSearchOpen(true)}
                   placeholder={es ? "Buscar zona..." : "Search zones..."}
-                  style={{ width: "100%", padding: "10px 12px 10px 36px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "99px", color: "var(--text)", fontSize: "13px", outline: "none", fontFamily: "inherit", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.03)" }}
-                  onFocus={(e) => { e.target.style.borderColor = "rgba(91,156,246,0.25)"; }}
-                  onBlur={(e) => { e.target.style.borderColor = "rgba(255,255,255,0.06)"; }}
+                  style={{
+                    width: "100%", padding: "11px 14px 11px 40px",
+                    background: "rgba(10,15,26,0.6)", backdropFilter: "blur(20px) saturate(1.6)", WebkitBackdropFilter: "blur(20px) saturate(1.6)",
+                    border: mapSearchOpen ? "1px solid rgba(91,156,246,0.3)" : "1px solid rgba(255,255,255,0.12)",
+                    borderRadius: mapSearchOpen ? "16px 16px 0 0" : "99px",
+                    color: "var(--text)", fontSize: "13px", outline: "none", fontFamily: "inherit",
+                    boxShadow: "0 4px 16px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.06)",
+                    transition: "border-radius 0.15s ease, border-color 0.15s ease",
+                  }}
                 />
-                {zoneSearch && <button onClick={() => setZoneSearch("")} style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", width: 20, height: 20, borderRadius: "50%", background: "rgba(255,255,255,0.08)", border: "none", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="8" height="8" viewBox="0 0 8 8" stroke="var(--text-faint)" strokeWidth="1.5" strokeLinecap="round"><line x1="1" y1="1" x2="7" y2="7"/><line x1="7" y1="1" x2="1" y2="7"/></svg></button>}
+                {mapSearchQuery && (
+                  <button onClick={() => { setMapSearchQuery(""); setMapSearchOpen(false); }} style={{
+                    position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)",
+                    width: 22, height: 22, borderRadius: "50%", background: "rgba(255,255,255,0.08)",
+                    border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", zIndex: 2,
+                  }}>
+                    <svg width="8" height="8" viewBox="0 0 8 8" stroke="var(--text-faint)" strokeWidth="1.5" strokeLinecap="round"><line x1="1" y1="1" x2="7" y2="7"/><line x1="7" y1="1" x2="1" y2="7"/></svg>
+                  </button>
+                )}
               </div>
-              {loading ? Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} i={i} />) : (
-                <>
-                  {/* Community stats card */}
-                  {communityStats && communityStats.totalReports > 0 && dangerCount === 0 && cautionCount === 0 && (
-                    <div style={{ display: "flex", gap: "8px", marginBottom: "14px", animation: "fadeIn 0.3s ease" }}>
-                      {[
-                        { value: communityStats.totalReports, label: es ? "Reportes" : "Reports", icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="1.75" strokeLinecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg> },
-                        { value: communityStats.reporters, label: es ? "Reporteros" : "Reporters", icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--safe)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg> },
-                        { value: ZONES.length, label: es ? "Zonas" : "Zones", icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--baq-yellow)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> },
-                      ].map((s, i) => (
-                        <div key={i} style={{ flex: 1, padding: "12px 8px", borderRadius: "var(--radius-lg)", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)", textAlign: "center" }}>
-                          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "5px", marginBottom: "4px" }}>{s.icon}<span style={{ fontSize: "16px", fontWeight: 800, color: "var(--text)", fontVariantNumeric: "tabular-nums" }}>{s.value}</span></div>
-                          <div style={{ fontSize: "9px", color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "0.5px" }}>{s.label}</div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  {(() => {
-                    // Sort zones: favorites first, then by distance if location available
-                    let sortedZones = favs.sortZones(ZONES.filter((z) => {
-                      if (activeFilter && getZoneSeverity(z.id, reports) !== activeFilter) return false;
-                      if (zoneSearch) {
-                        const q = zoneSearch.toLowerCase();
-                        return z.name.toLowerCase().includes(q) || z.area.toLowerCase().includes(q);
-                      }
-                      return true;
-                    }));
-                    if (userLocation) {
-                      const favIds = new Set(sortedZones.filter(z => favs.isFavorite(z.id)).map(z => z.id));
-                      const favZones = sortedZones.filter(z => favIds.has(z.id));
-                      const restZones = sortedZones.filter(z => !favIds.has(z.id))
-                        .sort((a, b) => getDistanceKm(userLocation[0], userLocation[1], a.lat, a.lng) - getDistanceKm(userLocation[0], userLocation[1], b.lat, b.lng));
-                      sortedZones = [...favZones, ...restZones];
-                    }
-                    if (sortedZones.length === 0) {
-                      return (
-                        <div style={{ textAlign: "center", padding: "40px 20px", animation: "fadeIn 0.3s ease" }}>
-                          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--text-faint)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.3, marginBottom: "12px" }}><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                          <div style={{ fontSize: "14px", fontWeight: 600, color: "var(--text-dim)", marginBottom: "6px" }}>
-                            {es ? "Sin resultados" : "No results"}
-                          </div>
-                          <div style={{ fontSize: "12px", color: "var(--text-faint)", lineHeight: 1.5 }}>
-                            {activeFilter
-                              ? (es ? `No hay zonas con nivel "${getSevLabel(activeFilter, lang)}" ahora` : `No zones with "${getSevLabel(activeFilter, lang)}" status right now`)
-                              : (es ? `No se encontró "${zoneSearch}"` : `No match for "${zoneSearch}"`)
-                            }
-                          </div>
-                          {(activeFilter || zoneSearch) && (
-                            <button onClick={() => { setActiveFilter(null); setZoneSearch(""); }} className="tap-target" style={{ marginTop: "16px", padding: "8px 20px", borderRadius: "var(--radius-lg)", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)", color: "var(--text-dim)", fontSize: "12px", fontWeight: 600 }}>
-                              {es ? "Limpiar filtros" : "Clear filters"}
-                            </button>
-                          )}
-                        </div>
-                      );
-                    }
-                    return sortedZones.map((z, i, arr) => {
-                    const sv = getZoneSeverity(z.id, reports); const zr = getZoneReports(z.id, reports); const lt = zr[0]; const c = sv ? SEVERITY[sv] : null;
-                    const isSubbed = push.isSubscribed(z.id); const pred = predictions[z.id];
-                    const isFav = favs.isFavorite(z.id);
-                    const showDivider = favs.count > 0 && i > 0 && isFav === false && favs.isFavorite(arr[i - 1]?.id);
-                    const hasActivity = sv || (pred && pred.score >= 40);
-                    const distKm = userLocation ? getDistanceKm(userLocation[0], userLocation[1], z.lat, z.lng) : null;
-                    const isNearby = distKm !== null && distKm < 2;
-                    // Show "Near you" / "Other zones" section headers
-                    const prevDist = i > 0 && userLocation ? getDistanceKm(userLocation[0], userLocation[1], arr[i-1].lat, arr[i-1].lng) : null;
-                    const prevNearby = prevDist !== null && prevDist < 2;
-                    const showNearHeader = i === 0 && isNearby && !isFav && userLocation;
-                    const showOtherHeader = isNearby === false && (i === 0 || prevNearby) && !isFav && userLocation && !showDivider;
-                    return (
-                      <div key={z.id}>
-                        {showNearHeader && <div style={{ fontSize: "10px", color: "var(--safe)", textTransform: "uppercase", letterSpacing: "1.5px", fontWeight: 600, padding: "4px 4px 10px", display: "flex", alignItems: "center", gap: "6px" }}><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>{es ? "Cerca de ti" : "Near you"}</div>}
-                        {showOtherHeader && <div style={{ fontSize: "10px", color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "1.5px", fontWeight: 600, padding: "14px 4px 10px" }}>{es ? "Otras zonas" : "Other zones"}</div>}
-                        {showDivider && <div style={{ height: 1, background: "rgba(255,255,255,0.06)", margin: "12px 0" }} />}
-                        <button onClick={(e) => { e.stopPropagation(); handleZoneClick(z.id, "list"); }} className="card-interactive" style={{
-                          width: "100%", textAlign: "left", display: "flex", gap: "14px", alignItems: "center",
-                          padding: "14px 16px", marginBottom: "6px", borderRadius: "var(--radius-lg)",
-                          background: hasActivity
-                            ? `linear-gradient(145deg, ${c ? c.color : "var(--accent)"}08 0%, rgba(14,18,30,0.88) 50%, rgba(10,14,26,0.94) 100%)`
-                            : "linear-gradient(145deg, rgba(255,255,255,0.025) 0%, rgba(14,18,30,0.85) 50%, rgba(10,14,26,0.92) 100%)",
-                          border: `1px solid ${c ? c.color + "18" : "rgba(255,255,255,0.06)"}`,
-                          borderBottom: `1px solid rgba(0,0,0,0.25)`,
-                          boxShadow: hasActivity
-                            ? `0 4px 16px ${c ? c.color + "08" : "rgba(0,0,0,0.3)"}, 0 2px 6px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.04)`
-                            : "0 2px 8px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.03)",
-                          animation: `fadeIn 0.25s ease ${i * 0.03}s both`,
-                          position: "relative", overflow: "hidden",
-                        }}>
-                          {/* Top edge highlight */}
-                          <div style={{ position: "absolute", top: 0, left: "8%", right: "8%", height: 1, background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent)", pointerEvents: "none" }} />
-                          {/* Subtle photo background - peeks in from right */}
-                          {z.photos && (
-                            <>
-                              <img src={getZonePhoto(z, sv)} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 40%", opacity: sv ? 0.25 : 0.15 }} loading="lazy" />
-                              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, #070b14 0%, #070b14 35%, rgba(7,11,20,0.6) 70%, rgba(7,11,20,0.3) 100%)" }} />
-                            </>
-                          )}
-                          {/* Severity accent bar with glow */}
-                          {sv && <div style={{ position: "absolute", left: 0, top: "12%", bottom: "12%", width: 3, borderRadius: "0 2px 2px 0", background: `linear-gradient(180deg, ${c.color}66, ${c.color}, ${c.color}66)`, boxShadow: `3px 0 8px ${c.color}20`, zIndex: 1 }} />}
 
-                          {/* Icon */}
-                          <div style={{ width: 42, height: 42, borderRadius: "var(--radius-md)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: c ? `${c.color}0a` : "rgba(255,255,255,0.03)", border: `1px solid ${c ? c.color + "18" : "rgba(255,255,255,0.06)"}`, position: "relative", zIndex: 1 }}>
-                            <SeverityIcon severity={sv} size={22} />
-                          </div>
+              {/* Search dropdown */}
+              {mapSearchOpen && (() => {
+                const q = mapSearchQuery.toLowerCase();
+                let results = ZONES.filter(z => {
+                  if (!q) return true;
+                  return z.name.toLowerCase().includes(q) || z.area.toLowerCase().includes(q);
+                });
+                // Sort: favorites first, then active severity, then alphabetical
+                results = favs.sortZones(results);
+                const favIds = new Set(results.filter(z => favs.isFavorite(z.id)).map(z => z.id));
+                const favZones = results.filter(z => favIds.has(z.id));
+                const restZones = results.filter(z => !favIds.has(z.id));
+                results = [...favZones, ...restZones];
 
-                          {/* Content */}
-                          <div style={{ flex: 1, minWidth: 0, position: "relative", zIndex: 1 }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                              <span style={{ fontSize: "15px", fontWeight: 700, color: "var(--text)", letterSpacing: "-0.2px" }}>{z.name}</span>
-                              {sv === "danger" && <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--danger)", animation: "blink 1.5s ease-in-out infinite", flexShrink: 0 }} />}
-                              <span onClick={(e) => { e.stopPropagation(); favs.toggle(z.id); }} style={{ cursor: "pointer", display: "inline-flex", opacity: isFav ? 1 : 0, transition: "opacity 0.2s" }}>
-                                <StarIcon size={12} color="#facc15" filled />
-                              </span>
-                              {isSubbed && <BellIcon size={11} color="var(--accent)" />}
-                            </div>
-                            <div style={{ fontSize: "12px", color: "var(--text-dim)", marginTop: 2, display: "flex", alignItems: "center", gap: "6px" }}>
-                              {z.area}
-                              {isNearby && <span style={{ fontSize: "9px", fontWeight: 700, color: "var(--safe)", background: "rgba(34,197,94,0.08)", padding: "1px 6px", borderRadius: "4px", border: "1px solid rgba(34,197,94,0.12)", letterSpacing: "0.3px" }}>{es ? "CERCA" : "NEAR"}</span>}
-                              {distKm !== null && !isNearby && <span style={{ fontSize: "10px", color: "var(--text-faint)", fontVariantNumeric: "tabular-nums" }}>{distKm < 10 ? distKm.toFixed(1) : Math.round(distKm)} km</span>}
-                            </div>
-                            {lt ? (() => { const totalUp = zr.reduce((s, r) => s + (r.upvotes || 0), 0); return <div style={{ fontSize: "12px", color: "var(--text-secondary)", marginTop: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", display: "flex", alignItems: "center", gap: "4px" }}><span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>{lt.text ? `${lt.text} · ` : ""}{timeAgoLocalized(lt.created_at, lang)}</span>{totalUp > 0 && <span style={{ display: "inline-flex", alignItems: "center", gap: "3px", flexShrink: 0, color: "var(--accent)", fontSize: "11px", fontWeight: 600 }}><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14z"/></svg>{totalUp}</span>}</div>; })()
-                              : (() => {
-                                // Check for recently expired reports (within 12h)
-                                const recentExpired = reports.filter(r => r.zone_id === z.id).sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];
-                                const expiredAge = recentExpired ? (Date.now() - new Date(recentExpired.created_at).getTime()) / 3600000 : null;
-                                if (expiredAge && expiredAge < 12) {
-                                  const h = Math.floor(expiredAge);
-                                  return <div style={{ fontSize: "12px", color: "var(--text-faint)", marginTop: 4, display: "flex", alignItems: "center", gap: "4px" }}>
-                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                                    {es ? `Activo hace ${h}h` : `Active ${h}h ago`}
-                                  </div>;
-                                }
-                                if (pred && pred.score >= 30) return <div style={{ fontSize: "12px", color: pred.score >= 70 ? "var(--danger)" : pred.score >= 40 ? "var(--caution)" : "var(--text-dim)", marginTop: 4, fontWeight: 500 }}>{pred.score}% {es ? "probabilidad" : "probability"}</div>;
-                                return <div style={{ fontSize: "12px", color: "var(--text-faint)", marginTop: 4 }}>{es ? z.desc : (z.descEn || z.desc)}</div>;
-                              })()
-                            }
-                          </div>
-
-                          {/* Right side */}
-                          <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0, position: "relative", zIndex: 1 }}>
-                            {zr.length > 0 && <span style={{ fontSize: "12px", color: c ? c.color : "var(--text-dim)", background: c ? `${c.color}0c` : "rgba(255,255,255,0.04)", padding: "4px 10px", borderRadius: "8px", fontWeight: 700, fontVariantNumeric: "tabular-nums", minWidth: 28, textAlign: "center" }}>{zr.length}</span>}
-                            {!zr.length && pred && pred.score >= 40 && <span style={{ fontSize: "10px", fontWeight: 700, color: pred.score >= 70 ? "var(--danger)" : "var(--caution)", background: pred.score >= 70 ? "rgba(239,68,68,0.08)" : "rgba(234,179,8,0.06)", padding: "3px 8px", borderRadius: "6px", border: `1px solid ${pred.score >= 70 ? "rgba(239,68,68,0.15)" : "rgba(234,179,8,0.1)"}`, fontVariantNumeric: "tabular-nums" }}>{pred.score}%</span>}
-                            {lt?.photo_url && <img onClick={(e) => { e.stopPropagation(); setViewPhoto(lt.photo_url); }} src={lt.photo_url} alt="Latest report" style={{ width: 36, height: 36, borderRadius: "var(--radius-sm)", objectFit: "cover", flexShrink: 0, border: "1px solid rgba(255,255,255,0.06)", cursor: "zoom-in" }} loading="lazy" />}
-                            <svg width="7" height="12" viewBox="0 0 7 12" fill="none" style={{ flexShrink: 0, opacity: 0.15 }}><path d="M1 1l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
-                          </div>
-                        </button>
+                return (
+                  <div style={{
+                    background: "rgba(10,15,26,0.85)", backdropFilter: "blur(20px) saturate(1.6)", WebkitBackdropFilter: "blur(20px) saturate(1.6)",
+                    border: "1px solid rgba(91,156,246,0.2)", borderTop: "none",
+                    borderRadius: "0 0 16px 16px",
+                    boxShadow: "0 12px 40px rgba(0,0,0,0.5)",
+                    maxHeight: 320, overflowY: "auto", overflowX: "hidden",
+                  }}>
+                    {results.length === 0 ? (
+                      <div style={{ padding: "16px", textAlign: "center", fontSize: "12px", color: "var(--text-faint)" }}>
+                        {es ? "No se encontró zona" : "No zone found"}
                       </div>
-                    );
-                  });
-                  })()}
-                  <div style={{ textAlign: "center", padding: "32px 0 80px" }}>
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", fontSize: "12px", color: "var(--text-faint)", marginBottom: "10px" }}>
-                      {es ? "Hecho para Barranquilla" : "Made for Barranquilla"}
-                      <svg width="20" height="14" viewBox="0 0 30 20" style={{ borderRadius: "2px", boxShadow: "0 0 0 0.5px rgba(255,255,255,0.1)" }}><rect width="30" height="20" fill="#D42A2A"/><rect x="3" y="3" width="24" height="14" fill="#F5D033"/><rect x="6" y="6" width="18" height="8" fill="#2D8A2D"/><polygon points="15,7.5 15.9,9.3 17.8,9.6 16.4,11 16.7,12.9 15,12 13.3,12.9 13.6,11 12.2,9.6 14.1,9.3" fill="rgba(255,255,255,0.9)"/></svg>
-                    </div>
-                    <a href="https://instagram.com/alertaarroyo" target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: "5px", fontSize: "11px", color: "var(--text-faint)", textDecoration: "none", opacity: 0.5, marginBottom: "8px" }}>
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><circle cx="17.5" cy="6.5" r="1.5"/></svg>
-                      @alertaarroyo
-                    </a>
-                    <div style={{ fontSize: "10px", color: "var(--text-faint)", opacity: 0.3 }}>v{APP_VERSION}</div>
+                    ) : results.map((z) => {
+                      const sv = getZoneSeverity(z.id, reports);
+                      const c = sv ? SEVERITY[sv] : null;
+                      const isFav = favs.isFavorite(z.id);
+                      return (
+                        <button key={z.id} onClick={() => {
+                          setMapSearchOpen(false);
+                          setMapSearchQuery("");
+                          mapSearchRef.current?.blur();
+                          handleZoneClick(z.id);
+                          // Fly map to zone
+                          if (mapInstance) mapInstance.flyTo({ center: [z.lng, z.lat], zoom: 15, duration: 800 });
+                        }} style={{
+                          width: "100%", padding: "10px 14px", background: "transparent",
+                          border: "none", borderBottom: "1px solid rgba(255,255,255,0.04)",
+                          textAlign: "left", cursor: "pointer", color: "var(--text)",
+                          display: "flex", alignItems: "center", gap: "10px",
+                          transition: "background 0.1s ease",
+                        }}
+                          onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.04)"}
+                          onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+                        >
+                          <div style={{ width: 28, height: 28, borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: c ? `${c.color}0a` : "rgba(255,255,255,0.03)", border: `1px solid ${c ? c.color + "18" : "rgba(255,255,255,0.06)"}` }}>
+                            <SeverityIcon severity={sv || "inactive"} size={14} />
+                          </div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontSize: "13px", fontWeight: 600, display: "flex", alignItems: "center", gap: "5px" }}>
+                              {z.name}
+                              {isFav && <svg width="10" height="10" viewBox="0 0 24 24" fill="var(--caution)" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>}
+                            </div>
+                            <div style={{ fontSize: "11px", color: "var(--text-dim)", marginTop: "1px" }}>{z.area}</div>
+                          </div>
+                          {c && <span style={{ fontSize: "10px", color: c.color, fontWeight: 500 }}>{getSevLabel(sv, lang)}</span>}
+                        </button>
+                      );
+                    })}
                   </div>
-                </>
-              )}
-            </div>
-            </PullToRefresh>
+                );
+              })()}
+
+              {/* Click outside to close */}
+              {mapSearchOpen && <div onClick={() => { setMapSearchOpen(false); setMapSearchQuery(""); }} style={{ position: "fixed", inset: 0, zIndex: -1 }} />}
             </div>
           )}
 
