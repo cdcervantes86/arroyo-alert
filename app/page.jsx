@@ -1358,7 +1358,8 @@ function AppContent() {
       {/* CONTENT */}
       <div style={{ flex: 1, minHeight: 0, display: "flex", overflow: "hidden", position: "relative" }}>
         <div style={{ flex: 1, minHeight: 0, position: "relative", overflow: "hidden" }}>
-          {currentMainView === "map" ? (
+          {/* Map — always visible on desktop, conditional on mobile */}
+          {(isDesktop || currentMainView === "map") && (
             <>
             <MapErrorBoundary>
             <Suspense fallback={<div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", color: "var(--text-dim)", fontSize: "14px" }}>{t.loadingMap}</div>}>
@@ -1384,8 +1385,19 @@ function AppContent() {
               </button>
             </div>
             </>
-          ) : currentMainView === "list" ? (
-            <div key="list-view" onClick={(e) => { if (screen === "detail" && selectedZone && !e.target.closest("button, a, input")) { sheetCloseRef.current ? sheetCloseRef.current() : closeSheet(); } }} style={{ animation: "viewFadeIn 0.25s ease", height: "100%", overflow: "hidden", paddingRight: panelVisible ? 390 : 0, transition: "padding-right 0.3s cubic-bezier(0.4, 0, 0.2, 1)" }}>
+          )}
+
+          {/* Zone list — floating glass panel on desktop, full-screen on mobile */}
+          {currentMainView === "list" && (
+            <div key="list-view" onClick={(e) => { if (screen === "detail" && selectedZone && !e.target.closest("button, a, input")) { sheetCloseRef.current ? sheetCloseRef.current() : closeSheet(); } }} style={isDesktop ? {
+              position: "absolute", top: 10, left: 10, bottom: 10, width: 380, zIndex: 10,
+              background: "rgba(12,18,32,0.65)", backdropFilter: "blur(24px) saturate(1.6)", WebkitBackdropFilter: "blur(24px) saturate(1.6)",
+              border: "1px solid rgba(255,255,255,0.1)", borderRadius: "24px",
+              boxShadow: "0 8px 40px rgba(0,0,0,0.4), 0 0 0 0.5px rgba(255,255,255,0.06)",
+              overflow: "hidden", animation: "viewFadeIn 0.25s ease",
+            } : {
+              animation: "viewFadeIn 0.25s ease", height: "100%", overflow: "hidden",
+            }}>
             <PullToRefresh onRefresh={refetch}>
             <div style={{ padding: "12px 16px 20px" }}>
               {/* Search */}
@@ -1567,7 +1579,10 @@ function AppContent() {
             </div>
             </PullToRefresh>
             </div>
-          ) : (
+          )}
+
+          {/* Live feed — mobile only (desktop uses floating right panel) */}
+          {!isDesktop && currentMainView === "live" && (
             <div key="live-view" onClick={(e) => { if (screen === "detail" && selectedZone && !e.target.closest("button, a, input")) { sheetCloseRef.current ? sheetCloseRef.current() : closeSheet(); } }} style={{ animation: "viewFadeIn 0.25s ease", height: "100%", overflow: "hidden" }}>
             <LiveFeed reports={reports} onZoneClick={(id) => handleZoneClick(id, "live")} onUpvote={upvoteReport} upvotedSet={upvotedSet} onUpvoteLocal={handleUpvoteLocal} activeFilter={activeFilter} onPhotoClick={setViewPhoto} onReport={() => setScreen("report")} />
             </div>
@@ -1583,7 +1598,7 @@ function AppContent() {
       </div>
 
       {/* HINT BUBBLE — portaled to body for working backdrop-filter */}
-      {currentMainView === "map" && !loading && !hintDismissed && reports.filter(r => new Date(r.created_at).getTime() > Date.now() - 4 * 3600000).length === 0 && typeof document !== "undefined" && createPortal(
+      {(isDesktop || currentMainView === "map") && !loading && !hintDismissed && reports.filter(r => new Date(r.created_at).getTime() > Date.now() - 4 * 3600000).length === 0 && typeof document !== "undefined" && createPortal(
         <div style={{ position: "fixed", bottom: "calc(110px + env(safe-area-inset-bottom, 0px))", left: 16, right: 16, zIndex: 9999, display: "flex", justifyContent: "center", animation: "fadeIn 0.5s ease 1s both", pointerEvents: "none" }}>
           <div style={{ background: "rgba(10,15,26,0.2)", backdropFilter: "blur(16px) saturate(1.8)", WebkitBackdropFilter: "blur(16px) saturate(1.8)", borderRadius: "99px", padding: "10px 12px 10px 14px", border: "1px solid rgba(255,255,255,0.15)", display: "inline-flex", alignItems: "center", gap: "8px", boxShadow: "0 4px 16px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.12)", pointerEvents: "auto" }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
