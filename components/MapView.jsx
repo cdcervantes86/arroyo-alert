@@ -140,6 +140,7 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
         type: "geojson",
         data: corridorData,
         lineMetrics: true,
+        tolerance: 1.5,
       });
 
       // Helper: gradient that fades at both ends of the line
@@ -234,6 +235,7 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
       map.addSource("arroyo-corridors-trimmed", {
         type: "geojson",
         data: { type: "FeatureCollection", features: trimmedFeatures },
+        tolerance: 1.5,
       });
 
       // Inner glow — uses trimmed source so it stops where the fade begins
