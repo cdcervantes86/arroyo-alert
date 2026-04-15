@@ -159,7 +159,7 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang })
           return (
             <button key={tab.key} onClick={() => onTab(tab.key)} aria-label={tab.label} aria-current={isActive ? "page" : undefined} style={{
               flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-              gap: "3px", background: "none", border: "none", padding: "8px 0", position: "relative",
+              gap: "3px", background: "none", border: "1px solid rgba(255,0,0,0.5)", padding: "8px 0", position: "relative",
               minHeight: 46, cursor: "pointer",
               WebkitTapHighlightColor: "transparent",
             }}>
@@ -171,7 +171,7 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang })
                   boxShadow: "inset 0 1px 0 rgba(91,156,246,0.1), 0 0 12px rgba(91,156,246,0.06)",
                 }} />
               )}
-              <div style={{ position: "relative", zIndex: 1, width: 20, height: 20 }}>
+              <div style={{ position: "relative", zIndex: 1, width: 20, height: 20, border: "1px solid rgba(0,255,0,0.7)" }}>
                 <tab.Icon size={20} color={isActive ? "#6ba6ff" : "rgba(255,255,255,0.35)"} active={isActive} />
                 {tab.badge > 0 && !isActive && (tab.key === "map"
                   ? <span style={{ position: "absolute", top: -5, right: -10, minWidth: 16, height: 16, borderRadius: "8px", background: "var(--danger)", border: "1.5px solid rgba(10,15,26,0.5)", fontSize: "9px", fontWeight: 800, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", padding: "0 3px", animation: "blink 1.5s ease-in-out infinite" }}>{tab.badge}</span>
@@ -183,7 +183,7 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang })
                 fontSize: "10px", fontWeight: isActive ? 700 : 400,
                 color: isActive ? "#6ba6ff" : "rgba(255,255,255,0.35)",
                 letterSpacing: isActive ? "0.1px" : "0.2px",
-                lineHeight: 1,
+                lineHeight: 1, border: "1px solid rgba(255,255,0,0.7)",
               }}>{tab.label}</span>
             </button>
           );
