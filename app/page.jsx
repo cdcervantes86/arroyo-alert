@@ -157,11 +157,9 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang })
           const isActive = activeTab === tab.key;
           return (
             <button key={tab.key} onClick={() => onTab(tab.key)} aria-label={tab.label} aria-current={isActive ? "page" : undefined} style={{
-              flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-              gap: "2px", background: "none", border: "none", padding: 0, position: "relative",
-              height: 48,
+              flex: 1, background: "none", border: "none", padding: 0, position: "relative",
+              height: 48, cursor: "pointer",
               WebkitTapHighlightColor: "transparent",
-              transition: "transform 0.15s ease",
             }}>
               {isActive && (
                 <div style={{
@@ -171,7 +169,8 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang })
                   boxShadow: "inset 0 1px 0 rgba(91,156,246,0.1), 0 0 12px rgba(91,156,246,0.06)",
                 }} />
               )}
-              <div style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", justifyContent: "center", transition: "transform 0.2s cubic-bezier(0.34, 1.4, 0.64, 1)", transform: isActive ? "scale(1.05)" : "scale(1)" }}>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", gap: "2px", position: "relative", zIndex: 1 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", transition: "transform 0.2s cubic-bezier(0.34, 1.4, 0.64, 1)", transform: isActive ? "scale(1.05)" : "scale(1)" }}>
                 <tab.Icon size={20} color={isActive ? "#6ba6ff" : "rgba(255,255,255,0.35)"} active={isActive} />
                 {tab.badge > 0 && !isActive && (tab.key === "map"
                   ? <span style={{ position: "absolute", top: -5, right: -10, minWidth: 16, height: 16, borderRadius: "8px", background: "var(--danger)", border: "1.5px solid rgba(10,15,26,0.5)", fontSize: "9px", fontWeight: 800, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", padding: "0 3px", animation: "blink 1.5s ease-in-out infinite" }}>{tab.badge}</span>
@@ -179,12 +178,12 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang })
                 )}
               </div>
               <span style={{
-                position: "relative", zIndex: 1,
                 fontSize: "10px", fontWeight: isActive ? 700 : 400,
                 color: isActive ? "#6ba6ff" : "rgba(255,255,255,0.35)",
                 letterSpacing: isActive ? "0.1px" : "0.2px",
-                transition: "color 0.2s ease, font-weight 0.2s ease",
+                lineHeight: 1,
               }}>{tab.label}</span>
+              </div>
             </button>
           );
         })}
