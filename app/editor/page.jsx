@@ -22,14 +22,17 @@ function lineLength(coords) {
 }
 
 function totalLength(branches) {
-  return branches.reduce((sum, b) => sum + lineLength(b), 0);
+  if (!branches || !Array.isArray(branches)) return 0;
+  return branches.reduce((sum, b) => sum + lineLength(b || []), 0);
 }
 
 function totalPoints(branches) {
-  return branches.reduce((sum, b) => sum + b.length, 0);
+  if (!branches || !Array.isArray(branches)) return 0;
+  return branches.reduce((sum, b) => sum + (b ? b.length : 0), 0);
 }
 
 function getAllCoords(branches) {
+  if (!branches || !Array.isArray(branches)) return [];
   return branches.flat();
 }
 
@@ -101,7 +104,13 @@ export default function CoordEditor() {
       if (saved) {
         const data = JSON.parse(saved);
         if (data.zones) setZones(data.zones);
-        if (data.corridors) setCorridors(data.corridors);
+        if (data.corridors) {
+          // Migrate old format: coords → branches
+          setCorridors(data.corridors.map(c => ({
+            ...c,
+            branches: c.branches || (c.coords ? [c.coords] : [[]]),
+          })));
+        }
       }
     } catch (e) {}
   }, []);
