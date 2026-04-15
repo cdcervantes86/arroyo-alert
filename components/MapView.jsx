@@ -223,15 +223,22 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
 
       // Trimmed corridor source — excludes first/last 12% of points
       // so inner glow + animated dashes don't show at the faded endpoints
-      const trimmedFeatures = ARROYO_CORRIDORS.features.map(f => {
-        const c = f.geometry.coordinates;
-        const skip = Math.max(1, Math.round(c.length * 0.12));
-        return {
-          ...f,
-          properties: { ...f.properties, status: "inactive" },
-          geometry: { type: "LineString", coordinates: c.slice(skip, c.length - skip) },
+      const trimGeometry = (geom) => {
+        const trimLine = (c) => {
+          const skip = Math.max(1, Math.round(c.length * 0.12));
+          return c.slice(skip, c.length - skip);
         };
-      });
+        if (geom.type === "MultiLineString") {
+          const trimmed = geom.coordinates.map(trimLine).filter(c => c.length >= 2);
+          return { type: "MultiLineString", coordinates: trimmed };
+        }
+        return { type: "LineString", coordinates: trimLine(geom.coordinates) };
+      };
+      const trimmedFeatures = ARROYO_CORRIDORS.features.map(f => ({
+        ...f,
+        properties: { ...f.properties, status: "inactive" },
+        geometry: trimGeometry(f.geometry),
+      }));
       map.addSource("arroyo-corridors-trimmed", {
         type: "geojson",
         data: { type: "FeatureCollection", features: trimmedFeatures },
@@ -487,13 +494,16 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
 
     // Also update trimmed source (inner glow + flow dashes)
     if (trimSrc) {
-      const trimmed = features.map(f => {
-        const c = f.geometry.coordinates;
+      const trimLine = (c) => {
         const skip = Math.max(1, Math.round(c.length * 0.12));
-        return {
-          ...f,
-          geometry: { type: "LineString", coordinates: c.slice(skip, c.length - skip) },
-        };
+        return c.slice(skip, c.length - skip);
+      };
+      const trimmed = features.map(f => {
+        const geom = f.geometry;
+        const trimmedGeom = geom.type === "MultiLineString"
+          ? { type: "MultiLineString", coordinates: geom.coordinates.map(trimLine).filter(c => c.length >= 2) }
+          : { type: "LineString", coordinates: trimLine(geom.coordinates) };
+        return { ...f, geometry: trimmedGeom };
       });
       trimSrc.setData({ type: "FeatureCollection", features: trimmed });
     }
