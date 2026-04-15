@@ -38,7 +38,7 @@ function simplifyGeometry(geom, tol) {
   return { type: "LineString", coordinates: dpSimplify(geom.coordinates, tol) };
 }
 
-const GLOW_SIMPLIFY_TOL = 0.0004;
+const GLOW_SIMPLIFY_TOL = 0.0001;
 const DARK_STYLE = "mapbox://styles/mapbox/dark-v11";
 
 export default function MapView({ reports, onZoneClick, panelOpen, activeFilter, predictions, onMapReady }) {
