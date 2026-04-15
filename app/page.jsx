@@ -1385,7 +1385,7 @@ function AppContent() {
             </div>
             </>
           ) : currentMainView === "list" ? (
-            <div key="list-view" onClick={(e) => { if (screen === "detail" && selectedZone && !e.target.closest("button, a, input")) { sheetCloseRef.current ? sheetCloseRef.current() : closeSheet(); } }} style={{ animation: "viewFadeIn 0.25s ease", height: "100%", overflow: "hidden" }}>
+            <div key="list-view" onClick={(e) => { if (screen === "detail" && selectedZone && !e.target.closest("button, a, input")) { sheetCloseRef.current ? sheetCloseRef.current() : closeSheet(); } }} style={{ animation: "viewFadeIn 0.25s ease", height: "100%", overflow: "hidden", paddingRight: panelVisible ? 390 : 0, transition: "padding-right 0.3s cubic-bezier(0.4, 0, 0.2, 1)" }}>
             <PullToRefresh onRefresh={refetch}>
             <div style={{ padding: "12px 16px 20px" }}>
               {/* Search */}
