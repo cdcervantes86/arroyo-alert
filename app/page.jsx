@@ -149,7 +149,7 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang })
         padding: "5px 6px",
         pointerEvents: "auto",
         position: "relative",
-        maxWidth: 280,
+        maxWidth: 320,
         margin: "0 auto",
       }}>
         <div style={{ position: "absolute", top: 0, left: "15%", right: "15%", height: "1px", background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.15), rgba(255,255,255,0.25), rgba(255,255,255,0.15), transparent)", borderRadius: "1px", pointerEvents: "none" }} />
@@ -1505,7 +1505,7 @@ function AppContent() {
 
       {/* HINT BUBBLE — portaled to body for working backdrop-filter */}
       {(isDesktop || currentMainView === "map") && !loading && !hintDismissed && reports.filter(r => new Date(r.created_at).getTime() > Date.now() - 4 * 3600000).length === 0 && typeof document !== "undefined" && createPortal(
-        <div style={{ position: "fixed", bottom: "calc(110px + env(safe-area-inset-bottom, 0px))", left: 16, right: 16, zIndex: 9999, display: "flex", justifyContent: "center", animation: "fadeIn 0.5s ease 1s both", pointerEvents: "none" }}>
+        <div style={{ position: "fixed", bottom: "calc(160px + env(safe-area-inset-bottom, 0px))", left: 16, right: 16, zIndex: 9999, display: "flex", justifyContent: "center", animation: "fadeIn 0.5s ease 1s both", pointerEvents: "none" }}>
           <div style={{ background: "rgba(10,15,26,0.2)", backdropFilter: "blur(16px) saturate(1.8)", WebkitBackdropFilter: "blur(16px) saturate(1.8)", borderRadius: "99px", padding: "10px 12px 10px 14px", border: "1px solid rgba(255,255,255,0.15)", display: "inline-flex", alignItems: "center", gap: "8px", boxShadow: "0 4px 16px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.12)", pointerEvents: "auto" }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
             <span style={{ fontSize: "12px", color: "var(--text-secondary)", fontWeight: 500 }}>{es ? "Toca una zona o usa Reportar" : "Tap a zone or use Report"}</span>
