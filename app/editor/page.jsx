@@ -149,16 +149,82 @@ export default function CoordEditor() {
             });
           } catch (e) {}
 
-          // Point markers for editing
+          // Point markers for editing — draggable + midpoint inserts
           if (isEditing) {
             coords.forEach((coord, i) => {
+              // === Main point marker (draggable) ===
               const el = document.createElement("div");
-              el.style.cssText = "width:10px;height:10px;border-radius:50%;background:#ef4444;border:2px solid #fff;cursor:pointer;";
-              el.title = `Point ${i + 1}: ${coord[1]}, ${coord[0]}`;
-              const m = new mapboxgl.Marker({ element: el, anchor: "center" })
+              el.style.cssText = `
+                width: 14px; height: 14px; border-radius: 50%;
+                background: #ef4444; border: 2px solid #fff; cursor: grab;
+                box-shadow: 0 0 6px rgba(0,0,0,0.5);
+                display: flex; align-items: center; justify-content: center;
+                font-size: 8px; font-weight: 700; color: #fff; font-family: monospace;
+              `;
+              el.textContent = i + 1;
+              el.title = `Point ${i + 1} — drag to move, right-click to delete`;
+
+              const m = new mapboxgl.Marker({ element: el, anchor: "center", draggable: true })
                 .setLngLat(coord)
                 .addTo(map);
+
+              // On drag end, update the point's coordinates
+              m.on("dragend", () => {
+                const lngLat = m.getLngLat();
+                const newCoord = [Math.round(lngLat.lng * 10000) / 10000, Math.round(lngLat.lat * 10000) / 10000];
+                setCorridorPoints(prev => prev.map((p, idx) => idx === i ? newCoord : p));
+              });
+
+              // Right-click to delete point
+              el.addEventListener("contextmenu", (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setCorridorPoints(prev => prev.filter((_, idx) => idx !== i));
+              });
+
               lineMarkersRef.current.push(m);
+
+              // === Midpoint marker (insert point between i and i+1) ===
+              if (i < coords.length - 1) {
+                const next = coords[i + 1];
+                const midLng = (coord[0] + next[0]) / 2;
+                const midLat = (coord[1] + next[1]) / 2;
+
+                const midEl = document.createElement("div");
+                midEl.style.cssText = `
+                  width: 10px; height: 10px; border-radius: 50%;
+                  background: rgba(59,130,246,0.5); border: 2px solid rgba(255,255,255,0.6);
+                  cursor: pointer; transition: all 0.15s ease;
+                `;
+                midEl.title = "Drag to insert a point here";
+                midEl.addEventListener("mouseenter", () => {
+                  midEl.style.background = "#3B82F6";
+                  midEl.style.transform = "scale(1.3)";
+                  midEl.style.borderColor = "#fff";
+                });
+                midEl.addEventListener("mouseleave", () => {
+                  midEl.style.background = "rgba(59,130,246,0.5)";
+                  midEl.style.transform = "scale(1)";
+                  midEl.style.borderColor = "rgba(255,255,255,0.6)";
+                });
+
+                const midM = new mapboxgl.Marker({ element: midEl, anchor: "center", draggable: true })
+                  .setLngLat([midLng, midLat])
+                  .addTo(map);
+
+                // On drag end, insert a new point between i and i+1
+                midM.on("dragend", () => {
+                  const lngLat = midM.getLngLat();
+                  const newCoord = [Math.round(lngLat.lng * 10000) / 10000, Math.round(lngLat.lat * 10000) / 10000];
+                  setCorridorPoints(prev => {
+                    const updated = [...prev];
+                    updated.splice(i + 1, 0, newCoord);
+                    return updated;
+                  });
+                });
+
+                lineMarkersRef.current.push(midM);
+              }
             });
           }
         });
@@ -247,7 +313,7 @@ export default function CoordEditor() {
           ) : (
             <>
               <div style={{ fontSize: "10px", color: "#666", textTransform: "uppercase", letterSpacing: "1px", padding: "8px 8px 4px", fontWeight: 600 }}>
-                Select a corridor, click map to trace path
+                Click map to add · Drag points to move · Right-click to delete
               </div>
               {corridors.map(c => (
                 <div key={c.id} style={{ marginBottom: "4px" }}>
@@ -312,7 +378,7 @@ export default function CoordEditor() {
             }}>
               {editingZone !== null
                 ? `Click map to set ${zones.find(z => z.id === editingZone)?.name} position`
-                : `Click map to add points for ${corridors.find(c => c.id === editingCorridor)?.name}`
+                : `Editing ${corridors.find(c => c.id === editingCorridor)?.name} — click to add · drag to move · blue dots to insert`
               }
             </div>
           )}
