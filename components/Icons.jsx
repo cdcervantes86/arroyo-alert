@@ -39,9 +39,9 @@ export function LiveIcon({ size = 20, color = "currentColor", active = false }) 
 export function MoreIcon({ size = 20, color = "currentColor" }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill={color} stroke="none">
-      <circle cx="12" cy="5" r="1.75" />
-      <circle cx="12" cy="12" r="1.75" />
-      <circle cx="12" cy="19" r="1.75" />
+      <circle cx="12" cy="5.5" r="2" />
+      <circle cx="12" cy="12" r="2" />
+      <circle cx="12" cy="18.5" r="2" />
     </svg>
   );
 }
