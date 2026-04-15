@@ -165,7 +165,7 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang })
             }}>
               {isActive && (
                 <div style={{
-                  position: "absolute", inset: "3px 6px 2px", borderRadius: "99px",
+                  position: "absolute", inset: "3px 6px 3px", borderRadius: "99px",
                   background: "linear-gradient(180deg, rgba(91,156,246,0.14) 0%, rgba(91,156,246,0.08) 100%)",
                   border: "1px solid rgba(91,156,246,0.18)",
                   boxShadow: "inset 0 1px 0 rgba(91,156,246,0.1), 0 0 12px rgba(91,156,246,0.06)",
