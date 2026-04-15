@@ -107,26 +107,26 @@ export default function LiveFeed({ reports, onZoneClick, onUpvote, upvotedSet, o
 
             return (
               <div key={r.id} className="card-interactive" style={{
-                background: `linear-gradient(145deg, ${cfg.color}14 0%, rgba(15,20,35,0.85) 40%, rgba(10,14,28,0.92) 100%)`,
-                backdropFilter: "blur(20px) saturate(1.4)",
-                WebkitBackdropFilter: "blur(20px) saturate(1.4)",
-                border: `1px solid ${cfg.color}30`,
-                borderBottom: `1px solid rgba(0,0,0,0.4)`,
+                background: `linear-gradient(145deg, ${cfg.color}08 0%, rgba(14,18,30,0.88) 50%, rgba(10,14,26,0.94) 100%)`,
+                backdropFilter: "blur(20px) saturate(1.3)",
+                WebkitBackdropFilter: "blur(20px) saturate(1.3)",
+                border: `1px solid ${cfg.color}1a`,
+                borderBottom: `1px solid rgba(0,0,0,0.3)`,
                 borderRadius: "var(--radius-lg)",
                 padding: "16px 16px 16px 20px",
                 animation: `fadeIn 0.25s ease ${i * 0.04}s both`, cursor: "pointer",
                 position: "relative", overflow: "hidden",
-                boxShadow: `0 8px 32px ${cfg.color}18, 0 4px 12px rgba(0,0,0,0.5), 0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.07), inset 0 0 20px ${cfg.color}06`,
+                boxShadow: `0 6px 24px ${cfg.color}0c, 0 2px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05)`,
                 opacity: Math.max(0.45, Math.min(1, (new Date(r.created_at).getTime() + 4 * 3600000 - Date.now()) / (4 * 3600000))),
                 transform: "translateZ(0)",
                 transition: "box-shadow 0.2s ease, border-color 0.2s ease",
               }} onClick={(e) => { e.stopPropagation(); onZoneClick?.(zone.id); }}>
-                {/* Accent bar with stronger glow */}
-                <div style={{ position: "absolute", left: 0, top: "8%", bottom: "8%", width: 3.5, borderRadius: "0 4px 4px 0", background: `linear-gradient(180deg, ${cfg.color}88, ${cfg.color}, ${cfg.color}88)`, boxShadow: `4px 0 16px ${cfg.color}40, 8px 0 32px ${cfg.color}18` }} />
-                {/* Top edge highlight — glass reflection */}
-                <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: `linear-gradient(90deg, transparent 5%, rgba(255,255,255,0.1) 30%, rgba(255,255,255,0.06) 70%, transparent 95%)` }} />
-                {/* Severity ambient light — top left corner */}
-                <div style={{ position: "absolute", top: -20, left: -20, width: 80, height: 80, borderRadius: "50%", background: `radial-gradient(circle, ${cfg.color}15 0%, transparent 70%)`, pointerEvents: "none" }} />
+                {/* Accent bar */}
+                <div style={{ position: "absolute", left: 0, top: "10%", bottom: "10%", width: 3, borderRadius: "0 3px 3px 0", background: `linear-gradient(180deg, ${cfg.color}66, ${cfg.color}, ${cfg.color}66)`, boxShadow: `3px 0 10px ${cfg.color}25` }} />
+                {/* Top edge highlight */}
+                <div style={{ position: "absolute", top: 0, left: "5%", right: "5%", height: 1, background: `linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)` }} />
+                {/* Ambient light — subtle corner tint */}
+                <div style={{ position: "absolute", top: -30, left: -30, width: 70, height: 70, borderRadius: "50%", background: `radial-gradient(circle, ${cfg.color}0a 0%, transparent 70%)`, pointerEvents: "none" }} />
 
                 {/* Header row */}
                 <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>

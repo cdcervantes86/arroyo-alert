@@ -1477,11 +1477,19 @@ function AppContent() {
                         <button onClick={(e) => { e.stopPropagation(); handleZoneClick(z.id, "list"); }} className="card-interactive" style={{
                           width: "100%", textAlign: "left", display: "flex", gap: "14px", alignItems: "center",
                           padding: "14px 16px", marginBottom: "6px", borderRadius: "var(--radius-lg)",
-                          background: hasActivity ? `${c ? c.color : "var(--accent)"}04` : "rgba(255,255,255,0.02)",
+                          background: hasActivity
+                            ? `linear-gradient(145deg, ${c ? c.color : "var(--accent)"}08 0%, rgba(14,18,30,0.88) 50%, rgba(10,14,26,0.94) 100%)`
+                            : "linear-gradient(145deg, rgba(255,255,255,0.025) 0%, rgba(14,18,30,0.85) 50%, rgba(10,14,26,0.92) 100%)",
                           border: `1px solid ${c ? c.color + "18" : "rgba(255,255,255,0.06)"}`,
+                          borderBottom: `1px solid rgba(0,0,0,0.25)`,
+                          boxShadow: hasActivity
+                            ? `0 4px 16px ${c ? c.color + "08" : "rgba(0,0,0,0.3)"}, 0 2px 6px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.04)`
+                            : "0 2px 8px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.03)",
                           animation: `fadeIn 0.25s ease ${i * 0.03}s both`,
                           position: "relative", overflow: "hidden",
                         }}>
+                          {/* Top edge highlight */}
+                          <div style={{ position: "absolute", top: 0, left: "8%", right: "8%", height: 1, background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent)", pointerEvents: "none" }} />
                           {/* Subtle photo background - peeks in from right */}
                           {z.photos && (
                             <>
@@ -1489,8 +1497,8 @@ function AppContent() {
                               <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, #070b14 0%, #070b14 35%, rgba(7,11,20,0.6) 70%, rgba(7,11,20,0.3) 100%)" }} />
                             </>
                           )}
-                          {/* Severity accent bar */}
-                          {sv && <div style={{ position: "absolute", left: 0, top: "15%", bottom: "15%", width: 3, borderRadius: "0 2px 2px 0", background: c.color, zIndex: 1 }} />}
+                          {/* Severity accent bar with glow */}
+                          {sv && <div style={{ position: "absolute", left: 0, top: "12%", bottom: "12%", width: 3, borderRadius: "0 2px 2px 0", background: `linear-gradient(180deg, ${c.color}66, ${c.color}, ${c.color}66)`, boxShadow: `3px 0 8px ${c.color}20`, zIndex: 1 }} />}
 
                           {/* Icon */}
                           <div style={{ width: 42, height: 42, borderRadius: "var(--radius-md)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: c ? `${c.color}0a` : "rgba(255,255,255,0.03)", border: `1px solid ${c ? c.color + "18" : "rgba(255,255,255,0.06)"}`, position: "relative", zIndex: 1 }}>
