@@ -159,7 +159,7 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang })
           return (
             <button key={tab.key} onClick={() => onTab(tab.key)} aria-label={tab.label} aria-current={isActive ? "page" : undefined} style={{
               flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-              gap: "3px", background: "none", border: "none", padding: "10px 0 6px", position: "relative",
+              gap: "3px", background: "none", border: "none", padding: "8px 0", position: "relative",
               minHeight: 46, cursor: "pointer",
               WebkitTapHighlightColor: "transparent",
             }}>
@@ -183,6 +183,7 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang })
                 fontSize: "10px", fontWeight: isActive ? 700 : 400,
                 color: isActive ? "#6ba6ff" : "rgba(255,255,255,0.35)",
                 letterSpacing: isActive ? "0.1px" : "0.2px",
+                lineHeight: 1,
               }}>{tab.label}</span>
             </button>
           );
