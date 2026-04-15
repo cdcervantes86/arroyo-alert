@@ -140,7 +140,7 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
         type: "geojson",
         data: corridorData,
         lineMetrics: true,
-        tolerance: 1.5,
+        tolerance: 4,
       });
 
       // Helper: gradient that fades at both ends of the line
@@ -169,8 +169,8 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
         danger:   { rgb: [239, 68, 68],  glow: 0.25, core: 0.7,  mouth: 0.22, filter: ["==", ["get", "status"], "danger"] },
       };
 
-      const glowW = ["interpolate", ["linear"], ["zoom"], 10, 14, 14, 22, 17, 30];
-      const glowB = ["interpolate", ["linear"], ["zoom"], 10, 10, 14, 16, 17, 22];
+      const glowW = ["interpolate", ["linear"], ["zoom"], 10, 12, 14, 18, 17, 24];
+      const glowB = ["interpolate", ["linear"], ["zoom"], 10, 8, 14, 12, 17, 16];
       const coreW = ["interpolate", ["linear"], ["zoom"], 10, 1.5, 14, 2.5, 17, 3.5];
       const mouthW = ["interpolate", ["linear"], ["zoom"], 10, 24, 14, 50, 17, 80];
       const mouthB = ["interpolate", ["linear"], ["zoom"], 10, 16, 14, 30, 17, 50];
@@ -242,7 +242,7 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
       map.addSource("arroyo-corridors-trimmed", {
         type: "geojson",
         data: { type: "FeatureCollection", features: trimmedFeatures },
-        tolerance: 1.5,
+        tolerance: 4,
       });
 
       // Inner glow — uses trimmed source so it stops where the fade begins
