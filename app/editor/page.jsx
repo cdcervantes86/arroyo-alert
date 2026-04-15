@@ -85,6 +85,7 @@ export default function CoordEditor() {
   const [copied, setCopied] = useState(false);
   const [mouseCoord, setMouseCoord] = useState(null);
   const [mapStyle, setMapStyle] = useState("satellite");
+  const [styleRevision, setStyleRevision] = useState(0);
   const [highlightedPoint, setHighlightedPoint] = useState(null);
 
   // Shorthand for active branch points
@@ -146,6 +147,7 @@ export default function CoordEditor() {
     const ns = mapStyle === "satellite" ? "streets" : "satellite";
     setMapStyle(ns);
     map.setStyle(ns === "satellite" ? "mapbox://styles/mapbox/satellite-streets-v12" : "mapbox://styles/mapbox/dark-v11");
+    map.once("style.load", () => setStyleRevision(r => r + 1));
   }, [mapStyle]);
 
   // ====== AUTO-ZOOM on corridor select ======
@@ -335,7 +337,7 @@ export default function CoordEditor() {
       if (map.isStyleLoaded()) addLines();
       else map.on("load", addLines);
     }
-  }, [corridors, mode, editingCorridor, branches, activeBranch, highlightedPoint]);
+  }, [corridors, mode, editingCorridor, branches, activeBranch, highlightedPoint, styleRevision]);
 
   // ====== CORRIDOR ACTIONS ======
   const saveCorridor = () => {
