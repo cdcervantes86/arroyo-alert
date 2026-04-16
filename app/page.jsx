@@ -113,7 +113,7 @@ function EmergencyBanner({ emergency, lang }) {
   );
 }
 
-function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang }) {
+function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang, isLowEnd }) {
   const tabs = [
     { key: "map", Icon: MapIcon, label: lang === "es" ? "Mapa" : "Map", badge: dangerCount },
     { key: "live", Icon: LiveIcon, label: lang === "es" ? "En vivo" : "Live", badge: liveCount },
@@ -194,7 +194,7 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang })
   );
 }
 
-function MoreMenu({ onSelect, lang, onClose }) {
+function MoreMenu({ onSelect, lang, onClose, isLowEnd }) {
   const es = lang === "es";
   const [closing, setClosing] = useState(false);
 
@@ -243,7 +243,7 @@ function MoreMenu({ onSelect, lang, onClose }) {
 }
 
 /* ====== MULTI-SNAP BOTTOM SHEET — peek / half / full ====== */
-function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push, zoneWatchers, prediction, watchZone, unwatchZone, onLogoClick, isDesktop, desktopView, mapInstance, favs, initialSnap = "peek", mapRestoreRef, onPhotoClick, onDelete, userLocation, closeRef }) {
+function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push, zoneWatchers, prediction, watchZone, unwatchZone, onLogoClick, isDesktop, desktopView, mapInstance, favs, initialSnap = "peek", mapRestoreRef, onPhotoClick, onDelete, userLocation, closeRef, isLowEnd }) {
   const { lang, t } = useLanguage();
   const es = lang === "es";
   const sevColor = severity ? SEVERITY[severity].color : "rgba(255,255,255,0.06)";
