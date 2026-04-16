@@ -118,15 +118,6 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang })
     { key: "live", Icon: LiveIcon, label: lang === "es" ? "En vivo" : "Live", badge: liveCount },
     { key: "more", Icon: MoreIcon, label: lang === "es" ? "Más" : "More" },
   ];
-
-  // Handle keyboard navigation for accessibility
-  const handleKeyDown = (e, tabKey) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      onTab(tabKey);
-    }
-  };
-
   return (
     <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, padding: "0 16px", paddingBottom: "calc(12px + env(safe-area-inset-bottom, 0px))", zIndex: 100, pointerEvents: "none" }}>
       {/* Floating Report FAB — centered above the nav */}
@@ -149,15 +140,13 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang })
 
       {/* Navigation pill — 3 items */}
       <div className="bottom-nav" role="navigation" aria-label={lang === "es" ? "Navegación principal" : "Main navigation"} style={{
-        display: "flex", 
-        alignItems: "center",  // Changed from "stretch" to "center"
-        justifyContent: "center",  // Added horizontal centering
+        display: "flex", alignItems: "stretch",
         background: "linear-gradient(180deg, rgba(14,18,30,0.18) 0%, rgba(8,12,22,0.22) 100%)",
         backdropFilter: "blur(16px) saturate(1.8)", WebkitBackdropFilter: "blur(16px) saturate(1.8)",
         borderRadius: "99px",
         border: "1px solid rgba(255,255,255,0.13)",
         boxShadow: "0 2px 8px rgba(0,0,0,0.15), 0 12px 40px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.12), inset 0 -0.5px 0 rgba(0,0,0,0.1)",
-        padding: "4px",  // Added padding instead of 0
+        padding: 0,
         pointerEvents: "auto",
         position: "relative",
         maxWidth: 320,
@@ -173,7 +162,7 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang })
               role="button"
               tabIndex={0}
               onClick={() => onTab(tab.key)} 
-              onKeyDown={(e) => handleKeyDown(e, tab.key)}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onTab(tab.key); }}}
               aria-label={tab.label} 
               aria-current={isActive ? "page" : undefined} 
               style={{
@@ -181,51 +170,38 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang })
                 display: "flex", 
                 flexDirection: "column", 
                 alignItems: "center", 
-                justifyContent: "center",  // This centers content vertically
-                gap: "2px",  // Reduced gap slightly
+                justifyContent: "flex-start",  // Changed from center to flex-start
+                gap: "2px", 
                 background: "none", 
                 border: "none", 
-                padding: "6px 0",  // Adjusted padding
+                padding: "10px 0 6px",  // Added more top padding
                 position: "relative",
-                height: 44,  // Fixed height instead of minHeight
+                height: 46, 
                 cursor: "pointer",
                 WebkitTapHighlightColor: "transparent",
-                margin: "0 2px",  // Added small margin
+                boxSizing: "border-box",
               }}
             >
               {isActive && (
                 <div style={{
-                  position: "absolute", 
-                  inset: "2px 4px",  // Adjusted inset for better fit
-                  borderRadius: "99px",
+                  position: "absolute", inset: "3px 6px 2px", borderRadius: "99px",
                   background: "linear-gradient(180deg, rgba(91,156,246,0.14) 0%, rgba(91,156,246,0.08) 100%)",
                   border: "1px solid rgba(91,156,246,0.18)",
                   boxShadow: "inset 0 1px 0 rgba(91,156,246,0.1), 0 0 12px rgba(91,156,246,0.06)",
                 }} />
               )}
-              <div style={{ 
-                position: "relative", 
-                zIndex: 1, 
-                display: "flex", 
-                alignItems: "center", 
-                justifyContent: "center",
-                height: 22,  // Fixed height for icon container
-              }}>
+              <div style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <tab.Icon size={20} color={isActive ? "#6ba6ff" : "rgba(255,255,255,0.35)"} active={isActive} />
                 {tab.badge > 0 && !isActive && (tab.key === "map"
-                  ? <span style={{ position: "absolute", top: -3, right: -10, minWidth: 16, height: 16, borderRadius: "8px", background: "var(--danger)", border: "1.5px solid rgba(10,15,26,0.5)", fontSize: "9px", fontWeight: 800, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", padding: "0 3px", animation: "blink 1.5s ease-in-out infinite" }}>{tab.badge}</span>
-                  : <span style={{ position: "absolute", top: 0, right: -4, width: 7, height: 7, borderRadius: "50%", background: "var(--danger)", border: "1.5px solid rgba(10,15,26,0.5)", animation: "blink 1.5s ease-in-out infinite" }} />
+                  ? <span style={{ position: "absolute", top: -5, right: -10, minWidth: 16, height: 16, borderRadius: "8px", background: "var(--danger)", border: "1.5px solid rgba(10,15,26,0.5)", fontSize: "9px", fontWeight: 800, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", padding: "0 3px", animation: "blink 1.5s ease-in-out infinite" }}>{tab.badge}</span>
+                  : <span style={{ position: "absolute", top: -2, right: -4, width: 7, height: 7, borderRadius: "50%", background: "var(--danger)", border: "1.5px solid rgba(10,15,26,0.5)", animation: "blink 1.5s ease-in-out infinite" }} />
                 )}
               </div>
               <span style={{
-                position: "relative", 
-                zIndex: 1,
-                fontSize: "10px", 
-                fontWeight: isActive ? 700 : 400,
+                position: "relative", zIndex: 1,
+                fontSize: "10px", fontWeight: isActive ? 700 : 400,
                 color: isActive ? "#6ba6ff" : "rgba(255,255,255,0.35)",
                 letterSpacing: isActive ? "0.1px" : "0.2px",
-                lineHeight: 1,
-                marginTop: "1px",  // Added small top margin
               }}>{tab.label}</span>
             </div>
           );
@@ -445,7 +421,7 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
             </div>
             <button onClick={handleDesktopClose} className="tap-target" style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)" }}>
               <svg width="10" height="10" viewBox="0 0 10 10" stroke="var(--text-dim)" strokeWidth="1.5" strokeLinecap="round"><line x1="2" y1="2" x2="8" y2="8"/><line x1="8" y1="2" x2="2" y2="8"/></svg>
-            </button>
+            </div>
           </div>
         </div>
 
@@ -524,7 +500,7 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
               <button onClick={() => { if (navigator.vibrate) navigator.vibrate(50); if (!subscribed) push.subscribeToZone?.(zone.id); else push.unsubscribeFromZone?.(zone.id); }} className="tap-target" style={{ flex: 1, padding: "10px", borderRadius: "var(--radius-md)", background: subscribed ? "rgba(91,156,246,0.08)" : "rgba(255,255,255,0.02)", border: `1px solid ${subscribed ? "rgba(91,156,246,0.15)" : "rgba(255,255,255,0.06)"}`, color: subscribed ? "var(--accent)" : "var(--text-dim)", fontSize: "12px", fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
                 <BellIcon size={14} color={subscribed ? "var(--accent)" : "var(--text-dim)"} />
                 {subscribed ? (es ? "Suscrito" : "Subscribed") : (es ? "Notificarme" : "Notify me")}
-              </button>
+              </div>
             )}
             <button onClick={() => {
               const sevLabel = severity ? getSevLabel(severity, lang) : (es ? "Despejado" : "Clear");
@@ -535,7 +511,7 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
               else { try { navigator.clipboard.writeText(text); } catch(e) {} }
             }} className="tap-target" style={{ padding: "10px 14px", borderRadius: "var(--radius-md)", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", color: "var(--text-dim)", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
-            </button>
+            </div>
           </div>
 
           {/* Alt routes */}
@@ -590,7 +566,7 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
                   {r.device_id === getDeviceId() && (
                     <button onClick={() => { if (confirm(es ? "¿Eliminar este reporte?" : "Delete this report?")) onDelete?.(r.id); }} className="tap-target" style={{ marginLeft: "auto", padding: "6px", borderRadius: "var(--radius-sm)", background: "none", border: "1px solid rgba(255,255,255,0.04)", color: "var(--text-faint)", display: "flex", alignItems: "center", justifyContent: "center" }}>
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
-                    </button>
+                    </div>
                   )}
                 </div>
               </div>
@@ -791,10 +767,10 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
             </div>
             <button onClick={(e) => { e.stopPropagation(); favs.toggle(zone.id); if (navigator.vibrate) navigator.vibrate(30); }} style={{ width: 32, height: 32, borderRadius: "50%", background: favs.isFavorite(zone.id) ? "rgba(250,204,21,0.1)" : "rgba(255,255,255,0.06)", border: `1px solid ${favs.isFavorite(zone.id) ? "rgba(250,204,21,0.2)" : "rgba(255,255,255,0.08)"}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all 0.2s ease", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)" }}>
               <StarIcon size={14} color={favs.isFavorite(zone.id) ? "#facc15" : "rgba(255,255,255,0.35)"} filled={favs.isFavorite(zone.id)} />
-            </button>
+            </div>
             <button onClick={animateClose} style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all 0.15s ease", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)" }}>
               <svg width="11" height="11" viewBox="0 0 10 10" stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" strokeLinecap="round"><line x1="2" y1="2" x2="8" y2="8"/><line x1="8" y1="2" x2="2" y2="8"/></svg>
-            </button>
+            </div>
           </div>
           {/* Peek actions removed — button teasers below */}
         </div>
@@ -902,7 +878,7 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
                 <button onClick={() => { const ns = !subscribed; if (navigator.vibrate) navigator.vibrate(50); if (ns) push.subscribeToZone?.(zone.id); else push.unsubscribeFromZone?.(zone.id); }} className="tap-target" style={{ flex: 1, padding: "10px", borderRadius: "var(--radius-md)", background: subscribed ? "rgba(91,156,246,0.08)" : "rgba(255,255,255,0.02)", border: `1px solid ${subscribed ? "rgba(91,156,246,0.15)" : "rgba(255,255,255,0.06)"}`, color: subscribed ? "var(--accent)" : "var(--text-dim)", fontSize: "12px", fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
                   <BellIcon size={14} color={subscribed ? "var(--accent)" : "var(--text-dim)"} />
                   {subscribed ? (es ? "Suscrito" : "Subscribed") : (es ? "Notificarme" : "Notify me")}
-                </button>
+                </div>
               )}
               <button onClick={() => {
                 const sevLabel = severity ? getSevLabel(severity, lang) : (es ? "Despejado" : "Clear");
@@ -913,7 +889,7 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
                 else { try { navigator.clipboard.writeText(text); } catch(e) {} }
               }} className="tap-target" style={{ padding: "10px 14px", borderRadius: "var(--radius-md)", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", color: "var(--text-dim)", display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
-              </button>
+              </div>
             </div>
 
             {/* Alt routes */}
@@ -970,7 +946,7 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
                     {r.device_id === getDeviceId() && (
                       <button onClick={() => { if (confirm(es ? "¿Eliminar este reporte?" : "Delete this report?")) onDelete?.(r.id); }} className="tap-target" style={{ marginLeft: "auto", padding: "6px", borderRadius: "var(--radius-sm)", background: "none", border: "1px solid rgba(255,255,255,0.04)", color: "var(--text-faint)", display: "flex", alignItems: "center", justifyContent: "center" }}>
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
-                      </button>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -1419,7 +1395,7 @@ function AppContent() {
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={userLocation ? "#4285F4" : "rgba(255,255,255,0.45)"} strokeWidth="1.75" strokeLinecap="round">
                   <circle cx="12" cy="12" r="3" /><path d="M12 2v4M12 18v4M2 12h4M18 12h4" />
                 </svg>
-              </button>
+              </div>
             </div>
             </>
           )}
@@ -1453,7 +1429,7 @@ function AppContent() {
                     border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", zIndex: 2,
                   }}>
                     <svg width="8" height="8" viewBox="0 0 8 8" stroke="var(--text-faint)" strokeWidth="1.5" strokeLinecap="round"><line x1="1" y1="1" x2="7" y2="7"/><line x1="7" y1="1" x2="1" y2="7"/></svg>
-                  </button>
+                  </div>
                 )}
               </div>
 
@@ -1516,7 +1492,7 @@ function AppContent() {
                             <div style={{ fontSize: "11px", color: "var(--text-dim)", marginTop: "1px" }}>{z.area}</div>
                           </div>
                           {c && <span style={{ fontSize: "10px", color: c.color, fontWeight: 500 }}>{getSevLabel(sv, lang)}</span>}
-                        </button>
+                        </div>
                       );
                     })}
                   </div>
@@ -1552,7 +1528,7 @@ function AppContent() {
             <span style={{ fontSize: "12px", color: "var(--text-secondary)", fontWeight: 500 }}>{es ? "Toca una zona o usa Reportar" : "Tap a zone or use Report"}</span>
             <button onClick={() => setHintDismissed(true)} style={{ width: 22, height: 22, borderRadius: "50%", background: "rgba(255,255,255,0.08)", border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0 }}>
               <svg width="8" height="8" viewBox="0 0 8 8" stroke="var(--text-faint)" strokeWidth="1.5" strokeLinecap="round"><line x1="1" y1="1" x2="7" y2="7"/><line x1="7" y1="1" x2="1" y2="7"/></svg>
-            </button>
+            </div>
           </div>
         </div>,
         document.body
@@ -1685,7 +1661,7 @@ function AppContent() {
             }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg>
               {es ? "Compartir por WhatsApp" : "Share via WhatsApp"}
-            </button>
+            </div>
             <button onClick={() => { setClosingWhatsApp(true); setTimeout(() => { setLastReport(null); setClosingWhatsApp(false); }, 250); }} className="tap-target" style={{
               width: "100%", marginTop: "8px", padding: "13px",
               background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)",
@@ -1693,7 +1669,7 @@ function AppContent() {
               fontSize: "14px", fontWeight: 500,
             }}>
               {es ? "Ahora no" : "Not now"}
-            </button>
+            </div>
           </div>
         </div>
       )}
@@ -1743,7 +1719,7 @@ function AppContent() {
             }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
               {es ? "Instalar app" : "Install app"}
-            </button>
+            </div>
             <button onClick={() => setShowInstallBanner(false)} className="tap-target" style={{
               width: "100%", marginTop: "8px", padding: "13px",
               background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)",
@@ -1751,7 +1727,7 @@ function AppContent() {
               fontSize: "14px", fontWeight: 500,
             }}>
               {es ? "Ahora no" : "Not now"}
-            </button>
+            </div>
           </div>
         </div>
       )}
@@ -1783,7 +1759,7 @@ function AppContent() {
             }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
               {es ? "Activar alertas" : "Enable alerts"}
-            </button>
+            </div>
             <button onClick={() => setShowNotifPrompt(false)} className="tap-target" style={{
               width: "100%", marginTop: "8px", padding: "13px",
               background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)",
@@ -1791,7 +1767,7 @@ function AppContent() {
               fontSize: "14px", fontWeight: 500,
             }}>
               {es ? "Ahora no" : "Not now"}
-            </button>
+            </div>
           </div>
         </div>
       )}
