@@ -142,7 +142,9 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang })
       {/* Navigation pill — 3 items */}
       <div className="bottom-nav" role="navigation" aria-label={lang === "es" ? "Navegación principal" : "Main navigation"} style={{
         display: "flex", alignItems: "center",
-        ...styles.nav,
+        background: isLowEnd ? "rgba(14,20,36,0.95)" : "linear-gradient(180deg, rgba(14,18,30,0.18) 0%, rgba(8,12,22,0.22) 100%)",
+        backdropFilter: isLowEnd ? "none" : "blur(16px) saturate(1.8)",
+        WebkitBackdropFilter: isLowEnd ? "none" : "blur(16px) saturate(1.8)",
         borderRadius: "99px",
         border: "1px solid rgba(255,255,255,0.13)",
         boxShadow: "0 2px 8px rgba(0,0,0,0.15), 0 12px 40px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.12), inset 0 -0.5px 0 rgba(0,0,0,0.1)",
@@ -942,7 +944,7 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
 
 function AppContent() {
   const { lang, toggleLang, t } = useLanguage();
-  const { styles, isLowEnd, webGLSupported, isReady } = usePerformanceMode();
+  const { isLowEnd, webGLSupported } = usePerformanceMode();
   const [toasts, setToasts] = useState([]);
   const addToast = useCallback((msg, color) => {
     const id = Date.now();
