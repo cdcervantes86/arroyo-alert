@@ -27,6 +27,7 @@ import WeeklyDigest from "@/components/WeeklyDigest";
 import { useFavorites } from "@/lib/useFavorites";
 import { useUpdateChecker } from "@/lib/useUpdateChecker";
 import { APP_VERSION } from "@/lib/version";
+import { useAuth, AuthProvider } from "@/lib/useAuth";
 
 const MapView = lazy(() => import("@/components/MapView"));
 
@@ -140,14 +141,13 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang })
 
       {/* Navigation pill — 3 items */}
       <div className="bottom-nav" role="navigation" aria-label={lang === "es" ? "Navegación principal" : "Main navigation"} style={{
-        display: "flex", 
-        alignItems: "center",
+        display: "flex", alignItems: "stretch",
         background: "linear-gradient(180deg, rgba(14,18,30,0.18) 0%, rgba(8,12,22,0.22) 100%)",
         backdropFilter: "blur(16px) saturate(1.8)", WebkitBackdropFilter: "blur(16px) saturate(1.8)",
         borderRadius: "99px",
         border: "1px solid rgba(255,255,255,0.13)",
         boxShadow: "0 2px 8px rgba(0,0,0,0.15), 0 12px 40px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.12), inset 0 -0.5px 0 rgba(0,0,0,0.1)",
-        padding: "4px 6px",
+        padding: 0,
         pointerEvents: "auto",
         position: "relative",
         maxWidth: 320,
@@ -158,64 +158,34 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang })
         {tabs.map((tab) => {
           const isActive = activeTab === tab.key;
           return (
-            <div 
-              key={tab.key} 
-              role="button"
-              tabIndex={0}
-              onClick={() => onTab(tab.key)} 
-              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onTab(tab.key); }}}
-              aria-label={tab.label} 
-              aria-current={isActive ? "page" : undefined} 
-              style={{
-                flex: 1, 
-                display: "flex", 
-                flexDirection: "column", 
-                alignItems: "center", 
-                justifyContent: "center",
-                background: "none", 
-                border: "none", 
-                position: "relative",
-                height: 44, 
-                cursor: "pointer",
-                WebkitTapHighlightColor: "transparent",
-              }}
-            >
+            <button key={tab.key} onClick={() => onTab(tab.key)} aria-label={tab.label} aria-current={isActive ? "page" : undefined} style={{
+              flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+              gap: "3px", background: "none", border: "none", padding: "8px 0", position: "relative",
+              minHeight: 46, cursor: "pointer",
+              WebkitTapHighlightColor: "transparent",
+            }}>
               {isActive && (
                 <div style={{
-                  position: "absolute", 
-                  inset: "2px 4px", 
-                  borderRadius: "99px",
+                  position: "absolute", inset: "3px 6px 2px", borderRadius: "99px",
                   background: "linear-gradient(180deg, rgba(91,156,246,0.14) 0%, rgba(91,156,246,0.08) 100%)",
                   border: "1px solid rgba(91,156,246,0.18)",
                   boxShadow: "inset 0 1px 0 rgba(91,156,246,0.1), 0 0 12px rgba(91,156,246,0.06)",
                 }} />
               )}
-              {/* WRAPPED container for icon+label */}
-              <div style={{ 
-                position: "relative", 
-                zIndex: 1, 
-                display: "flex", 
-                flexDirection: "column",
-                alignItems: "center", 
-                justifyContent: "center",
-              }}>
-                <div style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <tab.Icon size={20} color={isActive ? "#6ba6ff" : "rgba(255,255,255,0.35)"} active={isActive} />
-                  {tab.badge > 0 && !isActive && (tab.key === "map"
-                    ? <span style={{ position: "absolute", top: -5, right: -10, minWidth: 16, height: 16, borderRadius: "8px", background: "var(--danger)", border: "1.5px solid rgba(10,15,26,0.5)", fontSize: "9px", fontWeight: 800, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", padding: "0 3px", animation: "blink 1.5s ease-in-out infinite" }}>{tab.badge}</span>
-                    : <span style={{ position: "absolute", top: -2, right: -4, width: 7, height: 7, borderRadius: "50%", background: "var(--danger)", border: "1.5px solid rgba(10,15,26,0.5)", animation: "blink 1.5s ease-in-out infinite" }} />
-                  )}
-                </div>
-                <span style={{
-                  fontSize: "10px", 
-                  fontWeight: isActive ? 700 : 400,
-                  color: isActive ? "#6ba6ff" : "rgba(255,255,255,0.35)",
-                  letterSpacing: isActive ? "0.1px" : "0.2px",
-                  lineHeight: 1,
-                  marginTop: "2px",
-                }}>{tab.label}</span>
+              <div style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <tab.Icon size={20} color={isActive ? "#6ba6ff" : "rgba(255,255,255,0.35)"} active={isActive} />
+                {tab.badge > 0 && !isActive && (tab.key === "map"
+                  ? <span style={{ position: "absolute", top: -5, right: -10, minWidth: 16, height: 16, borderRadius: "8px", background: "var(--danger)", border: "1.5px solid rgba(10,15,26,0.5)", fontSize: "9px", fontWeight: 800, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", padding: "0 3px", animation: "blink 1.5s ease-in-out infinite" }}>{tab.badge}</span>
+                  : <span style={{ position: "absolute", top: -2, right: -4, width: 7, height: 7, borderRadius: "50%", background: "var(--danger)", border: "1.5px solid rgba(10,15,26,0.5)", animation: "blink 1.5s ease-in-out infinite" }} />
+                )}
               </div>
-            </div>
+              <span style={{
+                position: "relative", zIndex: 1,
+                fontSize: "10px", fontWeight: isActive ? 700 : 400,
+                color: isActive ? "#6ba6ff" : "rgba(255,255,255,0.35)",
+                letterSpacing: isActive ? "0.1px" : "0.2px",
+              }}>{tab.label}</span>
+            </button>
           );
         })}
       </div>
@@ -973,6 +943,7 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
 
 function AppContent() {
   const { lang, toggleLang, t } = useLanguage();
+  const { user, userId } = useAuth();
   const [toasts, setToasts] = useState([]);
   const addToast = useCallback((msg, color) => {
     const id = Date.now();
@@ -1839,4 +1810,12 @@ function AppContent() {
   );
 }
 
-export default function Home() { return <LanguageProvider><AppContent /></LanguageProvider>; }
+export default function Home() { 
+  return (
+    <LanguageProvider>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </LanguageProvider>
+  ); 
+}
