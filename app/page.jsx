@@ -171,14 +171,14 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang })
                 display: "flex", 
                 flexDirection: "column", 
                 alignItems: "center", 
-                justifyContent: "flex-start",  // Align to top
+                justifyContent: "center",
                 background: "none", 
                 border: "none", 
                 position: "relative",
                 height: 44, 
                 cursor: "pointer",
                 WebkitTapHighlightColor: "transparent",
-                paddingTop: "6px",  // Push content down by 6px
+                padding: "6px 0",  // Equal padding top and bottom
                 boxSizing: "border-box",
               }}
             >
