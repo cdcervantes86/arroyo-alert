@@ -140,9 +140,9 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang })
 
       {/* Navigation pill — 3 items */}
       <div className="bottom-nav" role="navigation" aria-label={lang === "es" ? "Navegación principal" : "Main navigation"} style={{
-        display: "flex", 
+        display: "grid",
+        gridTemplateColumns: "repeat(3, 1fr)",
         alignItems: "center",
-        justifyContent: "center",
         background: "linear-gradient(180deg, rgba(14,18,30,0.18) 0%, rgba(8,12,22,0.22) 100%)",
         backdropFilter: "blur(16px) saturate(1.8)", WebkitBackdropFilter: "blur(16px) saturate(1.8)",
         borderRadius: "99px",
@@ -168,11 +168,11 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang })
               aria-label={tab.label} 
               aria-current={isActive ? "page" : undefined} 
               style={{
-                flex: 1, 
-                display: "flex", 
-                flexDirection: "column", 
-                alignItems: "center", 
-                justifyContent: "center",
+                display: "grid",
+                gridTemplateRows: "22px 14px",
+                gap: "2px",
+                alignContent: "center",
+                justifyItems: "center",
                 background: "none", 
                 border: "none", 
                 position: "relative",
@@ -191,32 +191,32 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang })
                   boxShadow: "inset 0 1px 0 rgba(91,156,246,0.1), 0 0 12px rgba(91,156,246,0.06)",
                 }} />
               )}
-              {/* Centered wrapper */}
-              <div style={{
-                position: "relative",
-                zIndex: 1,
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
+              {/* Icon row */}
+              <div style={{ 
+                position: "relative", 
+                zIndex: 1, 
+                display: "flex", 
+                alignItems: "center", 
                 justifyContent: "center",
-                height: "100%",
+                alignSelf: "center",
               }}>
-                <div style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <tab.Icon size={20} color={isActive ? "#6ba6ff" : "rgba(255,255,255,0.35)"} active={isActive} />
-                  {tab.badge > 0 && !isActive && (tab.key === "map"
-                    ? <span style={{ position: "absolute", top: -5, right: -10, minWidth: 16, height: 16, borderRadius: "8px", background: "var(--danger)", border: "1.5px solid rgba(10,15,26,0.5)", fontSize: "9px", fontWeight: 800, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", padding: "0 3px", animation: "blink 1.5s ease-in-out infinite" }}>{tab.badge}</span>
-                    : <span style={{ position: "absolute", top: -2, right: -4, width: 7, height: 7, borderRadius: "50%", background: "var(--danger)", border: "1.5px solid rgba(10,15,26,0.5)", animation: "blink 1.5s ease-in-out infinite" }} />
-                  )}
-                </div>
-                <span style={{
-                  fontSize: "10px", 
-                  fontWeight: isActive ? 700 : 400,
-                  color: isActive ? "#6ba6ff" : "rgba(255,255,255,0.35)",
-                  letterSpacing: isActive ? "0.1px" : "0.2px",
-                  lineHeight: 1,
-                  marginTop: "2px",
-                }}>{tab.label}</span>
+                <tab.Icon size={20} color={isActive ? "#6ba6ff" : "rgba(255,255,255,0.35)"} active={isActive} />
+                {tab.badge > 0 && !isActive && (tab.key === "map"
+                  ? <span style={{ position: "absolute", top: -5, right: -10, minWidth: 16, height: 16, borderRadius: "8px", background: "var(--danger)", border: "1.5px solid rgba(10,15,26,0.5)", fontSize: "9px", fontWeight: 800, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", padding: "0 3px", animation: "blink 1.5s ease-in-out infinite" }}>{tab.badge}</span>
+                  : <span style={{ position: "absolute", top: -2, right: -4, width: 7, height: 7, borderRadius: "50%", background: "var(--danger)", border: "1.5px solid rgba(10,15,26,0.5)", animation: "blink 1.5s ease-in-out infinite" }} />
+                )}
               </div>
+              {/* Label row */}
+              <span style={{
+                position: "relative", 
+                zIndex: 1,
+                fontSize: "10px", 
+                fontWeight: isActive ? 700 : 400,
+                color: isActive ? "#6ba6ff" : "rgba(255,255,255,0.35)",
+                letterSpacing: isActive ? "0.1px" : "0.2px",
+                lineHeight: 1,
+                alignSelf: "center",
+              }}>{tab.label}</span>
             </div>
           );
         })}
