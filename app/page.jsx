@@ -171,13 +171,15 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang })
                 display: "flex", 
                 flexDirection: "column", 
                 alignItems: "center", 
-                justifyContent: "center",
+                justifyContent: "flex-start",  // Align to top
                 background: "none", 
                 border: "none", 
                 position: "relative",
                 height: 44, 
                 cursor: "pointer",
                 WebkitTapHighlightColor: "transparent",
+                paddingTop: "6px",  // Push content down by 6px
+                boxSizing: "border-box",
               }}
             >
               {isActive && (
@@ -190,14 +192,12 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang })
                   boxShadow: "inset 0 1px 0 rgba(91,156,246,0.1), 0 0 12px rgba(91,156,246,0.06)",
                 }} />
               )}
-              {/* Icon with bottom margin instead of gap */}
               <div style={{ 
                 position: "relative", 
                 zIndex: 1, 
                 display: "flex", 
                 alignItems: "center", 
                 justifyContent: "center",
-                marginBottom: "2px",
               }}>
                 <tab.Icon size={20} color={isActive ? "#6ba6ff" : "rgba(255,255,255,0.35)"} active={isActive} />
                 {tab.badge > 0 && !isActive && (tab.key === "map"
@@ -213,6 +213,7 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang })
                 color: isActive ? "#6ba6ff" : "rgba(255,255,255,0.35)",
                 letterSpacing: isActive ? "0.1px" : "0.2px",
                 lineHeight: 1,
+                marginTop: "2px",
               }}>{tab.label}</span>
             </div>
           );
