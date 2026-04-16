@@ -178,8 +178,6 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang })
                 height: 44, 
                 cursor: "pointer",
                 WebkitTapHighlightColor: "transparent",
-                padding: "6px 0",  // Equal padding top and bottom
-                boxSizing: "border-box",
               }}
             >
               {isActive && (
@@ -192,29 +190,31 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang })
                   boxShadow: "inset 0 1px 0 rgba(91,156,246,0.1), 0 0 12px rgba(91,156,246,0.06)",
                 }} />
               )}
+              {/* WRAPPED container for icon+label */}
               <div style={{ 
                 position: "relative", 
                 zIndex: 1, 
                 display: "flex", 
+                flexDirection: "column",
                 alignItems: "center", 
                 justifyContent: "center",
               }}>
-                <tab.Icon size={20} color={isActive ? "#6ba6ff" : "rgba(255,255,255,0.35)"} active={isActive} />
-                {tab.badge > 0 && !isActive && (tab.key === "map"
-                  ? <span style={{ position: "absolute", top: -5, right: -10, minWidth: 16, height: 16, borderRadius: "8px", background: "var(--danger)", border: "1.5px solid rgba(10,15,26,0.5)", fontSize: "9px", fontWeight: 800, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", padding: "0 3px", animation: "blink 1.5s ease-in-out infinite" }}>{tab.badge}</span>
-                  : <span style={{ position: "absolute", top: -2, right: -4, width: 7, height: 7, borderRadius: "50%", background: "var(--danger)", border: "1.5px solid rgba(10,15,26,0.5)", animation: "blink 1.5s ease-in-out infinite" }} />
-                )}
+                <div style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <tab.Icon size={20} color={isActive ? "#6ba6ff" : "rgba(255,255,255,0.35)"} active={isActive} />
+                  {tab.badge > 0 && !isActive && (tab.key === "map"
+                    ? <span style={{ position: "absolute", top: -5, right: -10, minWidth: 16, height: 16, borderRadius: "8px", background: "var(--danger)", border: "1.5px solid rgba(10,15,26,0.5)", fontSize: "9px", fontWeight: 800, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", padding: "0 3px", animation: "blink 1.5s ease-in-out infinite" }}>{tab.badge}</span>
+                    : <span style={{ position: "absolute", top: -2, right: -4, width: 7, height: 7, borderRadius: "50%", background: "var(--danger)", border: "1.5px solid rgba(10,15,26,0.5)", animation: "blink 1.5s ease-in-out infinite" }} />
+                  )}
+                </div>
+                <span style={{
+                  fontSize: "10px", 
+                  fontWeight: isActive ? 700 : 400,
+                  color: isActive ? "#6ba6ff" : "rgba(255,255,255,0.35)",
+                  letterSpacing: isActive ? "0.1px" : "0.2px",
+                  lineHeight: 1,
+                  marginTop: "2px",
+                }}>{tab.label}</span>
               </div>
-              <span style={{
-                position: "relative", 
-                zIndex: 1,
-                fontSize: "10px", 
-                fontWeight: isActive ? 700 : 400,
-                color: isActive ? "#6ba6ff" : "rgba(255,255,255,0.35)",
-                letterSpacing: isActive ? "0.1px" : "0.2px",
-                lineHeight: 1,
-                marginTop: "2px",
-              }}>{tab.label}</span>
             </div>
           );
         })}
