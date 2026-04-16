@@ -180,6 +180,7 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang })
                 height: 44, 
                 cursor: "pointer",
                 WebkitTapHighlightColor: "transparent",
+                marginTop: "-4px",  // PULL UP by 4px
               }}
             >
               {isActive && (
