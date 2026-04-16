@@ -142,12 +142,13 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang })
       <div className="bottom-nav" role="navigation" aria-label={lang === "es" ? "Navegación principal" : "Main navigation"} style={{
         display: "flex", 
         alignItems: "center",
+        justifyContent: "center",
         background: "linear-gradient(180deg, rgba(14,18,30,0.18) 0%, rgba(8,12,22,0.22) 100%)",
         backdropFilter: "blur(16px) saturate(1.8)", WebkitBackdropFilter: "blur(16px) saturate(1.8)",
         borderRadius: "99px",
         border: "1px solid rgba(255,255,255,0.13)",
         boxShadow: "0 2px 8px rgba(0,0,0,0.15), 0 12px 40px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.12), inset 0 -0.5px 0 rgba(0,0,0,0.1)",
-        padding: "2px 6px",
+        padding: "6px",
         pointerEvents: "auto",
         position: "relative",
         maxWidth: 320,
@@ -172,12 +173,10 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang })
                 flexDirection: "column", 
                 alignItems: "center", 
                 justifyContent: "center",
-                gap: "2px", 
                 background: "none", 
                 border: "none", 
-                padding: "4px 0", 
                 position: "relative",
-                height: 46, 
+                height: 40, 
                 cursor: "pointer",
                 WebkitTapHighlightColor: "transparent",
               }}
@@ -185,7 +184,7 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang })
               {isActive && (
                 <div style={{
                   position: "absolute", 
-                  inset: "2px 4px", 
+                  inset: 0, 
                   borderRadius: "99px",
                   background: "linear-gradient(180deg, rgba(91,156,246,0.14) 0%, rgba(91,156,246,0.08) 100%)",
                   border: "1px solid rgba(91,156,246,0.18)",
@@ -198,12 +197,12 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang })
                 display: "flex", 
                 alignItems: "center", 
                 justifyContent: "center",
-                transform: "translateY(2px)",  // Push icon down 2px
+                height: 22,
               }}>
                 <tab.Icon size={20} color={isActive ? "#6ba6ff" : "rgba(255,255,255,0.35)"} active={isActive} />
                 {tab.badge > 0 && !isActive && (tab.key === "map"
-                  ? <span style={{ position: "absolute", top: -5, right: -10, minWidth: 16, height: 16, borderRadius: "8px", background: "var(--danger)", border: "1.5px solid rgba(10,15,26,0.5)", fontSize: "9px", fontWeight: 800, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", padding: "0 3px", animation: "blink 1.5s ease-in-out infinite" }}>{tab.badge}</span>
-                  : <span style={{ position: "absolute", top: -2, right: -4, width: 7, height: 7, borderRadius: "50%", background: "var(--danger)", border: "1.5px solid rgba(10,15,26,0.5)", animation: "blink 1.5s ease-in-out infinite" }} />
+                  ? <span style={{ position: "absolute", top: -3, right: -10, minWidth: 16, height: 16, borderRadius: "8px", background: "var(--danger)", border: "1.5px solid rgba(10,15,26,0.5)", fontSize: "9px", fontWeight: 800, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", padding: "0 3px", animation: "blink 1.5s ease-in-out infinite" }}>{tab.badge}</span>
+                  : <span style={{ position: "absolute", top: 0, right: -4, width: 7, height: 7, borderRadius: "50%", background: "var(--danger)", border: "1.5px solid rgba(10,15,26,0.5)", animation: "blink 1.5s ease-in-out infinite" }} />
                 )}
               </div>
               <span style={{
@@ -213,8 +212,8 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang })
                 fontWeight: isActive ? 700 : 400,
                 color: isActive ? "#6ba6ff" : "rgba(255,255,255,0.35)",
                 letterSpacing: isActive ? "0.1px" : "0.2px",
-                lineHeight: 1,
-                transform: "translateY(1px)",  // Push label down 1px
+                lineHeight: 1.2,
+                marginTop: "2px",
               }}>{tab.label}</span>
             </div>
           );
