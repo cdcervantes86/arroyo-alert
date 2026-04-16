@@ -147,7 +147,7 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang })
         borderRadius: "99px",
         border: "1px solid rgba(255,255,255,0.13)",
         boxShadow: "0 2px 8px rgba(0,0,0,0.15), 0 12px 40px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.12), inset 0 -0.5px 0 rgba(0,0,0,0.1)",
-        padding: "4px 6px",
+        padding: "2px 6px",
         pointerEvents: "auto",
         position: "relative",
         maxWidth: 320,
@@ -177,7 +177,7 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang })
                 border: "none", 
                 padding: "4px 0", 
                 position: "relative",
-                height: 44, 
+                height: 46, 
                 cursor: "pointer",
                 WebkitTapHighlightColor: "transparent",
               }}
@@ -192,7 +192,14 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang })
                   boxShadow: "inset 0 1px 0 rgba(91,156,246,0.1), 0 0 12px rgba(91,156,246,0.06)",
                 }} />
               )}
-              <div style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <div style={{ 
+                position: "relative", 
+                zIndex: 1, 
+                display: "flex", 
+                alignItems: "center", 
+                justifyContent: "center",
+                transform: "translateY(2px)",  // Push icon down 2px
+              }}>
                 <tab.Icon size={20} color={isActive ? "#6ba6ff" : "rgba(255,255,255,0.35)"} active={isActive} />
                 {tab.badge > 0 && !isActive && (tab.key === "map"
                   ? <span style={{ position: "absolute", top: -5, right: -10, minWidth: 16, height: 16, borderRadius: "8px", background: "var(--danger)", border: "1.5px solid rgba(10,15,26,0.5)", fontSize: "9px", fontWeight: 800, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", padding: "0 3px", animation: "blink 1.5s ease-in-out infinite" }}>{tab.badge}</span>
@@ -200,11 +207,14 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang })
                 )}
               </div>
               <span style={{
-                position: "relative", zIndex: 1,
-                fontSize: "10px", fontWeight: isActive ? 700 : 400,
+                position: "relative", 
+                zIndex: 1,
+                fontSize: "10px", 
+                fontWeight: isActive ? 700 : 400,
                 color: isActive ? "#6ba6ff" : "rgba(255,255,255,0.35)",
                 letterSpacing: isActive ? "0.1px" : "0.2px",
                 lineHeight: 1,
+                transform: "translateY(1px)",  // Push label down 1px
               }}>{tab.label}</span>
             </div>
           );
