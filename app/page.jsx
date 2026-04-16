@@ -27,7 +27,7 @@ import WeeklyDigest from "@/components/WeeklyDigest";
 import { useFavorites } from "@/lib/useFavorites";
 import { useUpdateChecker } from "@/lib/useUpdateChecker";
 import { APP_VERSION } from "@/lib/version";
-import { useAuth, AuthProvider } from "@/lib/useAuth";
+import { usePerformanceMode } from "@/lib/usePerformanceMode";
 
 const MapView = lazy(() => import("@/components/MapView"));
 
@@ -141,9 +141,8 @@ function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang })
 
       {/* Navigation pill — 3 items */}
       <div className="bottom-nav" role="navigation" aria-label={lang === "es" ? "Navegación principal" : "Main navigation"} style={{
-        display: "flex", alignItems: "stretch",
-        background: "linear-gradient(180deg, rgba(14,18,30,0.18) 0%, rgba(8,12,22,0.22) 100%)",
-        backdropFilter: "blur(16px) saturate(1.8)", WebkitBackdropFilter: "blur(16px) saturate(1.8)",
+        display: "flex", alignItems: "center",
+        ...styles.nav,
         borderRadius: "99px",
         border: "1px solid rgba(255,255,255,0.13)",
         boxShadow: "0 2px 8px rgba(0,0,0,0.15), 0 12px 40px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.12), inset 0 -0.5px 0 rgba(0,0,0,0.1)",
@@ -943,7 +942,7 @@ function ZoneSheet({ zone, severity, reports, onClose, onReport, onUpvote, push,
 
 function AppContent() {
   const { lang, toggleLang, t } = useLanguage();
-  const { user, userId } = useAuth();
+  const { styles, isLowEnd, webGLSupported, isReady } = usePerformanceMode();
   const [toasts, setToasts] = useState([]);
   const addToast = useCallback((msg, color) => {
     const id = Date.now();
@@ -1810,12 +1809,4 @@ function AppContent() {
   );
 }
 
-export default function Home() { 
-  return (
-    <LanguageProvider>
-      <AuthProvider>
-        <AppContent />
-      </AuthProvider>
-    </LanguageProvider>
-  ); 
-}
+export default function Home() { return <LanguageProvider><AppContent /></LanguageProvider>; }
