@@ -898,6 +898,8 @@ function AppContent() {
   const [desktopView, setDesktopView] = useState("map");
   const [showPanel, setShowPanel] = useState(true);
   const [isDesktop, setIsDesktop] = useState(false);
+  const [mapDeferred, setMapDeferred] = useState(true);
+
   const [upvotedSet, setUpvotedSet] = useState(new Set());
   const [activeFilter, setActiveFilter] = useState(null);
   const [zoneSearch, setZoneSearch] = useState("");
@@ -983,6 +985,12 @@ function AppContent() {
   const pwaUpdate = useUpdateChecker();
 
   useEffect(() => { const c = () => setIsDesktop(window.innerWidth >= 900); c(); window.addEventListener("resize", c); return () => window.removeEventListener("resize", c); }, []);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const idle = window.requestIdleCallback || ((cb) => setTimeout(cb, 800));
+    const handle = idle(() => setMapDeferred(false), { timeout: 1500 });
+    return () => { if (window.cancelIdleCallback) window.cancelIdleCallback(handle); };
+  }, []);
   useEffect(() => { try { if (!localStorage.getItem("arroyo-onboarded")) setShowOnboarding(true); } catch(e) {} }, []);
 
   // Deep link: ?zone=ID opens that zone's detail
@@ -1297,11 +1305,17 @@ function AppContent() {
           {/* Map — always visible on desktop, conditional on mobile */}
           {(isDesktop || currentMainView === "map") && (
             <>
-            <MapErrorBoundary>
-            <Suspense fallback={<div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", color: "var(--text-dim)", fontSize: "14px" }}>{t.loadingMap}</div>}>
-              <MapView reports={reports} onZoneClick={handleZoneClick} panelOpen={panelVisible} activeFilter={activeFilter} predictions={predictions} onMapReady={handleMapReady} />
-            </Suspense>
-            </MapErrorBoundary>
+            {mapDeferred ? (
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", width: "100%", background: "#070b14", color: "var(--text-dim)", fontSize: "13px" }}>
+                {t.loadingMap}
+              </div>
+            ) : (
+              <MapErrorBoundary>
+                <Suspense fallback={<div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", color: "var(--text-dim)", fontSize: "14px" }}>{t.loadingMap}</div>}>
+                  <MapView reports={reports} onZoneClick={handleZoneClick} panelOpen={panelVisible} activeFilter={activeFilter} predictions={predictions} onMapReady={handleMapReady} />
+                </Suspense>
+              </MapErrorBoundary>
+            )}
             {isRaining && <div className="rain-overlay" />}
             {/* Floating map controls */}
             <div style={{ position: "absolute", top: 12, right: panelVisible ? 396 : 12, zIndex: 800, display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "8px", transition: "right 0.3s cubic-bezier(0.4, 0, 0.2, 1)" }}>
