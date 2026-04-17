@@ -902,6 +902,26 @@ function AppContent() {
   const [activeFilter, setActiveFilter] = useState(null);
   const [zoneSearch, setZoneSearch] = useState("");
   const [mapSearchOpen, setMapSearchOpen] = useState(false);
+  const [mapSearchClosing, setMapSearchClosing] = useState(false);
+  const mapSearchClosingTimer = useRef(null);
+  const closeSearch = useCallback(() => {
+    if (mapSearchClosingTimer.current) clearTimeout(mapSearchClosingTimer.current);
+    setMapSearchClosing(true);
+    mapSearchClosingTimer.current = setTimeout(() => {
+      setMapSearchOpen(false);
+      setMapSearchQuery("");
+      setMapSearchClosing(false);
+      mapSearchClosingTimer.current = null;
+    }, 180);
+  }, []);
+  const openSearch = useCallback(() => {
+    if (mapSearchClosingTimer.current) {
+      clearTimeout(mapSearchClosingTimer.current);
+      mapSearchClosingTimer.current = null;
+      setMapSearchClosing(false);
+    }
+    setMapSearchOpen(true);
+  }, []);
   const [mapSearchQuery, setMapSearchQuery] = useState("");
   const mapSearchRef = useRef(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -1312,8 +1332,8 @@ function AppContent() {
                   ref={mapSearchRef}
                   type="text"
                   value={mapSearchQuery}
-                  onChange={(e) => { setMapSearchQuery(e.target.value); setMapSearchOpen(true); }}
-                  onFocus={() => setMapSearchOpen(true)}
+                  onChange={(e) => { setMapSearchQuery(e.target.value); openSearch(); }}
+                  onFocus={openSearch}
                   placeholder={es ? "Buscar zona..." : "Search zones..."}
                   style={{
                     width: "100%", padding: "11px 14px 11px 40px",
@@ -1322,11 +1342,11 @@ function AppContent() {
                     borderRadius: mapSearchOpen ? "16px 16px 0 0" : "99px",
                     color: "var(--text)", fontSize: "13px", outline: "none", fontFamily: "inherit",
                     boxShadow: "0 4px 16px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.06)",
-                    transition: "border-radius 0.15s ease, border-color 0.15s ease",
+                    transition: "border-radius 0.22s cubic-bezier(0.32, 0.72, 0, 1), border-color 0.22s ease",
                   }}
                 />
                 {mapSearchQuery && (
-                  <button onClick={() => { setMapSearchQuery(""); setMapSearchOpen(false); }} style={{
+                  <button onClick={closeSearch} style={{
                     position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)",
                     width: 22, height: 22, borderRadius: "50%", background: "rgba(255,255,255,0.08)",
                     border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", zIndex: 2,
@@ -1356,7 +1376,7 @@ function AppContent() {
                     border: "1px solid rgba(91,156,246,0.2)", borderTop: "none",
                     borderRadius: "0 0 16px 16px",
                     boxShadow: "0 12px 40px rgba(0,0,0,0.5)",
-                    maxHeight: 320, overflowY: "auto", overflowX: "hidden",
+                    maxHeight: 320, overflowY: "auto", overflowX: "hidden", transformOrigin: "top center", animation: mapSearchClosing ? "searchDropdownOut 0.18s cubic-bezier(0.32, 0.72, 0, 1) forwards" : "searchDropdownIn 0.22s cubic-bezier(0.32, 0.72, 0, 1) forwards",
                   }}>
                     {results.length === 0 ? (
                       <div style={{ padding: "16px", textAlign: "center", fontSize: "12px", color: "var(--text-faint)" }}>
@@ -1368,8 +1388,7 @@ function AppContent() {
                       const isFav = favs.isFavorite(z.id);
                       return (
                         <button key={z.id} onClick={() => {
-                          setMapSearchOpen(false);
-                          setMapSearchQuery("");
+                          closeSearch();
                           mapSearchRef.current?.blur();
                           handleZoneClick(z.id);
                           // Fly map to zone
@@ -1403,7 +1422,7 @@ function AppContent() {
               })()}
 
               {/* Click outside to close */}
-              {mapSearchOpen && <div onClick={() => { setMapSearchOpen(false); setMapSearchQuery(""); }} style={{ position: "fixed", inset: 0, zIndex: -1 }} />}
+              {mapSearchOpen && <div onClick={closeSearch} style={{ position: "fixed", inset: 0, zIndex: -1 }} />}
             </div>
           )}
 
