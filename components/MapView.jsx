@@ -605,6 +605,7 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
           color: rgba(255,255,255,0.4) !important;
         }
         .mapboxgl-ctrl-bottom-right {
+          bottom: 180px !important;
           right: ${panelOpen ? 392 : 12}px !important;
           transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
         }

@@ -23,6 +23,7 @@ import { useRainRadar, RainRadarButton } from "@/components/RainRadar";
 import PullToRefresh from "@/components/PullToRefresh";
 import CommentThread from "@/components/CommentThread";
 import ReporterProfile from "@/components/ReporterProfile";
+import BottomNav from "@/components/BottomNav";
 import WeeklyDigest from "@/components/WeeklyDigest";
 import { useFavorites } from "@/lib/useFavorites";
 import { useUpdateChecker } from "@/lib/useUpdateChecker";
@@ -108,87 +109,6 @@ function EmergencyBanner({ emergency, lang }) {
       <div style={{ flex: 1 }}>
         <div style={{ fontSize: "14px", fontWeight: 700, color: "#fca5a5" }}>{es ? "ALERTA MÁXIMA" : "MAXIMUM ALERT"}</div>
         <div style={{ fontSize: "12px", color: "rgba(252,165,165,0.7)", marginTop: 1 }}>{es ? `${emergency.dangerCount} reportes de peligro en los últimos 30 min` : `${emergency.dangerCount} danger reports in the last 30 min`}</div>
-      </div>
-    </div>
-  );
-}
-
-function BottomNav({ activeTab, onTab, onReport, liveCount, dangerCount, lang, isLowEnd }) {
-  const tabs = [
-    { key: "map", Icon: MapIcon, label: lang === "es" ? "Mapa" : "Map", badge: dangerCount },
-    { key: "live", Icon: LiveIcon, label: lang === "es" ? "En vivo" : "Live", badge: liveCount },
-    { key: "more", Icon: MoreIcon, label: lang === "es" ? "Más" : "More" },
-  ];
-  return (
-    <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, padding: "0 16px", paddingBottom: "calc(12px + env(safe-area-inset-bottom, 0px))", zIndex: 100, pointerEvents: "none" }}>
-      {/* Floating Report FAB — centered above the nav */}
-      <div style={{ display: "flex", justifyContent: "center", marginBottom: "10px", pointerEvents: "none" }}>
-        <button onClick={onReport} aria-label={lang === "es" ? "Reportar" : "Report"} className="nav-report-btn tap-target" style={{
-          display: "flex", alignItems: "center", gap: "8px",
-          padding: "12px 24px", borderRadius: "99px",
-          background: "linear-gradient(145deg, #e53e3e, #b91c1c)",
-          border: "none", color: "#fff",
-          fontSize: "13px", fontWeight: 700, letterSpacing: "0.2px",
-          boxShadow: "0 4px 16px rgba(212,42,42,0.35), 0 8px 32px rgba(212,42,42,0.2), inset 0 1px 0 rgba(255,255,255,0.2)",
-          pointerEvents: "auto",
-          position: "relative",
-        }}>
-          <div style={{ position: "absolute", inset: -3, borderRadius: "99px", background: "radial-gradient(ellipse, rgba(212,42,42,0.15) 0%, transparent 70%)", animation: "reportGlow 3s ease-in-out infinite", pointerEvents: "none" }} />
-          <AlertTriangleIcon size={15} color="#fff" />
-          <span style={{ position: "relative" }}>{lang === "es" ? "Reportar" : "Report"}</span>
-        </button>
-      </div>
-
-      {/* Navigation pill — 3 items */}
-      <div className="bottom-nav" role="navigation" aria-label={lang === "es" ? "Navegación principal" : "Main navigation"} style={{
-        display: "flex", alignItems: "center",
-        background: isLowEnd ? "rgba(14,20,36,0.95)" : "linear-gradient(180deg, rgba(14,18,30,0.18) 0%, rgba(8,12,22,0.22) 100%)",
-        backdropFilter: isLowEnd ? "none" : "blur(16px) saturate(1.8)",
-        WebkitBackdropFilter: isLowEnd ? "none" : "blur(16px) saturate(1.8)",
-        borderRadius: "99px",
-        border: "1px solid rgba(255,255,255,0.13)",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.15), 0 12px 40px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.12), inset 0 -0.5px 0 rgba(0,0,0,0.1)",
-        padding: 0,
-        pointerEvents: "auto",
-        position: "relative",
-        maxWidth: 320,
-        margin: "0 auto",
-        height: 52,
-        overflow: "hidden",
-      }}>
-        {tabs.map((tab) => {
-          const isActive = activeTab === tab.key;
-          return (
-            <button key={tab.key} onClick={() => onTab(tab.key)} aria-label={tab.label} aria-current={isActive ? "page" : undefined} style={{
-              flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-              gap: "3px", background: "none", border: "none", padding: "8px 0", position: "relative",
-              minHeight: 46, cursor: "pointer",
-              WebkitTapHighlightColor: "transparent",
-            }}>
-              {isActive && (
-                <div style={{
-                  position: "absolute", inset: "3px 6px 2px", borderRadius: "99px",
-                  background: "linear-gradient(180deg, rgba(91,156,246,0.14) 0%, rgba(91,156,246,0.08) 100%)",
-                  border: "1px solid rgba(91,156,246,0.18)",
-                  boxShadow: "inset 0 1px 0 rgba(91,156,246,0.1), 0 0 12px rgba(91,156,246,0.06)",
-                }} />
-              )}
-              <div style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <tab.Icon size={20} color={isActive ? "#6ba6ff" : "rgba(255,255,255,0.35)"} active={isActive} />
-                {tab.badge > 0 && !isActive && (tab.key === "map"
-                  ? <span style={{ position: "absolute", top: -5, right: -10, minWidth: 16, height: 16, borderRadius: "8px", background: "var(--danger)", border: "1.5px solid rgba(10,15,26,0.5)", fontSize: "9px", fontWeight: 800, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", padding: "0 3px", animation: "blink 1.5s ease-in-out infinite" }}>{tab.badge}</span>
-                  : <span style={{ position: "absolute", top: -2, right: -4, width: 7, height: 7, borderRadius: "50%", background: "var(--danger)", border: "1.5px solid rgba(10,15,26,0.5)", animation: "blink 1.5s ease-in-out infinite" }} />
-                )}
-              </div>
-              <span style={{
-                position: "relative", zIndex: 1,
-                fontSize: "10px", fontWeight: isActive ? 700 : 400,
-                color: isActive ? "#6ba6ff" : "rgba(255,255,255,0.35)",
-                letterSpacing: isActive ? "0.1px" : "0.2px",
-              }}>{tab.label}</span>
-            </button>
-          );
-        })}
       </div>
     </div>
   );
@@ -1302,7 +1222,6 @@ function AppContent() {
             </div>
           </div>
           <span style={{ fontSize: "12px", fontWeight: 700, color: weather.isRaining ? "#fca5a5" : "#fde047", fontVariantNumeric: "tabular-nums" }}>{weather.maxProb}%</span>
-          {weather.isRaining && <button onClick={() => setScreen("report")} style={{ padding: "5px 12px", borderRadius: "var(--radius-sm)", background: "rgba(239,68,68,0.15)", border: "1px solid rgba(239,68,68,0.25)", color: "#fca5a5", fontSize: "11px", fontWeight: 700, whiteSpace: "nowrap", flexShrink: 0 }}>{es ? "Reportar" : "Report"}</button>}
         </div>
       )}
       {/* PWA update available */}
@@ -1386,7 +1305,7 @@ function AppContent() {
 
           {/* Floating zone search — overlays the map */}
           {(isDesktop || currentMainView === "map") && (
-            <div style={{ position: "absolute", top: 12, left: 12, zIndex: 800, width: isDesktop ? 340 : "calc(100% - 24px)" }}>
+            <div style={{ position: "absolute", top: 12, left: 12, zIndex: 800, width: isDesktop ? 340 : "calc(100% - 72px)" }}>
               <div style={{ position: "relative" }}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-faint)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", pointerEvents: "none", zIndex: 2 }}><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                 <input
