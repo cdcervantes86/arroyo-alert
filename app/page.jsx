@@ -19,7 +19,7 @@ import HeatmapView from "@/components/HeatmapView";
 import UpdateBanner from "@/components/UpdateBanner";
 import { SeverityIcon } from "@/components/SeverityIcon";
 import { MapIcon, ListIcon, LiveIcon, MoreIcon, ProfileIcon, ChartIcon, FlameIcon, InfoIcon, StarIcon, AlertTriangleIcon, BellIcon } from "@/components/Icons";
-import { useRainRadar, RainRadarButton } from "@/components/RainRadar";
+import { useRainRadar, RainRadarButton, RainRadarLegend } from "@/components/RainRadar";
 import PullToRefresh from "@/components/PullToRefresh";
 import CommentThread from "@/components/CommentThread";
 import ReporterProfile from "@/components/ReporterProfile";
@@ -1438,6 +1438,7 @@ function AppContent() {
       )}
 
       {/* BOTTOM NAV — mobile only, fixed floating pill */}
+      <RainRadarLegend enabled={radar.enabled} isDesktop={isDesktop} />
       {!isDesktop && <BottomNav activeTab={mobileView} onTab={handleMobileTab} onReport={() => setScreen("report")} liveCount={liveCount} dangerCount={dangerCount} lang={lang} />}
       {showMoreMenu && <MoreMenu lang={lang} onSelect={(key) => { if (key === "digest") setShowDigest(true); else setScreen(key); }} onClose={() => setShowMoreMenu(false)} />}
 

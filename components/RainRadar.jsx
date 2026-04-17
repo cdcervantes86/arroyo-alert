@@ -60,78 +60,139 @@ export function useRainRadar(mapInstance) {
   return { enabled, toggle };
 }
 
+// The toggle button in the top-right map controls cluster.
+// Kept visually identical to the previous version, minus the nested legend.
 export function RainRadarButton({ enabled, onToggle }) {
-  const { lang } = useLanguage();
-  const es = lang === "es";
-  const [showLegend, setShowLegend] = useState(false);
-  const [legendClosing, setLegendClosing] = useState(false);
-
-  useEffect(() => {
-    if (enabled) {
-      const t = setTimeout(() => setShowLegend(true), 80);
-      return () => clearTimeout(t);
-    } else {
-      if (showLegend) {
-        setLegendClosing(true);
-        const t = setTimeout(() => { setShowLegend(false); setLegendClosing(false); }, 200);
-        return () => clearTimeout(t);
-      }
-    }
-  }, [enabled]);
-
   return (
-    <div style={{ position: "relative" }}>
-      <button onClick={onToggle} style={{
-        width: 40, height: 40, borderRadius: "50%",
+    <button
+      onClick={onToggle}
+      aria-label="Rain radar"
+      style={{
+        width: 40,
+        height: 40,
+        borderRadius: "50%",
         background: enabled ? "rgba(96,165,250,0.12)" : "rgba(10,15,26,0.2)",
         border: `1px solid ${enabled ? "rgba(96,165,250,0.25)" : "rgba(255,255,255,0.13)"}`,
-        display: "flex", alignItems: "center", justifyContent: "center",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
         cursor: "pointer",
         boxShadow: "0 2px 8px rgba(0,0,0,0.2), 0 8px 24px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.1)",
         transition: "all 0.2s ease",
-        backdropFilter: "blur(16px) saturate(1.6)", WebkitBackdropFilter: "blur(16px) saturate(1.6)",
-      }}>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-          stroke={enabled ? "#60a5fa" : "rgba(255,255,255,0.45)"}
-          strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M20 17.58A5 5 0 0018 8h-1.26A8 8 0 104 16.25" />
-          <line x1="8" y1="16" x2="8" y2="20" />
-          <line x1="12" y1="18" x2="12" y2="22" />
-          <line x1="16" y1="16" x2="16" y2="20" />
-        </svg>
-      </button>
-      {showLegend && (
-        <div style={{
-          position: "absolute", top: "calc(100% + 8px)", right: 0,
-          background: "rgba(10,15,26,0.25)", backdropFilter: "blur(16px) saturate(1.6)", WebkitBackdropFilter: "blur(16px) saturate(1.6)",
-          padding: "8px 10px", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.13)",
-          boxShadow: "0 4px 16px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1)",
-          transformOrigin: "top right",
-          animation: legendClosing ? "radarLegendOut 0.2s ease forwards" : "radarLegendIn 0.25s cubic-bezier(0.32, 0.72, 0, 1) forwards",
-          whiteSpace: "nowrap",
-        }}>
-          <div style={{ fontSize: "9px", color: "var(--accent)", fontWeight: 700, letterSpacing: "0.5px", marginBottom: "6px", textTransform: "uppercase" }}>
-            {es ? "Precipitación" : "Precipitation"}
-          </div>
-          <div style={{ display: "flex", alignItems: "center" }}>
-            <div style={{ width: 80, height: 8, borderRadius: 4, background: "linear-gradient(90deg, #1a3352, #1e4d8a, #2563eb, #3b82f6, #60a5fa)", border: "1px solid rgba(255,255,255,0.06)" }} />
-          </div>
-          <div style={{ display: "flex", justifyContent: "space-between", marginTop: "3px" }}>
-            <span style={{ fontSize: "8px", color: "var(--text-faint)" }}>{es ? "Leve" : "Light"}</span>
-            <span style={{ fontSize: "8px", color: "var(--text-faint)" }}>{es ? "Fuerte" : "Heavy"}</span>
+        backdropFilter: "blur(16px) saturate(1.6)",
+        WebkitBackdropFilter: "blur(16px) saturate(1.6)",
+      }}
+    >
+      <svg
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={enabled ? "#60a5fa" : "rgba(255,255,255,0.45)"}
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M20 17.58A5 5 0 0018 8h-1.26A8 8 0 104 16.25" />
+        <line x1="8" y1="16" x2="8" y2="20" />
+        <line x1="12" y1="18" x2="12" y2="22" />
+        <line x1="16" y1="16" x2="16" y2="20" />
+      </svg>
+    </button>
+  );
+}
+
+// Bottom-bar legend that sits above the Reportar button.
+// Mobile-only — desktop has enough real estate that the color gradient is
+// self-explanatory; we skip rendering there for now.
+export function RainRadarLegend({ enabled, isDesktop }) {
+  const { lang } = useLanguage();
+  const es = lang === "es";
+  const [visible, setVisible] = useState(false);
+  const [closing, setClosing] = useState(false);
+
+  useEffect(() => {
+    if (enabled) {
+      const t = setTimeout(() => setVisible(true), 80);
+      return () => clearTimeout(t);
+    }
+    if (visible) {
+      setClosing(true);
+      const t = setTimeout(() => {
+        setVisible(false);
+        setClosing(false);
+      }, 200);
+      return () => clearTimeout(t);
+    }
+  }, [enabled]);
+
+  if (isDesktop || !visible) return null;
+
+  return (
+    <>
+      <div
+        role="img"
+        aria-label={es ? "Leyenda de precipitación: leve a fuerte" : "Precipitation legend: light to heavy"}
+        style={{
+          position: "fixed",
+          left: "50%",
+          transform: "translateX(-50%)",
+          bottom: "calc(155px + env(safe-area-inset-bottom, 0px))",
+          zIndex: 99,
+          background: "rgba(10,14,26,0.72)",
+          backdropFilter: "blur(20px) saturate(1.6)",
+          WebkitBackdropFilter: "blur(20px) saturate(1.6)",
+          border: "0.5px solid rgba(255,255,255,0.1)",
+          borderRadius: "14px",
+          padding: "8px 14px",
+          display: "flex",
+          alignItems: "center",
+          gap: "12px",
+          boxShadow: "0 4px 16px rgba(0,0,0,0.25)",
+          transformOrigin: "bottom center",
+          animation: closing
+            ? "rainLegendOut 0.2s ease forwards"
+            : "rainLegendIn 0.25s cubic-bezier(0.32, 0.72, 0, 1) forwards",
+          pointerEvents: "none",
+        }}
+      >
+        <span
+          style={{
+            fontSize: "10px",
+            color: "#60a5fa",
+            fontWeight: 600,
+            letterSpacing: "0.06em",
+            textTransform: "uppercase",
+          }}
+        >
+          {es ? "Lluvia" : "Rain"}
+        </span>
+        <div style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
+          <div
+            style={{
+              width: 120,
+              height: 6,
+              borderRadius: 3,
+              background: "linear-gradient(90deg, #1a3352, #1e4d8a, #2563eb, #3b82f6, #60a5fa)",
+              border: "0.5px solid rgba(255,255,255,0.08)",
+            }}
+          />
+          <div style={{ display: "flex", justifyContent: "space-between", fontSize: "9px", color: "rgba(255,255,255,0.55)", fontWeight: 500 }}>
+            <span>{es ? "Leve" : "Light"}</span>
+            <span>{es ? "Fuerte" : "Heavy"}</span>
           </div>
         </div>
-      )}
+      </div>
       <style>{`
-        @keyframes radarLegendIn {
-          from { opacity: 0; transform: scale(0.9) translateY(-4px); }
-          to { opacity: 1; transform: scale(1) translateY(0); }
+        @keyframes rainLegendIn {
+          from { opacity: 0; transform: translateX(-50%) translateY(8px); }
+          to { opacity: 1; transform: translateX(-50%) translateY(0); }
         }
-        @keyframes radarLegendOut {
-          from { opacity: 1; transform: scale(1) translateY(0); }
-          to { opacity: 0; transform: scale(0.9) translateY(-4px); }
+        @keyframes rainLegendOut {
+          from { opacity: 1; transform: translateX(-50%) translateY(0); }
+          to { opacity: 0; transform: translateX(-50%) translateY(8px); }
         }
       `}</style>
-    </div>
+    </>
   );
 }
