@@ -75,7 +75,6 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
       mapboxgl.accessToken = MAPBOX_TOKEN;
       let flowInterval = null;
 
-      try { performance.mark("map:beforeConstruct"); } catch(e){}
       const map = new mapboxgl.Map({
         container: mapContainerRef.current,
         style: DARK_STYLE,
@@ -91,7 +90,6 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
         trackResize: true,
         failIfMajorPerformanceCaveat: false,
       });
-      try { performance.mark("map:afterConstruct"); } catch(e){}
 
       map.on("error", (e) => {
         console.error("Mapbox error:", e);
@@ -105,12 +103,10 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
     map.addControl(new mapboxgl.AttributionControl({ compact: true }), "bottom-left");
 
     map.on("load", () => {
-      try { performance.mark("map:loadFired"); } catch(e){}
       // Reset any stale padding from previous sessions
       map.setPadding({ top: 0, bottom: 0, left: 0, right: 0 });
 
       // === CUSTOM MAP STYLE — match app's dark theme ===
-      try { performance.mark("map:styleCustomStart"); } catch(e){}
       try {
       // Water — deep navy matching our bg
       map.setPaintProperty("water", "fill-color", "#080e1c");
@@ -165,7 +161,7 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
           if (l.type === "fill") map.setPaintProperty(l.id, "fill-color", "rgba(34,197,94,0.03)");
         } catch(e) {}
       });
-      try { performance.mark("map:styleCustomEnd"); } catch(e){}
+
 
       // Main source — full detail for core lines
       const corridorData = {
