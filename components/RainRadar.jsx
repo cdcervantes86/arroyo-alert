@@ -102,11 +102,11 @@ export function RainRadarButton({ enabled, onToggle }) {
       </button>
       {showLegend && (
         <div style={{
-          position: "absolute", top: 0, right: "calc(100% + 8px)",
+          position: "absolute", top: "calc(100% + 8px)", right: 0,
           background: "rgba(10,15,26,0.25)", backdropFilter: "blur(16px) saturate(1.6)", WebkitBackdropFilter: "blur(16px) saturate(1.6)",
           padding: "8px 10px", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.13)",
           boxShadow: "0 4px 16px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1)",
-          transformOrigin: "right center",
+          transformOrigin: "top right",
           animation: legendClosing ? "radarLegendOut 0.2s ease forwards" : "radarLegendIn 0.25s cubic-bezier(0.32, 0.72, 0, 1) forwards",
           whiteSpace: "nowrap",
         }}>
@@ -124,12 +124,12 @@ export function RainRadarButton({ enabled, onToggle }) {
       )}
       <style>{`
         @keyframes radarLegendIn {
-          from { opacity: 0; transform: scale(0.9) translateX(4px); }
-          to { opacity: 1; transform: scale(1) translateX(0); }
+          from { opacity: 0; transform: scale(0.9) translateY(-4px); }
+          to { opacity: 1; transform: scale(1) translateY(0); }
         }
         @keyframes radarLegendOut {
-          from { opacity: 1; transform: scale(1) translateX(0); }
-          to { opacity: 0; transform: scale(0.9) translateX(4px); }
+          from { opacity: 1; transform: scale(1) translateY(0); }
+          to { opacity: 0; transform: scale(0.9) translateY(-4px); }
         }
       `}</style>
     </div>
