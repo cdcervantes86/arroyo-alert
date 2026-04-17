@@ -991,6 +991,11 @@ function AppContent() {
     const handle = idle(() => setMapDeferred(false), { timeout: 1500 });
     return () => { if (window.cancelIdleCallback) window.cancelIdleCallback(handle); };
   }, []);
+  const [statusTick, setStatusTick] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setStatusTick((t) => t + 1), 60000);
+    return () => clearInterval(id);
+  }, []);
   useEffect(() => { try { if (!localStorage.getItem("arroyo-onboarded")) setShowOnboarding(true); } catch(e) {} }, []);
 
   // Deep link: ?zone=ID opens that zone's detail
@@ -1278,26 +1283,70 @@ function AppContent() {
       )}
       <UpdateBanner />
 
-      {/* STATUS BAR */}
-      <div style={{ padding: "8px 16px", display: "flex", gap: "8px", alignItems: "center", flexShrink: 0, borderBottom: "1px solid rgba(255,255,255,0.04)", background: "rgba(10,15,26,0.5)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)" }}>
-        {dangerCount > 0 && <button onClick={() => handleFilterClick("danger")} className="tap-target" style={{ display: "flex", alignItems: "center", gap: "7px", background: activeFilter === "danger" ? "rgba(239,68,68,0.18)" : "rgba(239,68,68,0.06)", padding: "6px 14px", borderRadius: "99px", border: `1px solid ${activeFilter === "danger" ? "rgba(239,68,68,0.35)" : "rgba(239,68,68,0.15)"}`, cursor: "pointer", transition: "all 0.2s ease", boxShadow: activeFilter === "danger" ? "0 0 12px rgba(239,68,68,0.15), inset 0 1px 0 rgba(255,255,255,0.05)" : "inset 0 1px 0 rgba(255,255,255,0.03)" }}><span style={{ width: 6, height: 6, background: "var(--danger)", borderRadius: "50%", animation: "blink 1.5s ease-in-out infinite", flexShrink: 0 }} /><span style={{ fontSize: "12px", color: "#fca5a5", fontWeight: 600, fontVariantNumeric: "tabular-nums" }}>{dangerCount} {t.danger}</span></button>}
-        {cautionCount > 0 && <button onClick={() => handleFilterClick("caution")} className="tap-target" style={{ display: "flex", alignItems: "center", gap: "7px", background: activeFilter === "caution" ? "rgba(234,179,8,0.18)" : "rgba(234,179,8,0.06)", padding: "6px 14px", borderRadius: "99px", border: `1px solid ${activeFilter === "caution" ? "rgba(234,179,8,0.35)" : "rgba(234,179,8,0.15)"}`, cursor: "pointer", transition: "all 0.2s ease", boxShadow: activeFilter === "caution" ? "0 0 12px rgba(234,179,8,0.12), inset 0 1px 0 rgba(255,255,255,0.05)" : "inset 0 1px 0 rgba(255,255,255,0.03)" }}><span style={{ width: 6, height: 6, background: "var(--caution)", borderRadius: "50%", flexShrink: 0 }} /><span style={{ fontSize: "12px", color: "#fde047", fontWeight: 600, fontVariantNumeric: "tabular-nums" }}>{cautionCount} {t.caution}</span></button>}
-        {dangerCount === 0 && cautionCount === 0 && (
-          <div style={{ display: "flex", alignItems: "center", gap: "7px", flex: 1 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "7px", background: "rgba(34,197,94,0.06)", padding: "6px 14px", borderRadius: "99px", border: "1px solid rgba(34,197,94,0.15)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.03)" }}>
-              <span style={{ width: 6, height: 6, background: "var(--safe)", borderRadius: "50%", flexShrink: 0 }} />
-              <span style={{ fontSize: "12px", color: "#86efac", fontWeight: 600 }}>{t.noActiveAlerts}</span>
-            </div>
-            {communityStats && communityStats.totalReports > 0 && (
-              <span style={{ fontSize: "11px", color: "var(--text-faint)", display: "flex", alignItems: "center", gap: "4px", marginLeft: "auto" }}>
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                {communityStats.totalReports} {es ? "reportes" : "reports"} · {communityStats.reporters} {es ? "reporteros" : "reporters"}
+      {/* STATUS BAR — Option D: single-line status with live timestamp */}
+      {(() => {
+        const hasDanger = dangerCount > 0;
+        const hasCaution = cautionCount > 0;
+        const hasAlerts = hasDanger || hasCaution;
+        const iconBg = hasDanger ? "rgba(239,68,68,0.12)" : hasCaution ? "rgba(234,179,8,0.12)" : "rgba(34,197,94,0.10)";
+        const iconBorder = hasDanger ? "rgba(239,68,68,0.28)" : hasCaution ? "rgba(234,179,8,0.28)" : "rgba(34,197,94,0.22)";
+        const iconStroke = hasDanger ? "#fca5a5" : hasCaution ? "#fde047" : "#86efac";
+        const primaryText = hasDanger
+          ? <>{dangerCount} {dangerCount === 1 ? (es ? "arroyo peligroso" : "dangerous arroyo") : (es ? "arroyos peligrosos" : "dangerous arroyos")}</>
+          : hasCaution
+          ? <>{cautionCount} {cautionCount === 1 ? (es ? "arroyo con precaución" : "arroyo with caution") : (es ? "arroyos con precaución" : "arroyos with caution")}</>
+          : t.noActiveAlerts;
+        const primaryColor = hasDanger ? "#fca5a5" : hasCaution ? "#fde047" : "#86efac";
+        const metaParts = [];
+        if (hasDanger && hasCaution) metaParts.push(`${cautionCount} ${es ? "precaución" : "caution"}`);
+        if (lastUpdated) {
+          void statusTick;
+          metaParts.push((es ? "actualizado " : "updated ") + timeAgoLocalized(lastUpdated.toISOString(), lang));
+        }
+        const handleRowClick = () => {
+          if (hasAlerts) {
+            if (isDesktop) { setShowPanel(true); }
+            else { handleMobileTab("live"); }
+          }
+        };
+        return (
+          <div style={{ padding: "10px 16px", display: "flex", alignItems: "center", gap: "12px", flexShrink: 0, borderBottom: "1px solid rgba(255,255,255,0.04)", background: "rgba(10,15,26,0.5)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)" }}>
+            <button
+              onClick={handleRowClick}
+              disabled={!hasAlerts}
+              className={hasAlerts ? "tap-target" : ""}
+              style={{
+                display: "flex", alignItems: "center", gap: "10px", flex: 1, minWidth: 0,
+                background: "none", border: "none", padding: 0,
+                cursor: hasAlerts ? "pointer" : "default",
+                WebkitTapHighlightColor: "transparent",
+                textAlign: "left",
+              }}
+            >
+              <span style={{ width: 28, height: 28, borderRadius: "8px", background: iconBg, border: `0.5px solid ${iconBorder}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                {hasAlerts ? (
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={iconStroke} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                ) : (
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={iconStroke} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                )}
               </span>
+              <span style={{ display: "flex", flexDirection: "column", lineHeight: 1.25, minWidth: 0, flex: 1 }}>
+                <span style={{ fontSize: "13px", fontWeight: 600, color: primaryColor, letterSpacing: "-0.01em", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{primaryText}</span>
+                {metaParts.length > 0 && (
+                  <span style={{ fontSize: "11px", color: "var(--text-faint)", marginTop: "1px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {metaParts.join(" · ")}
+                  </span>
+                )}
+              </span>
+            </button>
+            {activeFilter && (
+              <button onClick={() => setActiveFilter(null)} className="tap-target" aria-label={es ? "Quitar filtro" : "Clear filter"} style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 28, height: 28, background: "rgba(255,255,255,0.06)", borderRadius: "50%", border: "1px solid rgba(255,255,255,0.1)", cursor: "pointer", transition: "all 0.15s ease", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)", flexShrink: 0 }}>
+                <svg width="10" height="10" viewBox="0 0 10 10" stroke="var(--text-dim)" strokeWidth="1.5" strokeLinecap="round"><line x1="2" y1="2" x2="8" y2="8"/><line x1="8" y1="2" x2="2" y2="8"/></svg>
+              </button>
             )}
           </div>
-        )}
-        {activeFilter && <button onClick={() => setActiveFilter(null)} className="tap-target" style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 28, height: 28, background: "rgba(255,255,255,0.06)", borderRadius: "50%", border: "1px solid rgba(255,255,255,0.1)", cursor: "pointer", transition: "all 0.15s ease", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)" }}><svg width="10" height="10" viewBox="0 0 10 10" stroke="var(--text-dim)" strokeWidth="1.5" strokeLinecap="round"><line x1="2" y1="2" x2="8" y2="8"/><line x1="8" y1="2" x2="2" y2="8"/></svg></button>}
-      </div>
+        );
+      })()}
 
       {/* CONTENT */}
       <div style={{ flex: 1, minHeight: 0, display: "flex", overflow: "hidden", position: "relative" }}>
