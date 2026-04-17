@@ -61,7 +61,21 @@ export default function CommentThread({ reportId, allDeviceCounts }) {
     const trimmed = text.trim();
     if (!trimmed || submitting) return;
     setSubmitting(true);
-    await supabase.from("comments").insert({ report_id: reportId, device_id: getDeviceId(), text: trimmed });
+
+    // Get the authenticated user (anonymous, from AuthProvider)
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      console.error("No authenticated user — cannot submit comment");
+      setSubmitting(false);
+      return;
+    }
+
+    await supabase.from("comments").insert({
+      report_id: reportId,
+      device_id: getDeviceId(),
+      text: trimmed,
+      user_id: user.id,
+    });
     setText(""); setSubmitting(false);
     if (navigator.vibrate) navigator.vibrate(30);
   };
