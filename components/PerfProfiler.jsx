@@ -40,7 +40,7 @@ export default function PerfProfiler() {
 
     let fpsFrames = 0;
     const fpsStart = performance.now();
-    const fpsDurationMs = 5000;
+    const fpsDurationMs = 20000;
 
     function countFrame() {
       fpsFrames++;
