@@ -1,4 +1,5 @@
 import Providers from "./providers";
+import PerfProfiler from "@/components/PerfProfiler";
 import "./globals.css";
 
 export const metadata = {
@@ -56,7 +57,7 @@ export default function RootLayout({ children }) {
           })();
         `}} />
       </head>
-      <body><Providers>{children}</Providers></body>
+      <body><Providers><PerfProfiler />{children}</Providers></body>
     </html>
   );
 }
