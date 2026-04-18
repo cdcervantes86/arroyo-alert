@@ -76,9 +76,27 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
       mapboxgl.accessToken = MAPBOX_TOKEN;
       let flowInterval = null;
 
+      const liteMode = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("lite") === "1";
+      const liteStyle = {
+        version: 8,
+        sources: {
+          "carto-dark": {
+            type: "raster",
+            tiles: [
+              "https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png",
+              "https://b.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png",
+              "https://c.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png",
+              "https://d.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png",
+            ],
+            tileSize: 256,
+            attribution: "&copy; <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors &copy; <a href=\"https://carto.com/attributions\">CARTO</a>",
+          },
+        },
+        layers: [{ id: "carto-dark-layer", type: "raster", source: "carto-dark" }],
+      };
       const map = new mapboxgl.Map({
         container: mapContainerRef.current,
-        style: DARK_STYLE,
+        style: liteMode ? liteStyle : DARK_STYLE,
         center: [-74.805, 10.96],
         zoom: 12.5,
         attributionControl: false,
@@ -109,7 +127,8 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
       map.setPadding({ top: 0, bottom: 0, left: 0, right: 0 });
 
       // === CUSTOM MAP STYLE — match app's dark theme ===
-      try {
+      // Skip in lite mode (raster tiles have no vector layers to customize)
+      if (!liteMode) try {
       // Water — deep navy matching our bg
       map.setPaintProperty("water", "fill-color", "#080e1c");
       // Land background — slightly lighter than water
