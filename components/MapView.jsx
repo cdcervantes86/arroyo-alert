@@ -102,6 +102,7 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
     // Add controls
     map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), "bottom-right");
     map.addControl(new mapboxgl.AttributionControl({ compact: true }), "bottom-left");
+    map.addControl(new mapboxgl.ScaleControl({ maxWidth: 80, unit: "metric" }), "bottom-left");
 
     map.on("load", () => {
       // Reset any stale padding from previous sessions
