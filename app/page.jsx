@@ -1305,8 +1305,8 @@ function AppContent() {
         }
         const handleRowClick = () => {
           if (hasAlerts) {
-            if (isDesktop) { setShowPanel(true); }
-            else { handleMobileTab("live"); }
+            if (isDesktop) { setShowPanel(p => !p); }
+            else { handleMobileTab(currentMainView === "live" ? "map" : "live"); }
           }
         };
         return (
