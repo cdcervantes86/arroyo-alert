@@ -167,7 +167,7 @@ export default function LiveFeed({ reports, onZoneClick, onUpvote, upvotedSet, o
                       transition: "color 0.15s ease",
                     }}>
                       <svg width="13" height="13" viewBox="0 0 24 24" fill={isUpvoted ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14z"/><path d="M7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg>
-                      <span style={{ fontVariantNumeric: "tabular-nums" }}>{r.upvotes + (isUpvoted ? 1 : 0)}</span>
+                      <span style={{ fontVariantNumeric: "tabular-nums" }}>{r.upvotes}</span>
                     </button>
 
                     {/* Comment */}
