@@ -160,7 +160,7 @@ function MapQualitySelector({ lang }) {
   );
 }
 
-function MoreMenu({ onSelect, lang, onClose, isLowEnd }) {
+function MoreMenu({ onSelect, lang, onClose, isLowEnd, isDesktop }) {
   const es = lang === "es";
   const [closing, setClosing] = useState(false);
 
@@ -183,7 +183,7 @@ function MoreMenu({ onSelect, lang, onClose, isLowEnd }) {
 
   return (
     <div onClick={handleClose} style={{ position: "fixed", inset: 0, zIndex: 900, background: "rgba(0,0,0,0.4)", animation: closing ? "menuBackdropOut 0.2s ease forwards" : "fadeIn 0.15s ease" }}>
-      <div onClick={(e) => e.stopPropagation()} style={{ position: "absolute", bottom: 80, right: 16, left: 16, maxWidth: 300, marginLeft: "auto", background: "rgba(12,18,32,0.6)", backdropFilter: "blur(24px) saturate(1.6)", WebkitBackdropFilter: "blur(24px) saturate(1.6)", border: "1px solid rgba(255,255,255,0.13)", borderRadius: "20px", padding: "6px", animation: closing ? "menuSlideOut 0.2s ease forwards" : "slideUp 0.2s cubic-bezier(0.34, 1.4, 0.64, 1)", boxShadow: "0 -8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1)", transformOrigin: "bottom right" }}>
+      <div onClick={(e) => e.stopPropagation()} style={isDesktop ? { position: "absolute", top: 58, right: 16, width: 280, background: "rgba(12,18,32,0.85)", backdropFilter: "blur(24px) saturate(1.6)", WebkitBackdropFilter: "blur(24px) saturate(1.6)", border: "1px solid rgba(255,255,255,0.13)", borderRadius: "16px", padding: "6px", animation: closing ? "menuFadeDown 0.18s ease forwards" : "menuFadeUp 0.2s cubic-bezier(0.34, 1.4, 0.64, 1)", boxShadow: "0 12px 32px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.1)", transformOrigin: "top right" } : { position: "absolute", bottom: 80, right: 16, left: 16, maxWidth: 300, marginLeft: "auto", background: "rgba(12,18,32,0.6)", backdropFilter: "blur(24px) saturate(1.6)", WebkitBackdropFilter: "blur(24px) saturate(1.6)", border: "1px solid rgba(255,255,255,0.13)", borderRadius: "20px", padding: "6px", animation: closing ? "menuSlideOut 0.2s ease forwards" : "slideUp 0.2s cubic-bezier(0.34, 1.4, 0.64, 1)", boxShadow: "0 -8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1)", transformOrigin: "bottom right" }}>
         {[
           { key: "profile", Icon: ProfileIcon, label: es ? "Mi perfil" : "My profile", desc: es ? "Estadísticas y rango" : "Stats and rank" },
           { key: "digest", Icon: ChartIcon, label: es ? "Resumen semanal" : "Weekly digest", desc: es ? "Últimos 7 días" : "Last 7 days" },
@@ -1577,7 +1577,7 @@ function AppContent() {
       {/* BOTTOM NAV — mobile only, fixed floating pill */}
       <RainRadarLegend enabled={radar.enabled} isDesktop={isDesktop} />
       {!isDesktop && <BottomNav activeTab={mobileView} onTab={handleMobileTab} onReport={() => setScreen("report")} liveCount={liveCount} dangerCount={dangerCount} lang={lang} />}
-      {showMoreMenu && <MoreMenu lang={lang} onSelect={(key) => { if (key === "digest") setShowDigest(true); else setScreen(key); }} onClose={() => setShowMoreMenu(false)} />}
+      {showMoreMenu && <MoreMenu lang={lang} isDesktop={isDesktop} onSelect={(key) => { if (key === "digest") setShowDigest(true); else setScreen(key); }} onClose={() => setShowMoreMenu(false)} />}
 
       {/* ZONE DETAIL — Bottom Sheet overlay (map stays visible behind) */}
       {screen === "detail" && selectedZone && (() => {
