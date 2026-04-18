@@ -63,6 +63,7 @@ button:active { transform: scale(0.97); opacity: 0.85; }
 /* Mobile: push mapbox controls above floating nav pill */
 .mapboxgl-ctrl-bottom-right { bottom: 80px !important; }
 .mapboxgl-ctrl-bottom-left { bottom: 80px !important; }
+@media (max-width: 899px) { .mapboxgl-ctrl-bottom-left { bottom: 155px !important; } }
 
 /* Desktop: MapView handles ctrl-group styling and positioning */
 
