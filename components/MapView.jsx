@@ -48,6 +48,7 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
   const markersRef = useRef([]);
   const initRef = useRef(false);
   const [mapError, setMapError] = useState(false);
+  const [mapLayersReady, setMapLayersReady] = useState(false);
 
   // Initialize map
   useEffect(() => {
@@ -359,6 +360,7 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
         } catch(e) {}
       }, 80);
       } catch(styleErr) { console.warn("Map style customization failed:", styleErr); }
+      setMapLayersReady(true);
     });
 
     mapRef.current = map;
@@ -381,6 +383,7 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
       map.remove();
       mapRef.current = null;
       initRef.current = false;
+      setMapLayersReady(false);
     };
     } catch (e) {
       console.error("Map init error:", e);
@@ -523,10 +526,12 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
     return () => { map.off("click", clearPinned); };
   }, [reports, onZoneClick, activeFilter, predictions]);
 
-  // Update corridor status based on active reports
+  // Update corridor status based on active reports.
+  // Depends on mapLayersReady so it re-runs once map.on("load") finishes
+  // adding the sources — otherwise on first load map exists but sources don't.
   useEffect(() => {
     const map = mapRef.current;
-    if (!map) return;
+    if (!map || !mapLayersReady) return;
     const src = map.getSource("arroyo-corridors");
     const glowSrc = map.getSource("arroyo-corridors-glow");
     const trimSrc = map.getSource("arroyo-corridors-trimmed");
@@ -565,7 +570,7 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
       });
       trimSrc.setData({ type: "FeatureCollection", features: trimmed });
     }
-  }, [reports]);
+  }, [reports, mapLayersReady]);
 
   if (mapError) {
     return (
