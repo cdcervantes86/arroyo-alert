@@ -936,7 +936,7 @@ function AppContent() {
     }
   }, [addToast, lang]);
 
-  const { reports, loading, lastUpdated, submitReport, upvoteReport, deleteReport, refetch } = useReports(handleRealtimeEvent);
+  const { reports, loading, lastUpdated, submitReport, upvoteReport, deleteReport, refetch, fetchMyUpvotes } = useReports(handleRealtimeEvent);
   const push = usePushNotifications();
   const { totalWatchers, zoneWatchers, watchZone, unwatchZone } = useLiveWatchers();
   const [screen, setScreen] = useState("main");
@@ -1117,6 +1117,19 @@ function AppContent() {
   }, [mapInstance, isDesktop, installPrompt]);
   const handleReport = useCallback(async ({ zoneId, severity, text, photo, altRoute }) => { await submitReport({ zoneId, severity, text, photo, altRoute }); const zone = ZONES.find((z) => z.id === zoneId); if (zone) notifyZone({ zoneId, zoneName: `${zone.name} (${zone.area})`, severity, text }); }, [submitReport]);
   const handleUpvoteLocal = useCallback((id) => { setUpvotedSet((prev) => new Set([...prev, id])); }, []);
+
+  // On mount: seed upvotedSet with the user's existing upvotes from DB
+  // so refreshing the page preserves their "Confirmed" state
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const myUpvotes = await fetchMyUpvotes();
+      if (!cancelled && myUpvotes.size > 0) {
+        setUpvotedSet((prev) => new Set([...prev, ...myUpvotes]));
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [fetchMyUpvotes]);
   const handleLogoClick = () => { setScreen("main"); setSelectedZone(null); setActiveFilter(null); setShowMoreMenu(false); if (isDesktop) setDesktopView("map"); else setMobileView("map"); };
   const handleFilterClick = (filter) => { setActiveFilter((prev) => prev === filter ? null : filter); };
   const handleMobileTab = (key) => { if (navigator.vibrate) navigator.vibrate(10); if (key === "more") { setShowMoreMenu(true); return; } setMobileView(key); };
