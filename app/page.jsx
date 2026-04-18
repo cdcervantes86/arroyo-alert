@@ -1211,11 +1211,7 @@ function AppContent() {
             {es ? "Reportar" : "Report"}
           </button>
         )}
-        {isDesktop && (
-          <div style={{ display: "flex", background: "rgba(255,255,255,0.04)", borderRadius: "99px", overflow: "hidden", border: "1px solid rgba(255,255,255,0.08)", padding: "2px", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)" }}>
-            {desktopTabs.map((tab) => { const isActive = tab.key === "live" ? showPanel : desktopView === tab.key; return <button key={tab.key} onClick={() => handleDesktopTab(tab.key)} style={{ padding: "7px 14px", fontSize: "12px", border: "none", borderRadius: "99px", background: isActive ? "rgba(91,156,246,0.12)" : "transparent", color: isActive ? "#6ba6ff" : "var(--text-faint)", fontWeight: isActive ? 700 : 500, position: "relative", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s ease", boxShadow: isActive ? "inset 0 1px 0 rgba(91,156,246,0.1)" : "none" }}><tab.Icon size={15} color={isActive ? "#6ba6ff" : "var(--text-faint)"} active={isActive} />{tab.key === "live" && liveCount > 0 && !isActive && <span style={{ position: "absolute", top: 3, right: 5, width: 5, height: 5, borderRadius: "50%", background: "var(--danger)", animation: "blink 1.5s ease-in-out infinite" }} />}</button>; })}
-          </div>
-        )}
+
       </div>
 
       <EmergencyBanner emergency={emergency} lang={lang} />
