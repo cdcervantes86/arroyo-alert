@@ -1195,7 +1195,7 @@ function AppContent() {
           </div>
         </button>
         <div style={{ flex: 1 }} />
-        {totalWatchers > 1 && <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "11px", color: "var(--text-faint)", fontWeight: 500 }}><span style={{ width: 5, height: 5, borderRadius: "50%", background: "var(--safe)", animation: "blink 2s ease infinite" }} />{totalWatchers}</div>}
+        {totalWatchers > 1 && <div title={es ? `${totalWatchers} personas viendo la app ahora` : `${totalWatchers} people viewing the app now`} style={{ display: "flex", alignItems: "center", gap: "5px", fontSize: "11px", color: "var(--text-faint)", fontWeight: 500 }}><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.75 }}><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><span style={{ fontVariantNumeric: "tabular-nums" }}>{totalWatchers}</span>{isDesktop && <span style={{ opacity: 0.7 }}>{es ? "viendo" : "watching"}</span>}</div>}
         {!totalWatchers && lastUpdated && <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "10px", color: "var(--text-faint)", fontWeight: 500, opacity: 0.6 }}><span style={{ width: 4, height: 4, borderRadius: "50%", background: "var(--safe)" }} />{es ? "En línea" : "Live"}</div>}
         <WeatherIndicator />
         {isDesktop && <>
