@@ -65,6 +65,8 @@ export default function CoordEditor() {
   const initRef = useRef(false);
 
   const [mode, setMode] = useState("zones");
+  const [showCorridorsOverlay, setShowCorridorsOverlay] = useState(false);
+  const [showZonesOverlay, setShowZonesOverlay] = useState(false);
   const [editingZone, setEditingZone] = useState(null);
   const [editingCorridor, setEditingCorridor] = useState(null);
   const [zones, setZones] = useState(ZONES.map(z => ({ ...z })));
@@ -200,21 +202,30 @@ export default function CoordEditor() {
     const mapboxgl = require("mapbox-gl");
     markersRef.current.forEach(m => m.remove());
     markersRef.current = [];
-    if (mode === "zones") {
+    const isOverlay = mode === "corridors" && showZonesOverlay;
+    if (mode === "zones" || isOverlay) {
       zones.forEach((z) => {
-        const isEd = editingZone === z.id;
+        const isEd = !isOverlay && editingZone === z.id;
         const el = document.createElement("div");
-        el.style.cssText = `width:16px;height:16px;border-radius:50%;background:${isEd?"#ef4444":"#3B82F6"};border:2px solid #fff;cursor:pointer;box-shadow:0 0 8px ${isEd?"rgba(239,68,68,0.5)":"rgba(59,130,246,0.5)"};`;
+        const size = isOverlay ? 10 : 16;
+        const bg = isOverlay ? "rgba(59,130,246,0.45)" : (isEd ? "#ef4444" : "#3B82F6");
+        const border = isOverlay ? "1.5px solid rgba(255,255,255,0.5)" : "2px solid #fff";
+        const cursor = isOverlay ? "default" : "pointer";
+        const shadow = isOverlay ? "none" : `0 0 8px ${isEd?"rgba(239,68,68,0.5)":"rgba(59,130,246,0.5)"}`;
+        el.style.cssText = `width:${size}px;height:${size}px;border-radius:50%;background:${bg};border:${border};cursor:${cursor};box-shadow:${shadow};pointer-events:${isOverlay?"none":"auto"};`;
         el.title = `${z.name} (${z.area})`;
-        const popup = new mapboxgl.Popup({ offset: 12, closeButton: false })
-          .setHTML(`<div style="font-family:sans-serif;font-size:12px;padding:2px;"><b>${z.name}</b><br/>${z.area}<br/><span style="opacity:0.6">${z.lat}, ${z.lng}</span></div>`);
-        const marker = new mapboxgl.Marker({ element: el, anchor: "center" }).setLngLat([z.lng, z.lat]).setPopup(popup).addTo(map);
-        el.addEventListener("mouseenter", () => marker.togglePopup());
-        el.addEventListener("mouseleave", () => marker.getPopup().remove());
+        const marker = new mapboxgl.Marker({ element: el, anchor: "center" }).setLngLat([z.lng, z.lat]).addTo(map);
+        if (!isOverlay) {
+          const popup = new mapboxgl.Popup({ offset: 12, closeButton: false })
+            .setHTML(`<div style="font-family:sans-serif;font-size:12px;padding:2px;"><b>${z.name}</b><br/>${z.area}<br/><span style="opacity:0.6">${z.lat}, ${z.lng}</span></div>`);
+          marker.setPopup(popup);
+          el.addEventListener("mouseenter", () => marker.togglePopup());
+          el.addEventListener("mouseleave", () => marker.getPopup().remove());
+        }
         markersRef.current.push(marker);
       });
     }
-  }, [zones, mode, editingZone]);
+  }, [zones, mode, editingZone, showZonesOverlay]);
 
   // ====== CORRIDOR LINES + BRANCHES + INTERACTIVE POINTS ======
   useEffect(() => {
@@ -243,6 +254,28 @@ export default function CoordEditor() {
       if (map.getLayer(`corridor-${c.id}`)) map.removeLayer(`corridor-${c.id}`);
       if (map.getSource(`corridor-src-${c.id}`)) map.removeSource(`corridor-src-${c.id}`);
     });
+
+    // Overlay path: simple dim lines, no interactivity
+    if (mode === "zones" && showCorridorsOverlay) {
+      const addOverlayLines = () => {
+        corridors.forEach((c) => {
+          c.branches.forEach((coords, bi) => {
+            if (coords.length < 2) return;
+            const lid = `corridor-${c.id}-${bi}`;
+            try {
+              map.addSource(`${lid}-src`, { type: "geojson", data: { type: "Feature", geometry: { type: "LineString", coordinates: coords } } });
+              map.addLayer({
+                id: lid, type: "line", source: `${lid}-src`,
+                paint: { "line-color": "rgba(59,130,246,0.35)", "line-width": 2, "line-dasharray": [3, 2] },
+                layout: { "line-cap": "round", "line-join": "round" },
+              });
+            } catch (e) {}
+          });
+        });
+      };
+      if (map.isStyleLoaded()) addOverlayLines();
+      else map.on("load", addOverlayLines);
+    }
 
     if (mode === "corridors") {
       const addLines = () => {
@@ -338,7 +371,7 @@ export default function CoordEditor() {
       if (map.isStyleLoaded()) addLines();
       else map.on("load", addLines);
     }
-  }, [corridors, mode, editingCorridor, branches, activeBranch, highlightedPoint, styleRevision]);
+  }, [corridors, mode, editingCorridor, branches, activeBranch, highlightedPoint, styleRevision, showCorridorsOverlay]);
 
   // ====== CORRIDOR ACTIONS ======
   const saveCorridor = () => {
@@ -444,6 +477,18 @@ export default function CoordEditor() {
         <h1 style={{ fontSize: "15px", fontWeight: 700, margin: 0 }}>📍 Coordinate Editor</h1>
         <div style={{ flex: 1 }} />
         <button onClick={resetAll} style={{ padding: "5px 10px", borderRadius: "6px", background: "transparent", border: "1px solid #333", color: "#666", fontSize: "11px", fontWeight: 600 }}>Reset</button>
+        {mode === "zones" && (
+          <label style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "11px", color: "#888", cursor: "pointer", userSelect: "none" }}>
+            <input type="checkbox" checked={showCorridorsOverlay} onChange={(e) => setShowCorridorsOverlay(e.target.checked)} style={{ accentColor: "#3B82F6", cursor: "pointer" }} />
+            Show corridors
+          </label>
+        )}
+        {mode === "corridors" && (
+          <label style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "11px", color: "#888", cursor: "pointer", userSelect: "none" }}>
+            <input type="checkbox" checked={showZonesOverlay} onChange={(e) => setShowZonesOverlay(e.target.checked)} style={{ accentColor: "#3B82F6", cursor: "pointer" }} />
+            Show zones
+          </label>
+        )}
         <div style={{ display: "flex", gap: "4px", background: "#111", borderRadius: "8px", padding: "3px", border: "1px solid #333" }}>
           <button onClick={() => { setMode("zones"); saveCorridor(); }} style={{ padding: "6px 14px", borderRadius: "6px", border: "none", fontSize: "12px", fontWeight: 600, background: mode === "zones" ? "#3B82F6" : "transparent", color: mode === "zones" ? "#fff" : "#888" }}>Zones</button>
           <button onClick={() => { setMode("corridors"); setEditingZone(null); }} style={{ padding: "6px 14px", borderRadius: "6px", border: "none", fontSize: "12px", fontWeight: 600, background: mode === "corridors" ? "#3B82F6" : "transparent", color: mode === "corridors" ? "#fff" : "#888" }}>Corridors</button>
