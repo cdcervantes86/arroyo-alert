@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useCallback, useState } from "react";
 import { ZONES, SEVERITY, getZoneSeverity, getZoneReports } from "@/lib/zones";
+import { getEffectiveMapQuality } from "@/lib/mapQuality";
 import { ARROYO_CORRIDORS } from "@/lib/arroyoCorridors";
 import { useLanguage } from "@/lib/LanguageContext";
 
@@ -76,7 +77,7 @@ export default function MapView({ reports, onZoneClick, panelOpen, activeFilter,
       mapboxgl.accessToken = MAPBOX_TOKEN;
       let flowInterval = null;
 
-      const liteMode = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("lite") === "1";
+      const liteMode = getEffectiveMapQuality() === "lite";
       const liteStyle = {
         version: 8,
         sources: {

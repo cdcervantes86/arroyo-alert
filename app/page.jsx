@@ -2,6 +2,7 @@
 import { useState, useCallback, useEffect, useRef, lazy, Suspense } from "react";
 import { createPortal } from "react-dom";
 import { useReports } from "@/lib/useReports";
+import { getMapQuality, setMapQuality } from "@/lib/mapQuality";
 import { supabase } from "@/lib/supabase";
 import { usePushNotifications, notifyZone } from "@/lib/usePushNotifications";
 import { getReporterStats, getDeviceId } from "@/lib/deviceId";
@@ -114,6 +115,51 @@ function EmergencyBanner({ emergency, lang }) {
   );
 }
 
+function MapQualitySelector({ lang }) {
+  const es = lang === "es";
+  const [value, setValue] = useState(() => getMapQuality());
+  const [reloading, setReloading] = useState(false);
+
+  const handleChange = (next) => {
+    if (next === value) return;
+    setValue(next);
+    setMapQuality(next);
+    setReloading(true);
+    setTimeout(() => window.location.reload(), 250);
+  };
+
+  const options = [
+    { key: "auto", label: es ? "Auto" : "Auto" },
+    { key: "high", label: es ? "Alta" : "High" },
+    { key: "lite", label: es ? "Ligera" : "Lite" },
+  ];
+
+  return (
+    <div style={{ padding: "10px 12px 6px", borderTop: "1px solid rgba(255,255,255,0.04)", marginTop: "4px" }}>
+      <div style={{ fontSize: "11px", fontWeight: 600, color: "var(--text-dim)", marginBottom: 6, letterSpacing: "-0.1px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>{es ? "Calidad del mapa" : "Map quality"}</span>
+        {reloading && <span style={{ fontSize: "10px", color: "var(--text-faint)", fontWeight: 500 }}>{es ? "Recargando..." : "Reloading..."}</span>}
+      </div>
+      <div style={{ display: "flex", gap: "4px", background: "rgba(255,255,255,0.04)", borderRadius: "10px", padding: "3px", border: "1px solid rgba(255,255,255,0.06)" }}>
+        {options.map((o) => {
+          const active = value === o.key;
+          return (
+            <button key={o.key} onClick={() => handleChange(o.key)} disabled={reloading} style={{
+              flex: 1, padding: "7px 6px", borderRadius: "8px", border: "none",
+              fontSize: "12px", fontWeight: active ? 700 : 500,
+              background: active ? "rgba(91,156,246,0.14)" : "transparent",
+              color: active ? "#6ba6ff" : "var(--text-dim)",
+              cursor: reloading ? "wait" : "pointer",
+              transition: "all 0.15s ease",
+              boxShadow: active ? "inset 0 1px 0 rgba(91,156,246,0.1)" : "none",
+            }}>{o.label}</button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function MoreMenu({ onSelect, lang, onClose, isLowEnd }) {
   const es = lang === "es";
   const [closing, setClosing] = useState(false);
@@ -150,6 +196,7 @@ function MoreMenu({ onSelect, lang, onClose, isLowEnd }) {
             <svg width="7" height="12" viewBox="0 0 7 12" fill="none" style={{ flexShrink: 0, opacity: 0.12, marginLeft: "auto" }}><path d="M1 1l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </button>
         ))}
+        <MapQualitySelector lang={lang} />
         {/* Share button */}
         <button onClick={handleShare} className="more-menu-item" style={{ width: "100%", display: "flex", alignItems: "center", gap: "14px", padding: "14px 14px", background: "none", border: "none", textAlign: "left", borderRadius: "14px" }}>
           <div style={{ width: 36, height: 36, borderRadius: "12px", background: "rgba(34,197,94,0.06)", border: "1px solid rgba(34,197,94,0.12)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)" }}>
